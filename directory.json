@@ -250,12 +250,13 @@
       "offer": "Promote With Confidence™ helps entrepreneurs and Skool owners gain visibility, master marketing psychology, and grow through genuine connections.",
       "who": "Entrepreneurs, Skool owners, coaches, creators, and small business owners who want more visibility, stronger connections, and confidence promoting their work.",
       "price": "Free to join Premium: $3/month or $27/year.",
-      "offerLink": "https://www.skool.com/promote-with-confidence-9625/about⁠",
+      "offerLink": "https://www.skool.com/promote-with-confidence-9625/about",
       "community": {
         "name": "Promote With Confidence™",
-        "link": "https://www.skool.com/promote-with-confidence-9625/about⁠",
-        "category": "Business Coaching & Strategy",
+        "link": "https://www.skool.com/promote-with-confidence-9625/about",
+        "category": "Promo & Networking",
         "categories": [
+          "Promo & Networking",
           "Business Coaching & Strategy"
         ],
         "platform": "Skool",
@@ -342,11 +343,15 @@
       "community": {
         "name": "Come Home to Love Inner Circle",
         "link": "https://www.skool.com/come-home-to-love-inner-circle-5568/about?ref=3d4bd5bdcda847a3afcfd90d513f22bf",
-        "category": "Relationship & Family Coaching",
+        "category": "Promo & Networking",
         "platform": "Skool",
         "about": "A sacred space where ambitious, heart-centered women release deep emotional pain keeping them stuck in love to experiencing deep soul love and truth.",
         "access": "Free",
-        "promoDays": []
+        "promoDays": [],
+        "categories": [
+          "Promo & Networking",
+          "Relationship & Family Coaching"
+        ]
       },
       "recommends": []
     }

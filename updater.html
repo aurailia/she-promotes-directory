@@ -371,6 +371,7 @@
       if (h.indexOf('skool') !== -1 && h.indexOf('profile') !== -1) { map.skool = i; return; }
       if (h.indexOf('business name') !== -1) { map.business = i; return; }
       if (h.indexOf('community name') !== -1) { map.cName = i; section = 'community'; return; }
+      if (h.indexOf('banner') !== -1 || (h.indexOf('community') !== -1 && /(image|photo|cover)/.test(h))) { map.cImage = i; return; }
       if (h.indexOf('categor') !== -1 && (h.indexOf('community') !== -1 || section === 'community')) { map.cCat = i; return; }
       if (isDays) { map.cDays = i; return; }
       if (h.indexOf('community link') !== -1 || h.indexOf('link to your community') !== -1) { map.cLink = i; section = 'community'; return; }
@@ -378,6 +379,7 @@
       if (h.indexOf('about you') !== -1 || h.indexOf('about her') !== -1 || h === 'about' || h.indexOf('short bio') !== -1) { map.about = i; return; }
       if (h.indexOf('platform') !== -1) { map.cPlatform = i; return; }
       if (h.indexOf('free or paid') !== -1) { map.cAccess = i; return; }
+      if ((h.indexOf('offer') !== -1 && (h.indexOf('name') !== -1 || h.indexOf('title') !== -1)) && h.indexOf('link') === -1) { map.offerName = i; return; }
       if (h.indexOf('signature offer') !== -1 && (h.indexOf('link') !== -1 || h.indexOf('url') !== -1)) { map.offerLink = i; return; }
       if (h.indexOf('signature offer') !== -1) { map.offer = i; return; }
       if (h.indexOf('who it') !== -1 || h.indexOf('who its for') !== -1) { map.who = i; return; }
@@ -396,7 +398,7 @@
   };
 
   var rowToMember = function (row, map) {
-    var g = function (i) { return i == null ? '' : String(row[i] || '').trim(); };
+    var g = function (i) { return i == null ? '' : String(row[i] || '').replace(/[\u200B-\u200F\u2060-\u2064\uFEFF\u00AD]/g, '').trim(); };
     var name = g(map.name) || (g(map.first) + ' ' + g(map.last)).trim();
     var skool = g(map.skool);
     var m = {
@@ -408,6 +410,7 @@
       social: cleanUrl(g(map.social)),
       categories: pickKnown(g(map.cat), CATEGORIES).slice(0, 4),
       formats: pickKnown(g(map.format), FORMATS),
+      offerName: g(map.offerName),
       offer: g(map.offer),
       who: g(map.who),
       price: g(map.price),
@@ -417,7 +420,7 @@
     };
     if (g(map.cName) && cleanUrl(g(map.cLink))) {
       var ccats = pickKnown(g(map.cCat), ALL_CATS).slice(0, 4);
-      m.community = { name: g(map.cName), link: cleanUrl(g(map.cLink)), category: ccats[0] || '', categories: ccats, platform: g(map.cPlatform), about: g(map.cAbout), access: g(map.cAccess), promoDays: parseDays(g(map.cDays)) };
+      m.community = { name: g(map.cName), link: cleanUrl(g(map.cLink)), category: ccats[0] || '', categories: ccats, platform: g(map.cPlatform), about: g(map.cAbout), access: g(map.cAccess), promoDays: parseDays(g(map.cDays)), image: photoUrl(g(map.cImage)) };
     }
     Object.keys(map.recs).sort().forEach(function (n) {
       var r = map.recs[n];
@@ -491,7 +494,7 @@
 
   /* ---------- What changed ---------- */
   var FIELDS = [['name', 'Name'], ['business', 'Business name'], ['about', 'About'], ['photo', 'Photo'], ['social', 'Social link'],
-    ['categories', 'Categories'], ['formats', 'Formats'], ['offer', 'Signature offer'], ['who', 'Who it\u2019s for'], ['price', 'Starting price'],
+    ['categories', 'Categories'], ['formats', 'Formats'], ['offerName', 'Offer name'], ['offer', 'Signature offer'], ['who', 'Who it\u2019s for'], ['price', 'Starting price'],
     ['offerLink', 'Offer link'], ['community', 'Community'], ['recommends', 'Recommended communities']];
   var show = function (k, v) {
     if (v == null || v === '' || (Array.isArray(v) && !v.length)) return '(blank)';
@@ -767,7 +770,7 @@
   var buildOutput = function () {
     var members = allMembers().filter(function (m) { return statusOf(m.id) === 'live'; }).map(function (m) {
       var o = {};
-      ['id', 'name', 'business', 'about', 'photo', 'social', 'categories', 'formats', 'offer', 'who', 'price', 'offerLink', 'community', 'recommends']
+      ['id', 'name', 'business', 'about', 'offerName', 'photo', 'social', 'categories', 'formats', 'offer', 'who', 'price', 'offerLink', 'community', 'recommends']
         .forEach(function (k) { if (m[k] != null) o[k] = m[k]; });
       return o;
     });

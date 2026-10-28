@@ -267,6 +267,14 @@
   .tag { font-size: 12px; padding: 3px 10px; border-radius: 999px; background: rgba(244, 182, 200, 0.12); color: var(--blush-soft); border: 1px solid rgba(244, 182, 200, 0.25); }
   .tag.gold { background: rgba(232, 196, 122, 0.12); color: var(--gold-bright); border-color: rgba(232, 196, 122, 0.35); }
   .quote { font-size: 15px; border-left: 3px solid var(--blush); padding: 4px 0 4px 12px; font-style: italic; }
+  .offer-title { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 25px; font-weight: 700; line-height: 1.15; margin-top: 4px; background: var(--title-grad); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: var(--blush); width: fit-content; max-width: 100%; }
+  .offer-title::after { content: ""; display: block; width: 44px; height: 2px; margin-top: 8px; border-radius: 2px; background: linear-gradient(90deg, var(--gold), var(--blush)); }
+  .card h3.offer-title { font-size: 25px; }
+  .factbox { background: rgba(196, 155, 255, 0.10); border: 1px solid rgba(196, 155, 255, 0.28); border-radius: 14px; padding: 4px 14px; display: grid; }
+  .factbox .fr { display: grid; gap: 2px; padding: 9px 0; }
+  .factbox .fr + .fr { border-top: 1px solid rgba(196, 155, 255, 0.22); }
+  .factbox .wl { font-size: 11px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold-bright); }
+  .factbox .ft { font-size: 14px; line-height: 1.5; color: var(--text); }
   .whybox { background: rgba(196, 155, 255, 0.10); border: 1px solid rgba(196, 155, 255, 0.28); border-radius: 14px; padding: 12px 14px; display: grid; gap: 6px; }
   .whybox .wl { font-size: 11px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold-bright); }
   .whybox .wl button { font: inherit; letter-spacing: inherit; text-transform: inherit; color: var(--blush); background: none; border: none; padding: 0; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
@@ -536,7 +544,7 @@
   };
   var safeUrl = function (u) {
     if (!u) return '';
-    u = String(u).trim();
+    u = String(u).replace(/[\u200B-\u200F\u2060-\u2064\uFEFF\u00AD]/g, '').trim();
     if (/^@[\w.]+$/.test(u)) return 'https://instagram.com/' + u.slice(1);
     if (!/^https?:\/\//i.test(u)) u = 'https://' + u;
     return /^https?:\/\/[^\s"'<>]+\.[^\s"'<>]+/i.test(u) ? u : '';
@@ -716,29 +724,38 @@
     return row;
   };
 
+  /* Offer title + description. Uses offerName if given, otherwise splits "Title. Description" */
+  var offerParts = function (m) {
+    var title = String(m.offerName || '').trim(), desc = String(m.offer || '').trim();
+    if (!title) {
+      var cut = desc.search(/[.:!?]\s/);
+      if (cut > 3 && cut < 70) { title = desc.slice(0, cut).trim(); desc = desc.slice(cut + 1).trim(); }
+    }
+    return { title: title, desc: desc };
+  };
+  var factBox = function (m) {
+    if (!m.who && !m.price) return null;
+    var box = el('div', 'factbox');
+    var row = function (label, text) { var r = el('div', 'fr'); r.appendChild(el('span', 'wl', label)); r.appendChild(el('span', 'ft', text)); box.appendChild(r); };
+    if (m.who) row('Who it\u2019s for', m.who);
+    if (m.price) row('Starting at', m.price);
+    return box;
+  };
   var offerCard = function (m) {
     var c = el('article', 'card');
     c.appendChild(personRow(m));
-    c.appendChild(el('p', 'offer', m.offer));
-    if (m.who) {
-      var w = el('p', 'meta');
-      w.appendChild(el('strong', '', 'For: '));
-      w.appendChild(document.createTextNode(m.who));
-      c.appendChild(w);
-    }
-    if (m.price) {
-      var p = el('p', 'meta');
-      p.appendChild(el('strong', '', 'Starting at: '));
-      p.appendChild(document.createTextNode(m.price));
-      c.appendChild(p);
-    }
+    var o = offerParts(m);
+    if (o.title) c.appendChild(el('h3', 'offer-title', o.title));
+    if (o.desc) c.appendChild(el('p', 'offer', o.desc));
+    var fb = factBox(m);
+    if (fb) c.appendChild(fb);
     var tags = el('div', 'tags');
     (m.categories || []).forEach(function (x) { tags.appendChild(el('span', 'tag gold', x)); });
     (m.formats || []).forEach(function (x) { tags.appendChild(el('span', 'tag', x)); });
     if (tags.childNodes.length) c.appendChild(tags);
     var acts = el('div', 'actions');
-    var b = linkBtn('See her offer', m.offerLink, true);
-    if (b) acts.appendChild(b);
+    var lb = linkBtn('See her offer', m.offerLink, true);
+    if (lb) acts.appendChild(lb);
     acts.appendChild(profileLink(m));
     c.appendChild(acts);
     return c;
@@ -747,6 +764,7 @@
   var communityCard = function (m) {
     var cm = m.community;
     var c = el('article', 'card');
+    addThumb(c, cm.image, 'communities', cm.name);
     c.appendChild(el('h3', '', cm.name));
     if (cm.about) c.appendChild(el('p', 'offer', cm.about));
     var cd = parseDays(cm.promoDays);
@@ -754,7 +772,7 @@
     var tags = el('div', 'tags');
     commCats(cm).forEach(function (x) { tags.appendChild(el('span', 'tag gold', x)); });
     if (cm.platform) tags.appendChild(el('span', 'tag', cm.platform));
-    if (cm.access) tags.appendChild(el('span', 'tag', cm.access));
+    if (cm.access) tags.appendChild(el('span', 'tag', cm.access.replace(/;/g, ' and ')));
     if (tags.childNodes.length) c.appendChild(tags);
     var by = el('p', 'by', 'Hosted by ');
     var nb = el('button', '', m.name);
@@ -776,11 +794,20 @@
     box.setAttribute('aria-hidden', 'true');
     card.appendChild(box);
     var key = slug(name);
-    var src = localOrUrl(img) || (ASSETS[folder] && ASSETS[folder][key]) || 'images/' + folder + '/' + key + '.jpg';
-    var im = new Image();
-    im.alt = '';
-    im.onload = function () { box.appendChild(im); box.hidden = false; };
-    im.src = src;
+    var list = photoSources(img);
+    if (ASSETS[folder] && ASSETS[folder][key]) list.push(ASSETS[folder][key]);
+    list.push('images/' + folder + '/' + key + '.jpg');
+    var i = 0;
+    var tryNext = function () {
+      if (i >= list.length) return;
+      var im = new Image();
+      im.alt = '';
+      im.referrerPolicy = 'no-referrer';
+      im.onload = function () { box.appendChild(im); box.hidden = false; };
+      im.onerror = tryNext;
+      im.src = list[i++];
+    };
+    tryNext();
   };
   var recCard = function (item) {
     var r = item.rec, m = item.member;
@@ -881,7 +908,7 @@
         if (state.cat && (m.categories || []).indexOf(state.cat) === -1) return false;
         if (state.chip && !(m.categories || []).some(function (c) { var g = groupOf(c); return g && g.key === state.chip; })) return false;
         if (state.fmt && (m.formats || []).indexOf(state.fmt) === -1) return false;
-        return matches([m.name, m.business, m.about, m.offer, m.who, (m.categories || []).join(' '), (m.formats || []).join(' ')]);
+        return matches([m.name, m.business, m.about, m.offerName, m.offer, m.who, (m.categories || []).join(' '), (m.formats || []).join(' ')]);
       });
     } else if (state.tab === 'communities') {
       make = communityCard;
@@ -979,7 +1006,7 @@
     var card = el('article', 'spot');
     var pic = el('div', 'spot-img', EMOJI[m.community.category] || '\u2B50');
     pic.setAttribute('aria-hidden', 'true');
-    var src = (/^(images\/|data:image\/)/.test(sp.image || '') ? sp.image : safeUrl(sp.image)) || (m.community.category ? catImage(m.community.category) : '');
+    var src = (/^(images\/|data:image\/)/.test(sp.image || '') ? sp.image : safeUrl(sp.image)) || (photoSources(m.community.image)[0] || '') || (m.community.category ? catImage(m.community.category) : '');
     if (src) swapImage(pic, src);
     card.appendChild(pic);
     var body = el('div', 'spot-body');
@@ -1145,9 +1172,11 @@
     if (m.offer) {
       body.appendChild(el('h3', 'sub', 'Her signature offer'));
       var b = el('div', 'block');
-      b.appendChild(el('p', 'offer', m.offer));
-      if (m.who) { var w = el('p', 'meta'); w.appendChild(el('strong', '', 'For: ')); w.appendChild(document.createTextNode(m.who)); b.appendChild(w); }
-      if (m.price) { var p = el('p', 'meta'); p.appendChild(el('strong', '', 'Starting at: ')); p.appendChild(document.createTextNode(m.price)); b.appendChild(p); }
+      var op = offerParts(m);
+      if (op.title) b.appendChild(el('p', 'name', op.title));
+      if (op.desc) b.appendChild(el('p', 'offer', op.desc));
+      var pfb = factBox(m);
+      if (pfb) b.appendChild(pfb);
       var a = el('div', 'actions');
       var ob = linkBtn('See her offer', m.offerLink, true);
       if (ob) a.appendChild(ob);
