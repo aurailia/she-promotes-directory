@@ -79,16 +79,16 @@
     border: 1px solid rgba(255, 255, 255, 0.10); border-radius: 18px;
     background: linear-gradient(160deg, #4a3a78, #2b4f5e);
     box-shadow: 0 8px 22px rgba(0, 0, 0, 0.28);
-    transition: transform 0.15s, box-shadow 0.15s;
+    transition: transform 0.2s, box-shadow 0.25s, border-color 0.25s;
   }
   .cat-tile::before {
     content: ""; position: absolute; inset: -20px; z-index: -1;
     background-image: var(--tile-bg, none); background-size: cover; background-position: center bottom;
     filter: blur(22px) saturate(1.1) brightness(0.62); transform: scale(1.15);
   }
-  .cat-tile:hover { transform: translateY(-3px); box-shadow: 0 14px 30px rgba(0, 0, 0, 0.38); }
+  .cat-tile:hover, .cat-tile:focus-visible { transform: translateY(-3px); border-color: rgba(94, 214, 200, 0.55); box-shadow: 0 14px 30px rgba(0, 0, 0, 0.38), 0 0 0 1px rgba(94, 214, 200, 0.35), 0 0 18px rgba(94, 214, 200, 0.28); }
   .cat-img {
-    width: 100%; max-width: 100%; aspect-ratio: 11 / 10; overflow: hidden;
+    width: 100%; max-width: 100%; aspect-ratio: 3 / 2; overflow: hidden;
     display: flex; align-items: center; justify-content: center; font-size: 40px;
     background: linear-gradient(135deg, rgba(196, 155, 255, 0.35), rgba(80, 170, 170, 0.25));
   }
@@ -547,17 +547,30 @@
     var parts = String(name || '?').trim().split(/\s+/);
     return ((parts[0] || '?').charAt(0) + (parts.length > 1 ? parts[parts.length - 1].charAt(0) : '')).toUpperCase();
   };
+  /* Photos: local images/ paths, normal links, or Google Drive links (tries several Drive formats) */
+  var photoSources = function (src) {
+    src = String(src || '').trim();
+    if (!src) return [];
+    if (/^(images\/|data:image\/)/.test(src)) return [src];
+    var m = /drive\.google\.com|googleusercontent\.com/.test(src) ? (src.match(/[?&]id=([\w-]{10,})/) || src.match(/\/d\/([\w-]{10,})/)) : null;
+    if (m) return ['https://lh3.googleusercontent.com/d/' + m[1] + '=w600', 'https://drive.google.com/thumbnail?id=' + m[1] + '&sz=w600', 'https://drive.google.com/uc?export=view&id=' + m[1]];
+    var u = safeUrl(src);
+    return u ? [u] : [];
+  };
   var avatar = function (src, name, square) {
     var a = el('div', 'avatar' + (square ? ' sq' : ''));
     a.textContent = initials(name);
-    var url = safeUrl(src);
-    if (url) {
+    var list = photoSources(src), i = 0;
+    var tryNext = function () {
+      if (i >= list.length) return;
       var img = new Image();
       img.alt = '';
-      img.loading = 'lazy';
+      img.referrerPolicy = 'no-referrer';
       img.onload = function () { a.textContent = ''; a.appendChild(img); };
-      img.src = url;
-    }
+      img.onerror = tryNext;
+      img.src = list[i++];
+    };
+    tryNext();
     return a;
   };
   var norm = function (s) { return String(s || '').toLowerCase(); };

@@ -270,7 +270,7 @@
   var photoUrl = function (v) {
     var first = String(v || '').split(/[\s,]+/)[0];
     var m = /drive\.google\.com/.test(first) ? (first.match(/[?&]id=([\w-]{10,})/) || first.match(/\/d\/([\w-]{10,})/)) : null;
-    if (m) return 'https://drive.google.com/thumbnail?id=' + m[1] + '&sz=w600';
+    if (m) return 'https://lh3.googleusercontent.com/d/' + m[1] + '=w600';
     return cleanUrl(first);
   };
   var truthy = function (v) {
