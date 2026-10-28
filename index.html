@@ -1228,8 +1228,17 @@
   };
   menuBtn.addEventListener('click', function () { setMenu(!sidebar.classList.contains('open')); });
   scrim.addEventListener('click', function () { setMenu(false); });
-  $('sideListed').addEventListener('click', function () { setMenu(false); });
+  $('sideListed').addEventListener('click', function (e) {
+    e.preventDefault();
+    setMenu(false);
+    var el = $('listed');
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
 
+  /* Only touch the address bar on the real site. Previews and embeds reload when the URL changes. */
+  var canUseHash = (function () {
+    try { return /^https?:$/.test(location.protocol) && window.self === window.top; } catch (e) { return false; }
+  })();
   var setSection = function (t, fromHash) {
     if (!chipSets[t]) t = 'home';
     $('homeView').hidden = t !== 'home';
@@ -1242,7 +1251,7 @@
     });
     $('topbarSec').textContent = TITLES[t];
     $('q').placeholder = t === 'offers' ? 'Search by name, offer, or what you need' : 'Search ' + TITLES[t].toLowerCase();
-    if (!fromHash) { try { history.replaceState(null, '', '#' + t); } catch (e) { /* some previews block this; the page still works */ } }
+    if (!fromHash && canUseHash) { try { history.replaceState(null, '', '#' + t); } catch (e) { /* ignore */ } }
     if (t === 'home') { renderHome(); return; }
     renderControls();
     renderGrid();
