@@ -121,6 +121,15 @@
   .spot-body { padding: 22px 22px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
   .spot-label { align-self: flex-start; font-size: 12px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--plum-deep); background: linear-gradient(135deg, var(--gold), var(--blush)); border-radius: 999px; padding: 5px 12px; }
   .spot h2 { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 32px; font-weight: 600; line-height: 1.1; }
+  #howTo { scroll-margin-top: 80px; }
+  .scroll-cue { display: flex; flex-direction: column; align-items: center; gap: 4px; margin: -10px auto 26px; font-family: inherit; font-size: 15px; font-weight: 600; color: var(--gold-bright); background: none; border: none; cursor: pointer; padding: 8px 14px; }
+  .scroll-cue .arrow { font-size: 22px; line-height: 1; animation: cueBob 1.8s ease-in-out infinite; }
+  .scroll-cue:hover .arrow, .scroll-cue:focus-visible .arrow { color: var(--blush); }
+  .float-cue { position: fixed; left: 50%; bottom: 18px; transform: translate(-50%, 20px); z-index: 30; display: flex; align-items: center; gap: 8px; font-family: inherit; font-size: 14px; font-weight: 600; color: var(--plum-deep); background: linear-gradient(135deg, var(--gold), var(--blush)); border: none; border-radius: 999px; padding: 10px 18px; box-shadow: 0 8px 24px rgba(0,0,0,0.35); cursor: pointer; opacity: 0; pointer-events: none; transition: opacity .25s ease, transform .25s ease; white-space: nowrap; }
+  .float-cue.show { opacity: 1; pointer-events: auto; transform: translate(-50%, 0); }
+  .float-cue .arrow { animation: cueBob 1.8s ease-in-out infinite; display: inline-block; }
+  @keyframes cueBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(6px); } }
+  @media (prefers-reduced-motion: reduce) { .scroll-cue .arrow, .float-cue .arrow { animation: none; } .float-cue { transition: none; } }
   @media (max-width: 860px) { .spot { grid-template-columns: 1fr; } .spot-img { aspect-ratio: 16 / 9; } .spot h2 { font-size: 28px; } }
 
   /* Category view */
@@ -390,7 +399,7 @@
 
       <section id="homeView" aria-labelledby="homeTitle" hidden>
         <div id="spotlight" hidden></div>
-        <div class="how">
+        <div class="how" id="howTo">
           <h2>How to use the Directory</h2>
           <ul>
             <li>Tap a category below to see the offers and communities in it.</li>
@@ -468,6 +477,7 @@
   </div>
 </div>
 
+<button class="float-cue" id="floatCue" type="button" aria-label="Scroll down to browse the whole Directory">More below <span class="arrow" aria-hidden="true">&#8595;</span></button>
 <script>
 (function () {
   /* Settings */
@@ -1139,11 +1149,42 @@
     body.appendChild(acts);
     card.appendChild(body);
     box.appendChild(card);
+    var cue = el('button', 'scroll-cue');
+    cue.type = 'button';
+    cue.appendChild(el('span', '', 'Scroll down to browse the whole Directory'));
+    var arrow = el('span', 'arrow', '\u2193');
+    arrow.setAttribute('aria-hidden', 'true');
+    cue.appendChild(arrow);
+    cue.addEventListener('click', function () {
+      var t = $('howTo');
+      if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+    box.appendChild(cue);
   };
+
+  /* Floating "More below" pill, only while the spotlight fills the screen */
+  var floatCue = $('floatCue');
+  var cueSeen = false;
+  var updateCue = function () {
+    var inline = document.querySelector('#spotlight .scroll-cue');
+    var onHome = !$('homeView').hidden && !$('spotlight').hidden;
+    var show = !!(onHome && inline && !cueSeen && inline.getBoundingClientRect().top > window.innerHeight - 20);
+    if (onHome && inline && inline.getBoundingClientRect().top < window.innerHeight * 0.8) cueSeen = true;
+    floatCue.classList.toggle('show', show);
+  };
+  floatCue.addEventListener('click', function () {
+    cueSeen = true;
+    floatCue.classList.remove('show');
+    var t = $('howTo');
+    if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+  window.addEventListener('scroll', updateCue, { passive: true });
+  window.addEventListener('resize', updateCue);
 
   /* Home */
   var renderHome = function () {
     renderSpotlight();
+    setTimeout(updateCue, 50);
     var wrap = $('catGrid');
     wrap.innerHTML = '';
     GROUPS.forEach(function (g) {
@@ -1253,6 +1294,7 @@
     $('q').placeholder = t === 'offers' ? 'Search by name, offer, or what you need' : 'Search ' + TITLES[t].toLowerCase();
     if (!fromHash && canUseHash) { try { history.replaceState(null, '', '#' + t); } catch (e) { /* ignore */ } }
     if (t === 'home') { renderHome(); return; }
+    floatCue.classList.remove('show');
     renderControls();
     renderGrid();
   };
