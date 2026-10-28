@@ -46,6 +46,7 @@
   .wrap { max-width: 1040px; margin: 0 auto; padding: 0 16px 72px; }
 
   .hero { text-align: center; padding: 44px 0 26px; }
+  #panel, #catView { padding-top: 28px; }
   .eyebrow { font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold); font-weight: 600; margin-bottom: 10px; }
   h1 { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 52px; font-weight: 600; line-height: 1.05; }
   h1 span { font-style: italic; }
@@ -146,6 +147,8 @@
   .feat-thumb { margin: -20px -18px 4px; aspect-ratio: 16 / 9; max-width: calc(100% + 36px); overflow: hidden; border-radius: 19px 19px 0 0; background: rgba(0,0,0,0.25); }
   .feat-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .feat.has-thumb .feat-top .avatar { display: none; }
+  .card-thumb { margin: -18px -18px 4px; aspect-ratio: 16 / 9; max-width: calc(100% + 36px); overflow: hidden; border-radius: 19px 19px 0 0; background: rgba(0,0,0,0.25); }
+  .card-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .feat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
   .feat {
     position: relative; border-radius: 20px; padding: 20px 18px;
@@ -179,6 +182,7 @@
     padding: 11px 12px; cursor: pointer;
   }
   .nav-item:hover { background: rgba(255,255,255,0.05); }
+  .nav-sep { height: 1px; margin: 8px 12px; background: linear-gradient(90deg, transparent, var(--gold) 20%, var(--gold) 80%, transparent); opacity: 0.7; }
   .nav-item .ico { width: 32px; height: 32px; flex: 0 0 32px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
   .nav-item .ico img { width: 32px; height: 32px; object-fit: contain; display: block; }
   .nav-item .lbl { flex: 1; }
@@ -348,7 +352,8 @@
       <button class="nav-item" type="button" data-sec="communities"><span class="ico" aria-hidden="true">&#128150;</span><span class="lbl">Communities</span><span class="count" id="c-communities"></span></button>
       <button class="nav-item" type="button" data-sec="promo"><span class="ico" aria-hidden="true">&#11088;</span><span class="lbl">Promo Communities</span><span class="count" id="c-promo"></span></button>
       <button class="nav-item" type="button" data-sec="calendar"><span class="ico" aria-hidden="true">&#128197;</span><span class="lbl">Promo Calendar</span><span class="count" id="c-calendar"></span></button>
-      <button class="nav-item" type="button" data-sec="recommended"><span class="ico" aria-hidden="true">&#129309;</span><span class="lbl">Recommended</span><span class="count" id="c-recommended"></span></button>
+      <div class="nav-sep" role="separator" aria-hidden="true"></div>
+      <button class="nav-item" type="button" data-sec="recommended"><span class="ico" aria-hidden="true">&#129309;</span><span class="lbl">Recommended Communities</span><span class="count" id="c-recommended"></span></button>
     </nav>
     <div class="side-cta">Want to be listed? Premium members get a spot. <a id="sideListed" href="#listed">Here&rsquo;s how</a></div>
   </aside>
@@ -361,7 +366,7 @@
     </div>
 
     <div class="wrap">
-      <header class="hero">
+      <header class="hero" id="hero">
         <div class="eyebrow">She Promotes&trade;</div>
         <h1>The <span>Directory</span></h1>
         <p class="lede">Looking for someone who does exactly what you need? She&rsquo;s probably in here. Find her, support her, and collaborate with her.</p>
@@ -507,7 +512,7 @@
     return DAYS[(new Date().getDay() + 6) % 7];
   })();
   var linkKey = function (u) { return String(u || '').toLowerCase().replace(/^https?:\/\//, '').replace(/^www\./, '').split(/[?#]/)[0].replace(/\/+$/, ''); };
-  var TITLES = { calendar: 'Where can I promote today?', home: 'Home', offers: 'Offers', communities: 'Communities', recommended: 'Recommended', promo: 'Promo Communities' };
+  var TITLES = { calendar: 'Where can I promote today?', home: 'Home', offers: 'Offers', communities: 'Communities', recommended: 'Recommended Communities', promo: 'Promo Communities' };
   var INTROS = {
     calendar: 'Every promo group in the Directory and the days you can post there. Tap a day, or All to see the full week.',
     promo: 'These are the promo communities that inspired me to create She Promotes&trade;. More places to share your offer and meet amazing women.',
@@ -764,9 +769,23 @@
     return c;
   };
 
+  /* thumbnail for a card: own image, else images/<folder>/<name>.jpg if it exists */
+  var addThumb = function (card, img, folder, name) {
+    var box = el('div', 'card-thumb');
+    box.hidden = true;
+    box.setAttribute('aria-hidden', 'true');
+    card.appendChild(box);
+    var key = slug(name);
+    var src = localOrUrl(img) || (ASSETS[folder] && ASSETS[folder][key]) || 'images/' + folder + '/' + key + '.jpg';
+    var im = new Image();
+    im.alt = '';
+    im.onload = function () { box.appendChild(im); box.hidden = false; };
+    im.src = src;
+  };
   var recCard = function (item) {
     var r = item.rec, m = item.member;
     var c = el('article', 'card');
+    addThumb(c, r.image, 'recommended', r.name);
     c.appendChild(el('h3', '', r.name));
     if (r.about) c.appendChild(el('p', 'offer', r.about));
     var rd = parseDays(r.promoDays);
@@ -1025,6 +1044,7 @@
   /* Category page */
   var openCategory = function (x) {
     $('homeView').hidden = true;
+    $('hero').hidden = true;
     $('panel').hidden = true;
     $('catView').hidden = false;
     $('topbarSec').textContent = x;
@@ -1073,6 +1093,7 @@
   var setSection = function (t, fromHash) {
     if (!chipSets[t]) t = 'home';
     $('homeView').hidden = t !== 'home';
+    $('hero').hidden = t !== 'home';
     $('panel').hidden = t === 'home';
     $('catView').hidden = true;
     state.tab = t; state.chip = ''; state.cat = ''; state.fmt = ''; state.day = '';

@@ -90,6 +90,10 @@
   .daybox { display: flex; flex-wrap: wrap; gap: 8px; }
   .daybox label { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; background: rgba(255,255,255,0.06); border-radius: 999px; padding: 6px 12px; cursor: pointer; }
   .daybox input { accent-color: var(--gold); width: 16px; height: 16px; }
+  .imgrow { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  .imgprev { width: 168px; max-width: 100%; aspect-ratio: 16 / 9; border-radius: 10px; overflow: hidden; background: rgba(0,0,0,0.25); display: flex; align-items: center; justify-content: center; font-size: 12px; color: var(--muted); border: 1px dashed rgba(216,191,208,0.35); }
+  .imgprev img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .imgbtns { display: flex; gap: 8px; flex-wrap: wrap; }
   [hidden] { display: none !important; }
 </style>
 </head>
@@ -137,7 +141,7 @@
           <select id="ff-access"><option value="">Not shown</option><option>Free</option><option>Paid</option><option>Free and paid options</option></select></div>
         <div class="full"><label class="f" for="ff-about">What it is, in one sentence</label><input type="text" id="ff-about" maxlength="180" placeholder="A promo community where women share their offers every day."></div>
         <div class="full"><label class="f" for="ff-why">Why I love it</label><textarea id="ff-why" placeholder="The women in here show up for each other. I always leave with a new connection."></textarea></div>
-        <div class="full"><label class="f" for="ff-image">Image or logo link <span class="sub">(optional)</span></label><input type="url" id="ff-image" placeholder="https://..."></div>
+        <div class="full imgpick"><span class="f" style="display:block;font-weight:600;font-size:13px;margin-bottom:5px;color:var(--blush-soft);">Thumbnail <span class="sub">(optional, a wide banner works best)</span></span><div class="imgrow"><div class="imgprev" id="ff-prev">No image</div><div class="imgbtns"><label class="file"><input type="file" id="ff-file" accept="image/*"><span class="btn btn-ghost btn-sm">Upload image</span></label><button type="button" class="btn btn-ghost btn-sm" id="ff-clear" hidden>Remove</button></div></div><input type="url" id="ff-imglink" placeholder="or paste an image link" style="margin-top:8px;"><input type="hidden" id="ff-image"></div>
         <div class="full"><span class="f" style="display:block;font-weight:600;font-size:13px;margin-bottom:5px;color:var(--blush-soft);">Promo days</span>
           <div class="daybox" id="ff-days"></div></div>
         <div class="full"><label class="f" for="ff-schedule">Schedule note <span class="sub">(optional)</span></label><input type="text" id="ff-schedule" maxlength="120" placeholder="Free members Mon and Wed, paid members daily. Thread opens 6am Eastern."></div>
@@ -159,7 +163,7 @@
     <div class="grid2">
       <div class="full"><label class="f" for="sp-id">Community</label><select id="sp-id"></select></div>
       <div class="full"><label class="f" for="sp-note">Why I&rsquo;m featuring it</label><textarea id="sp-note" placeholder="Jade's circle is the warmest room for women learning Human Design. Every call leaves you feeling seen."></textarea></div>
-      <div class="full"><label class="f" for="sp-image">Image link <span class="sub">(optional, otherwise the category image is used)</span></label><input type="url" id="sp-image" placeholder="https://..."></div>
+      <div class="full imgpick"><span class="f" style="display:block;font-weight:600;font-size:13px;margin-bottom:5px;color:var(--blush-soft);">Image <span class="sub">(optional, otherwise the category image is used)</span></span><div class="imgrow"><div class="imgprev" id="sp-prev">No image</div><div class="imgbtns"><label class="file"><input type="file" id="sp-file" accept="image/*"><span class="btn btn-ghost btn-sm">Upload image</span></label><button type="button" class="btn btn-ghost btn-sm" id="sp-clear" hidden>Remove</button></div></div><input type="url" id="sp-imglink" placeholder="or paste an image link" style="margin-top:8px;"><input type="hidden" id="sp-image"></div>
     </div>
     <div class="status" id="spStatus" aria-live="polite"></div>
   </section>
@@ -289,7 +293,7 @@
   };
   var thumb = function (src, name) {
     var t = el('div', 'thumb', initials(name));
-    var url = cleanUrl(src);
+    var url = /^(images\/|data:image\/)/.test(src || '') ? src : cleanUrl(src);
     if (url) {
       var img = new Image();
       img.alt = '';
@@ -542,6 +546,51 @@
 
   /* ---------- Featured ---------- */
   var editing = -1;
+  /* Image upload: shrinks the photo in the browser and keeps it inside directory.json */
+  var keepImg = function (v) { v = String(v || '').trim(); return /^(images\/|data:image\/)/.test(v) ? v : cleanUrl(v); };
+  var shrink = function (file, cb) {
+    var r = new FileReader();
+    r.onload = function () {
+      var img = new Image();
+      img.onload = function () {
+        var sc = Math.min(1, 720 / img.width);
+        var c = document.createElement('canvas');
+        c.width = Math.round(img.width * sc); c.height = Math.round(img.height * sc);
+        var x = c.getContext('2d');
+        x.fillStyle = '#2a1028'; x.fillRect(0, 0, c.width, c.height);
+        x.drawImage(img, 0, 0, c.width, c.height);
+        cb(c.toDataURL('image/jpeg', 0.74));
+      };
+      img.onerror = function () { cb(''); };
+      img.src = r.result;
+    };
+    r.readAsDataURL(file);
+  };
+  var picker = function (pfx, onChange, statusId) {
+    var hid = $(pfx + '-image'), link = $(pfx + '-imglink'), prev = $(pfx + '-prev'), clr = $(pfx + '-clear'), file = $(pfx + '-file');
+    var show = function (keepLink) {
+      var v = hid.value;
+      prev.innerHTML = '';
+      if (v) { var im = new Image(); im.alt = ''; im.onerror = function () { prev.textContent = 'Can\u2019t preview this link'; }; im.src = v; prev.appendChild(im); }
+      else prev.textContent = 'No image';
+      clr.hidden = !v;
+      if (!keepLink) link.value = /^data:/.test(v) ? '' : v;
+    };
+    file.addEventListener('change', function () {
+      var f = this.files[0]; if (!f) return;
+      shrink(f, function (d) {
+        if (!d) { if (statusId) $(statusId).textContent = 'That file isn\u2019t an image I can read. Try a JPG or PNG.'; return; }
+        hid.value = d; show(); if (onChange) onChange();
+        if (statusId) $(statusId).textContent = 'Image added.';
+      });
+      this.value = '';
+    });
+    link.addEventListener('input', function () { hid.value = link.value.trim(); show(true); if (onChange) onChange(); });
+    clr.addEventListener('click', function () { hid.value = ''; show(); if (onChange) onChange(); });
+    return show;
+  };
+  var ffShow = picker('ff', null, 'featStatus');
+
   var FF = ['name', 'link', 'platform', 'access', 'about', 'why', 'image', 'schedule'];
   (function () {
     var box = $('ff-days');
@@ -558,6 +607,7 @@
     FF.forEach(function (k) { var f = $('ff-' + k); f.value = f.tagName === 'SELECT' ? f.options[0].value : ''; });
     $('ff-aff').checked = true;
     setDays([]);
+    ffShow();
     editing = -1;
     $('featFormTitle').textContent = 'Add a community';
     $('featSave').textContent = 'Add to featured';
@@ -600,6 +650,7 @@
           FF.forEach(function (k) { $('ff-' + k).value = f[k] || ''; });
           $('ff-aff').checked = !!f.affiliate;
           setDays(f.promoDays);
+          ffShow();
           $('featFormTitle').textContent = 'Edit ' + f.name;
           $('featSave').textContent = 'Save changes';
           $('featCancel').hidden = false;
@@ -617,7 +668,7 @@
     f.affiliate = $('ff-aff').checked;
     f.promoDays = getDays();
     f.link = cleanUrl(f.link);
-    f.image = /^images\//.test(f.image) ? f.image : cleanUrl(f.image);
+    f.image = keepImg(f.image);
     if (!f.name || !f.link) { $('featStatus').textContent = 'Add a name and a working link first.'; return; }
     if (editing >= 0) featured[editing] = f; else featured.push(f);
     $('featStatus').textContent = editing >= 0 ? 'Saved.' : f.name + ' added.';
@@ -641,15 +692,16 @@
     sel.value = found ? keep : '';
     $('sp-note').value = spotlight && spotlight.note || '';
     $('sp-image').value = spotlight && spotlight.image || '';
+    spShow();
     $('spStatus').textContent = keep && !found ? 'Last spotlight is no longer live, so nothing is selected.' : '';
   };
   var readSpot = function () {
     var id = $('sp-id').value;
-    var simg = $('sp-image').value.trim();
-    spotlight = id ? { id: id, note: $('sp-note').value.trim(), image: /^images\//.test(simg) ? simg : cleanUrl(simg) } : null;
+    spotlight = id ? { id: id, note: $('sp-note').value.trim(), image: keepImg($('sp-image').value) } : null;
     saveSpot(); renderStats();
   };
-  ['sp-id', 'sp-note', 'sp-image'].forEach(function (k) { $(k).addEventListener(k === 'sp-id' ? 'change' : 'input', readSpot); });
+  var spShow = picker('sp', function () { readSpot(); }, 'spStatus');
+  ['sp-id', 'sp-note'].forEach(function (k) { $(k).addEventListener(k === 'sp-id' ? 'change' : 'input', readSpot); });
 
   /* ---------- Output ---------- */
   var buildOutput = function () {

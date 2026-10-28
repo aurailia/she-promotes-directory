@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-10-27T23:48:30.078Z",
+  "updated": "2026-10-28T06:53:20.682Z",
   "featured": [
     {
       "name": "She Promotes™",
@@ -233,6 +233,98 @@
           ]
         }
       ]
+    },
+    {
+      "id": "m1113tss",
+      "name": "Jennifer Garcia",
+      "business": "Promote With Confidence™",
+      "about": "I’m a therapist of over 20 years, but there’s so much more to me than that! I love psychology, understanding people, being creative, and coming up with ideas that bring people together. I started Promote With Confidence™ because I genuinely love helping people believe in what they’re building and find the confidence to put themselves out there.\n\nI’m also a wife, stepmom, crazy cat lady, and psychic medium! I love anything spiritual or paranormal, learning new things, and honestly, I tend to get a little carried away when I have a new idea. lol\n\nWhat really makes me happy is seeing people succeed, especially when they didn’t think they could. I love cheering people on, making connections, and creating spaces where everyone feels like they belong.",
+      "photo": "https://lh3.googleusercontent.com/d/1uAaJ8BWCl56aoqxyNEhJnFiIlqZtORCT=w600",
+      "social": "https://www.instagram.com/jennifergarcia_lmhc?dlrf=MXA0cngyMHFtaWZyNw%3D%3D&utm_source=qr",
+      "categories": [
+        "Business Coaching & Strategy"
+      ],
+      "formats": [
+        "Membership or Skool Community"
+      ],
+      "offer": "Promote With Confidence™ helps entrepreneurs and Skool owners gain visibility, master marketing psychology, and grow through genuine connections.",
+      "who": "Entrepreneurs, Skool owners, coaches, creators, and small business owners who want more visibility, stronger connections, and confidence promoting their work.",
+      "price": "Free to join Premium: $3/month or $27/year.",
+      "offerLink": "https://www.skool.com/promote-with-confidence-9625/about⁠",
+      "community": {
+        "name": "Promote With Confidence™",
+        "link": "https://www.skool.com/promote-with-confidence-9625/about⁠",
+        "category": "Business Coaching & Strategy",
+        "categories": [
+          "Business Coaching & Strategy"
+        ],
+        "platform": "Skool",
+        "about": "Promotion",
+        "access": "Free;Paid",
+        "promoDays": [
+          "Mon",
+          "Tue",
+          "Wed",
+          "Thu",
+          "Fri",
+          "Sat",
+          "Sun"
+        ]
+      },
+      "recommends": [
+        {
+          "name": "The Promo Lounge",
+          "link": "https://www.skool.com/thepromolounge/about?ref=8fd4e7a52c1a4f5cb5db718c38c2d79a",
+          "category": "Promo Group",
+          "about": "Community and connection",
+          "access": "Free;Paid",
+          "why": "This empowers businesses owners to grow and be visible",
+          "affiliate": true,
+          "promoDays": [
+            "Mon",
+            "Tue",
+            "Wed",
+            "Thu",
+            "Fri",
+            "Sat",
+            "Sun"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mraxyka",
+      "name": "Shelly Phillips",
+      "business": "AI Profit Garden",
+      "about": "I am a fractional CFO with a love for numbers and for people, and my faith shapes the way I serve both. What lights me up is solving the internal friction quietly draining a business’s time and capacity by building the solution that increases cash and grows the bottom line.",
+      "photo": "https://lh3.googleusercontent.com/d/1_XJr0lpklQy8_v94A99C7TVu4YT7TCV9=w600",
+      "social": "https://www.instagram.com/aiprofitgarden",
+      "categories": [
+        "Social Media & Content",
+        "Websites, Funnels & Tech"
+      ],
+      "formats": [
+        "Digital Product"
+      ],
+      "offer": "Praise Patch is a review system for service businesses that gathers happy customers’ praise to build trust that helps the next customer say yes.",
+      "who": "Service business owners whose happy customers rarely leave reviews.",
+      "price": "$97",
+      "offerLink": "https://www.praisepatch.com/",
+      "community": {
+        "name": "AI Profit Garden",
+        "link": "https://www.skool.com/ai-profit-garden-1231",
+        "category": "Business Coaching & Strategy",
+        "categories": [
+          "Business Coaching & Strategy",
+          "AI & Automation Support",
+          "Money Mindset & Wealth"
+        ],
+        "platform": "Skool",
+        "about": "AI Profit Garden is a faith-led community where Christian women entrepreneurs gain financial clarity, simple AI solutions and the bond of sisterhood to fulfill their Kingdom calling and plant a lasting legacy for future generations.",
+        "access": "Free;Paid",
+        "promoDays": []
+      },
+      "recommends": []
     },
     {
       "id": "sreshtha-tewari",
