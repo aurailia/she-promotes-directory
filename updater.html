@@ -73,6 +73,16 @@
   .flags { display: flex; flex-wrap: wrap; gap: 6px; }
   .flag { font-size: 12px; padding: 2px 9px; border-radius: 999px; background: rgba(255,255,255,0.08); }
   .flag.ok { color: var(--ok); } .flag.warn { color: var(--warn); }
+  .flag.new { background: rgba(232,196,122,0.18); color: var(--gold-bright); }
+  .flag.upd { background: rgba(94,214,200,0.16); color: #8fe8dc; }
+  details.changes { background: rgba(0,0,0,0.22); border-radius: 12px; padding: 8px 12px; font-size: 13px; }
+  details.changes summary { cursor: pointer; color: #8fe8dc; font-weight: 600; }
+  .chg { display: grid; gap: 2px; padding: 8px 0; border-top: 1px solid rgba(255,255,255,0.07); }
+  .chg:first-of-type { border-top: none; }
+  .chg strong { color: var(--blush-soft); font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; }
+  .chg .was { color: var(--muted); text-decoration: line-through; }
+  .chg .was::before { content: "Was: "; text-decoration: none; display: inline-block; margin-right: 2px; }
+  .chg .now::before { content: "Now: "; color: var(--muted); }
   .seg { display: inline-flex; background: rgba(0,0,0,0.3); border-radius: 999px; padding: 3px; }
   .seg button { font-family: inherit; font-size: 13px; font-weight: 600; border: none; background: transparent; color: var(--muted); padding: 6px 12px; border-radius: 999px; cursor: pointer; }
   .seg button[aria-pressed="true"].live { background: var(--ok); color: #123; }
@@ -449,6 +459,9 @@
       total + ' submission' + (total === 1 ? '' : 's') + ' found, ' + csvMembers.length + ' unique ' + (csvMembers.length === 1 ? 'woman' : 'women') +
       (dupes ? '. ' + dupes + ' older duplicate' + (dupes === 1 ? '' : 's') + ' replaced by the newest version.' : '.')));
     if (map.emailCols) report.appendChild(el('div', 'note ok', 'Emails removed. They stay out of the Directory file.'));
+    var nNew = 0, nUp = 0, nSame = 0;
+    csvMembers.forEach(function (m) { var c = changesFor(m); if (c === 'new') nNew++; else if (c && c.length) nUp++; else nSame++; });
+    report.appendChild(el('div', 'note ok', nNew + ' new, ' + nUp + ' updated, ' + nSame + ' with no changes.'));
     if (missing.length) report.appendChild(el('div', 'note warn', 'I couldn’t find these columns: ' + missing.join(', ') + '. Check the form questions match the field list.'));
     renderReview();
     renderStats();
@@ -476,15 +489,44 @@
     return list;
   };
 
+  /* ---------- What changed ---------- */
+  var FIELDS = [['name', 'Name'], ['business', 'Business name'], ['about', 'About'], ['photo', 'Photo'], ['social', 'Social link'],
+    ['categories', 'Categories'], ['formats', 'Formats'], ['offer', 'Signature offer'], ['who', 'Who it\u2019s for'], ['price', 'Starting price'],
+    ['offerLink', 'Offer link'], ['community', 'Community'], ['recommends', 'Recommended communities']];
+  var show = function (k, v) {
+    if (v == null || v === '' || (Array.isArray(v) && !v.length)) return '(blank)';
+    if (k === 'photo') return 'new photo';
+    if (k === 'community') return v.name || '(blank)';
+    if (k === 'recommends') return v.map(function (r) { return r.name; }).join(', ');
+    if (Array.isArray(v)) return v.join(', ');
+    return String(v);
+  };
+  var norm2 = function (k, v) {
+    if (k === 'photo') { var m = String(v || '').match(/(?:id=|\/d\/)([\w-]{10,})/); return m ? m[1] : String(v || ''); }
+    return JSON.stringify(v == null ? '' : (Array.isArray(v) && !v.length ? '' : v));
+  };
+  var changesFor = function (m) {
+    if (m._fromCurrent) return null;
+    var old = null;
+    for (var i = 0; i < current.members.length; i++) if (current.members[i].id === m.id) old = current.members[i];
+    if (!old) return 'new';
+    var out = [];
+    FIELDS.forEach(function (f) {
+      if (norm2(f[0], m[f[0]]) !== norm2(f[0], old[f[0]])) out.push({ label: f[1], from: show(f[0], old[f[0]]), to: show(f[0], m[f[0]]), key: f[0] });
+    });
+    return out;
+  };
+
   /* ---------- Review ---------- */
   var renderReview = function () {
-    var filters = [['all', 'All'], ['pending', 'Pending'], ['live', 'Live'], ['hidden', 'Hidden']];
+    var filters = [['all', 'All'], ['new', 'New'], ['updated', 'Updated'], ['pending', 'Pending'], ['live', 'Live'], ['hidden', 'Hidden']];
+    var isKind = function (m, k) { var c = changesFor(m); return k === 'new' ? c === 'new' : (k === 'updated' ? !!(c && c !== 'new' && c.length) : statusOf(m.id) === k); };
     var fw = $('reviewFilter');
     fw.innerHTML = '';
     var seg = el('div', 'seg');
     var list = allMembers();
     filters.forEach(function (f) {
-      var count = f[0] === 'all' ? list.length : list.filter(function (m) { return statusOf(m.id) === f[0]; }).length;
+      var count = f[0] === 'all' ? list.length : list.filter(function (m) { return isKind(m, f[0]); }).length;
       var b = el('button', f[0] === 'all' ? 'live' : f[0], f[1] + ' (' + count + ')');
       b.type = 'button';
       b.setAttribute('aria-pressed', reviewFilter === f[0] ? 'true' : 'false');
@@ -495,7 +537,7 @@
 
     var wrap = $('reviewList');
     wrap.innerHTML = '';
-    var shown = list.filter(function (m) { return reviewFilter === 'all' || statusOf(m.id) === reviewFilter; });
+    var shown = list.filter(function (m) { return reviewFilter === 'all' || isKind(m, reviewFilter); });
     if (!shown.length) { wrap.appendChild(el('p', 'sub', 'Nobody here right now.')); return; }
     shown.forEach(function (m) {
       var it = el('div', 'item');
@@ -508,6 +550,10 @@
       it.appendChild(top);
 
       var flags = el('div', 'flags');
+      var ch = changesFor(m);
+      if (ch === 'new') flags.appendChild(el('span', 'flag new', '\u2728 New listing'));
+      else if (ch && ch.length) flags.appendChild(el('span', 'flag upd', '\u270E Updated: ' + ch.map(function (c) { return c.label; }).join(', ')));
+      else if (ch) flags.appendChild(el('span', 'flag', 'No changes'));
       if (m._fromCurrent) flags.appendChild(el('span', 'flag', 'Already in the Directory, not in this CSV'));
       if (m._premium === true) flags.appendChild(el('span', 'flag ok', '✓ Checked premium box'));
       if (m._premium === false) flags.appendChild(el('span', 'flag warn', 'Didn’t check the premium box'));
@@ -518,6 +564,20 @@
       if (m.community && !m.community.category) flags.appendChild(el('span', 'flag warn', 'Community has no category'));
       (m.recommends || []).forEach(function (r) { flags.appendChild(el('span', 'flag', 'Recommends: ' + r.name + (r.category ? ' (' + r.category + ')' : ''))); });
       if (flags.childNodes.length) it.appendChild(flags);
+      if (ch && ch !== 'new' && ch.length) {
+        var det = document.createElement('details');
+        det.className = 'changes';
+        det.appendChild(el('summary', '', 'See what changed'));
+        ch.forEach(function (c) {
+          var row = el('div', 'chg');
+          row.appendChild(el('strong', '', c.label));
+          if (c.key === 'photo') row.appendChild(el('span', '', 'She uploaded a new photo'));
+          else if (c.from === c.to) row.appendChild(el('span', '', c.to + ' (a link or detail inside changed)'));
+          else { row.appendChild(el('span', 'was', c.from)); row.appendChild(el('span', 'now', c.to)); }
+          det.appendChild(row);
+        });
+        it.appendChild(det);
+      }
 
       if (m.about) it.appendChild(el('p', 'sub', 'About: ' + m.about));
       if (m.offer) it.appendChild(el('p', '', m.offer));
