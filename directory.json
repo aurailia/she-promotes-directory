@@ -1,0 +1,262 @@
+{
+  "version": 1,
+  "updated": "2026-10-27T23:48:30.078Z",
+  "featured": [
+    {
+      "name": "She Promotes™",
+      "link": "https://www.skool.com/she-promotes-7924/about",
+      "platform": "Skool",
+      "access": "Free and paid options",
+      "about": "Promote your purpose driven business in a space made for women.",
+      "why": "",
+      "image": "",
+      "affiliate": false,
+      "promoDays": [
+        "Mon",
+        "Tue",
+        "Wed",
+        "Thu",
+        "Fri",
+        "Sat",
+        "Sun"
+      ],
+      "schedule": "Free members Mon and Wed, premium daily"
+    },
+    {
+      "name": "Promote With Confidence™",
+      "link": "https://www.skool.com/promote-with-confidence-9625/about?ref=3d4bd5bdcda847a3afcfd90d513f22bf",
+      "platform": "Skool",
+      "access": "Free and paid options",
+      "about": "A community for business owners, creators, digital sellers and Skool owners to learn marketing psychology, get seen and grow.",
+      "why": "",
+      "image": "",
+      "affiliate": false,
+      "promoDays": [
+        "Mon",
+        "Wed"
+      ],
+      "schedule": "Free members Mon and Wed, premium daily"
+    },
+    {
+      "name": "Promote Today",
+      "link": "https://www.skool.com/promote-today-1278/about?ref=3d4bd5bdcda847a3afcfd90d513f22bf",
+      "platform": "Skool",
+      "access": "Free and paid options",
+      "about": "Practice your promotions, get real human feedback, and connect with other promoters.",
+      "why": "",
+      "image": "",
+      "affiliate": true,
+      "promoDays": [
+        "Mon",
+        "Tue",
+        "Wed",
+        "Thu",
+        "Fri",
+        "Sat",
+        "Sun"
+      ],
+      "schedule": "Premium members promote once a day"
+    },
+    {
+      "name": "Backstage Mastermind",
+      "link": "https://www.skool.com/summit-backstage-mastermind/about?ref=3d4bd5bdcda847a3afcfd90d513f22bf",
+      "platform": "Skool",
+      "access": "Free and paid options",
+      "about": "For people who want to go from unknown online to visible, connected and turning opportunities into clients.",
+      "why": "",
+      "image": "",
+      "affiliate": true,
+      "promoDays": [
+        "Mon",
+        "Tue",
+        "Wed",
+        "Thu",
+        "Fri",
+        "Sat",
+        "Sun"
+      ],
+      "schedule": "Promote your offers every day"
+    },
+    {
+      "name": "The Promo Lounge",
+      "link": "https://www.skool.com/thepromolounge/about?ref=3d4bd5bdcda847a3afcfd90d513f22bf",
+      "platform": "Skool",
+      "access": "Free and paid options",
+      "about": "A business community where promotion is encouraged, and where you discover what other members offer.",
+      "why": "",
+      "image": "",
+      "affiliate": true,
+      "promoDays": [
+        "Tue",
+        "Sat"
+      ],
+      "schedule": "Free members Tue and Sat, premium any day"
+    },
+    {
+      "name": "Digital Boss Skool Hub",
+      "link": "https://www.skool.com/communityhub/about?ref=3d4bd5bdcda847a3afcfd90d513f22bf",
+      "platform": "Skool",
+      "access": "Paid ($5 a year to start)",
+      "about": "For creators who want to start, grow and make money with a Skool community, without paid ads.",
+      "why": "",
+      "image": "",
+      "affiliate": true,
+      "promoDays": [
+        "Mon",
+        "Tue",
+        "Wed",
+        "Thu",
+        "Fri",
+        "Sat",
+        "Sun"
+      ],
+      "schedule": "Standard members promote their Skool community once a day"
+    },
+    {
+      "name": "Advertise Business Club",
+      "link": "https://www.skool.com/abc/about?ref=3d4bd5bdcda847a3afcfd90d513f22bf",
+      "platform": "Skool",
+      "access": "Free",
+      "about": "A free community to get visibility and traffic for your Skool community or business.",
+      "why": "",
+      "image": "",
+      "affiliate": true,
+      "promoDays": [
+        "Mon",
+        "Tue",
+        "Wed",
+        "Thu",
+        "Fri",
+        "Sat",
+        "Sun"
+      ],
+      "schedule": "Promote your Skool community every day"
+    },
+    {
+      "name": "The Skool Classifieds",
+      "link": "https://www.skool.com/classifieds/about?ref=3d4bd5bdcda847a3afcfd90d513f22bf",
+      "platform": "Skool",
+      "access": "Paid ($2 a month to start)",
+      "about": "A public place for Skool owners to advertise their group and connect with other Skool creators.",
+      "why": "",
+      "image": "",
+      "affiliate": true,
+      "promoDays": [
+        "Mon",
+        "Tue",
+        "Wed",
+        "Thu",
+        "Fri",
+        "Sat",
+        "Sun"
+      ],
+      "schedule": "Promote once a day. For Skool group owners only"
+    }
+  ],
+  "spotlight": {
+    "id": "sreshtha-tewari",
+    "note": "Sreshtha calls her community an emotional gym for your heart and soul. If you've been carrying old hurt in love, this is a gentle, shame-free place to let it go. Go say hi 💖",
+    "image": "images/spotlight/come-home-to-love-inner-circle.jpg"
+  },
+  "members": [
+    {
+      "id": "m1hua3tb",
+      "name": "Aurailia Arnold",
+      "business": "Aurailia Coaching",
+      "about": "Hi my name is Aurailia I am here to create a life of freedom, doing what I love and create wealth along the way…and take as many with me as I can!",
+      "photo": "https://drive.google.com/thumbnail?id=1p9kyC83tcQdeTbgcAe-5XtRLqO4rvPK8&sz=w600",
+      "social": "https://instagram.com/aurailia",
+      "categories": [
+        "Business Coaching & Strategy",
+        "Money Mindset & Wealth",
+        "Human Design & Astrology"
+      ],
+      "formats": [
+        "1:1 Sessions"
+      ],
+      "offer": "Business Alignment Blueprint Audit. Your business through the lens of your Human Design",
+      "who": "It's for women that are growing their online business",
+      "price": "$222",
+      "offerLink": "https://www.aurailia.com/business-alignment-bundle",
+      "community": {
+        "name": "Embody Wealth",
+        "link": "https://www.skool.com/embody-wealth",
+        "category": "Business Coaching & Strategy",
+        "categories": [
+          "Business Coaching & Strategy",
+          "Money Mindset & Wealth",
+          "Hypnosis & Subconscious Work",
+          "Human Design & Astrology"
+        ],
+        "platform": "Skool",
+        "about": "My deeper room for women ready to embody wealth, with hypnosis, Human Design and real business strategy all in one place.",
+        "access": "Paid",
+        "promoDays": []
+      },
+      "recommends": [
+        {
+          "name": "✨ Spiritual Business Skool",
+          "link": "https://www.skool.com/amanda/about?ref=3d4bd5bdcda847a3afcfd90d513f22bf",
+          "category": "Business",
+          "about": "Claude and AI marketing systems for healers, coaches and Skool owners who want to get paid for what they already know.",
+          "access": "Paid",
+          "why": "Amanda gets spiritual business owners. She blends real marketing strategy with AI tools, so you spend less time stuck and more time doing the work you love. This is where I’d send any woman who wants to use AI in her business without overwhelm. You get done-for-you Claude tools, a Skool launch challenge, and help creating your first AI mini offer.",
+          "affiliate": true,
+          "promoDays": []
+        },
+        {
+          "name": "Manifestation Mastery",
+          "link": "https://www.skool.com/manifestation/about?ref=3d4bd5bdcda847a3afcfd90d513f22bf",
+          "category": "Healing & Spiritual",
+          "about": "Hypnosis and practical Law of Attraction to rewire your beliefs and manifest more money, love and confidence.",
+          "access": "Paid",
+          "why": "Victoria is a hypnotherapist, and it shows. Her hypnosis and visualizations go straight to the subconscious, where the real blocks live. I love her hypnosis Believe App where I can plug into a hypnosis audio at any time.",
+          "affiliate": true,
+          "promoDays": []
+        },
+        {
+          "name": "Promote Today",
+          "link": "https://www.skool.com/promote-today-1278/about?ref=3d4bd5bdcda847a3afcfd90d513f22bf",
+          "category": "Promo Group",
+          "about": "A promo community where you practice your promotions, get real human feedback, and connect with other promoters.",
+          "access": "Free;Paid",
+          "why": "Promote Today is one of the groups that inspired me to create She Promotes™. Kelly built a space where you don’t just post, you get real feedback and get better at being seen.",
+          "affiliate": true,
+          "promoDays": [
+            "Mon",
+            "Tue",
+            "Wed",
+            "Thu",
+            "Fri",
+            "Sat",
+            "Sun"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "sreshtha-tewari",
+      "name": "Sreshtha Tewari",
+      "business": "",
+      "about": "Emotional Intelligence Love Coach and Certified Hypnotherapist. After more than 20 years as a corporate manager, she now helps women release emotional pain and call in soul love.",
+      "photo": "",
+      "social": "",
+      "categories": [],
+      "formats": [],
+      "offer": "",
+      "who": "",
+      "price": "",
+      "offerLink": "",
+      "community": {
+        "name": "Come Home to Love Inner Circle",
+        "link": "https://www.skool.com/come-home-to-love-inner-circle-5568/about?ref=3d4bd5bdcda847a3afcfd90d513f22bf",
+        "category": "Relationship & Family Coaching",
+        "platform": "Skool",
+        "about": "A sacred space where ambitious, heart-centered women release deep emotional pain keeping them stuck in love to experiencing deep soul love and truth.",
+        "access": "Free",
+        "promoDays": []
+      },
+      "recommends": []
+    }
+  ]
+}

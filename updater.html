@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Directory Updater</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --plum-deep: #2a1028; --plum: #3d1a3a; --plum-soft: #52264e;
+    --card: rgba(255,255,255,0.06); --card-border: rgba(232,196,122,0.25);
+    --gold: #e8c47a; --gold-bright: #f3d89b; --blush: #f4b6c8; --blush-soft: #f9d7e1;
+    --text: #fbeff3; --muted: #d8bfd0; --ok: #9fe0b5; --warn: #ffc98a;
+    --input-bg: rgba(255,255,255,0.08); --input-border: rgba(244,182,200,0.35);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: radial-gradient(ellipse at top, var(--plum-soft) 0%, var(--plum) 40%, var(--plum-deep) 100%);
+    background-attachment: fixed; background-color: var(--plum-deep);
+    color: var(--text); min-height: 100vh; line-height: 1.55;
+  }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 0 16px 80px; }
+  .hero { padding: 36px 0 20px; }
+  .eyebrow { font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold); font-weight: 600; margin-bottom: 6px; }
+  h1 { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 42px; font-weight: 600; line-height: 1.1; }
+  .lede { color: var(--muted); margin-top: 8px; }
+  .panel { background: var(--card); border: 1px solid var(--card-border); border-radius: 20px; padding: 20px 18px; margin-bottom: 18px; }
+  .panel h2 { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 27px; font-weight: 600; color: var(--gold-bright); line-height: 1.2; margin-bottom: 6px; }
+  .step { font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--blush); font-weight: 600; }
+  p.help { color: var(--muted); font-size: 14px; margin-bottom: 12px; }
+  .note { font-size: 14px; padding: 10px 12px; border-radius: 12px; background: rgba(0,0,0,0.22); margin: 10px 0; }
+  .note.ok { border-left: 3px solid var(--ok); }
+  .note.warn { border-left: 3px solid var(--warn); }
+  .grid2 { display: grid; gap: 12px; grid-template-columns: 1fr 1fr; }
+  @media (max-width: 600px) { .grid2 { grid-template-columns: 1fr; } }
+  label.f { display: block; font-weight: 600; font-size: 13px; margin-bottom: 5px; color: var(--blush-soft); }
+  input[type="text"], input[type="url"], textarea, select {
+    width: 100%; font-family: inherit; font-size: 16px; color: var(--text);
+    background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 12px; padding: 10px 12px; outline: none;
+  }
+  select option { color: #2a1028; background: #fff; }
+  textarea { resize: vertical; min-height: 64px; }
+  input:focus, textarea:focus, select:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(232,196,122,0.18); }
+  .full { grid-column: 1 / -1; }
+  .checkrow { display: flex; gap: 10px; align-items: center; font-size: 14px; }
+  .checkrow input { width: 18px; height: 18px; accent-color: var(--gold); }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 12px; }
+  .btn {
+    font-family: inherit; font-size: 14px; font-weight: 600; border-radius: 999px; padding: 10px 16px;
+    cursor: pointer; border: none; display: inline-flex; align-items: center; justify-content: center; text-decoration: none;
+  }
+  .btn-primary { background: linear-gradient(135deg, var(--gold), var(--blush)); color: var(--plum-deep); }
+  .btn-ghost { background: transparent; color: var(--text); border: 1px solid rgba(216,191,208,0.4); }
+  .btn-danger { background: var(--blush); color: var(--plum-deep); }
+  .btn-sm { padding: 6px 12px; font-size: 13px; }
+  .file { display: inline-flex; }
+  .file input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+  .file span { cursor: pointer; }
+  .file input:focus-visible + span { outline: 2px solid var(--gold); outline-offset: 2px; }
+  .list { display: grid; gap: 10px; margin-top: 12px; }
+  .item { background: rgba(0,0,0,0.2); border-radius: 14px; padding: 12px; display: grid; gap: 8px; }
+  .item-top { display: flex; gap: 10px; align-items: center; }
+  .thumb { flex: 0 0 44px; width: 44px; height: 44px; border-radius: 50%; overflow: hidden; background: linear-gradient(135deg, var(--gold), var(--blush)); color: var(--plum-deep); display: flex; align-items: center; justify-content: center; font-weight: 600; }
+  .thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .nm { font-weight: 600; }
+  .sub { color: var(--muted); font-size: 13px; }
+  .grow { flex: 1; min-width: 0; }
+  .item p { font-size: 14px; }
+  .flags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .flag { font-size: 12px; padding: 2px 9px; border-radius: 999px; background: rgba(255,255,255,0.08); }
+  .flag.ok { color: var(--ok); } .flag.warn { color: var(--warn); }
+  .seg { display: inline-flex; background: rgba(0,0,0,0.3); border-radius: 999px; padding: 3px; }
+  .seg button { font-family: inherit; font-size: 13px; font-weight: 600; border: none; background: transparent; color: var(--muted); padding: 6px 12px; border-radius: 999px; cursor: pointer; }
+  .seg button[aria-pressed="true"].live { background: var(--ok); color: #123; }
+  .seg button[aria-pressed="true"].pending { background: var(--warn); color: #321; }
+  .seg button[aria-pressed="true"].hidden { background: var(--blush); color: var(--plum-deep); }
+  a.link { color: var(--gold-bright); }
+  .stats { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+  .stat { background: rgba(0,0,0,0.22); border-radius: 12px; padding: 10px 14px; min-width: 110px; }
+  .stat b { display: block; font-size: 22px; color: var(--gold-bright); font-weight: 600; }
+  .stat span { font-size: 12px; color: var(--muted); }
+  .status { font-size: 13px; color: var(--gold-bright); min-height: 18px; margin-top: 8px; }
+  ol.how { padding-left: 20px; font-size: 14px; color: var(--muted); display: grid; gap: 4px; margin-top: 12px; }
+  ol.how b { color: var(--text); }
+  button:focus-visible, a:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+  .daybox { display: flex; flex-wrap: wrap; gap: 8px; }
+  .daybox label { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; background: rgba(255,255,255,0.06); border-radius: 999px; padding: 6px 12px; cursor: pointer; }
+  .daybox input { accent-color: var(--gold); width: 16px; height: 16px; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <div class="eyebrow">She Promotes&trade; &middot; Private</div>
+    <h1>Directory Updater</h1>
+    <p class="lede">Everything here happens on your computer. Emails from your form export never leave your browser and never go into the Directory.</p>
+  </header>
+
+  <!-- 1. CURRENT DIRECTORY -->
+  <section class="panel">
+    <div class="step">Step 1</div>
+    <h2>Start from your current Directory</h2>
+    <p class="help">This keeps everyone who&rsquo;s already live, plus your featured communities.</p>
+    <div id="loadStatus" class="note">Looking for your current Directory&hellip;</div>
+    <div class="row">
+      <label class="file"><input type="file" id="jsonFile" accept=".json,application/json"><span class="btn btn-ghost">Choose directory.json</span></label>
+      <button class="btn btn-ghost" type="button" id="freshBtn">Start fresh</button>
+    </div>
+    <div class="row" id="freshConfirm" hidden>
+      <span class="sub">This clears your current listings and featured communities here. Your live Directory doesn&rsquo;t change until you upload a new file.</span>
+      <button class="btn btn-danger btn-sm" type="button" id="freshYes">Yes, start fresh</button>
+      <button class="btn btn-ghost btn-sm" type="button" id="freshNo">Keep everything</button>
+    </div>
+  </section>
+
+  <!-- 2. FEATURED -->
+  <section class="panel">
+    <div class="step">Your picks</div>
+    <h2>&#11088; Featured promo communities</h2>
+    <p class="help">These show at the top of the Directory, in this order. Use your affiliate link where you have one.</p>
+    <div class="list" id="featList"></div>
+
+    <div id="featForm" class="item" style="margin-top:14px;">
+      <div class="nm" id="featFormTitle">Add a community</div>
+      <div class="grid2">
+        <div><label class="f" for="ff-name">Community name</label><input type="text" id="ff-name" placeholder="Promote Today"></div>
+        <div><label class="f" for="ff-link">Link (your affiliate link)</label><input type="url" id="ff-link" placeholder="https://www.skool.com/..."></div>
+        <div><label class="f" for="ff-platform">Platform</label>
+          <select id="ff-platform"><option>Skool</option><option>Facebook Group</option><option>Other</option></select></div>
+        <div><label class="f" for="ff-access">Free or paid</label>
+          <select id="ff-access"><option value="">Not shown</option><option>Free</option><option>Paid</option><option>Free and paid options</option></select></div>
+        <div class="full"><label class="f" for="ff-about">What it is, in one sentence</label><input type="text" id="ff-about" maxlength="180" placeholder="A promo community where women share their offers every day."></div>
+        <div class="full"><label class="f" for="ff-why">Why I love it</label><textarea id="ff-why" placeholder="The women in here show up for each other. I always leave with a new connection."></textarea></div>
+        <div class="full"><label class="f" for="ff-image">Image or logo link <span class="sub">(optional)</span></label><input type="url" id="ff-image" placeholder="https://..."></div>
+        <div class="full"><span class="f" style="display:block;font-weight:600;font-size:13px;margin-bottom:5px;color:var(--blush-soft);">Promo days</span>
+          <div class="daybox" id="ff-days"></div></div>
+        <div class="full"><label class="f" for="ff-schedule">Schedule note <span class="sub">(optional)</span></label><input type="text" id="ff-schedule" maxlength="120" placeholder="Free members Mon and Wed, paid members daily. Thread opens 6am Eastern."></div>
+        <label class="checkrow full"><input type="checkbox" id="ff-aff" checked> This is my affiliate link</label>
+      </div>
+      <div class="row">
+        <button class="btn btn-primary" type="button" id="featSave">Add to featured</button>
+        <button class="btn btn-ghost" type="button" id="featCancel" hidden>Cancel</button>
+      </div>
+      <div class="status" id="featStatus" aria-live="polite"></div>
+    </div>
+  </section>
+
+  <!-- SPOTLIGHT -->
+  <section class="panel">
+    <div class="step">Every week</div>
+    <h2>&#11088; Community Spotlight</h2>
+    <p class="help">Pick one premium member&rsquo;s community to feature at the top of the Directory&rsquo;s Home page.</p>
+    <div class="grid2">
+      <div class="full"><label class="f" for="sp-id">Community</label><select id="sp-id"></select></div>
+      <div class="full"><label class="f" for="sp-note">Why I&rsquo;m featuring it</label><textarea id="sp-note" placeholder="Jade's circle is the warmest room for women learning Human Design. Every call leaves you feeling seen."></textarea></div>
+      <div class="full"><label class="f" for="sp-image">Image link <span class="sub">(optional, otherwise the category image is used)</span></label><input type="url" id="sp-image" placeholder="https://..."></div>
+    </div>
+    <div class="status" id="spStatus" aria-live="polite"></div>
+  </section>
+
+  <!-- 3. CSV -->
+  <section class="panel">
+    <div class="step">Step 2</div>
+    <h2>Bring in your form submissions</h2>
+    <p class="help">In your Google Form, open the responses spreadsheet, then choose File, Download, Comma Separated Values (.csv). Choose that file here. Export all submissions every time. Duplicates are handled for you.</p>
+    <div class="row">
+      <label class="file"><input type="file" id="csvFile" accept=".csv,text/csv"><span class="btn btn-primary">Choose form CSV</span></label>
+    </div>
+    <div id="csvReport"></div>
+  </section>
+
+  <!-- 4. REVIEW -->
+  <section class="panel" id="reviewPanel" hidden>
+    <div class="step">Step 3</div>
+    <h2>Review and approve</h2>
+    <p class="help">Open her Skool profile to check she&rsquo;s premium, then set her to Live. Pending and Hidden listings stay out of the Directory.</p>
+    <div class="row" id="reviewFilter"></div>
+    <div class="list" id="reviewList"></div>
+  </section>
+
+  <!-- 5. DOWNLOAD -->
+  <section class="panel">
+    <div class="step">Step 4</div>
+    <h2>Download and upload</h2>
+    <div class="stats" id="stats"></div>
+    <div class="row">
+      <button class="btn btn-primary" type="button" id="downloadBtn">Download directory.json</button>
+      <button class="btn btn-ghost" type="button" id="copyBtn">Copy instead</button>
+    </div>
+    <div class="status" id="dlStatus" aria-live="polite"></div>
+    <ol class="how">
+      <li>Go to your <b>she-promotes-directory</b> repo on GitHub.</li>
+      <li>Click <b>Add file</b>, then <b>Upload files</b>, and drop in the new <b>directory.json</b>.</li>
+      <li>Click <b>Commit changes</b>. The Directory updates in a minute or two.</li>
+    </ol>
+  </section>
+
+</div>
+
+<script>
+(function () {
+  var STORE = 'spDirectoryUpdater';
+  var CATEGORIES = [
+    'Energy Healing', 'Hypnosis & Subconscious Work', 'Money Mindset & Wealth', 'Manifestation', 'Life & Purpose Coaching',
+    'Relationship & Family Coaching', 'Business Coaching & Strategy', 'Human Design & Astrology',
+    'Intuitive Readings', 'Nutrition & Fitness', 'Perimenopause & Menopause', 'Beauty & Skincare',
+    'Social Media & Content', 'Websites, Funnels & Tech', 'AI & Automation Support',
+    'Virtual Assistants & Admin', 'Branding, Design & Photography', 'Handmade & Gifts'
+  ];
+  var DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  var ALL_CATS = CATEGORIES.concat(['Promo & Networking']);
+  var parseDays = function (v) {
+    var txt = String(v || '');
+    return DAYS.filter(function (d) { return new RegExp('\\b' + d, 'i').test(txt); });
+  };
+  var pickOne = function (v) { var r = pickKnown(v, ALL_CATS); return r[0] || ''; };
+  var pickRec = function (v) {
+    v = String(v || '');
+    if (/promo/i.test(v)) return 'Promo Group';
+    if (/business/i.test(v)) return 'Business';
+    if (/heal|spirit/i.test(v)) return 'Healing & Spiritual';
+    return v.trim() ? 'Other' : '';
+  };
+  var FORMATS = ['1:1 Sessions', 'Group Program', 'Course', 'Membership or Skool Community', 'Physical Product', 'Digital Product', 'Live Event or Workshop'];
+
+  var $ = function (id) { return document.getElementById(id); };
+  var el = function (tag, cls, text) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text != null && text !== '') n.textContent = text;
+    return n;
+  };
+
+  /* Saved state: statuses by id, plus unsaved featured edits */
+  var saved = { status: {}, featuredDraft: null, spotlightDraft: null };
+  try {
+    var raw = localStorage.getItem(STORE);
+    if (raw) { var p = JSON.parse(raw); if (p && typeof p === 'object') { saved.status = p.status || {}; saved.featuredDraft = p.featuredDraft || null; saved.spotlightDraft = p.spotlightDraft || null; } }
+  } catch (e) { /* storage unavailable */ }
+  var persist = function () { try { localStorage.setItem(STORE, JSON.stringify(saved)); } catch (e) { /* ignore */ } };
+
+  var current = { featured: [], members: [] };   /* from directory.json */
+  var featured = [];
+  var csvMembers = [];                              /* from the form CSV */
+  var reviewFilter = 'all';
+
+  /* ---------- Helpers ---------- */
+  var hashId = function (str) {
+    var h = 2166136261;
+    for (var i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
+    return 'm' + (h >>> 0).toString(36);
+  };
+  var normUrl = function (u) {
+    return String(u || '').trim().toLowerCase().replace(/^https?:\/\//, '').replace(/^www\./, '').split(/[?#]/)[0].replace(/\/+$/, '');
+  };
+  var cleanUrl = function (u) {
+    u = String(u || '').trim();
+    if (!u) return '';
+    if (/^@[\w.]+$/.test(u)) return 'https://instagram.com/' + u.slice(1);
+    if (!/^https?:\/\//i.test(u)) u = 'https://' + u;
+    return /^https?:\/\/[^\s"'<>]+\.[^\s"'<>]+/i.test(u) ? u : '';
+  };
+  /* Google Forms photo uploads arrive as Drive links; turn the first one into a viewable image link */
+  var photoUrl = function (v) {
+    var first = String(v || '').split(/[\s,]+/)[0];
+    var m = /drive\.google\.com/.test(first) ? (first.match(/[?&]id=([\w-]{10,})/) || first.match(/\/d\/([\w-]{10,})/)) : null;
+    if (m) return 'https://drive.google.com/thumbnail?id=' + m[1] + '&sz=w600';
+    return cleanUrl(first);
+  };
+  var truthy = function (v) {
+    v = String(v || '').trim().toLowerCase();
+    return !!v && ['false', 'no', 'unchecked', '0', 'n'].indexOf(v) === -1;
+  };
+  var pickKnown = function (cell, known) {
+    var c = String(cell || '').toLowerCase();
+    return known
+      .filter(function (k) { return c.indexOf(k.toLowerCase()) !== -1; })
+      .sort(function (a, b) { return c.indexOf(a.toLowerCase()) - c.indexOf(b.toLowerCase()); });
+  };
+  var initials = function (name) {
+    var parts = String(name || '?').trim().split(/\s+/);
+    return ((parts[0] || '?').charAt(0) + (parts.length > 1 ? parts[parts.length - 1].charAt(0) : '')).toUpperCase();
+  };
+  var thumb = function (src, name) {
+    var t = el('div', 'thumb', initials(name));
+    var url = cleanUrl(src);
+    if (url) {
+      var img = new Image();
+      img.alt = '';
+      img.onload = function () { t.textContent = ''; t.appendChild(img); };
+      img.src = url;
+    }
+    return t;
+  };
+
+  /* ---------- CSV ---------- */
+  var parseCSV = function (text) {
+    text = text.replace(/^﻿/, '');
+    var firstLine = text.split(/\r?\n/)[0] || '';
+    var delim = ',';
+    [';', '\t'].forEach(function (d) { if (firstLine.split(d).length > firstLine.split(delim).length) delim = d; });
+    var rows = [], row = [], field = '', q = false;
+    for (var i = 0; i < text.length; i++) {
+      var ch = text.charAt(i);
+      if (q) {
+        if (ch === '"') { if (text.charAt(i + 1) === '"') { field += '"'; i++; } else q = false; }
+        else field += ch;
+      } else if (ch === '"') q = true;
+      else if (ch === delim) { row.push(field); field = ''; }
+      else if (ch === '\n' || ch === '\r') {
+        if (ch === '\r' && text.charAt(i + 1) === '\n') i++;
+        row.push(field); field = '';
+        if (row.some(function (c) { return c.trim() !== ''; })) rows.push(row);
+        row = [];
+      } else field += ch;
+    }
+    row.push(field);
+    if (row.some(function (c) { return c.trim() !== ''; })) rows.push(row);
+    return rows;
+  };
+
+  var key = function (h) { return String(h || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim(); };
+
+  var mapColumns = function (headers) {
+    var map = { recs: {} }, emailCols = 0;
+    var section = 'profile', curRec = '1';
+    headers.forEach(function (raw, i) {
+      var h = key(raw);
+      if (!h) return;
+      var isDays = h.indexOf('promo day') !== -1 || /\bdays\b/.test(h);
+      /* questions that only steer the form */
+      if (/would you like to recommend|add another/.test(h)) return;
+      /* recommended community questions (also "Community 2 name" style labels) */
+      var numM = h.match(/community (\d)\b/) || (h.indexOf('recommend') !== -1 ? h.match(/\b([1-9])\b/) : null);
+      if (h.indexOf('recommend') !== -1 || /^community \d\b/.test(h) || (section === 'rec' && isDays)) {
+        if (numM) curRec = numM[1];
+        section = 'rec';
+        var r = map.recs[curRec] = map.recs[curRec] || {};
+        if (h.indexOf('why') !== -1) r.why = i;
+        else if (h.indexOf('affiliate') !== -1) r.affiliate = i;
+        else if (isDays) r.days = i;
+        else if (h.indexOf('categor') !== -1) r.category = i;
+        else if (h.indexOf('free or paid') !== -1) r.access = i;
+        else if (h.indexOf('what it is') !== -1 || h.indexOf('about') !== -1) r.about = i;
+        else if (h.indexOf('link') !== -1 || h.indexOf('url') !== -1) r.link = i;
+        else if (h.indexOf('name') !== -1) r.name = i;
+        return;
+      }
+      if (h.indexOf('email') !== -1) { emailCols++; return; }   /* never read */
+      if (h.indexOf('premium') !== -1) { map.premium = i; return; }
+      if (h.indexOf('skool') !== -1 && h.indexOf('profile') !== -1) { map.skool = i; return; }
+      if (h.indexOf('business name') !== -1) { map.business = i; return; }
+      if (h.indexOf('community name') !== -1) { map.cName = i; section = 'community'; return; }
+      if (h.indexOf('categor') !== -1 && (h.indexOf('community') !== -1 || section === 'community')) { map.cCat = i; return; }
+      if (isDays) { map.cDays = i; return; }
+      if (h.indexOf('community link') !== -1 || h.indexOf('link to your community') !== -1) { map.cLink = i; section = 'community'; return; }
+      if (h.indexOf('community is about') !== -1 || (h.indexOf('community') !== -1 && h.indexOf('about') !== -1)) { map.cAbout = i; return; }
+      if (h.indexOf('about you') !== -1 || h.indexOf('about her') !== -1 || h === 'about' || h.indexOf('short bio') !== -1) { map.about = i; return; }
+      if (h.indexOf('platform') !== -1) { map.cPlatform = i; return; }
+      if (h.indexOf('free or paid') !== -1) { map.cAccess = i; return; }
+      if (h.indexOf('signature offer') !== -1 && (h.indexOf('link') !== -1 || h.indexOf('url') !== -1)) { map.offerLink = i; return; }
+      if (h.indexOf('signature offer') !== -1) { map.offer = i; return; }
+      if (h.indexOf('who it') !== -1 || h.indexOf('who its for') !== -1) { map.who = i; return; }
+      if (h.indexOf('price') !== -1) { map.price = i; return; }
+      if (h.indexOf('photo') !== -1 || h.indexOf('logo') !== -1) { map.photo = i; return; }
+      if (h.indexOf('instagram') !== -1 || h.indexOf('social') !== -1) { map.social = i; return; }
+      if (h.indexOf('categor') !== -1) { if (map.cat == null) map.cat = i; return; }
+      if (h.indexOf('format') !== -1) { map.format = i; return; }
+      if (/(submission|submitted|created|date|time)/.test(h)) { if (map.date == null) map.date = i; return; }
+      if (/^(full )?name$/.test(h) || h === 'your name') { map.name = i; return; }
+      if (h === 'first name') { map.first = i; return; }
+      if (h === 'last name') { map.last = i; return; }
+    });
+    map.emailCols = emailCols;
+    return map;
+  };
+
+  var rowToMember = function (row, map) {
+    var g = function (i) { return i == null ? '' : String(row[i] || '').trim(); };
+    var name = g(map.name) || (g(map.first) + ' ' + g(map.last)).trim();
+    var skool = g(map.skool);
+    var m = {
+      id: hashId(normUrl(skool) || (name + '|' + g(map.business)).toLowerCase()),
+      name: name,
+      business: g(map.business),
+      about: g(map.about),
+      photo: photoUrl(g(map.photo)),
+      social: cleanUrl(g(map.social)),
+      categories: pickKnown(g(map.cat), CATEGORIES).slice(0, 4),
+      formats: pickKnown(g(map.format), FORMATS),
+      offer: g(map.offer),
+      who: g(map.who),
+      price: g(map.price),
+      offerLink: cleanUrl(g(map.offerLink)),
+      community: null,
+      recommends: []
+    };
+    if (g(map.cName) && cleanUrl(g(map.cLink))) {
+      var ccats = pickKnown(g(map.cCat), ALL_CATS).slice(0, 4);
+      m.community = { name: g(map.cName), link: cleanUrl(g(map.cLink)), category: ccats[0] || '', categories: ccats, platform: g(map.cPlatform), about: g(map.cAbout), access: g(map.cAccess), promoDays: parseDays(g(map.cDays)) };
+    }
+    Object.keys(map.recs).sort().forEach(function (n) {
+      var r = map.recs[n];
+      var rn = g(r.name), rl = cleanUrl(g(r.link));
+      if (rn && rl && m.recommends.length < 3) m.recommends.push({ name: rn, link: rl, category: pickRec(g(r.category)), about: g(r.about), access: g(r.access), why: g(r.why), affiliate: truthy(g(r.affiliate)), promoDays: parseDays(g(r.days)) });
+    });
+    /* review-only info, never saved to the Directory */
+    m._skool = cleanUrl(skool);
+    m._premium = map.premium == null ? null : truthy(g(map.premium));
+    m._date = map.date == null ? NaN : Date.parse(g(map.date));
+    return m;
+  };
+
+  var handleCSV = function (text) {
+    var report = $('csvReport');
+    report.innerHTML = '';
+    var rows = parseCSV(text);
+    if (rows.length < 2) { report.appendChild(el('div', 'note warn', 'That file looks empty. Try downloading the CSV again from your responses sheet.')); return; }
+    var map = mapColumns(rows[0]);
+    var missing = [];
+    if (map.name == null && map.first == null) missing.push('Name');
+    if (map.skool == null) missing.push('Skool profile link');
+    if (map.offer == null) missing.push('Signature offer in one sentence');
+    if (map.offerLink == null) missing.push('Link to your signature offer');
+    var byId = {}, order = [], total = 0;
+    rows.slice(1).forEach(function (r, idx) {
+      var m = rowToMember(r, map);
+      if (!m.name) return;
+      total++;
+      m._row = idx;
+      var prev = byId[m.id];
+      if (!prev) { byId[m.id] = m; order.push(m.id); return; }
+      var newer = (!isNaN(m._date) && !isNaN(prev._date)) ? m._date >= prev._date : true;
+      if (newer) byId[m.id] = m;
+    });
+    csvMembers = order.map(function (id) { return byId[id]; });
+    var dupes = total - csvMembers.length;
+    report.appendChild(el('div', 'note ok',
+      total + ' submission' + (total === 1 ? '' : 's') + ' found, ' + csvMembers.length + ' unique ' + (csvMembers.length === 1 ? 'woman' : 'women') +
+      (dupes ? '. ' + dupes + ' older duplicate' + (dupes === 1 ? '' : 's') + ' replaced by the newest version.' : '.')));
+    if (map.emailCols) report.appendChild(el('div', 'note ok', 'Emails removed. They stay out of the Directory file.'));
+    if (missing.length) report.appendChild(el('div', 'note warn', 'I couldn’t find these columns: ' + missing.join(', ') + '. Check the form questions match the field list.'));
+    renderReview();
+    renderStats();
+    renderSpotPicker();
+    $('reviewPanel').hidden = false;
+  };
+
+  /* ---------- Status ---------- */
+  var statusOf = function (id) {
+    if (saved.status[id]) return saved.status[id];
+    for (var i = 0; i < current.members.length; i++) if (current.members[i].id === id) return 'live';
+    return 'pending';
+  };
+  var setStatus = function (id, s) { saved.status[id] = s; persist(); renderReview(); renderStats(); renderSpotPicker(); };
+
+  var allMembers = function () {
+    var seen = {}, list = [];
+    csvMembers.forEach(function (m) { seen[m.id] = true; list.push(m); });
+    current.members.forEach(function (m) {
+      if (seen[m.id]) return;
+      var copy = JSON.parse(JSON.stringify(m));
+      copy._fromCurrent = true;
+      list.push(copy);
+    });
+    return list;
+  };
+
+  /* ---------- Review ---------- */
+  var renderReview = function () {
+    var filters = [['all', 'All'], ['pending', 'Pending'], ['live', 'Live'], ['hidden', 'Hidden']];
+    var fw = $('reviewFilter');
+    fw.innerHTML = '';
+    var seg = el('div', 'seg');
+    var list = allMembers();
+    filters.forEach(function (f) {
+      var count = f[0] === 'all' ? list.length : list.filter(function (m) { return statusOf(m.id) === f[0]; }).length;
+      var b = el('button', f[0] === 'all' ? 'live' : f[0], f[1] + ' (' + count + ')');
+      b.type = 'button';
+      b.setAttribute('aria-pressed', reviewFilter === f[0] ? 'true' : 'false');
+      b.addEventListener('click', function () { reviewFilter = f[0]; renderReview(); });
+      seg.appendChild(b);
+    });
+    fw.appendChild(seg);
+
+    var wrap = $('reviewList');
+    wrap.innerHTML = '';
+    var shown = list.filter(function (m) { return reviewFilter === 'all' || statusOf(m.id) === reviewFilter; });
+    if (!shown.length) { wrap.appendChild(el('p', 'sub', 'Nobody here right now.')); return; }
+    shown.forEach(function (m) {
+      var it = el('div', 'item');
+      var top = el('div', 'item-top');
+      top.appendChild(thumb(m.photo, m.name));
+      var t = el('div', 'grow');
+      t.appendChild(el('div', 'nm', m.name));
+      if (m.business) t.appendChild(el('div', 'sub', m.business));
+      top.appendChild(t);
+      it.appendChild(top);
+
+      var flags = el('div', 'flags');
+      if (m._fromCurrent) flags.appendChild(el('span', 'flag', 'Already in the Directory, not in this CSV'));
+      if (m._premium === true) flags.appendChild(el('span', 'flag ok', '✓ Checked premium box'));
+      if (m._premium === false) flags.appendChild(el('span', 'flag warn', 'Didn’t check the premium box'));
+      if (m.offer && m.offer.length > 150) flags.appendChild(el('span', 'flag warn', 'Offer is ' + m.offer.length + ' characters'));
+      if (!m.offer && !m.community && !(m.recommends || []).length) flags.appendChild(el('span', 'flag warn', 'Nothing to list yet'));
+      if (m.offer && !m.offerLink) flags.appendChild(el('span', 'flag warn', 'No offer link'));
+      if (m.community) flags.appendChild(el('span', 'flag', 'Community: ' + m.community.name + ((m.community.categories || [m.community.category]).filter(Boolean).length ? ' (' + (m.community.categories || [m.community.category]).filter(Boolean).join(', ') + ')' : '')));
+      if (m.community && !m.community.category) flags.appendChild(el('span', 'flag warn', 'Community has no category'));
+      (m.recommends || []).forEach(function (r) { flags.appendChild(el('span', 'flag', 'Recommends: ' + r.name + (r.category ? ' (' + r.category + ')' : ''))); });
+      if (flags.childNodes.length) it.appendChild(flags);
+
+      if (m.about) it.appendChild(el('p', 'sub', 'About: ' + m.about));
+      if (m.offer) it.appendChild(el('p', '', m.offer));
+      if (m.categories && m.categories.length) it.appendChild(el('p', 'sub', m.categories.join(' · ') + (m.formats && m.formats.length ? '  |  ' + m.formats.join(' · ') : '')));
+
+      var row = el('div', 'row');
+      row.style.marginTop = '0';
+      if (m._skool) {
+        var a = el('a', 'link', 'Open Skool profile');
+        a.href = m._skool; a.target = '_blank'; a.rel = 'noopener';
+        row.appendChild(a);
+      }
+      var s = el('div', 'seg');
+      [['live', 'Live'], ['pending', 'Pending'], ['hidden', 'Hidden']].forEach(function (o) {
+        var b = el('button', o[0], o[1]);
+        b.type = 'button';
+        b.setAttribute('aria-pressed', statusOf(m.id) === o[0] ? 'true' : 'false');
+        b.addEventListener('click', function () { setStatus(m.id, o[0]); });
+        s.appendChild(b);
+      });
+      row.appendChild(s);
+      it.appendChild(row);
+      wrap.appendChild(it);
+    });
+  };
+
+  /* ---------- Featured ---------- */
+  var editing = -1;
+  var FF = ['name', 'link', 'platform', 'access', 'about', 'why', 'image', 'schedule'];
+  (function () {
+    var box = $('ff-days');
+    DAYS.forEach(function (d) {
+      var l = document.createElement('label');
+      var c = document.createElement('input'); c.type = 'checkbox'; c.value = d; c.id = 'ff-day-' + d;
+      l.appendChild(c); l.appendChild(document.createTextNode(d)); box.appendChild(l);
+    });
+  })();
+  var getDays = function () { return DAYS.filter(function (d) { return $('ff-day-' + d).checked; }); };
+  var setDays = function (arr) { DAYS.forEach(function (d) { $('ff-day-' + d).checked = (arr || []).indexOf(d) !== -1; }); };
+  var saveDraft = function () { saved.featuredDraft = featured; persist(); };
+  var resetForm = function () {
+    FF.forEach(function (k) { var f = $('ff-' + k); f.value = f.tagName === 'SELECT' ? f.options[0].value : ''; });
+    $('ff-aff').checked = true;
+    setDays([]);
+    editing = -1;
+    $('featFormTitle').textContent = 'Add a community';
+    $('featSave').textContent = 'Add to featured';
+    $('featCancel').hidden = true;
+  };
+  var confirmDel = -1;
+  var renderFeatured = function () {
+    var wrap = $('featList');
+    wrap.innerHTML = '';
+    if (!featured.length) { wrap.appendChild(el('p', 'sub', 'No featured communities yet. Add your first one below.')); }
+    featured.forEach(function (f, i) {
+      var it = el('div', 'item');
+      var top = el('div', 'item-top');
+      top.appendChild(thumb(f.image, f.name));
+      var t = el('div', 'grow');
+      t.appendChild(el('div', 'nm', f.name));
+      t.appendChild(el('div', 'sub', [f.platform, f.access, f.affiliate ? 'Affiliate link' : '', (f.promoDays || []).length ? 'Promo ' + f.promoDays.join(', ') : ''].filter(Boolean).join(' · ')));
+      top.appendChild(t);
+      it.appendChild(top);
+      if (f.about) it.appendChild(el('p', '', f.about));
+      var row = el('div', 'row');
+      row.style.marginTop = '0';
+      if (confirmDel === i) {
+        row.appendChild(el('span', 'sub', 'Remove ' + f.name + '?'));
+        var y = el('button', 'btn btn-danger btn-sm', 'Yes, remove'); y.type = 'button';
+        y.addEventListener('click', function () { featured.splice(i, 1); confirmDel = -1; saveDraft(); renderFeatured(); renderStats(); });
+        var n = el('button', 'btn btn-ghost btn-sm', 'Keep it'); n.type = 'button';
+        n.addEventListener('click', function () { confirmDel = -1; renderFeatured(); });
+        row.appendChild(y); row.appendChild(n);
+      } else {
+        var mk = function (label, fn, dis) {
+          var b = el('button', 'btn btn-ghost btn-sm', label); b.type = 'button'; b.disabled = !!dis;
+          if (dis) b.style.opacity = '0.4';
+          b.addEventListener('click', fn); row.appendChild(b);
+        };
+        mk('↑ Up', function () { var x = featured.splice(i, 1)[0]; featured.splice(i - 1, 0, x); saveDraft(); renderFeatured(); }, i === 0);
+        mk('↓ Down', function () { var x = featured.splice(i, 1)[0]; featured.splice(i + 1, 0, x); saveDraft(); renderFeatured(); }, i === featured.length - 1);
+        mk('Edit', function () {
+          editing = i;
+          FF.forEach(function (k) { $('ff-' + k).value = f[k] || ''; });
+          $('ff-aff').checked = !!f.affiliate;
+          setDays(f.promoDays);
+          $('featFormTitle').textContent = 'Edit ' + f.name;
+          $('featSave').textContent = 'Save changes';
+          $('featCancel').hidden = false;
+          $('featForm').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        });
+        mk('Remove', function () { confirmDel = i; renderFeatured(); });
+      }
+      it.appendChild(row);
+      wrap.appendChild(it);
+    });
+  };
+  $('featSave').addEventListener('click', function () {
+    var f = {};
+    FF.forEach(function (k) { f[k] = $('ff-' + k).value.trim(); });
+    f.affiliate = $('ff-aff').checked;
+    f.promoDays = getDays();
+    f.link = cleanUrl(f.link);
+    f.image = /^images\//.test(f.image) ? f.image : cleanUrl(f.image);
+    if (!f.name || !f.link) { $('featStatus').textContent = 'Add a name and a working link first.'; return; }
+    if (editing >= 0) featured[editing] = f; else featured.push(f);
+    $('featStatus').textContent = editing >= 0 ? 'Saved.' : f.name + ' added.';
+    resetForm(); saveDraft(); renderFeatured(); renderStats();
+  });
+  $('featCancel').addEventListener('click', function () { resetForm(); $('featStatus').textContent = ''; });
+
+  /* ---------- Spotlight ---------- */
+  var spotlight = null;
+  var saveSpot = function () { saved.spotlightDraft = spotlight || { id: '' }; persist(); };
+  var renderSpotPicker = function () {
+    var sel = $('sp-id');
+    var keep = spotlight && spotlight.id ? spotlight.id : '';
+    sel.innerHTML = '';
+    var none = el('option', '', 'No spotlight this week'); none.value = ''; sel.appendChild(none);
+    var found = false;
+    allMembers().filter(function (m) { return m.community && statusOf(m.id) === 'live'; }).forEach(function (m) {
+      var o = el('option', '', m.community.name + ' (' + m.name + ')'); o.value = m.id; sel.appendChild(o);
+      if (m.id === keep) found = true;
+    });
+    sel.value = found ? keep : '';
+    $('sp-note').value = spotlight && spotlight.note || '';
+    $('sp-image').value = spotlight && spotlight.image || '';
+    $('spStatus').textContent = keep && !found ? 'Last spotlight is no longer live, so nothing is selected.' : '';
+  };
+  var readSpot = function () {
+    var id = $('sp-id').value;
+    var simg = $('sp-image').value.trim();
+    spotlight = id ? { id: id, note: $('sp-note').value.trim(), image: /^images\//.test(simg) ? simg : cleanUrl(simg) } : null;
+    saveSpot(); renderStats();
+  };
+  ['sp-id', 'sp-note', 'sp-image'].forEach(function (k) { $(k).addEventListener(k === 'sp-id' ? 'change' : 'input', readSpot); });
+
+  /* ---------- Output ---------- */
+  var buildOutput = function () {
+    var members = allMembers().filter(function (m) { return statusOf(m.id) === 'live'; }).map(function (m) {
+      var o = {};
+      ['id', 'name', 'business', 'about', 'photo', 'social', 'categories', 'formats', 'offer', 'who', 'price', 'offerLink', 'community', 'recommends']
+        .forEach(function (k) { if (m[k] != null) o[k] = m[k]; });
+      return o;
+    });
+    var sp = null;
+    if (spotlight && spotlight.id) members.forEach(function (m) { if (m.id === spotlight.id && m.community) sp = spotlight; });
+    return { version: 1, updated: new Date().toISOString(), featured: featured, spotlight: sp, members: members };
+  };
+  var renderStats = function () {
+    var out = buildOutput();
+    var list = allMembers();
+    var stats = [
+      [out.members.length, 'Live listings'],
+      [list.filter(function (m) { return statusOf(m.id) === 'pending'; }).length, 'Pending'],
+      [out.featured.length, 'Featured'],
+      [out.spotlight ? 1 : 0, 'Spotlight'],
+      [out.members.filter(function (m) { return m.community; }).length, 'Communities'],
+      [out.members.reduce(function (n, m) { return n + (m.recommends || []).length; }, 0), 'Recommended']
+    ];
+    var w = $('stats');
+    w.innerHTML = '';
+    stats.forEach(function (s) { var d = el('div', 'stat'); d.appendChild(el('b', '', String(s[0]))); d.appendChild(el('span', '', s[1])); w.appendChild(d); });
+  };
+  var finished = function (msg) {
+    saved.featuredDraft = null; saved.spotlightDraft = null; persist();
+    $('dlStatus').textContent = msg;
+  };
+  $('downloadBtn').addEventListener('click', function () {
+    var json = JSON.stringify(buildOutput(), null, 2);
+    var blob = new Blob([json], { type: 'application/json' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url; a.download = 'directory.json';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 2000);
+    finished('Downloaded. Now upload it to GitHub.');
+  });
+  $('copyBtn').addEventListener('click', function () {
+    var json = JSON.stringify(buildOutput(), null, 2);
+    var ok = function () { finished('Copied. In GitHub, open directory.json, click the pencil, paste over everything, and commit.'); };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(json).then(ok, function () { $('dlStatus').textContent = 'Copy didn’t work here. Use Download instead.'; });
+    else $('dlStatus').textContent = 'Copy isn’t available here. Use Download instead.';
+  });
+
+  /* ---------- Loading ---------- */
+  var useCurrent = function (json, source) {
+    current = { featured: Array.isArray(json.featured) ? json.featured : [], members: Array.isArray(json.members) ? json.members : [] };
+    if (saved.featuredDraft) {
+      featured = saved.featuredDraft;
+      $('loadStatus').className = 'note warn';
+      $('loadStatus').textContent = 'Loaded ' + source + ': ' + current.members.length + ' live listings. You have featured changes from last time that aren’t uploaded yet, so I kept those.';
+    } else {
+      featured = current.featured.slice();
+      $('loadStatus').className = 'note ok';
+      $('loadStatus').textContent = 'Loaded ' + source + ': ' + current.members.length + ' live listings and ' + featured.length + ' featured communities.';
+    }
+    spotlight = saved.spotlightDraft ? (saved.spotlightDraft.id ? saved.spotlightDraft : null) : (json.spotlight || null);
+    renderFeatured(); renderStats(); renderSpotPicker();
+    if (current.members.length) { $('reviewPanel').hidden = false; renderReview(); }
+  };
+  $('jsonFile').addEventListener('change', function () {
+    var f = this.files[0]; if (!f) return;
+    var r = new FileReader();
+    r.onload = function () {
+      try { useCurrent(JSON.parse(r.result), f.name); }
+      catch (e) { $('loadStatus').className = 'note warn'; $('loadStatus').textContent = 'That file isn’t a Directory file. Choose directory.json.'; }
+    };
+    r.readAsText(f);
+    this.value = '';
+  });
+  $('csvFile').addEventListener('change', function () {
+    var f = this.files[0]; if (!f) return;
+    var r = new FileReader();
+    r.onload = function () { handleCSV(String(r.result)); };
+    r.readAsText(f);
+    this.value = '';
+  });
+  $('freshBtn').addEventListener('click', function () { $('freshConfirm').hidden = false; });
+  $('freshNo').addEventListener('click', function () { $('freshConfirm').hidden = true; });
+  $('freshYes').addEventListener('click', function () {
+    saved = { status: {}, featuredDraft: null, spotlightDraft: null }; persist();
+    current = { featured: [], members: [] }; featured = []; csvMembers = []; spotlight = null; renderSpotPicker();
+    $('freshConfirm').hidden = true;
+    $('csvReport').innerHTML = '';
+    $('reviewPanel').hidden = true;
+    $('loadStatus').className = 'note';
+    $('loadStatus').textContent = 'Starting fresh. Add your featured communities and bring in your form CSV.';
+    renderFeatured(); renderStats();
+  });
+
+  renderFeatured(); renderStats();
+  fetch('directory.json?v=' + Date.now(), { cache: 'no-store' })
+    .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+    .then(function (json) { useCurrent(json, 'your current Directory'); })
+    .catch(function () {
+      if (saved.featuredDraft) { featured = saved.featuredDraft; renderFeatured(); renderStats(); }
+      if (saved.spotlightDraft && saved.spotlightDraft.id) spotlight = saved.spotlightDraft;
+      renderSpotPicker();
+      $('loadStatus').className = 'note warn';
+      $('loadStatus').textContent = 'I couldn’t load your current Directory automatically. Choose your directory.json file, or start fresh if this is your first time.';
+    });
+})();
+</script>
+</body>
+</html>

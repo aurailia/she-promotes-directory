@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>She Promotes&trade; Directory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --plum-deep: #2a1028;
+    --plum: #3d1a3a;
+    --plum-soft: #52264e;
+    --card: rgba(255, 255, 255, 0.06);
+    --card-border: rgba(232, 196, 122, 0.25);
+    --gold: #e8c47a;
+    --gold-bright: #f3d89b;
+    --blush: #f4b6c8;
+    --blush-soft: #f9d7e1;
+    --text: #fbeff3;
+    --muted: #d8bfd0;
+    --input-bg: rgba(255, 255, 255, 0.08);
+    --input-border: rgba(244, 182, 200, 0.35);
+    --violet: #c49bff;
+    --title-grad: linear-gradient(100deg, #c49bff 0%, #e3a6f0 45%, #f4b6c8 100%);
+  }
+  .grad, .group-title, .spot h2, .cal h3, h1, h2.section, .card h3, .feat h3, .dialog h3.sub, .listed h2, .side-brand, .how h2 {
+    background: var(--title-grad); -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent; color: var(--blush);
+    width: fit-content; max-width: 100%;
+  }
+  h1, .listed h2 { margin-left: auto; margin-right: auto; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: radial-gradient(ellipse at top, var(--plum-soft) 0%, var(--plum) 40%, var(--plum-deep) 100%);
+    background-attachment: fixed;
+    background-color: var(--plum-deep);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+  a { color: inherit; }
+  .wrap { max-width: 1040px; margin: 0 auto; padding: 0 16px 72px; }
+
+  .hero { text-align: center; padding: 44px 0 26px; }
+  .eyebrow { font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold); font-weight: 600; margin-bottom: 10px; }
+  h1 { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 52px; font-weight: 600; line-height: 1.05; }
+  h1 span { font-style: italic; }
+  .lede { color: var(--muted); margin: 12px auto 0; font-size: 16px; max-width: 520px; }
+  .updated { color: var(--muted); font-size: 12px; margin-top: 10px; opacity: 0.8; }
+
+  h2.section {
+    font-family: 'Cormorant Garamond', Georgia, serif; font-size: 32px; font-weight: 600;
+    line-height: 1.15; margin-bottom: 6px;
+  }
+  .section-sub { color: var(--muted); font-size: 15px; margin-bottom: 18px; max-width: 640px; }
+
+  /* Home */
+  .how {
+    border-radius: 20px; padding: 20px 20px; margin-bottom: 28px;
+    background: linear-gradient(135deg, rgba(196, 155, 255, 0.12), rgba(244, 182, 200, 0.08));
+    border: 1px solid rgba(196, 155, 255, 0.4);
+  }
+  .how h2 { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 26px; font-weight: 600; margin-bottom: 8px; }
+  .how ul { list-style: none; display: grid; gap: 8px; }
+  .how li { padding-left: 24px; position: relative; font-size: 15px; }
+  .how li::before { content: "\2726"; position: absolute; left: 0; color: var(--gold); }
+  .cat-group { margin-bottom: 30px; }
+  .group-title { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 26px; font-weight: 600; line-height: 1.2; margin-bottom: 12px; }
+  .cat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; }
+  /* Category cards: image on top, frosted blurred panel below */
+  .cat-tile {
+    position: relative; overflow: hidden; isolation: isolate;
+    display: flex; flex-direction: column; text-align: left; min-width: 0; padding: 0;
+    font-family: inherit; color: #fff; cursor: pointer;
+    border: 1px solid rgba(255, 255, 255, 0.10); border-radius: 18px;
+    background: linear-gradient(160deg, #4a3a78, #2b4f5e);
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.28);
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .cat-tile::before {
+    content: ""; position: absolute; inset: -20px; z-index: -1;
+    background-image: var(--tile-bg, none); background-size: cover; background-position: center bottom;
+    filter: blur(22px) saturate(1.1) brightness(0.62); transform: scale(1.15);
+  }
+  .cat-tile:hover { transform: translateY(-3px); box-shadow: 0 14px 30px rgba(0, 0, 0, 0.38); }
+  .cat-img {
+    width: 100%; max-width: 100%; aspect-ratio: 11 / 10; overflow: hidden;
+    display: flex; align-items: center; justify-content: center; font-size: 40px;
+    background: linear-gradient(135deg, rgba(196, 155, 255, 0.35), rgba(80, 170, 170, 0.25));
+  }
+  .cat-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .cat-info {
+    display: flex; flex-direction: column; gap: 6px; padding: 12px 14px 14px;
+    background: rgba(60, 60, 120, 0.28); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  }
+  .cat-tile .cname { font-weight: 700; font-size: 17px; line-height: 1.2; letter-spacing: 0.005em; }
+  .cat-tile .ccount { display: flex; align-items: center; gap: 6px; font-size: 13px; color: rgba(255, 255, 255, 0.85); }
+  .cat-tile .ccount .dot { width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,0.85); display: inline-flex; align-items: center; justify-content: center; font-size: 10px; flex: 0 0 18px; }
+  .cat-tile.zero .ccount { color: var(--blush-soft); }
+  @media (prefers-reduced-motion: reduce) { .cat-tile { transition: none; } .cat-tile:hover { transform: none; } }
+
+  .add-promo { margin-top: 18px; display: flex; gap: 14px; align-items: center; flex-wrap: wrap; border-radius: 18px; padding: 16px 18px; border: 1px dashed rgba(232, 196, 122, 0.55); background: rgba(232, 196, 122, 0.07); }
+  .add-promo > div { flex: 1 1 220px; min-width: 0; }
+  .add-promo strong { color: var(--gold-bright); font-size: 16px; }
+  .add-promo p { color: var(--muted); font-size: 14px; margin-top: 2px; }
+  .add-promo .btn { flex: 0 0 auto; }
+
+  /* Spotlight */
+  .spot {
+    display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 0; margin-bottom: 26px; align-items: center;
+    border-radius: 22px; overflow: hidden; border: 1px solid rgba(232, 196, 122, 0.6);
+    background: linear-gradient(135deg, rgba(232, 196, 122, 0.14), rgba(196, 155, 255, 0.10));
+  }
+  .spot-img { aspect-ratio: 16 / 9; max-width: 100%; background: linear-gradient(135deg, rgba(196, 155, 255, 0.35), rgba(244, 182, 200, 0.25)); display: flex; align-items: center; justify-content: center; font-size: 46px; }
+  .spot-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .spot-body { padding: 22px 22px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+  .spot-label { align-self: flex-start; font-size: 12px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--plum-deep); background: linear-gradient(135deg, var(--gold), var(--blush)); border-radius: 999px; padding: 5px 12px; }
+  .spot h2 { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 32px; font-weight: 600; line-height: 1.1; }
+  @media (max-width: 860px) { .spot { grid-template-columns: 1fr; } .spot-img { aspect-ratio: 16 / 9; } .spot h2 { font-size: 28px; } }
+
+  /* Category view */
+  .back { font-family: inherit; font-size: 14px; font-weight: 600; color: var(--gold-bright); background: none; border: none; cursor: pointer; padding: 6px 0; margin-bottom: 12px; }
+  .cat-banner { width: 100%; max-width: 100%; aspect-ratio: 3 / 1; border-radius: 20px; overflow: hidden; margin-bottom: 18px; background: linear-gradient(135deg, rgba(196, 155, 255, 0.3), rgba(244, 182, 200, 0.2)); display: flex; align-items: center; justify-content: center; font-size: 48px; }
+  .cat-banner img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .cat-section { margin-top: 26px; }
+  @media (max-width: 480px) { .cat-banner { aspect-ratio: 2 / 1; } }
+
+  /* Promo calendar */
+  .cal { border-radius: 20px; padding: 18px; margin-bottom: 22px; background: rgba(0,0,0,0.22); border: 1px solid rgba(196, 155, 255, 0.35); }
+  .cal h3 { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 24px; font-weight: 600; margin-bottom: 10px; }
+  .cal .chips { margin-bottom: 12px; }
+  .cal-list { display: grid; gap: 8px; }
+  .cal-row { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 14px; background: rgba(255,255,255,0.05); flex-wrap: wrap; }
+  .cal-row .grow { flex: 1 1 180px; min-width: 0; }
+  .cal-row .nm { font-weight: 600; }
+  .cal-row .nt { font-size: 13px; color: var(--muted); }
+  .cal-row .btn { padding: 8px 14px; font-size: 13px; flex: 0 0 auto; }
+  .cal-note { font-size: 12px; color: var(--muted); margin-top: 10px; }
+  .days { font-size: 13px; color: var(--blush-soft); }
+
+  /* Promo communities */
+  .feat-thumb { margin: -20px -18px 4px; aspect-ratio: 16 / 9; max-width: calc(100% + 36px); overflow: hidden; border-radius: 19px 19px 0 0; background: rgba(0,0,0,0.25); }
+  .feat-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .feat.has-thumb .feat-top .avatar { display: none; }
+  .feat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
+  .feat {
+    position: relative; border-radius: 20px; padding: 20px 18px;
+    background: linear-gradient(135deg, rgba(232, 196, 122, 0.16), rgba(244, 182, 200, 0.08));
+    border: 1px solid rgba(232, 196, 122, 0.6);
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .feat-top { display: flex; gap: 12px; align-items: center; }
+  .feat h3 { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 29px; font-weight: 700; line-height: 1.1; }
+  .feat .why { font-size: 15px; }
+  .feat .why em { color: var(--blush-soft); }
+  .disclosure { font-size: 13px; color: var(--muted); margin-top: 16px; }
+
+  /* Left menu */
+  .layout { display: flex; align-items: flex-start; min-height: 100vh; }
+  .sidebar {
+    position: sticky; top: 0; height: 100vh; width: 260px; flex: 0 0 260px;
+    overflow-y: auto; padding: 28px 16px;
+    background: rgba(30, 10, 28, 0.72);
+    border-right: 1px solid rgba(232, 196, 122, 0.18);
+    display: flex; flex-direction: column; gap: 18px;
+  }
+  .side-brand { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 26px; font-weight: 600; line-height: 1.1; }
+  .side-brand span { font-style: italic; }
+  .side-sub { font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); font-weight: 600; margin-top: 2px; }
+  .nav { display: flex; flex-direction: column; gap: 6px; }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px; width: 100%; text-align: left;
+    font-family: inherit; font-size: 15px; font-weight: 500; color: var(--muted);
+    background: transparent; border: 1px solid transparent; border-radius: 12px;
+    padding: 11px 12px; cursor: pointer;
+  }
+  .nav-item:hover { background: rgba(255,255,255,0.05); }
+  .nav-item .ico { width: 32px; height: 32px; flex: 0 0 32px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+  .nav-item .ico img { width: 32px; height: 32px; object-fit: contain; display: block; }
+  .nav-item .lbl { flex: 1; }
+  .nav-item .count { font-size: 12px; opacity: 0.8; }
+  .nav-item[aria-current="true"] { color: var(--text); background: rgba(232, 196, 122, 0.14); border-color: rgba(232, 196, 122, 0.45); font-weight: 600; }
+  .side-cta { margin-top: auto; font-size: 13px; color: var(--muted); border-top: 1px solid rgba(232, 196, 122, 0.18); padding-top: 16px; }
+  .side-cta a { color: var(--gold-bright); font-weight: 600; }
+  .main { flex: 1; min-width: 0; }
+  .topbar { display: none; }
+  .scrim { display: none; }
+  @media (max-width: 860px) {
+    .sidebar {
+      position: fixed; left: 0; top: 0; z-index: 30; height: 100%;
+      transform: translateX(-100%); transition: transform 0.3s ease;
+      background: var(--plum-deep); box-shadow: 8px 0 30px rgba(0,0,0,0.4);
+    }
+    .sidebar.open { transform: translateX(0); }
+    .scrim { position: fixed; inset: 0; z-index: 20; background: rgba(0,0,0,0.5); }
+    .scrim.open { display: block; }
+    .topbar {
+      display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 10;
+      background: rgba(42, 16, 40, 0.94); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(232, 196, 122, 0.18); padding: 10px 16px;
+    }
+    .menu-btn { font-family: inherit; font-size: 14px; font-weight: 600; color: var(--plum-deep); background: var(--gold); border: none; border-radius: 999px; padding: 8px 14px; cursor: pointer; }
+    .topbar-sec { font-size: 14px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  }
+  @media (prefers-reduced-motion: reduce) { .sidebar { transition: none; } html { scroll-behavior: auto; } }
+
+  /* Controls */
+  .controls { display: grid; gap: 10px; margin-bottom: 14px; }
+  .search { position: relative; }
+  [hidden] { display: none !important; }
+
+  .search svg { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; color: var(--muted); }
+  input[type="search"], select {
+    width: 100%; font-family: inherit; font-size: 16px; color: var(--text);
+    background: var(--input-bg); border: 1px solid var(--input-border);
+    border-radius: 12px; padding: 12px 14px; outline: none; -webkit-appearance: none; appearance: none;
+  }
+  select {
+    background-image: linear-gradient(45deg, transparent 50%, var(--gold) 50%), linear-gradient(135deg, var(--gold) 50%, transparent 50%);
+    background-position: calc(100% - 20px) 52%, calc(100% - 14px) 52%;
+    background-size: 6px 6px; background-repeat: no-repeat; padding-right: 40px;
+  }
+  select option { color: #2a1028; background: #fff; }
+  .search input[type="search"] { padding-left: 42px; }
+  input:focus, select:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(232, 196, 122, 0.18); }
+  .selects { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .chips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; -webkit-overflow-scrolling: touch; }
+  .chip {
+    flex: 0 0 auto; font-family: inherit; font-size: 13px; font-weight: 500; color: var(--muted);
+    background: transparent; border: 1px solid rgba(216, 191, 208, 0.35); border-radius: 999px;
+    padding: 7px 13px; cursor: pointer; white-space: nowrap;
+  }
+  .chip[aria-pressed="true"] { color: var(--plum-deep); background: var(--gold); border-color: var(--gold); font-weight: 600; }
+  .result-count { font-size: 13px; color: var(--muted); margin: 4px 0 14px; }
+
+  /* Cards */
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 14px; }
+  .card {
+    background: var(--card); border: 1px solid var(--card-border); border-radius: 20px;
+    padding: 18px; display: flex; flex-direction: column; gap: 10px;
+  }
+  .who-row { display: flex; gap: 12px; align-items: center; }
+  .avatar {
+    flex: 0 0 54px; width: 54px; height: 54px; border-radius: 50%; overflow: hidden;
+    background: linear-gradient(135deg, var(--gold), var(--blush)); color: var(--plum-deep);
+    display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 18px;
+    border: 2px solid rgba(232, 196, 122, 0.6);
+  }
+  .avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .avatar.sq { border-radius: 14px; }
+  .name { font-weight: 600; font-size: 16px; line-height: 1.3; }
+  .biz { color: var(--muted); font-size: 14px; line-height: 1.3; }
+  .card h3 { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 29px; font-weight: 700; line-height: 1.1; letter-spacing: 0.005em; }
+  .card h3::after, .feat h3::after { content: ""; display: block; width: 44px; height: 2px; margin-top: 8px; border-radius: 2px; background: linear-gradient(90deg, var(--gold), var(--blush)); }
+  .offer { font-size: 15px; }
+  .meta { font-size: 14px; color: var(--muted); }
+  .meta strong { color: var(--blush-soft); font-weight: 600; }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tag { font-size: 12px; padding: 3px 10px; border-radius: 999px; background: rgba(244, 182, 200, 0.12); color: var(--blush-soft); border: 1px solid rgba(244, 182, 200, 0.25); }
+  .tag.gold { background: rgba(232, 196, 122, 0.12); color: var(--gold-bright); border-color: rgba(232, 196, 122, 0.35); }
+  .quote { font-size: 15px; border-left: 3px solid var(--blush); padding: 4px 0 4px 12px; font-style: italic; }
+  .whybox { background: rgba(196, 155, 255, 0.10); border: 1px solid rgba(196, 155, 255, 0.28); border-radius: 14px; padding: 12px 14px; display: grid; gap: 6px; }
+  .whybox .wl { font-size: 11px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold-bright); }
+  .whybox .wl button { font: inherit; letter-spacing: inherit; text-transform: inherit; color: var(--blush); background: none; border: none; padding: 0; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+  .whybox .wt { font-size: 14px; line-height: 1.55; color: var(--text); display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 4; overflow: hidden; }
+  .whybox.open .wt { -webkit-line-clamp: unset; display: block; }
+  .whybox .more { justify-self: start; font: inherit; font-size: 13px; font-weight: 600; color: var(--gold-bright); background: none; border: none; padding: 0; cursor: pointer; }
+  .by { font-size: 13px; color: var(--muted); }
+  .by button { font: inherit; color: var(--gold-bright); background: none; border: none; cursor: pointer; text-decoration: underline; padding: 0; }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: auto; padding-top: 6px; }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; text-decoration: none;
+    font-family: inherit; font-size: 14px; font-weight: 600; border-radius: 999px;
+    padding: 10px 16px; cursor: pointer; border: none; transition: transform 0.1s;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn-primary { background: linear-gradient(135deg, var(--gold), var(--blush)); color: var(--plum-deep); flex: 1 1 auto; }
+  .btn-ghost { background: transparent; color: var(--text); border: 1px solid rgba(216, 191, 208, 0.4); }
+  .empty { text-align: center; padding: 40px 20px; color: var(--muted); border: 1px dashed rgba(232, 196, 122, 0.35); border-radius: 20px; }
+  .empty .glyph { color: var(--gold); font-size: 26px; margin-bottom: 6px; }
+
+  /* Get listed */
+  .listed {
+    margin-top: 44px; border-radius: 22px; padding: 26px 22px; text-align: center;
+    border: 1px solid rgba(232, 196, 122, 0.5);
+    background: linear-gradient(135deg, rgba(232, 196, 122, 0.12), rgba(244, 182, 200, 0.08));
+  }
+  .listed h2 { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 30px; font-weight: 600; margin-bottom: 8px; }
+  .listed p { color: var(--muted); max-width: 520px; margin: 0 auto 16px; }
+  .listed .actions { justify-content: center; }
+  .listed .btn-primary { flex: 0 1 auto; }
+
+  .signoff { text-align: center; margin-top: 34px; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 21px; color: var(--blush-soft); }
+  .signoff .sig { color: var(--gold); }
+
+  /* Profile dialog */
+  .overlay { position: fixed; inset: 0; background: rgba(10, 2, 10, 0.7); z-index: 40; display: none; align-items: flex-end; justify-content: center; }
+  .overlay.open { display: flex; }
+  .dialog {
+    width: 100%; max-width: 560px; max-height: 88vh; overflow-y: auto;
+    background: var(--plum-deep); border: 1px solid var(--card-border); border-bottom: none;
+    border-radius: 24px 24px 0 0; padding: 22px 18px 30px; position: relative;
+  }
+  @media (min-width: 640px) {
+    .overlay { align-items: center; }
+    .dialog { border-radius: 24px; border-bottom: 1px solid var(--card-border); padding: 26px 24px; }
+  }
+  .close {
+    position: absolute; top: 12px; right: 12px; width: 38px; height: 38px; border-radius: 50%;
+    border: 1px solid rgba(216, 191, 208, 0.4); background: transparent; color: var(--text);
+    font-size: 20px; line-height: 1; cursor: pointer;
+  }
+  .dialog .avatar { flex-basis: 72px; width: 72px; height: 72px; font-size: 24px; }
+  .dialog h3.sub { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 22px; margin: 20px 0 8px; }
+  .dialog .block { background: rgba(255,255,255,0.05); border-radius: 16px; padding: 14px; margin-bottom: 10px; display: grid; gap: 8px; }
+
+  .status { text-align: center; color: var(--muted); padding: 30px 0; }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  button:focus-visible, a:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+  @media (max-width: 480px) {
+    h1 { font-size: 42px; }
+    h2.section { font-size: 28px; }
+    .grid, .feat-grid { grid-template-columns: 1fr; }
+    .cat-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .cat-info { padding: 10px 11px 12px; }
+    .cat-tile .cname { font-size: 15px; }
+    .cat-img { font-size: 32px; }
+    .selects { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+  <aside class="sidebar" id="sidebar" aria-label="Directory menu">
+    <div>
+      <div class="side-brand">She <span>Promotes</span>&trade;</div>
+      <div class="side-sub">Directory</div>
+    </div>
+    <nav class="nav" id="nav">
+      <button class="nav-item" type="button" data-sec="home"><span class="ico" aria-hidden="true">&#127969;</span><span class="lbl">Home</span><span class="count"></span></button>
+      <button class="nav-item" type="button" data-sec="offers"><span class="ico" aria-hidden="true">&#128717;&#65039;</span><span class="lbl">Offers</span><span class="count" id="c-offers"></span></button>
+      <button class="nav-item" type="button" data-sec="communities"><span class="ico" aria-hidden="true">&#128150;</span><span class="lbl">Communities</span><span class="count" id="c-communities"></span></button>
+      <button class="nav-item" type="button" data-sec="promo"><span class="ico" aria-hidden="true">&#11088;</span><span class="lbl">Promo Communities</span><span class="count" id="c-promo"></span></button>
+      <button class="nav-item" type="button" data-sec="calendar"><span class="ico" aria-hidden="true">&#128197;</span><span class="lbl">Promo Calendar</span><span class="count" id="c-calendar"></span></button>
+      <button class="nav-item" type="button" data-sec="recommended"><span class="ico" aria-hidden="true">&#129309;</span><span class="lbl">Recommended</span><span class="count" id="c-recommended"></span></button>
+    </nav>
+    <div class="side-cta">Want to be listed? Premium members get a spot. <a id="sideListed" href="#listed">Here&rsquo;s how</a></div>
+  </aside>
+  <div class="scrim" id="scrim"></div>
+
+  <div class="main">
+    <div class="topbar">
+      <button class="menu-btn" id="menuBtn" type="button" aria-controls="sidebar" aria-expanded="false">&#9776; Menu</button>
+      <span class="topbar-sec" id="topbarSec"></span>
+    </div>
+
+    <div class="wrap">
+      <header class="hero">
+        <div class="eyebrow">She Promotes&trade;</div>
+        <h1>The <span>Directory</span></h1>
+        <p class="lede">Looking for someone who does exactly what you need? She&rsquo;s probably in here. Find her, support her, and collaborate with her.</p>
+        <p class="updated" id="updated"></p>
+      </header>
+
+      <section id="homeView" aria-labelledby="homeTitle" hidden>
+        <div id="spotlight" hidden></div>
+        <div class="how">
+          <h2>How to use the Directory</h2>
+          <ul>
+            <li>Tap a category below to see the offers and communities in it.</li>
+            <li>Use the menu to browse every offer, the communities women run, the ones they recommend, and my favorite promo communities.</li>
+            <li>Tap <strong>View profile</strong> to learn about her, see her community, and see who she recommends.</li>
+            <li>Found someone you love? Book her, join her community, or tag her in Tuesday&rsquo;s What Do You Need? thread.</li>
+          </ul>
+        </div>
+        <h2 class="section" id="homeTitle">Browse by category</h2>
+        <p class="section-sub">Every category in She Promotes&trade;. Tap one to see everything in it.</p>
+        <div id="catGrid"></div>
+      </section>
+
+      <section id="catView" aria-labelledby="catTitle" hidden>
+        <button class="back" type="button" id="backBtn">&larr; All categories</button>
+        <div class="cat-banner" id="catBanner" aria-hidden="true"></div>
+        <div class="eyebrow" id="catGroup" style="text-align:left;"></div>
+        <h2 class="section" id="catTitle"></h2>
+        <div id="catBody"></div>
+      </section>
+
+      <section id="panel" aria-labelledby="secTitle">
+        <h2 class="section" id="secTitle"></h2>
+        <p class="section-sub" id="secIntro"></p>
+        <div class="cal" id="promoCal" hidden>
+          <div class="chips" id="calDays" role="group" aria-label="Day of the week"></div>
+          <div class="cal-list" id="calList"></div>
+          <p class="cal-note">Always check each group&rsquo;s own rules before you post. Schedules can change.</p>
+        </div>
+        <div class="controls" id="controls">
+          <div class="search">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+            <label for="q" class="sr-only">Search</label>
+            <input type="search" id="q" placeholder="Search by name, offer, or what you need" autocomplete="off">
+          </div>
+          <div class="selects" id="catWrap">
+            <div><label for="cat" class="sr-only">Category</label><select id="cat"></select></div>
+            <div><label for="fmt" class="sr-only">Format</label><select id="fmt"></select></div>
+          </div>
+          <div class="chips" id="chips" role="group" aria-label="Filter"></div>
+        </div>
+        <p class="result-count" id="resultCount" aria-live="polite"></p>
+        <div class="grid" id="grid"></div>
+        <div class="add-promo" id="addPromo" hidden>
+          <div>
+            <strong>Run a promo community?</strong>
+            <p>Want yours listed here? Send me a message on Skool and I&rsquo;ll add it 💖</p>
+          </div>
+          <a class="btn btn-primary" id="dmBtn" href="#" target="_blank" rel="noopener">Message Aurailia</a>
+        </div>
+        <p class="disclosure" id="disclosure" hidden>I&rsquo;m a member of each of these. Some are my affiliate links, which means I may earn a little if you join, at no extra cost to you.</p>
+      </section>
+
+      <section class="listed" id="listed">
+        <h2>Want to be listed?</h2>
+        <p>Premium members get a spot in the Directory, with your signature offer, your community, and the communities you recommend. Premium communities can also be chosen for the weekly Community Spotlight. Premium is $3 a month or $27 a year.</p>
+        <div class="actions">
+          <a class="btn btn-primary" id="formBtn" href="#" target="_blank" rel="noopener" hidden>Get listed</a>
+          <a class="btn btn-ghost" id="plansBtn" href="#" target="_blank" rel="noopener">Upgrade to premium</a>
+        </div>
+      </section>
+
+      <div class="signoff">
+        <div>I believe in you. To living our dreams.</div>
+        <div class="sig">Aurailia &#10022;</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="dlgName" id="dialog">
+    <button class="close" type="button" id="closeBtn" aria-label="Close">&times;</button>
+    <div id="dlgBody"></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  /* Settings */
+  var FORM_URL = '';   /* Paste your Google Form link here to show the Get listed button */
+  var PLANS_URL = 'https://www.skool.com/she-promotes-7924/plans';
+  var DM_URL = 'https://www.skool.com/@aurailis-arnold-5599';   /* your Skool profile, where members can message you */
+  var DATA_URL = 'directory.json';
+
+  var CATEGORIES = [
+    'Energy Healing', 'Hypnosis & Subconscious Work', 'Money Mindset & Wealth', 'Manifestation', 'Life & Purpose Coaching',
+    'Relationship & Family Coaching', 'Business Coaching & Strategy', 'Human Design & Astrology',
+    'Intuitive Readings', 'Nutrition & Fitness', 'Perimenopause & Menopause', 'Beauty & Skincare',
+    'Social Media & Content', 'Websites, Funnels & Tech', 'AI & Automation Support',
+    'Virtual Assistants & Admin', 'Branding, Design & Photography', 'Handmade & Gifts'
+  ];
+  var GROUPS = [
+    { key: 'business', name: 'Grow Your Business', short: 'Business', cats: ['Business Coaching & Strategy', 'Social Media & Content', 'Websites, Funnels & Tech', 'AI & Automation Support', 'Virtual Assistants & Admin', 'Branding, Design & Photography', 'Promo & Networking'] },
+    { key: 'mindset', name: 'Mindset & Growth', short: 'Mindset', cats: ['Life & Purpose Coaching', 'Money Mindset & Wealth', 'Manifestation', 'Hypnosis & Subconscious Work', 'Relationship & Family Coaching'] },
+    { key: 'spiritual', name: 'Spiritual & Energy', short: 'Spiritual', cats: ['Energy Healing', 'Human Design & Astrology', 'Intuitive Readings'] },
+    { key: 'wellness', name: 'Wellness & Self Care', short: 'Wellness', cats: ['Nutrition & Fitness', 'Perimenopause & Menopause', 'Beauty & Skincare'] },
+    { key: 'shop', name: 'Shop', short: 'Shop', cats: ['Handmade & Gifts'] }
+  ];
+  var groupOf = function (cat) {
+    for (var i = 0; i < GROUPS.length; i++) if (GROUPS[i].cats.indexOf(cat) !== -1) return GROUPS[i];
+    return null;
+  };
+  var slug = function (x) { return String(x).toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''); };
+  /* Images: upload to images/categories/<slug>.jpg and images/icons/<section>.png */
+  var ASSETS = window.SP_ASSETS || {};
+  var catImage = function (cat) { return (ASSETS.categories && ASSETS.categories[slug(cat)]) || 'images/categories/' + slug(cat) + '.jpg'; };
+  var navIcon = function (sec) { return (ASSETS.icons && ASSETS.icons[sec]) || 'images/icons/' + sec + '.png'; };
+  var swapImage = function (holder, src) {
+    var img = new Image();
+    img.alt = '';
+    img.onload = function () { holder.textContent = ''; holder.appendChild(img); };
+    img.src = src;
+  };
+  var FORMATS = ['1:1 Sessions', 'Group Program', 'Course', 'Membership or Skool Community', 'Physical Product', 'Digital Product', 'Live Event or Workshop'];
+  var FILTER_FORMATS = ['Membership or Skool Community', 'Physical Product', 'Digital Product', 'Live Event or Workshop'];
+  var EMOJI = {
+    'Promo & Networking': '\uD83D\uDCE3',
+    'Perimenopause & Menopause': '\uD83C\uDF3A',
+    'Energy Healing': '\u2728', 'Hypnosis & Subconscious Work': '\uD83C\uDF00', 'Money Mindset & Wealth': '\uD83D\uDCB0', 'Manifestation': '\uD83E\uDE84', 'Life & Purpose Coaching': '\uD83E\uDDED',
+    'Relationship & Family Coaching': '\uD83D\uDC9E', 'Business Coaching & Strategy': '\uD83D\uDCC8', 'Human Design & Astrology': '\uD83C\uDF19',
+    'Intuitive Readings': '\uD83D\uDD2E', 'Nutrition & Fitness': '\uD83C\uDF3F', 'Beauty & Skincare': '\uD83C\uDF38',
+    'Social Media & Content': '\uD83D\uDCF1', 'Websites, Funnels & Tech': '\uD83D\uDCBB', 'AI & Automation Support': '\uD83E\uDD16',
+    'Virtual Assistants & Admin': '\uD83D\uDDC2\uFE0F', 'Branding, Design & Photography': '\uD83D\uDCF8', 'Handmade & Gifts': '\uD83C\uDF81'
+  };
+  var PROMO_CAT = 'Promo & Networking';
+  var DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  var parseDays = function (v) {
+    var txt = Array.isArray(v) ? v.join(' ') : String(v || '');
+    return DAYS.filter(function (d) { return new RegExp('\\b' + d, 'i').test(txt); });
+  };
+  var todayDay = (function () {
+    try { var w = new Date().toLocaleDateString('en-US', { weekday: 'short', timeZone: 'America/Los_Angeles' }); if (DAYS.indexOf(w) !== -1) return w; } catch (e) { /* ignore */ }
+    return DAYS[(new Date().getDay() + 6) % 7];
+  })();
+  var linkKey = function (u) { return String(u || '').toLowerCase().replace(/^https?:\/\//, '').replace(/^www\./, '').split(/[?#]/)[0].replace(/\/+$/, ''); };
+  var TITLES = { calendar: 'Where can I promote today?', home: 'Home', offers: 'Offers', communities: 'Communities', recommended: 'Recommended', promo: 'Promo Communities' };
+  var INTROS = {
+    calendar: 'Every promo group in the Directory and the days you can post there. Tap a day, or All to see the full week.',
+    promo: 'These are the promo communities that inspired me to create She Promotes&trade;. More places to share your offer and meet amazing women.',
+    offers: 'Every premium member&rsquo;s signature offer. Search for what you need, or browse by category.',
+    communities: 'Communities run by women in here. Find your next favorite room.',
+    recommended: 'Communities our members love and recommend, and why.'
+  };
+
+  var data = { featured: [], members: [] };
+  var state = { tab: 'home', q: '', cat: '', chip: '', fmt: '', day: '' };
+
+  var $ = function (id) { return document.getElementById(id); };
+  var grid = $('grid');
+
+  /* Helpers */
+  var el = function (tag, cls, text) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text != null && text !== '') n.textContent = text;
+    return n;
+  };
+  var safeUrl = function (u) {
+    if (!u) return '';
+    u = String(u).trim();
+    if (/^@[\w.]+$/.test(u)) return 'https://instagram.com/' + u.slice(1);
+    if (!/^https?:\/\//i.test(u)) u = 'https://' + u;
+    return /^https?:\/\/[^\s"'<>]+\.[^\s"'<>]+/i.test(u) ? u : '';
+  };
+  var linkBtn = function (label, url, primary) {
+    var href = safeUrl(url);
+    if (!href) return null;
+    var a = el('a', 'btn ' + (primary ? 'btn-primary' : 'btn-ghost'), label);
+    a.href = href; a.target = '_blank'; a.rel = 'noopener';
+    return a;
+  };
+  var initials = function (name) {
+    var parts = String(name || '?').trim().split(/\s+/);
+    return ((parts[0] || '?').charAt(0) + (parts.length > 1 ? parts[parts.length - 1].charAt(0) : '')).toUpperCase();
+  };
+  var avatar = function (src, name, square) {
+    var a = el('div', 'avatar' + (square ? ' sq' : ''));
+    a.textContent = initials(name);
+    var url = safeUrl(src);
+    if (url) {
+      var img = new Image();
+      img.alt = '';
+      img.loading = 'lazy';
+      img.onload = function () { a.textContent = ''; a.appendChild(img); };
+      img.src = url;
+    }
+    return a;
+  };
+  var norm = function (s) { return String(s || '').toLowerCase(); };
+  var matches = function (fields) {
+    if (!state.q) return true;
+    var hay = norm(fields.join(' '));
+    return state.q.split(/\s+/).every(function (w) { return hay.indexOf(w) !== -1; });
+  };
+
+  /* Daily shuffle so every listing gets a turn at the top */
+  var hash = function (str) {
+    var h = 2166136261;
+    for (var i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
+    return h >>> 0;
+  };
+  var today = (function () {
+    try { return new Date().toLocaleDateString('en-US', { timeZone: 'America/Los_Angeles' }); }
+    catch (e) { return new Date().toDateString(); }
+  })();
+  var daily = function (list, keyFn) {
+    return list.slice().sort(function (a, b) { return hash(today + keyFn(a)) - hash(today + keyFn(b)); });
+  };
+
+  /* Derived lists */
+  var offers = [], communities = [], recs = [], promos = [];
+  var build = function () {
+    var members = daily(data.members || [], function (m) { return m.id || m.name; });
+    offers = members.filter(function (m) { return m.offer; });
+    communities = members.filter(function (m) { return m.community && m.community.name && m.community.link; });
+    recs = [];
+    members.forEach(function (m) {
+      (m.recommends || []).slice(0, 3).forEach(function (r) {
+        if (r && r.name && r.link) recs.push({ rec: r, member: m });
+      });
+    });
+    $('c-offers').textContent = offers.length ? '(' + offers.length + ')' : '';
+    $('c-communities').textContent = communities.length ? '(' + communities.length + ')' : '';
+    $('c-recommended').textContent = recs.length ? '(' + recs.length + ')' : '';
+    promos = (data.featured || []).filter(function (f) { return f.name && f.link; });
+    $('c-promo').textContent = promos.length ? '(' + promos.length + ')' : '';
+    /* every group with promo days, for the calendar */
+    calGroups = []; var seen = {};
+    var addCal = function (o) {
+      var k = linkKey(o.link);
+      if (!o.days.length || !k || seen[k]) return;
+      seen[k] = true; calGroups.push(o);
+    };
+    promos.forEach(function (f) { addCal({ name: f.name, link: f.link, days: parseDays(f.promoDays), note: f.schedule || '', src: 'My pick' }); });
+    communities.forEach(function (m) { addCal({ name: m.community.name, link: m.community.link, days: parseDays(m.community.promoDays), note: m.community.schedule || '', src: 'Hosted by ' + m.name }); });
+    recs.forEach(function (it) { addCal({ name: it.rec.name, link: it.rec.link, days: parseDays(it.rec.promoDays), note: it.rec.schedule || '', src: 'Recommended by ' + it.member.name }); });
+    $('c-calendar').textContent = calGroups.length ? '(' + calGroups.length + ')' : '';
+  };
+  var calGroups = [];
+  var commCats = function (cm) { return (cm.categories && cm.categories.length ? cm.categories : [cm.category]).filter(Boolean); };
+  /* Recommended communities use 3 simple groups */
+  var recCat = function (c) {
+    c = String(c || '');
+    if (/promo/i.test(c)) return 'Promo Group';
+    if (/business/i.test(c)) return 'Business';
+    if (/heal|spirit/i.test(c)) return 'Healing & Spiritual';
+    return c ? 'Other' : '';
+  };
+  var inCategory = function (cat) {
+    return {
+      offers: offers.filter(function (m) { return (m.categories || []).indexOf(cat) !== -1; }),
+      communities: communities.filter(function (m) { return commCats(m.community).indexOf(cat) !== -1; }),
+      picks: cat === PROMO_CAT ? promos : []
+    };
+  };
+
+  /* Promo communities */
+  var localOrUrl = function (u) { u = String(u || '').trim(); return /^(images\/|data:image\/)/.test(u) ? u : safeUrl(u); };
+  var promoCard = function (f) {
+    var c = el('article', 'feat');
+    /* thumbnail: the image set in the Updater, or images/promo/<name>.jpg if it exists */
+    var thumb = el('div', 'feat-thumb');
+    thumb.hidden = true;
+    thumb.setAttribute('aria-hidden', 'true');
+    c.appendChild(thumb);
+    var tsrc = localOrUrl(f.image) || (ASSETS.promo && ASSETS.promo[slug(f.name)]) || 'images/promo/' + slug(f.name) + '.jpg';
+    var timg = new Image();
+    timg.alt = '';
+    timg.onload = function () { thumb.appendChild(timg); thumb.hidden = false; c.classList.add('has-thumb'); };
+    timg.src = tsrc;
+    var top = el('div', 'feat-top');
+    top.appendChild(avatar('', f.name, true));
+    var t = el('div');
+    t.appendChild(el('h3', '', f.name));
+    if (f.platform) t.appendChild(el('div', 'biz', f.platform));
+    top.appendChild(t);
+    c.appendChild(top);
+    if (f.about) c.appendChild(el('p', 'offer', f.about));
+    if (f.why) c.appendChild(whyBox(['Why I love it'], f.why));
+    var tags = el('div', 'tags');
+    var fd = parseDays(f.promoDays);
+    if (fd.length) c.appendChild(el('p', 'days', 'Promo days: ' + (fd.length === 7 ? 'every day' : fd.join(', ')) + (f.schedule ? '. ' + f.schedule : '')));
+    if (f.access) tags.appendChild(el('span', 'tag', f.access));
+    if (f.affiliate) tags.appendChild(el('span', 'tag gold', 'Affiliate link'));
+    if (tags.childNodes.length) c.appendChild(tags);
+    var acts = el('div', 'actions');
+    var b = linkBtn('Visit community', f.link, true);
+    if (b) acts.appendChild(b);
+    c.appendChild(acts);
+    return c;
+  };
+
+  /* "Why" box: labeled, clamped to 4 lines with Read more */
+  var whyBox = function (labelParts, text) {
+    var box = el('div', 'whybox');
+    var lab = el('div', 'wl');
+    labelParts.forEach(function (x) { lab.appendChild(typeof x === 'string' ? document.createTextNode(x) : x); });
+    box.appendChild(lab);
+    var t = el('p', 'wt', text);
+    box.appendChild(t);
+    var more = el('button', 'more', 'Read more');
+    more.type = 'button';
+    more.hidden = true;
+    more.addEventListener('click', function () { var o = box.classList.toggle('open'); more.textContent = o ? 'Show less' : 'Read more'; });
+    box.appendChild(more);
+    requestAnimationFrame(function () { if (t.scrollHeight > t.clientHeight + 2) more.hidden = false; });
+    return box;
+  };
+
+  /* Cards */
+  var profileLink = function (m, label) {
+    var b = el('button', 'btn btn-ghost', label || 'View profile');
+    b.type = 'button';
+    b.addEventListener('click', function () { openProfile(m, b); });
+    return b;
+  };
+  var personRow = function (m) {
+    var row = el('div', 'who-row');
+    row.appendChild(avatar(m.photo, m.name));
+    var t = el('div');
+    t.appendChild(el('div', 'name', m.name));
+    if (m.business) t.appendChild(el('div', 'biz', m.business));
+    row.appendChild(t);
+    return row;
+  };
+
+  var offerCard = function (m) {
+    var c = el('article', 'card');
+    c.appendChild(personRow(m));
+    c.appendChild(el('p', 'offer', m.offer));
+    if (m.who) {
+      var w = el('p', 'meta');
+      w.appendChild(el('strong', '', 'For: '));
+      w.appendChild(document.createTextNode(m.who));
+      c.appendChild(w);
+    }
+    if (m.price) {
+      var p = el('p', 'meta');
+      p.appendChild(el('strong', '', 'Starting at: '));
+      p.appendChild(document.createTextNode(m.price));
+      c.appendChild(p);
+    }
+    var tags = el('div', 'tags');
+    (m.categories || []).forEach(function (x) { tags.appendChild(el('span', 'tag gold', x)); });
+    (m.formats || []).forEach(function (x) { tags.appendChild(el('span', 'tag', x)); });
+    if (tags.childNodes.length) c.appendChild(tags);
+    var acts = el('div', 'actions');
+    var b = linkBtn('See her offer', m.offerLink, true);
+    if (b) acts.appendChild(b);
+    acts.appendChild(profileLink(m));
+    c.appendChild(acts);
+    return c;
+  };
+
+  var communityCard = function (m) {
+    var cm = m.community;
+    var c = el('article', 'card');
+    c.appendChild(el('h3', '', cm.name));
+    if (cm.about) c.appendChild(el('p', 'offer', cm.about));
+    var cd = parseDays(cm.promoDays);
+    if (cd.length) c.appendChild(el('p', 'days', 'Promo days: ' + (cd.length === 7 ? 'every day' : cd.join(', '))));
+    var tags = el('div', 'tags');
+    commCats(cm).forEach(function (x) { tags.appendChild(el('span', 'tag gold', x)); });
+    if (cm.platform) tags.appendChild(el('span', 'tag', cm.platform));
+    if (cm.access) tags.appendChild(el('span', 'tag', cm.access));
+    if (tags.childNodes.length) c.appendChild(tags);
+    var by = el('p', 'by', 'Hosted by ');
+    var nb = el('button', '', m.name);
+    nb.type = 'button';
+    nb.addEventListener('click', function () { openProfile(m, nb); });
+    by.appendChild(nb);
+    c.appendChild(by);
+    var acts = el('div', 'actions');
+    var b = linkBtn('Join the community', cm.link, true);
+    if (b) acts.appendChild(b);
+    c.appendChild(acts);
+    return c;
+  };
+
+  var recCard = function (item) {
+    var r = item.rec, m = item.member;
+    var c = el('article', 'card');
+    c.appendChild(el('h3', '', r.name));
+    if (r.about) c.appendChild(el('p', 'offer', r.about));
+    var rd = parseDays(r.promoDays);
+    if (rd.length) c.appendChild(el('p', 'days', 'Promo days: ' + (rd.length === 7 ? 'every day' : rd.join(', '))));
+    var tags = el('div', 'tags');
+    if (r.category) tags.appendChild(el('span', 'tag gold', recCat(r.category)));
+    if (r.access) tags.appendChild(el('span', 'tag', r.access.replace(/;/g, ' and ')));
+    if (r.affiliate) tags.appendChild(el('span', 'tag gold', 'Affiliate link'));
+    if (tags.childNodes.length) c.appendChild(tags);
+    var nb = el('button', '', m.name.split(' ')[0]);
+    nb.type = 'button';
+    nb.addEventListener('click', function () { openProfile(m, nb); });
+    if (r.why) c.appendChild(whyBox(['Why ', nb, ' recommends it'], r.why));
+    else { var by = el('p', 'by', 'Recommended by '); by.appendChild(nb); c.appendChild(by); }
+    var acts = el('div', 'actions');
+    var lb = linkBtn('Visit community', r.link, true);
+    if (lb) acts.appendChild(lb);
+    c.appendChild(acts);
+    return c;
+  };
+
+  /* Filters */
+  var chipSets = {
+    offers: [''].concat(GROUPS.map(function (g) { return g.key; })),
+    communities: ['', 'Promo Groups', 'Skool', 'Facebook Group', 'Other', 'Free', 'Paid'],
+    recommended: ['', 'Promo Group', 'Business', 'Healing & Spiritual', 'Other'],
+    home: [],
+    calendar: [],
+    promo: ['', 'Skool', 'Facebook Group', 'Other']
+  };
+  var renderControls = function () {
+    var cat = $('cat');
+    $('catWrap').hidden = state.tab !== 'offers';
+    if (state.tab === 'offers') {
+      var used = {};
+      offers.forEach(function (m) { (m.categories || []).forEach(function (x) { used[x] = (used[x] || 0) + 1; }); });
+      cat.innerHTML = '';
+      var all = el('option', '', 'All categories');
+      all.value = '';
+      cat.appendChild(all);
+      GROUPS.forEach(function (g) {
+        if (state.chip && state.chip !== g.key) return;
+        var og = document.createElement('optgroup');
+        og.label = g.name;
+        g.cats.forEach(function (x) {
+          var o = el('option', '', x + ' (' + (used[x] || 0) + ')');
+          o.value = x;
+          og.appendChild(o);
+        });
+        cat.appendChild(og);
+      });
+      if (state.cat && state.chip && groupOf(state.cat) && groupOf(state.cat).key !== state.chip) state.cat = '';
+      cat.value = state.cat;
+      var fmt = $('fmt');
+      fmt.innerHTML = '';
+      var fa = el('option', '', 'All formats');
+      fa.value = '';
+      fmt.appendChild(fa);
+      FILTER_FORMATS.forEach(function (x) { var o = el('option', '', x); o.value = x; fmt.appendChild(o); });
+      fmt.value = state.fmt;
+    }
+    var chips = $('chips');
+    chips.innerHTML = '';
+    var set = chipSets[state.tab];
+    chips.hidden = !set.length;
+    set.forEach(function (x) {
+      var label = x || 'All';
+      if (state.tab === 'offers' && x) { for (var gi = 0; gi < GROUPS.length; gi++) if (GROUPS[gi].key === x) label = GROUPS[gi].short; }
+      var b = el('button', 'chip', label);
+      b.type = 'button';
+      b.setAttribute('aria-pressed', state.chip === x ? 'true' : 'false');
+      b.addEventListener('click', function () { state.chip = x; renderControls(); renderGrid(); });
+      chips.appendChild(b);
+    });
+    $('secTitle').textContent = TITLES[state.tab];
+    $('secIntro').innerHTML = INTROS[state.tab];
+  };
+
+  var emptyState = function (msg) {
+    var d = el('div', 'empty');
+    d.style.gridColumn = '1 / -1';
+    d.appendChild(el('div', 'glyph', '✦'));
+    d.appendChild(el('p', '', msg));
+    return d;
+  };
+
+  var renderGrid = function () {
+    grid.innerHTML = '';
+    var items = [], make;
+    if (state.tab === 'offers') {
+      make = offerCard;
+      items = offers.filter(function (m) {
+        if (state.cat && (m.categories || []).indexOf(state.cat) === -1) return false;
+        if (state.chip && !(m.categories || []).some(function (c) { var g = groupOf(c); return g && g.key === state.chip; })) return false;
+        if (state.fmt && (m.formats || []).indexOf(state.fmt) === -1) return false;
+        return matches([m.name, m.business, m.about, m.offer, m.who, (m.categories || []).join(' '), (m.formats || []).join(' ')]);
+      });
+    } else if (state.tab === 'communities') {
+      make = communityCard;
+      items = communities.filter(function (m) {
+        var cm = m.community;
+        if (state.chip === 'Promo Groups') {
+          if (commCats(cm).indexOf(PROMO_CAT) === -1) return false;
+        } else if (state.chip === 'Free' || state.chip === 'Paid') {
+          if (norm(cm.access).indexOf(norm(state.chip)) === -1) return false;
+        } else if (state.chip === 'Other') {
+          if (/skool|facebook/i.test(cm.platform || '')) return false;
+        } else if (state.chip && norm(cm.platform).indexOf(norm(state.chip).split(' ')[0]) === -1) return false;
+        return matches([cm.name, cm.about, cm.platform, commCats(cm).join(' '), m.name, m.business]);
+      });
+    } else if (state.tab === 'promo') {
+      make = promoCard;
+      items = promos.filter(function (f) {
+        if (state.chip === 'Other') { if (/skool|facebook/i.test(f.platform || '')) return false; }
+        else if (state.chip && norm(f.platform).indexOf(norm(state.chip).split(' ')[0]) === -1) return false;
+        return matches([f.name, f.about, f.why, f.platform]);
+      });
+    } else {
+      make = recCard;
+      items = recs.filter(function (it) {
+        if (state.chip && recCat(it.rec.category) !== state.chip) return false;
+        return matches([it.rec.name, it.rec.about, it.rec.why, it.rec.category, it.member.name, it.member.business]);
+      });
+    }
+    renderCalendar();
+    $('addPromo').hidden = !(state.tab === 'promo' || state.tab === 'calendar');
+    var isCal = state.tab === 'calendar';
+    $('controls').hidden = isCal;
+    grid.hidden = isCal;
+    $('resultCount').hidden = isCal;
+    if (isCal) { $('disclosure').hidden = true; return; }
+    var total = { offers: offers.length, communities: communities.length, recommended: recs.length, promo: promos.length }[state.tab];
+    $('disclosure').hidden = !(state.tab === 'promo' && promos.some(function (f) { return f.affiliate; }));
+    if (!total) {
+      $('resultCount').textContent = '';
+      grid.appendChild(emptyState('Listings are on their way. Check back soon.'));
+      return;
+    }
+    $('resultCount').textContent = items.length === total ? 'Showing all ' + total : 'Showing ' + items.length + ' of ' + total;
+    if (!items.length) {
+      grid.appendChild(emptyState('Nothing matches that yet. Try another word, or ask in Tuesday’s What Do You Need? thread.'));
+      return;
+    }
+    items.forEach(function (it) { grid.appendChild(make(it)); });
+  };
+
+  /* Calendar */
+  var renderCalendar = function () {
+    var box = $('promoCal');
+    box.hidden = state.tab !== 'calendar';
+    if (box.hidden) return;
+    if (!state.day) state.day = todayDay;
+    var chips = $('calDays');
+    chips.innerHTML = '';
+    ['All'].concat(DAYS).forEach(function (d) {
+      var b = el('button', 'chip', d === todayDay ? d + ' (today)' : d);
+      b.type = 'button';
+      b.setAttribute('aria-pressed', state.day === d ? 'true' : 'false');
+      b.addEventListener('click', function () { state.day = d; renderCalendar(); });
+      chips.appendChild(b);
+    });
+    var list = $('calList');
+    list.innerHTML = '';
+    if (!calGroups.length) { list.appendChild(el('p', 'nt', 'Promo groups are on their way. Check back soon.')); return; }
+    var all = state.day === 'All';
+    var on = all ? calGroups.slice().sort(function (x, y) { return x.name.localeCompare(y.name); }) : calGroups.filter(function (g) { return g.days.indexOf(state.day) !== -1; });
+    if (!on.length) { list.appendChild(el('p', 'nt', 'No promo groups listed for this day yet.')); return; }
+    on.forEach(function (g) {
+      var row = el('div', 'cal-row');
+      var t = el('div', 'grow');
+      t.appendChild(el('div', 'nm', g.name));
+      if (all) t.appendChild(el('div', 'days', g.days.length === 7 ? 'Every day' : g.days.join(', ')));
+      var nt = [g.note, g.src].filter(Boolean).join(' \u00B7 ');
+      if (nt) t.appendChild(el('div', 'nt', nt));
+      row.appendChild(t);
+      var lb = linkBtn('Go promote', g.link, true);
+      if (lb) row.appendChild(lb);
+      list.appendChild(row);
+    });
+  };
+
+  /* Spotlight */
+  var renderSpotlight = function () {
+    var box = $('spotlight');
+    box.innerHTML = '';
+    var sp = data.spotlight;
+    var m = null;
+    if (sp && sp.id) (data.members || []).forEach(function (x) { if (x.id === sp.id && x.community && x.community.name && x.community.link) m = x; });
+    box.hidden = !m;
+    if (!m) return;
+    var card = el('article', 'spot');
+    var pic = el('div', 'spot-img', EMOJI[m.community.category] || '\u2B50');
+    pic.setAttribute('aria-hidden', 'true');
+    var src = (/^(images\/|data:image\/)/.test(sp.image || '') ? sp.image : safeUrl(sp.image)) || (m.community.category ? catImage(m.community.category) : '');
+    if (src) swapImage(pic, src);
+    card.appendChild(pic);
+    var body = el('div', 'spot-body');
+    body.appendChild(el('span', 'spot-label', '\u2B50 Community Spotlight'));
+    body.appendChild(el('h2', '', m.community.name));
+    if (m.community.about) body.appendChild(el('p', 'offer', m.community.about));
+    if (sp.note) body.appendChild(whyBox(['Why I chose it'], sp.note));
+    var by = el('p', 'by', 'Hosted by ');
+    var nb = el('button', '', m.name);
+    nb.type = 'button';
+    nb.addEventListener('click', function () { openProfile(m, nb); });
+    by.appendChild(nb);
+    body.appendChild(by);
+    var acts = el('div', 'actions');
+    var jb = linkBtn('Join the community', m.community.link, true);
+    if (jb) acts.appendChild(jb);
+    body.appendChild(acts);
+    card.appendChild(body);
+    box.appendChild(card);
+  };
+
+  /* Home */
+  var renderHome = function () {
+    renderSpotlight();
+    var wrap = $('catGrid');
+    wrap.innerHTML = '';
+    GROUPS.forEach(function (g) {
+      var sec = el('div', 'cat-group');
+      sec.appendChild(el('h3', 'group-title', g.name));
+      var grid2 = el('div', 'cat-grid');
+      g.cats.forEach(function (x) {
+        var c = inCategory(x);
+        var n = c.offers.length + c.communities.length + c.picks.length;
+        var b = el('button', 'cat-tile' + (n ? '' : ' zero'));
+        b.type = 'button';
+        var pic = el('span', 'cat-img', EMOJI[x] || '\u2726');
+        pic.setAttribute('aria-hidden', 'true');
+        var src = catImage(x);
+        var im = new Image();
+        im.alt = '';
+        im.onload = function () {
+          pic.textContent = ''; pic.appendChild(im);
+          b.style.setProperty('--tile-bg', 'url("' + src.replace(/"/g, '%22') + '")');
+        };
+        im.src = src;
+        b.appendChild(pic);
+        var info = el('span', 'cat-info');
+        info.appendChild(el('span', 'cname', x));
+        var cc = el('span', 'ccount');
+        cc.appendChild(el('span', 'dot', '\u2726'));
+        cc.appendChild(document.createTextNode(n ? n + (n === 1 ? ' listing' : ' listings') : 'Be the first'));
+        info.appendChild(cc);
+        b.appendChild(info);
+        b.addEventListener('click', function () { openCategory(x); });
+        grid2.appendChild(b);
+      });
+      sec.appendChild(grid2);
+      wrap.appendChild(sec);
+    });
+  };
+
+  /* Category page */
+  var openCategory = function (x) {
+    $('homeView').hidden = true;
+    $('panel').hidden = true;
+    $('catView').hidden = false;
+    $('topbarSec').textContent = x;
+    var g = groupOf(x);
+    $('catGroup').textContent = g ? g.name : '';
+    $('catTitle').textContent = x;
+    var banner = $('catBanner');
+    banner.textContent = EMOJI[x] || '\u2726';
+    swapImage(banner, catImage(x));
+    var body = $('catBody');
+    body.innerHTML = '';
+    var c = inCategory(x);
+    var add = function (title, list, make) {
+      if (!list.length) return;
+      var sec = el('div', 'cat-section');
+      sec.appendChild(el('h3', 'group-title', title));
+      var gr = el('div', 'grid');
+      list.forEach(function (it) { gr.appendChild(make(it)); });
+      sec.appendChild(gr);
+      body.appendChild(sec);
+    };
+    add('Offers', c.offers, offerCard);
+    add('Communities', c.communities, communityCard);
+    add('My picks', c.picks, promoCard);
+    if (!body.childNodes.length) {
+      var e = emptyState('Nobody is listed in ' + x + ' yet. Premium members, this could be you.');
+      body.appendChild(e);
+    }
+    var tb = document.querySelector('.topbar');
+    window.scrollTo(0, Math.max(0, $('catView').getBoundingClientRect().top + window.pageYOffset - ((tb && tb.offsetHeight) || 0) - 12));
+  };
+
+  /* Menu */
+  var navItems = Array.prototype.slice.call(document.querySelectorAll('.nav-item'));
+  navItems.forEach(function (b) { swapImage(b.querySelector('.ico'), navIcon(b.getAttribute('data-sec'))); });
+  var sidebar = $('sidebar'), scrim = $('scrim'), menuBtn = $('menuBtn');
+  var setMenu = function (open) {
+    sidebar.classList.toggle('open', open);
+    scrim.classList.toggle('open', open);
+    menuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  };
+  menuBtn.addEventListener('click', function () { setMenu(!sidebar.classList.contains('open')); });
+  scrim.addEventListener('click', function () { setMenu(false); });
+  $('sideListed').addEventListener('click', function () { setMenu(false); });
+
+  var setSection = function (t, fromHash) {
+    if (!chipSets[t]) t = 'home';
+    $('homeView').hidden = t !== 'home';
+    $('panel').hidden = t === 'home';
+    $('catView').hidden = true;
+    state.tab = t; state.chip = ''; state.cat = ''; state.fmt = ''; state.day = '';
+    navItems.forEach(function (b) {
+      b.setAttribute('aria-current', b.getAttribute('data-sec') === t ? 'true' : 'false');
+    });
+    $('topbarSec').textContent = TITLES[t];
+    $('q').placeholder = t === 'offers' ? 'Search by name, offer, or what you need' : 'Search ' + TITLES[t].toLowerCase();
+    if (!fromHash && window.history && history.replaceState) history.replaceState(null, '', '#' + t);
+    if (t === 'home') { renderHome(); return; }
+    renderControls();
+    renderGrid();
+  };
+  navItems.forEach(function (b) {
+    b.addEventListener('click', function () {
+      setSection(b.getAttribute('data-sec'));
+      setMenu(false);
+      var top = $('panel').getBoundingClientRect().top + window.pageYOffset - 70;
+      if (window.pageYOffset > top) window.scrollTo(0, Math.max(0, top));
+    });
+  });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && sidebar.classList.contains('open')) setMenu(false); });
+
+  var qTimer = null;
+  $('q').addEventListener('input', function () {
+    clearTimeout(qTimer);
+    qTimer = setTimeout(function () { state.q = norm($('q').value.trim()); renderGrid(); }, 120);
+  });
+  $('backBtn').addEventListener('click', function () { setSection('home'); window.scrollTo(0, 0); });
+  $('cat').addEventListener('change', function () { state.cat = $('cat').value; renderGrid(); });
+  $('fmt').addEventListener('change', function () { state.fmt = $('fmt').value; renderGrid(); });
+
+  /* Profile dialog */
+  var overlay = $('overlay'), lastFocus = null;
+  var openProfile = function (m, from) {
+    lastFocus = from || null;
+    var body = $('dlgBody');
+    body.innerHTML = '';
+    var row = personRow(m);
+    row.querySelector('.name').id = 'dlgName';
+    body.appendChild(row);
+    if (m.about) {
+      body.appendChild(el('h3', 'sub', 'About her'));
+      var ab = el('div', 'block');
+      ab.appendChild(el('p', 'offer', m.about));
+      body.appendChild(ab);
+    }
+    var social = linkBtn('Instagram or social', m.social, false);
+    if (m.offer) {
+      body.appendChild(el('h3', 'sub', 'Her signature offer'));
+      var b = el('div', 'block');
+      b.appendChild(el('p', 'offer', m.offer));
+      if (m.who) { var w = el('p', 'meta'); w.appendChild(el('strong', '', 'For: ')); w.appendChild(document.createTextNode(m.who)); b.appendChild(w); }
+      if (m.price) { var p = el('p', 'meta'); p.appendChild(el('strong', '', 'Starting at: ')); p.appendChild(document.createTextNode(m.price)); b.appendChild(p); }
+      var a = el('div', 'actions');
+      var ob = linkBtn('See her offer', m.offerLink, true);
+      if (ob) a.appendChild(ob);
+      b.appendChild(a);
+      body.appendChild(b);
+    }
+    if (m.community && m.community.name) {
+      body.appendChild(el('h3', 'sub', 'Her community'));
+      var cb = el('div', 'block');
+      cb.appendChild(el('p', 'name', m.community.name));
+      if (m.community.about) cb.appendChild(el('p', 'offer', m.community.about));
+      var ct = el('div', 'tags');
+      commCats(m.community).forEach(function (x) { ct.appendChild(el('span', 'tag gold', x)); });
+      if (m.community.platform) ct.appendChild(el('span', 'tag', m.community.platform));
+      if (m.community.access) ct.appendChild(el('span', 'tag', m.community.access));
+      if (ct.childNodes.length) cb.appendChild(ct);
+      var ca = el('div', 'actions');
+      var cbn = linkBtn('Join the community', m.community.link, true);
+      if (cbn) ca.appendChild(cbn);
+      cb.appendChild(ca);
+      body.appendChild(cb);
+    }
+    var rlist = (m.recommends || []).slice(0, 3).filter(function (r) { return r && r.name && r.link; });
+    if (rlist.length) {
+      body.appendChild(el('h3', 'sub', 'Communities she recommends'));
+      rlist.forEach(function (r) {
+        var rb = el('div', 'block');
+        rb.appendChild(el('p', 'name', r.name));
+        if (r.why) rb.appendChild(whyBox(['Why she recommends it'], r.why));
+        var rt = el('div', 'tags');
+        if (r.category) rt.appendChild(el('span', 'tag gold', recCat(r.category)));
+        if (r.affiliate) rt.appendChild(el('span', 'tag gold', 'Affiliate link'));
+        if (rt.childNodes.length) rb.appendChild(rt);
+        var ra = el('div', 'actions');
+        var rbn = linkBtn('Visit community', r.link, false);
+        if (rbn) ra.appendChild(rbn);
+        rb.appendChild(ra);
+        body.appendChild(rb);
+      });
+    }
+    if (social) {
+      var sa = el('div', 'actions');
+      sa.style.marginTop = '16px';
+      sa.appendChild(social);
+      body.appendChild(sa);
+    }
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    $('dialog').scrollTop = 0;
+    $('closeBtn').focus();
+  };
+  var closeProfile = function () {
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+    if (lastFocus && document.body.contains(lastFocus)) lastFocus.focus();
+  };
+  $('closeBtn').addEventListener('click', closeProfile);
+  overlay.addEventListener('click', function (e) { if (e.target === overlay) closeProfile(); });
+  document.addEventListener('keydown', function (e) {
+    if (!overlay.classList.contains('open')) return;
+    if (e.key === 'Escape') { closeProfile(); return; }
+    if (e.key === 'Tab') {
+      var f = $('dialog').querySelectorAll('a[href], button');
+      if (!f.length) return;
+      var first = f[0], last = f[f.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
+  });
+
+  /* Footer buttons */
+  if (safeUrl(FORM_URL)) { $('formBtn').href = safeUrl(FORM_URL); $('formBtn').hidden = false; }
+  $('plansBtn').href = PLANS_URL;
+  $('dmBtn').href = DM_URL;
+
+  /* Load */
+  var start = function () {
+    if (data.updated) {
+      var d = new Date(data.updated);
+      if (!isNaN(d)) $('updated').textContent = 'Updated ' + d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    }
+    build();
+    var h = (location.hash || '').replace('#', '').toLowerCase();
+    setSection(chipSets[h] ? h : 'home', true);
+  };
+  window.addEventListener('hashchange', function () {
+    var h = (location.hash || '').replace('#', '').toLowerCase();
+    if (chipSets[h] && h !== state.tab) setSection(h, true);
+  });
+
+  var embedded = document.getElementById('embedded-data');
+  if (embedded) {
+    try { data = JSON.parse(embedded.textContent); } catch (e) { /* ignore */ }
+    start();
+  } else {
+    fetch(DATA_URL + '?v=' + Date.now(), { cache: 'no-store' })
+      .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+      .then(function (json) { if (json && typeof json === 'object') data = json; start(); })
+      .catch(function () { start(); });
+  }
+})();
+</script>
+</body>
+</html>
