@@ -27,7 +27,7 @@
       "link": "https://www.skool.com/promote-with-confidence-9625/about?ref=3d4bd5bdcda847a3afcfd90d513f22bf",
       "platform": "Skool",
       "access": "Free and paid options",
-      "about": "A community for business owners, creators, digital sellers and Skool owners to learn marketing psychology, get seen and grow.",
+      "about": "Promote your business, offers & Skool community. Learn marketing psychology, write promos that convert & grow with confidence!",
       "why": "",
       "image": "",
       "affiliate": false,
@@ -174,7 +174,7 @@
       "formats": [
         "1:1 Sessions"
       ],
-      "offer": "Business Alignment Blueprint Audit. Your business through the lens of your Human Design",
+      "offer": "Your Human Design decoded through your business lens. Why certain strategies have felt like a fight. How you're actually wired to attract clients, make decisions, and price your work. Your messaging style, your authority, your wealth codes.",
       "who": "It's for women that are growing their online business",
       "price": "$222",
       "offerLink": "https://www.aurailia.com/business-alignment-bundle",
@@ -232,6 +232,22 @@
             "Sun"
           ]
         }
+      ],
+      "offerName": "Business Alignment Blueprint Audit",
+      "extraRecommends": [
+        {
+          "name": "Promote With Confidence™",
+          "link": "https://www.skool.com/promote-with-confidence-9625/about?ref=3d4bd5bdcda847a3afcfd90d513f22bf",
+          "category": "Promo Group",
+          "about": "Promote your business, offers & Skool community. Learn marketing psychology, write promos that convert & grow with confidence!",
+          "access": "Free;Paid",
+          "why": "Jennifer really cares about her community, and it shows. She's in there cheering women on, teaching real marketing psychology, and helping you write promos that actually convert. It's one of those rooms where you feel supported, not just seen.",
+          "affiliate": false,
+          "promoDays": [
+            "Mon",
+            "Wed"
+          ]
+        }
       ]
     },
     {
@@ -260,7 +276,7 @@
           "Business Coaching & Strategy"
         ],
         "platform": "Skool",
-        "about": "Promotion",
+        "about": "Promote your business, offers & Skool community. Learn marketing psychology, write promos that convert & grow with confidence!",
         "access": "Free;Paid",
         "promoDays": [
           "Mon",
@@ -277,7 +293,7 @@
           "name": "The Promo Lounge",
           "link": "https://www.skool.com/thepromolounge/about?ref=8fd4e7a52c1a4f5cb5db718c38c2d79a",
           "category": "Promo Group",
-          "about": "Community and connection",
+          "about": "A business community where promotion is encouraged. Share your offers, connect with others, and get seen. Without the usual self-promo restrictions.",
           "access": "Free;Paid",
           "why": "This empowers businesses owners to grow and be visible",
           "affiliate": true,

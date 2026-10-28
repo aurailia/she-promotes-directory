@@ -770,7 +770,9 @@
   var buildOutput = function () {
     var members = allMembers().filter(function (m) { return statusOf(m.id) === 'live'; }).map(function (m) {
       var o = {};
-      ['id', 'name', 'business', 'about', 'offerName', 'photo', 'social', 'categories', 'formats', 'offer', 'who', 'price', 'offerLink', 'community', 'recommends']
+      /* keep any hand-added bonus recommendations from the live Directory */
+      if (!m.extraRecommends) current.members.forEach(function (c) { if (c.id === m.id && c.extraRecommends) m.extraRecommends = c.extraRecommends; });
+      ['id', 'name', 'business', 'about', 'offerName', 'photo', 'extraRecommends', 'social', 'categories', 'formats', 'offer', 'who', 'price', 'offerLink', 'community', 'recommends']
         .forEach(function (k) { if (m[k] != null) o[k] = m[k]; });
       return o;
     });

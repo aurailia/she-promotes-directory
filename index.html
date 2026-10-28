@@ -615,7 +615,7 @@
     communities = members.filter(function (m) { return m.community && m.community.name && m.community.link; });
     recs = [];
     members.forEach(function (m) {
-      (m.recommends || []).slice(0, 3).forEach(function (r) {
+      (m.recommends || []).slice(0, 3).concat(m.extraRecommends || []).forEach(function (r) {
         if (r && r.name && r.link) recs.push({ rec: r, member: m });
       });
     });
@@ -1199,7 +1199,7 @@
       cb.appendChild(ca);
       body.appendChild(cb);
     }
-    var rlist = (m.recommends || []).slice(0, 3).filter(function (r) { return r && r.name && r.link; });
+    var rlist = (m.recommends || []).slice(0, 3).concat(m.extraRecommends || []).filter(function (r) { return r && r.name && r.link; });
     if (rlist.length) {
       body.appendChild(el('h3', 'sub', 'Communities she recommends'));
       rlist.forEach(function (r) {
