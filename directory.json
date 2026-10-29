@@ -248,6 +248,12 @@
             "Wed"
           ]
         }
+      ],
+      "locked": [
+        "offerName",
+        "offer",
+        "photo",
+        "community"
       ]
     },
     {
@@ -308,7 +314,13 @@
           ]
         }
       ],
-      "offerName": "Promote With Confidence™ Community"
+      "offerName": "Promote With Confidence™ Community",
+      "locked": [
+        "offerName",
+        "categories",
+        "community",
+        "recommends"
+      ]
     },
     {
       "id": "mraxyka",
@@ -343,7 +355,11 @@
         "promoDays": []
       },
       "recommends": [],
-      "offerName": "Praise Patch Review System"
+      "offerName": "Praise Patch Review System",
+      "locked": [
+        "offerName",
+        "community"
+      ]
     },
     {
       "id": "sreshtha-tewari",
@@ -371,7 +387,11 @@
           "Relationship & Family Coaching"
         ]
       },
-      "recommends": []
+      "recommends": [],
+      "locked": [
+        "categories",
+        "community"
+      ]
     }
   ]
 }

@@ -80,6 +80,10 @@
   .chg { display: grid; gap: 2px; padding: 8px 0; border-top: 1px solid rgba(255,255,255,0.07); }
   .chg:first-of-type { border-top: none; }
   .chg strong { color: var(--blush-soft); font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; }
+  .flag.lock { background: rgba(196,155,255,0.16); color: #d9c2ff; }
+  .chg .keep { justify-self: start; margin-top: 4px; font-family: inherit; font-size: 12px; font-weight: 600; color: var(--gold-bright); background: rgba(232,196,122,0.12); border: 1px solid rgba(232,196,122,0.4); border-radius: 999px; padding: 4px 10px; cursor: pointer; }
+  .chg .keep:hover { background: rgba(232,196,122,0.22); }
+  details.changes.kept summary { color: #d9c2ff; }
   .chg .was { color: var(--muted); text-decoration: line-through; }
   .chg .was::before { content: "Was: "; text-decoration: none; display: inline-block; margin-right: 2px; }
   .chg .now::before { content: "Now: "; color: var(--muted); }
@@ -252,10 +256,10 @@
   };
 
   /* Saved state: statuses by id, plus unsaved featured edits */
-  var saved = { status: {}, featuredDraft: null, spotlightDraft: null };
+  var saved = { status: {}, featuredDraft: null, spotlightDraft: null, lockEdits: {} };
   try {
     var raw = localStorage.getItem(STORE);
-    if (raw) { var p = JSON.parse(raw); if (p && typeof p === 'object') { saved.status = p.status || {}; saved.featuredDraft = p.featuredDraft || null; saved.spotlightDraft = p.spotlightDraft || null; } }
+    if (raw) { var p = JSON.parse(raw); if (p && typeof p === 'object') { saved.status = p.status || {}; saved.featuredDraft = p.featuredDraft || null; saved.spotlightDraft = p.spotlightDraft || null; saved.lockEdits = p.lockEdits || {}; } }
   } catch (e) { /* storage unavailable */ }
   var persist = function () { try { localStorage.setItem(STORE, JSON.stringify(saved)); } catch (e) { /* ignore */ } };
 
@@ -463,7 +467,7 @@
       (dupes ? '. ' + dupes + ' older duplicate' + (dupes === 1 ? '' : 's') + ' replaced by the newest version.' : '.')));
     if (map.emailCols) report.appendChild(el('div', 'note ok', 'Emails removed. They stay out of the Directory file.'));
     var nNew = 0, nUp = 0, nSame = 0;
-    csvMembers.forEach(function (m) { var c = changesFor(m); if (c === 'new') nNew++; else if (c && c.length) nUp++; else nSame++; });
+    csvMembers.forEach(function (m) { var c = changesFor(eff(m)); if (c === 'new') nNew++; else if (c && c.length) nUp++; else nSame++; });
     report.appendChild(el('div', 'note ok', nNew + ' new, ' + nUp + ' updated, ' + nSame + ' with no changes.'));
     if (missing.length) report.appendChild(el('div', 'note warn', 'I couldn’t find these columns: ' + missing.join(', ') + '. Check the form questions match the field list.'));
     renderReview();
@@ -482,7 +486,7 @@
 
   var allMembers = function () {
     var seen = {}, list = [];
-    csvMembers.forEach(function (m) { seen[m.id] = true; list.push(m); });
+    csvMembers.forEach(function (m) { seen[m.id] = true; list.push(eff(m)); });
     current.members.forEach(function (m) {
       if (seen[m.id]) return;
       var copy = JSON.parse(JSON.stringify(m));
@@ -507,6 +511,36 @@
   var norm2 = function (k, v) {
     if (k === 'photo') { var m = String(v || '').match(/(?:id=|\/d\/)([\w-]{10,})/); return m ? m[1] : String(v || ''); }
     return JSON.stringify(v == null ? '' : (Array.isArray(v) && !v.length ? '' : v));
+  };
+  /* Hand edits: fields you changed in the Directory yourself stay put, even if her form says something else */
+  var oldOf = function (id) { var o = null; current.members.forEach(function (c) { if (c.id === id) o = c; }); return o; };
+  var lockedKeys = function (id) {
+    var old = oldOf(id), keys = {}, ed = saved.lockEdits[id] || {};
+    ((old && old.locked) || []).forEach(function (k) { keys[k] = true; });
+    Object.keys(ed).forEach(function (k) { if (ed[k]) keys[k] = true; else delete keys[k]; });
+    return Object.keys(keys);
+  };
+  var setLock = function (id, key, on) {
+    if (!saved.lockEdits[id]) saved.lockEdits[id] = {};
+    saved.lockEdits[id][key] = on;
+    persist(); renderReview(); renderStats(); renderSpotPicker();
+  };
+  var eff = function (m) {
+    if (m._fromCurrent) return m;
+    var old = oldOf(m.id), keys = lockedKeys(m.id);
+    if (!old || !keys.length) return m;
+    var c = JSON.parse(JSON.stringify(m));
+    keys.forEach(function (k) { if (old[k] != null) c[k] = JSON.parse(JSON.stringify(old[k])); else delete c[k]; });
+    c._raw = m;
+    return c;
+  };
+  var keptFor = function (m) {
+    if (!m._raw) return [];
+    var old = oldOf(m.id), out = [];
+    FIELDS.forEach(function (f) {
+      if (lockedKeys(m.id).indexOf(f[0]) !== -1 && norm2(f[0], m._raw[f[0]]) !== norm2(f[0], old[f[0]])) out.push({ label: f[1], from: show(f[0], old[f[0]]), to: show(f[0], m._raw[f[0]]), key: f[0] });
+    });
+    return out;
   };
   var changesFor = function (m) {
     if (m._fromCurrent) return null;
@@ -560,7 +594,7 @@
       if (m._fromCurrent) flags.appendChild(el('span', 'flag', 'Already in the Directory, not in this CSV'));
       if (m._premium === true) flags.appendChild(el('span', 'flag ok', '✓ Checked premium box'));
       if (m._premium === false) flags.appendChild(el('span', 'flag warn', 'Didn’t check the premium box'));
-      if (m.offer && m.offer.length > 150) flags.appendChild(el('span', 'flag warn', 'Offer is ' + m.offer.length + ' characters'));
+      if (m.offer && m.offer.length > 300) flags.appendChild(el('span', 'flag warn', 'Offer is ' + m.offer.length + ' characters'));
       if (!m.offer && !m.community && !(m.recommends || []).length) flags.appendChild(el('span', 'flag warn', 'Nothing to list yet'));
       if (m.offer && !m.offerLink) flags.appendChild(el('span', 'flag warn', 'No offer link'));
       if (m.community) flags.appendChild(el('span', 'flag', 'Community: ' + m.community.name + ((m.community.categories || [m.community.category]).filter(Boolean).length ? ' (' + (m.community.categories || [m.community.category]).filter(Boolean).join(', ') + ')' : '')));
@@ -577,9 +611,31 @@
           if (c.key === 'photo') row.appendChild(el('span', '', 'She uploaded a new photo'));
           else if (c.from === c.to) row.appendChild(el('span', '', c.to + ' (a link or detail inside changed)'));
           else { row.appendChild(el('span', 'was', c.from)); row.appendChild(el('span', 'now', c.to)); }
+          var kb = el('button', 'keep', 'Keep my Directory version');
+          kb.type = 'button';
+          kb.addEventListener('click', function () { setLock(m.id, c.key, true); });
+          row.appendChild(kb);
           det.appendChild(row);
         });
         it.appendChild(det);
+      }
+      var kept = keptFor(m);
+      if (kept.length) {
+        var kd = document.createElement('details');
+        kd.className = 'changes kept';
+        kd.appendChild(el('summary', '', '\uD83D\uDD12 Kept your edits: ' + kept.map(function (c) { return c.label; }).join(', ')));
+        kept.forEach(function (c) {
+          var row = el('div', 'chg');
+          row.appendChild(el('strong', '', c.label));
+          if (c.key === 'photo') row.appendChild(el('span', '', 'Her form has a different photo. Keeping yours.'));
+          else { row.appendChild(el('span', 'now', 'Keeping: ' + c.from)); row.appendChild(el('span', 'was', 'Her form says: ' + c.to)); }
+          var ub = el('button', 'keep', 'Use her form instead');
+          ub.type = 'button';
+          ub.addEventListener('click', function () { setLock(m.id, c.key, false); });
+          row.appendChild(ub);
+          kd.appendChild(row);
+        });
+        it.appendChild(kd);
       }
 
       if (m.about) it.appendChild(el('p', 'sub', 'About: ' + m.about));
@@ -774,6 +830,8 @@
       if (!m.extraRecommends) current.members.forEach(function (c) { if (c.id === m.id && c.extraRecommends) m.extraRecommends = c.extraRecommends; });
       ['id', 'name', 'business', 'about', 'offerName', 'photo', 'extraRecommends', 'social', 'categories', 'formats', 'offer', 'who', 'price', 'offerLink', 'community', 'recommends']
         .forEach(function (k) { if (m[k] != null) o[k] = m[k]; });
+      var lk = m._fromCurrent ? (m.locked || []) : lockedKeys(m.id);
+      if (lk.length) o.locked = lk;
       return o;
     });
     var sp = null;
@@ -852,7 +910,7 @@
   $('freshBtn').addEventListener('click', function () { $('freshConfirm').hidden = false; });
   $('freshNo').addEventListener('click', function () { $('freshConfirm').hidden = true; });
   $('freshYes').addEventListener('click', function () {
-    saved = { status: {}, featuredDraft: null, spotlightDraft: null }; persist();
+    saved = { status: {}, featuredDraft: null, spotlightDraft: null, lockEdits: {} }; persist();
     current = { featured: [], members: [] }; featured = []; csvMembers = []; spotlight = null; renderSpotPicker();
     $('freshConfirm').hidden = true;
     $('csvReport').innerHTML = '';
