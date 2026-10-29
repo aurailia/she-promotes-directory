@@ -154,9 +154,9 @@
     }
   ],
   "spotlight": {
-    "id": "sreshtha-tewari",
-    "note": "Sreshtha calls her community an emotional gym for your heart and soul. If you've been carrying old hurt in love, this is a gentle, shame-free place to let it go. Go say hi 💖",
-    "image": "images/spotlight/come-home-to-love-inner-circle.jpg"
+    "id": "bessie-estonactoc",
+    "note": "Bessie is proof that it’s never too late to start. She has so much passion and drive in this second phase of life, and she’s pouring it into something beautiful. If you’ve ever told yourself it’s too late for you, let her be your sign 💖",
+    "image": "images/communities/soul-rising-sanctuary.jpg"
   },
   "members": [
     {
@@ -317,6 +317,7 @@
       "offerName": "Promote With Confidence™ Community",
       "locked": [
         "offerName",
+        "offer",
         "categories",
         "community",
         "recommends"
@@ -358,6 +359,7 @@
       "offerName": "Praise Patch Review System",
       "locked": [
         "offerName",
+        "offer",
         "community"
       ]
     },
@@ -389,7 +391,38 @@
       },
       "recommends": [],
       "locked": [
-        "categories",
+        "community"
+      ]
+    },
+    {
+      "id": "bessie-estonactoc",
+      "name": "Bessie Estonactoc",
+      "business": "Soul Rising Sanctuary",
+      "about": "Spiritual Mentor and Quantum Journeys Hypnotherapist. A former Marriage and Family Therapist, she has spent over 20 years guiding women through healing and awakening.",
+      "photo": "",
+      "social": "",
+      "categories": [],
+      "formats": [],
+      "offer": "",
+      "who": "",
+      "price": "",
+      "offerLink": "",
+      "community": {
+        "name": "Soul Rising Sanctuary",
+        "link": "https://www.skool.com/soulrisingsanctuary/about?ref=3d4bd5bdcda847a3afcfd90d513f22bf",
+        "category": "Hypnosis & Subconscious Work",
+        "platform": "Skool",
+        "about": "A gentle space for spiritual women in their wisdom years to calm their nervous system, come home to their intuition, and live with more peace and purpose.",
+        "access": "Free;Paid",
+        "promoDays": [],
+        "categories": [
+          "Hypnosis & Subconscious Work",
+          "Energy Healing"
+        ],
+        "image": "images/communities/soul-rising-sanctuary.jpg"
+      },
+      "recommends": [],
+      "locked": [
         "community"
       ]
     }

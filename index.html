@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>She Promotes&trade; Directory</title>
+<meta name="description" content="A directory of women in business. Find healers, coaches, Human Design guides, Akashic Records readers, web designers and more, plus the communities they run.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -50,7 +51,14 @@
   .eyebrow { font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold); font-weight: 600; margin-bottom: 10px; }
   h1 { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 52px; font-weight: 600; line-height: 1.05; }
   h1 span { font-style: italic; }
-  .lede { color: var(--muted); margin: 12px auto 0; font-size: 16px; max-width: 520px; }
+  .lede { color: var(--muted); margin: 12px auto 0; font-size: 16px; max-width: 560px; }
+  .lede.small { font-size: 14px; margin-top: 8px; }
+  .hero-cta { margin-top: 14px; }
+  .hero-cta a { display: inline-block; font-size: 14px; font-weight: 600; color: var(--gold-bright); border: 1px solid rgba(232, 196, 122, 0.5); border-radius: 999px; padding: 7px 16px; text-decoration: none; }
+  .hero-cta a:hover, .hero-cta a:focus-visible { border-color: rgba(94, 214, 200, 0.8); box-shadow: 0 0 14px rgba(94, 214, 200, 0.25); }
+  .steps { list-style: none; counter-reset: st; display: grid; gap: 8px; max-width: 460px; margin: 0 auto 18px; text-align: left; }
+  .steps li { counter-increment: st; position: relative; padding-left: 36px; font-size: 15px; }
+  .steps li::before { content: counter(st); position: absolute; left: 0; top: -1px; width: 26px; height: 26px; border-radius: 50%; background: linear-gradient(135deg, var(--gold), var(--blush)); color: var(--plum-deep); font-weight: 700; font-size: 13px; display: flex; align-items: center; justify-content: center; }
   .updated { color: var(--muted); font-size: 12px; margin-top: 10px; opacity: 0.8; }
 
   h2.section {
@@ -69,7 +77,24 @@
   .how ul { list-style: none; display: grid; gap: 8px; }
   .how li { padding-left: 24px; position: relative; font-size: 15px; }
   .how li::before { content: "\2726"; position: absolute; left: 0; color: var(--gold); }
-  .cat-group { margin-bottom: 30px; }
+  .cat-group { margin-bottom: 30px; scroll-margin-top: 80px; }
+  .jump { margin: -6px 0 24px; }
+  .jump-label { font-size: 13px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold); margin-bottom: 10px; }
+  .jump-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px; }
+  .jump-btn { display: flex; align-items: center; gap: 10px; text-align: left; font-family: inherit; font-size: 15px; font-weight: 600; color: var(--text); background: rgba(255,255,255,0.06); border: 1px solid rgba(232, 196, 122, 0.4); border-radius: 14px; padding: 8px 12px 8px 8px; cursor: pointer; transition: border-color .2s ease, background .2s ease, box-shadow .2s ease; }
+  .jump-btn:hover, .jump-btn:focus-visible { border-color: rgba(94, 214, 200, 0.8); background: rgba(255,255,255,0.1); box-shadow: 0 0 14px rgba(94, 214, 200, 0.25); }
+  .jump-btn .jimg { flex: 0 0 auto; width: 42px; height: 42px; border-radius: 10px; overflow: hidden; background: rgba(196, 155, 255, 0.3); display: flex; align-items: center; justify-content: center; font-size: 20px; }
+  .jump-btn .jimg img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .jump-btn .jtxt { display: grid; line-height: 1.2; }
+  .jump-btn .jtxt small { font-size: 12px; font-weight: 400; color: var(--muted); }
+  @media (max-width: 640px) {
+    .home-search .chips { flex-wrap: nowrap; overflow-x: auto; margin: 0 -16px; padding: 0 16px 4px; scrollbar-width: none; }
+    .jump-row { display: flex; overflow-x: auto; gap: 8px; margin: 0 -16px; padding: 0 16px 6px; scrollbar-width: none; }
+    .jump-btn { flex: 0 0 auto; font-size: 14px; padding: 6px 12px 6px 6px; }
+    .jump-btn .jimg { width: 34px; height: 34px; }
+    .home-search { margin-bottom: 18px; }
+    .jump { margin-bottom: 18px; }
+  }
   .group-title { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 26px; font-weight: 600; line-height: 1.2; margin-bottom: 12px; }
   .cat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; }
   /* Category cards: image on top, frosted blurred panel below */
@@ -120,6 +145,9 @@
   .spot-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .spot-body { padding: 22px 22px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
   .spot-label { align-self: flex-start; font-size: 12px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--plum-deep); background: linear-gradient(135deg, var(--gold), var(--blush)); border-radius: 999px; padding: 5px 12px; }
+  .spot-host { margin-top: -4px; font-size: 17px; color: var(--muted); }
+  .spot-host button { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 24px; font-weight: 600; font-style: italic; color: var(--gold-bright); background: none; border: none; padding: 0; cursor: pointer; }
+  .spot-host button:hover, .spot-host button:focus-visible { color: var(--blush); text-decoration: underline; text-underline-offset: 4px; }
   .spot h2 { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 32px; font-weight: 600; line-height: 1.1; }
   #howTo { scroll-margin-top: 80px; }
   .scroll-cue { display: flex; flex-direction: column; align-items: center; gap: 4px; margin: -10px auto 26px; font-family: inherit; font-size: 15px; font-weight: 600; color: var(--gold-bright); background: none; border: none; cursor: pointer; padding: 8px 14px; }
@@ -251,6 +279,17 @@
   .result-count { font-size: 13px; color: var(--muted); margin: 4px 0 14px; }
 
   /* Cards */
+  /* Home search */
+  .home-search { margin-bottom: 24px; display: grid; gap: 10px; }
+  .home-search .search input[type="search"] { font-size: 17px; padding-top: 15px; padding-bottom: 15px; border-radius: 16px; border-color: rgba(232, 196, 122, 0.45); }
+  .home-search .chips { flex-wrap: wrap; overflow: visible; }
+  .hq-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 6px 0 12px; }
+  .hq-head h3 { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 26px; font-weight: 600; color: var(--blush); }
+  .hq-understood { font-size: 13px; color: var(--gold-bright); margin-top: 2px; }
+  .hq-clear { font-family: inherit; font-size: 14px; font-weight: 600; color: var(--gold-bright); background: none; border: none; cursor: pointer; padding: 4px 0; }
+  .hq-block { margin-bottom: 26px; }
+  .bestfor { font-size: 14px; line-height: 1.45; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+  .bestfor b { color: var(--gold-bright); font-weight: 600; }
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 14px; }
   .card {
     background: var(--card); border: 1px solid var(--card-border); border-radius: 20px;
@@ -379,7 +418,7 @@
       <div class="nav-sep" role="separator" aria-hidden="true"></div>
       <button class="nav-item" type="button" data-sec="recommended"><span class="ico" aria-hidden="true">&#129309;</span><span class="lbl">Recommended Communities</span><span class="count" id="c-recommended"></span></button>
     </nav>
-    <div class="side-cta">Want to be listed? Premium members get a spot. <a id="sideListed" href="#listed">Here&rsquo;s how</a></div>
+    <div class="side-cta">Own a business? Get listed in the Directory. <a id="sideListed" href="#listed">Here&rsquo;s how</a></div>
   </aside>
   <div class="scrim" id="scrim"></div>
 
@@ -393,24 +432,42 @@
       <header class="hero" id="hero">
         <div class="eyebrow">She Promotes&trade;</div>
         <h1>The <span>Directory</span></h1>
-        <p class="lede">Looking for someone who does exactly what you need? She&rsquo;s probably in here. Find her, support her, and collaborate with her.</p>
+        <p class="lede">A directory of women in business. If you&rsquo;re looking for a healer, a coach, an Akashic Records reader, a Human Design guide or someone to build your website, you might find her here.</p>
+        <p class="lede small">Every woman listed is part of She Promotes&trade;, a Skool community where women in business support each other. Created by Aurailia Arnold.</p>
+        <p class="hero-cta"><a href="#listed" id="heroListed">Own a business? Here&rsquo;s how to get listed &darr;</a></p>
         <p class="updated" id="updated"></p>
       </header>
 
       <section id="homeView" aria-labelledby="homeTitle" hidden>
+        <div class="home-search" role="search">
+          <div class="search">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+            <label for="hq" class="sr-only">What do you need?</label>
+            <input type="search" id="hq" placeholder="What do you need? Try healer, hypnosis, or website" autocomplete="off">
+          </div>
+          <div class="chips" id="hqChips" role="group" aria-label="Popular searches"></div>
+        </div>
+        <div id="hqResults" hidden></div>
+        <div id="homeMain">
+        <nav class="jump" aria-label="Browse by category">
+          <div class="jump-label">Browse by category</div>
+          <div class="jump-row" id="jumpRow"></div>
+        </nav>
         <div id="spotlight" hidden></div>
         <div class="how" id="howTo">
           <h2>How to use the Directory</h2>
           <ul>
-            <li>Tap a category below to see the offers and communities in it.</li>
-            <li>Use the menu to browse every offer, the communities women run, the ones they recommend, and my favorite promo communities.</li>
-            <li>Tap <strong>View profile</strong> to learn about her, see her community, and see who she recommends.</li>
-            <li>Found someone you love? Book her, join her community, or tag her in Tuesday&rsquo;s What Do You Need? thread.</li>
+            <li>Search for what you need, or tap a category below to see who offers it.</li>
+            <li>Use the menu to see every offer, the communities these women run, the ones they recommend, and promo communities where you can share your own business.</li>
+            <li>Tap <strong>Details</strong> to see more, or tap her name to see her full profile.</li>
+            <li>Found someone you love? Book her, join her community, or follow her on social. In She Promotes&trade;? Tag her in Tuesday&rsquo;s What Do You Need? thread.</li>
+            <li><strong>New to Skool?</strong> It&rsquo;s a free app where most of these communities live. Tap <strong>Join the community</strong>, sign up with your email, and you&rsquo;re in. Some communities are free and some are paid. You&rsquo;ll see which on each one.</li>
           </ul>
         </div>
         <h2 class="section" id="homeTitle">Browse by category</h2>
-        <p class="section-sub">Every category in She Promotes&trade;. Tap one to see everything in it.</p>
+        <p class="section-sub">Tap a category to see the offers and communities in it.</p>
         <div id="catGrid"></div>
+        </div>
       </section>
 
       <section id="catView" aria-labelledby="catTitle" hidden>
@@ -454,11 +511,17 @@
       </section>
 
       <section class="listed" id="listed">
-        <h2>Want to be listed?</h2>
-        <p>Premium members get a spot in the Directory, with your signature offer, your community, and the communities you recommend. Premium communities can also be chosen for the weekly Community Spotlight. Premium is $3 a month or $27 a year.</p>
+        <h2>Want your business in the Directory?</h2>
+        <p>The Directory is for premium members of She Promotes&trade;, a community on Skool where women in business promote their offers, network, and collaborate. Joining is free. Premium is $3 a month or $27 a year, and it gets you listed with your signature offer, your community, and the communities you recommend. Premium communities can also be picked for the Community Spotlight.</p>
+        <ol class="steps">
+          <li>Join She Promotes&trade; on Skool. It&rsquo;s free.</li>
+          <li>Upgrade to premium inside the community.</li>
+          <li>Fill out the Directory form and I&rsquo;ll add you.</li>
+        </ol>
         <div class="actions">
-          <a class="btn btn-primary" id="formBtn" href="#" target="_blank" rel="noopener" hidden>Get listed</a>
-          <a class="btn btn-ghost" id="plansBtn" href="#" target="_blank" rel="noopener">Upgrade to premium</a>
+          <a class="btn btn-primary" id="joinBtn" href="#" target="_blank" rel="noopener">Join She Promotes&trade; free</a>
+          <a class="btn btn-ghost" id="plansBtn" href="#" target="_blank" rel="noopener">Already a member? Upgrade</a>
+          <a class="btn btn-ghost" id="formBtn" href="#" target="_blank" rel="noopener" hidden>Fill out the form</a>
         </div>
       </section>
 
@@ -483,6 +546,7 @@
   /* Settings */
   var FORM_URL = '';   /* Paste your Google Form link here to show the Get listed button */
   var PLANS_URL = 'https://www.skool.com/she-promotes-7924/plans';
+  var JOIN_URL = 'https://www.skool.com/she-promotes-7924/about';
   var DM_URL = 'https://www.skool.com/@aurailis-arnold-5599';   /* your Skool profile, where members can message you */
   var DATA_URL = 'directory.json';
 
@@ -540,10 +604,10 @@
   var TITLES = { calendar: 'Where can I promote today?', home: 'Home', offers: 'Offers', communities: 'Communities', recommended: 'Recommended Communities', promo: 'Promo Communities' };
   var INTROS = {
     calendar: 'Every promo group in the Directory and the days you can post there. Tap a day, or All to see the full week.',
-    promo: 'These are the promo communities that inspired me to create She Promotes&trade;. More places to share your offer and meet amazing women.',
-    offers: 'Every premium member&rsquo;s signature offer. Search for what you need, or browse by category.',
-    communities: 'Communities run by women in here. Find your next favorite room.',
-    recommended: 'Communities our members love and recommend, and why.'
+    promo: 'Have a business to share? These are the promo communities that inspired me to create She Promotes&trade;. More places to post your offer and meet amazing women.',
+    offers: 'Signature offers from the women in this Directory. Search for what you need, or browse by category.',
+    communities: 'Communities run by the women in this Directory. Find your next favorite room. New to Skool? It&rsquo;s free to sign up. Tap Join the community and create your account.',
+    recommended: 'Communities the women in this Directory love, and why they recommend them.'
   };
 
   var data = { featured: [], members: [] };
@@ -561,7 +625,7 @@
   };
   var safeUrl = function (u) {
     if (!u) return '';
-    u = String(u).replace(/[\u200B-\u200F\u2060-\u2064\uFEFF\u00AD]/g, '').trim();
+    u = String(u).replace(/[\u200B-\u200F\u2060-\u2064\uFEFF\u00AD\uFFFC]/g, '').trim();
     if (/^@[\w.]+$/.test(u)) return 'https://instagram.com/' + u.slice(1);
     if (!/^https?:\/\//i.test(u)) u = 'https://' + u;
     return /^https?:\/\/[^\s"'<>]+\.[^\s"'<>]+/i.test(u) ? u : '';
@@ -604,10 +668,98 @@
     return a;
   };
   var norm = function (s) { return String(s || '').toLowerCase(); };
+  /* ---------- Smart search ----------
+     People search the way they talk: "money mindset", "learning Claude", "hypnosis for money", "help with entities".
+     Each topic lists the words people type (say) and the words we look for in a listing (find). */
+  var TOPICS = [
+    { label: 'Money', say: ['money', 'money mindset', 'money block', 'money wound', 'wealth', 'abundance', 'abundant', 'prosperity', 'rich', 'finance', 'financial', 'income', 'debt', 'cash flow', 'cash', 'profit', 'cfo', 'bookkeeping', 'charge more', 'raise my prices', 'receive more', 'receiving'], find: ['money', 'wealth', 'abundan', 'financ', 'prosper', 'income'] },
+    { label: 'Manifesting', say: ['manifest', 'manifestation', 'manifesting', 'law of attraction', 'loa', 'vision board', 'scripting', 'attract', 'attraction', 'quantum', 'reality shifting'], find: ['manifest', 'law of attraction', 'abundan', 'quantum'] },
+    { label: 'Hypnosis', say: ['hypnosis', 'hypnotherapy', 'hypnotherapist', 'hypnotist', 'self hypnosis', 'subconscious', 'reprogram', 'rewire', 'limiting belief', 'belief', 'rtt', 'nlp', 'eft', 'tapping', 'meditation', 'guided meditation', 'visualization', 'past life', 'regression', 'qhht'], find: ['hypno', 'subconscious', 'rewire', 'belief', 'reprogram', 'meditat', 'visualiz', 'tapping', 'quantum journey'] },
+    { label: 'Healing', say: ['heal', 'healer', 'healing', 'energy', 'energy work', 'energy healing', 'reiki', 'chakra', 'aura', 'sound healing', 'sound bath', 'frequency', 'vibration', 'crystal', 'crystals', 'holistic', 'somatic'], find: ['heal', 'energy', 'reiki', 'chakra', 'aura', 'sound', 'frequen', 'crystal', 'holistic', 'somatic'] },
+    { label: 'Energy clearing', say: ['entity', 'entities', 'spirit attachment', 'attachment', 'spirit release', 'negative energy', 'bad energy', 'dark energy', 'curse', 'hex', 'cord cutting', 'cord', 'protection', 'psychic protection', 'cleanse', 'cleansing', 'clearing', 'space clearing', 'house clearing', 'smudge', 'smudging', 'haunted', 'paranormal', 'ghost'], find: ['clearing', 'entit', 'spirit release', 'spirit attach', 'protection', 'cleans', 'energy heal', 'chakra', 'medium', 'psychic', 'paranormal', 'spiritual tool'] },
+    { label: 'Intuitive & readings', say: ['psychic', 'medium', 'mediumship', 'tarot', 'oracle', 'reading', 'readings', 'intuitive', 'intuition', 'angel', 'angels', 'akashic', 'akashic records', 'channel', 'channeling', 'spirit guide', 'spirit guides', 'numerology', 'astrology', 'birth chart', 'horoscope', 'zodiac'], find: ['intuit', 'psychic', 'medium', 'tarot', 'oracle', 'reading', 'astrolog', 'akashic', 'angel', 'channel', 'spirit guide', 'numerolog'] },
+    { label: 'Human Design', say: ['human design', 'projector', 'generator', 'manifesting generator', 'manifestor', 'reflector', 'gene keys', 'my design', 'bodygraph'], find: ['human design', 'gene key'] },
+    { label: 'Spiritual', say: ['spiritual', 'spirituality', 'spiritual awakening', 'awakening', 'soul', 'divine', 'faith', 'christian', 'god', 'goddess', 'feminine', 'divine feminine', 'sacred', 'ritual', 'moon'], find: ['spiritual', 'soul', 'divine', 'faith', 'sacred', 'awaken', 'feminine', 'ritual', 'kingdom'] },
+    { label: 'AI', say: ['ai', 'a i', 'claude', 'chatgpt', 'chat gpt', 'gpt', 'artificial intelligence', 'automation', 'automate', 'automations', 'prompt', 'prompts', 'ai tools', 'zapier', 'make com', 'chatbot'], find: ['ai', 'automat', 'claude', 'chatgpt', 'prompt'] },
+    { label: 'Marketing & visibility', say: ['marketing', 'market', 'promote', 'promotion', 'promoting', 'visibility', 'visible', 'get seen', 'be seen', 'being seen', 'social media', 'instagram', 'facebook', 'tiktok', 'reels', 'content', 'posting', 'followers', 'audience', 'grow my audience', 'email list', 'newsletter', 'copywriting', 'copy', 'messaging', 'branding', 'brand', 'seo', 'reviews', 'testimonials', 'pr'], find: ['market', 'promot', 'visib', 'seen', 'social media', 'content', 'brand', 'messag', 'copy', 'seo', 'audience', 'review', 'testimonial', 'email'] },
+    { label: 'Clients & sales', say: ['clients', 'client', 'get clients', 'more clients', 'sales', 'sell', 'selling', 'launch', 'launching', 'offer', 'offers', 'pricing', 'leads', 'discovery call', 'enrollment', 'high ticket', 'conversion', 'convert'], find: ['client', 'sales', 'sell', 'launch', 'pricing', 'lead', 'convert', 'customer', 'business coaching', 'strategy'] },
+    { label: 'Websites & tech', say: ['website', 'websites', 'web design', 'web designer', 'funnel', 'funnels', 'landing page', 'sales page', 'wix', 'wordpress', 'shopify', 'squarespace', 'kajabi', 'tech', 'tech support', 'systems', 'crm', 'ghl', 'go high level'], find: ['website', 'funnel', 'tech', 'landing', 'web design', 'system'] },
+    { label: 'Business', say: ['business', 'business coach', 'business coaching', 'grow my business', 'scale', 'scaling', 'strategy', 'start a business', 'side hustle', 'entrepreneur', 'entrepreneurs', 'online business', 'small business', 'mentor', 'mentorship'], find: ['business', 'strategy', 'entrepreneur', 'mentor', 'cfo', 'profit'] },
+    { label: 'Building a Skool', say: ['build your skool', 'build my skool', 'build a skool', 'building a skool', 'start a skool', 'start my skool', 'launch my skool', 'launch a skool', 'grow my skool', 'grow your skool', 'skool owner', 'skool owners', 'create a community', 'build a community', 'start a community', 'community building', 'membership site'], find: ['build your skool', 'build a skool', 'skool owner', 'skool launch', 'launch your skool', 'grow your skool', 'community build', 'build community'] },
+    { label: 'Skool & communities', soft: true, say: ['skool', 'school community', 'community', 'communities', 'membership', 'start a community', 'grow my skool', 'skool owner', 'online community'], find: ['skool', 'community', 'membership'] },
+    { label: 'Promo groups', say: ['promo', 'promo group', 'promo groups', 'where to promote', 'promote my business', 'free promotion', 'networking', 'network', 'collab', 'collaboration', 'collaborate'], find: ['promo', 'promot', 'network', 'collab'] },
+    { label: 'Love & relationships', say: ['love', 'dating', 'relationship', 'relationships', 'marriage', 'partner', 'soulmate', 'twin flame', 'heartbreak', 'breakup', 'divorce', 'attract love', 'family', 'parenting', 'mom', 'mother'], find: ['love', 'relationship', 'marriage', 'family', 'dating', 'soulmate', 'heart'] },
+    { label: 'Emotional healing', say: ['anxiety', 'anxious', 'stress', 'overwhelm', 'overwhelmed', 'burnout', 'trauma', 'emotional', 'emotions', 'emotional pain', 'nervous system', 'regulate', 'calm', 'peace', 'grief', 'inner child', 'shadow work', 'self love', 'stuck', 'healing from'], find: ['emotion', 'nervous system', 'calm', 'peace', 'stress', 'trauma', 'pain', 'stuck', 'shame', 'heal'] },
+    { label: 'Confidence', say: ['confidence', 'confident', 'self esteem', 'self worth', 'worthiness', 'imposter', 'imposter syndrome', 'fear of being seen', 'fear of visibility', 'shy', 'courage'], find: ['confiden', 'worth', 'seen', 'visib', 'courage', 'believe in'] },
+    { label: 'Life & purpose', say: ['purpose', 'life coach', 'life coaching', 'mindset', 'clarity', 'direction', 'career change', 'next chapter', 'reinvent', 'midlife', 'second act', 'motivation', 'habits', 'goals', 'freedom'], find: ['purpose', 'life coach', 'mindset', 'clarity', 'life & purpose', 'freedom', 'second phase', 'wisdom years', 'midlife'] },
+    { label: 'Health & wellness', say: ['health', 'wellness', 'weight', 'weight loss', 'lose weight', 'fasting', 'intermittent fasting', 'nutrition', 'diet', 'food', 'recipes', 'plant based', 'vegan', 'fitness', 'workout', 'menopause', 'perimenopause', 'hormones', 'hormone', 'gut health', 'sleep', 'metabolism', 'herbs'], find: ['health', 'wellness', 'weight', 'fasting', 'nutrition', 'fitness', 'menopause', 'hormone', 'metabol', 'food', 'plant based', 'herb'] },
+    { label: 'Beauty', say: ['beauty', 'skincare', 'skin care', 'makeup', 'anti aging', 'hair', 'nails', 'lashes'], find: ['beauty', 'skin', 'makeup', 'hair'] },
+    { label: 'Virtual assistants', say: ['virtual assistant', 'va', 'admin', 'assistant', 'outsource', 'delegate', 'project manager', 'online business manager', 'obm'], find: ['virtual assistant', 'admin', 'assistant', 'outsourc'] },
+    { label: 'Handmade & gifts', say: ['gift', 'gifts', 'handmade', 'candle', 'candles', 'jewelry', 'jewellery', 'etsy', 'shop', 'products', 'art', 'crafts'], find: ['handmade', 'gift', 'candle', 'jewel', 'etsy', 'physical product'] },
+    { label: 'Courses & learning', soft: true, say: ['course', 'courses', 'class', 'classes', 'training', 'workshop', 'program', 'certification', 'learn', 'learning', 'teach me', 'how to'], find: ['course', 'program', 'training', 'workshop', 'learn', 'challenge', 'group program'] }
+  ];
+  var STOP = { a: 1, an: 1, the: 1, 'for': 1, and: 1, to: 1, i: 1, me: 1, my: 1, need: 1, needs: 1, want: 1, someone: 1, somebody: 1, who: 1, help: 1, helping: 1, 'with': 1, of: 1, 'in': 1, on: 1, at: 1, looking: 1, find: 1, or: 1, is: 1, are: 1, can: 1, get: 1, how: 1, what: 1, where: 1, best: 1, good: 1, near: 1, online: 1, women: 1, woman: 1, coach: 1, coaching: 1, service: 1, services: 1, about: 1, do: 1, does: 1, im: 1, that: 1, this: 1, your: 1, you: 1, from: 1, more: 1, better: 1, it: 1 };
+  var stem = function (w) {
+    if (w.length <= 3) return w;
+    if (/ies$/.test(w)) w = w.slice(0, -3) + 'y';
+    else if (/s$/.test(w) && !/ss$/.test(w) && !/(is|us)$/.test(w)) w = w.slice(0, -1);
+    if (w.length > 5 && /ing$/.test(w)) w = w.slice(0, -3);
+    else if (w.length > 5 && /er$/.test(w)) w = w.slice(0, -2);
+    return w;
+  };
+  var words = function (t) { return norm(t).replace(/[’']/g, '').replace(/[^a-z0-9&]+/g, ' ').trim().split(/\s+/).filter(Boolean); };
+  var stemLine = function (t) { return ' ' + words(t).map(stem).join(' ') + ' '; };
+  TOPICS.forEach(function (tp) { tp._say = tp.say.map(stemLine).sort(function (a, b) { return b.length - a.length; }); });
+  var hasTerm = function (hay, term) { return term.length <= 3 ? hay.indexOf(' ' + term + ' ') !== -1 : hay.indexOf(' ' + term) !== -1; };
+
+  /* Turn what she typed into concepts. "coach" alone still searches for coaches. */
+  var parseCache = {};
+  var parseQuery = function (q) {
+    if (parseCache[q]) return parseCache[q];
+    var line = stemLine(q), concepts = [];
+    TOPICS.forEach(function (tp) {
+      var found = false;
+      for (var i = 0; i < tp._say.length; i++) {
+        if (line.indexOf(tp._say[i]) !== -1) { found = true; line = line.split(tp._say[i]).join(' '); }
+      }
+      if (found) concepts.push({ label: tp.label, find: tp.find, soft: !!tp.soft });
+    });
+    var left = line.trim().split(/\s+/).filter(function (w) { return w && !STOP[w]; });
+    if (!concepts.length && !left.length) left = words(q).map(stem).filter(Boolean);
+    left.forEach(function (w) { concepts.push({ label: w, find: [w], plain: true }); });
+    parseCache[q] = concepts;
+    return concepts;
+  };
+  var hayOf = function (t) { return ' ' + norm(t).replace(/[’']/g, '').replace(/[^a-z0-9&]+/g, ' ') + ' '; };
+  /* Topics look at what she offers. Plain words (a name, a business name) look at everything. */
+  var hits = function (hay, concepts, core) {
+    var n = 0;
+    concepts.forEach(function (c) { var h = c.plain || !core ? hay : core; if (c.find.some(function (f) { return hasTerm(h, f); })) n++; });
+    return n;
+  };
+  var offerCore = function (m) { return [(m.keywords || []).join(' '), m.offerName, m.offer, m.who, (m.categories || []).join(' '), (m.formats || []).join(' ')].join(' '); };
+  var offerText = function (m) { return [(m.keywords || []).join(' '), m.name, m.business, m.offerName, m.offer, m.who, (m.categories || []).join(' '), (m.formats || []).join(' ')].join(' '); };
+  var commCore = function (m) { var cm = m.community; return [(cm.keywords || []).join(' '), cm.name, cm.about, cm.platform, commCats(cm).join(' ')].join(' '); };
+  var commText = function (m) { var cm = m.community; return [(cm.keywords || []).join(' '), cm.name, cm.about, cm.platform, commCats(cm).join(' '), m.name, m.business].join(' '); };
+  var recText = function (it) { return [it.rec.name, it.rec.about, it.rec.why, it.rec.category].join(' '); };
+  var promoText = function (f) { return [f.name, f.about, f.why, f.platform, 'promo promote networking'].join(' '); };
+  /* Concepts nothing in the Directory matches (a typo, a word nobody uses) are skipped, so they don't empty the results */
+  var liveConcepts = function (q) {
+    var cs = parseQuery(q);
+    var all = hayOf(offers.map(offerText).concat(communities.map(commText), recs.map(recText), promos.map(promoText)).join(' '));
+    cs = cs.filter(function (c) { return c.find.some(function (f) { return hasTerm(all, f); }); });
+    /* "learning", "course" or "community" on their own are a search. Next to a topic they just describe it. */
+    var firm = cs.filter(function (c) { return !c.soft; });
+    return firm.length ? firm : cs;
+  };
+  var textHit = function (text, q) {
+    var cs = liveConcepts(q);
+    if (!cs.length) return !parseQuery(q).length;
+    return hits(hayOf(text), cs) === cs.length;
+  };
   var matches = function (fields) {
     if (!state.q) return true;
-    var hay = norm(fields.join(' '));
-    return state.q.split(/\s+/).every(function (w) { return hay.indexOf(w) !== -1; });
+    return textHit(fields.join(' '), state.q);
   };
 
   /* Daily shuffle so every listing gets a turn at the top */
@@ -750,11 +902,15 @@
     }
     return { title: title, desc: desc };
   };
+  var bestFor = function (t) {
+    t = String(t || '').trim().replace(/^(it\W?s|it is|this is)?\s*(best )?for\s+/i, '').replace(/^(it\W?s|it is)\s+/i, '');
+    return t ? t.charAt(0).toUpperCase() + t.slice(1) : '';
+  };
   var factBox = function (m) {
     if (!m.who && !m.price) return null;
     var box = el('div', 'factbox');
     var row = function (label, text) { var r = el('div', 'fr'); r.appendChild(el('span', 'wl', label)); r.appendChild(el('span', 'ft', text)); box.appendChild(r); };
-    if (m.who) row('Who it\u2019s for', m.who);
+    if (m.who) row('Best for', bestFor(m.who));
     if (m.price) row('Starting at', m.price);
     return box;
   };
@@ -888,6 +1044,12 @@
     var o = offerParts(m);
     if (o.title) c.appendChild(el('h3', 'offer-title', o.title));
     if (o.desc) c.appendChild(el('p', 'offer clamp2', o.desc));
+    if (bestFor(m.who)) {
+      var bf = el('p', 'bestfor');
+      bf.appendChild(el('b', '', 'Best for: '));
+      bf.appendChild(document.createTextNode(bestFor(m.who)));
+      c.appendChild(bf);
+    }
     var cats = m.categories || [];
     addAll(c, [metaLine([m.price ? 'Starting at ' + m.price : '', cats[0] ? cats[0] + (cats.length > 1 ? ' +' + (cats.length - 1) : '') : ''])]);
     var acts = el('div', 'actions');
@@ -1031,7 +1193,7 @@
         if (state.cat && (m.categories || []).indexOf(state.cat) === -1) return false;
         if (state.chip && !(m.categories || []).some(function (c) { var g = groupOf(c); return g && g.key === state.chip; })) return false;
         if (state.fmt && (m.formats || []).indexOf(state.fmt) === -1) return false;
-        return matches([m.name, m.business, m.about, m.offerName, m.offer, m.who, (m.categories || []).join(' '), (m.formats || []).join(' ')]);
+        return matches([(m.keywords || []).join(' '), m.name, m.business, m.about, m.offerName, m.offer, m.who, (m.categories || []).join(' '), (m.formats || []).join(' ')]);
       });
     } else if (state.tab === 'communities') {
       make = communityCard;
@@ -1044,7 +1206,7 @@
         } else if (state.chip === 'Other') {
           if (/skool|facebook/i.test(cm.platform || '')) return false;
         } else if (state.chip && norm(cm.platform).indexOf(norm(state.chip).split(' ')[0]) === -1) return false;
-        return matches([cm.name, cm.about, cm.platform, commCats(cm).join(' '), m.name, m.business]);
+        return matches([(cm.keywords || []).join(' '), cm.name, cm.about, cm.platform, commCats(cm).join(' '), m.name, m.business]);
       });
     } else if (state.tab === 'promo') {
       make = promoCard;
@@ -1076,7 +1238,7 @@
     }
     $('resultCount').textContent = items.length === total ? 'Showing all ' + total : 'Showing ' + items.length + ' of ' + total;
     if (!items.length) {
-      grid.appendChild(emptyState('Nothing matches that yet. Try another word, or ask in Tuesday’s What Do You Need? thread.'));
+      grid.appendChild(emptyState('Nothing matches that yet. Try another word, or browse by category on Home.'));
       return;
     }
     items.forEach(function (it) { grid.appendChild(make(it)); });
@@ -1135,14 +1297,14 @@
     var body = el('div', 'spot-body');
     body.appendChild(el('span', 'spot-label', '\u2B50 Community Spotlight'));
     body.appendChild(el('h2', '', m.community.name));
+    var host = el('p', 'spot-host', 'with ');
+    var hb = el('button', '', m.name);
+    hb.type = 'button';
+    hb.addEventListener('click', function () { openProfile(m, hb); });
+    host.appendChild(hb);
+    body.appendChild(host);
     if (m.community.about) body.appendChild(el('p', 'offer', m.community.about));
     if (sp.note) body.appendChild(whyBox(['Why I chose it'], sp.note));
-    var by = el('p', 'by', 'Hosted by ');
-    var nb = el('button', '', m.name);
-    nb.type = 'button';
-    nb.addEventListener('click', function () { openProfile(m, nb); });
-    by.appendChild(nb);
-    body.appendChild(by);
     var acts = el('div', 'actions');
     var jb = linkBtn('Join the community', m.community.link, true);
     if (jb) acts.appendChild(jb);
@@ -1167,7 +1329,7 @@
   var cueSeen = false;
   var updateCue = function () {
     var inline = document.querySelector('#spotlight .scroll-cue');
-    var onHome = !$('homeView').hidden && !$('spotlight').hidden;
+    var onHome = !$('homeView').hidden && !$('homeMain').hidden && !$('spotlight').hidden;
     var show = !!(onHome && inline && !cueSeen && inline.getBoundingClientRect().top > window.innerHeight - 20);
     if (onHome && inline && inline.getBoundingClientRect().top < window.innerHeight * 0.8) cueSeen = true;
     floatCue.classList.toggle('show', show);
@@ -1181,14 +1343,109 @@
   window.addEventListener('scroll', updateCue, { passive: true });
   window.addEventListener('resize', updateCue);
 
+  /* Home search */
+  var HQ_CHIPS = [['Money mindset', 'money mindset'], ['Hypnosis', 'hypnosis'], ['Energy healing', 'energy healing'], ['Manifesting', 'manifesting'], ['Human Design', 'human design'], ['Learn AI', 'learn ai'], ['Get clients', 'get more clients'], ['Marketing', 'marketing'], ['Websites', 'website'], ['Love', 'love'], ['Wellness', 'wellness']];
+  var renderHomeSearch = function () {
+    var q = $('hq').value.trim();
+    var chipWrap = $('hqChips');
+    chipWrap.innerHTML = '';
+    HQ_CHIPS.forEach(function (c) {
+      var b = el('button', 'chip', c[0]);
+      b.type = 'button';
+      b.setAttribute('aria-pressed', norm(q) === c[1] ? 'true' : 'false');
+      b.addEventListener('click', function () { $('hq').value = norm(q) === c[1] ? '' : c[1]; renderHomeSearch(); });
+      chipWrap.appendChild(b);
+    });
+    var res = $('hqResults');
+    res.innerHTML = '';
+    $('homeMain').hidden = !!q;
+    res.hidden = !q;
+    if (!q) { updateCue(); return; }
+    floatCue.classList.remove('show');
+    var cs0 = liveConcepts(q);
+    var scored = function (list, txt, core) {
+      return list.map(function (x) { return { x: x, n: cs0.length ? hits(hayOf(txt(x)), cs0, core ? hayOf(core(x)) : null) : 0 }; }).filter(function (r) { return r.n > 0; });
+    };
+    var so = scored(offers, offerText, offerCore), sc = scored(communities, commText, commCore), sr = scored(recs, recText);
+    var full = cs0.length;
+    var top = function (arr) { return arr.filter(function (r) { return r.n === full; }).map(function (r) { return r.x; }); };
+    var o = top(so), cs = top(sc), rs = top(sr);
+    var n = o.length + cs.length + rs.length;
+    /* Nothing matches everything? Show what matches the most */
+    var best = 0;
+    so.concat(sc, sr).forEach(function (r) { if (r.n > best) best = r.n; });
+    var partial = !n && best > 0;
+    if (partial) {
+      var pick = function (arr) { return arr.filter(function (r) { return r.n === best; }).map(function (r) { return r.x; }); };
+      o = pick(so); cs = pick(sc); rs = pick(sr);
+      n = o.length + cs.length + rs.length;
+    }
+    var head = el('div', 'hq-head');
+    var info = el('div', '');
+    info.appendChild(el('p', 'result-count', n ? n + (n === 1 ? ' match' : ' matches') + ' for \u201C' + q + '\u201D' : ''));
+    var named = cs0.filter(function (c) { return !c.plain; }).map(function (c) { return c.label; });
+    if (named.length) info.appendChild(el('p', 'hq-understood', 'Searching for: ' + named.join(' + ')));
+    if (partial && full > 1) info.appendChild(el('p', 'hq-understood', 'No one does all of that yet, so here\u2019s who comes closest.'));
+    head.appendChild(info);
+    var clr = el('button', 'hq-clear', 'Clear search');
+    clr.type = 'button';
+    clr.addEventListener('click', function () { $('hq').value = ''; renderHomeSearch(); $('hq').focus(); });
+    head.appendChild(clr);
+    res.appendChild(head);
+    var block = function (title, list, make) {
+      if (!list.length) return;
+      var b = el('div', 'hq-block');
+      b.appendChild(el('div', 'hq-head')).appendChild(el('h3', '', title + ' (' + list.length + ')'));
+      var g = el('div', 'grid');
+      list.forEach(function (x) { g.appendChild(make(x)); });
+      b.appendChild(g);
+      res.appendChild(b);
+    };
+    block('Offers', o, offerCard);
+    block('Communities', cs, communityCard);
+    block('Recommended communities', rs, recCard);
+    if (!n) res.appendChild(emptyState('Nothing in the Directory for \u201C' + q + '\u201D yet. Try another word, or browse by category below. In She Promotes\u2122? Ask in Tuesday\u2019s What Do You Need? thread. Someone in there knows someone.'));
+  };
+  var hqTimer = null;
+  $('hq').addEventListener('input', function () { clearTimeout(hqTimer); hqTimer = setTimeout(renderHomeSearch, 150); });
+
+  /* Category shortcuts at the top of Home. Tap one to jump down to that section. */
+  var renderJump = function () {
+    var row = $('jumpRow');
+    row.innerHTML = '';
+    GROUPS.forEach(function (g) {
+      var n = 0;
+      g.cats.forEach(function (x) { var c = inCategory(x); n += c.offers.length + c.communities.length + c.picks.length; });
+      var b = el('button', 'jump-btn');
+      b.type = 'button';
+      var pic = el('span', 'jimg', EMOJI[g.cats[0]] || '\u2726');
+      pic.setAttribute('aria-hidden', 'true');
+      var src = catImage(g.cats[0]);
+      if (src) swapImage(pic, src);
+      b.appendChild(pic);
+      var t = el('span', 'jtxt');
+      t.appendChild(el('span', '', g.name));
+      t.appendChild(el('small', '', n ? n + ' listed' : 'Be the first'));
+      b.appendChild(t);
+      b.addEventListener('click', function () {
+        var target = $('grp-' + g.key);
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+      row.appendChild(b);
+    });
+  };
+
   /* Home */
   var renderHome = function () {
+    renderHomeSearch();
+    renderJump();
     renderSpotlight();
     setTimeout(updateCue, 50);
     var wrap = $('catGrid');
     wrap.innerHTML = '';
     GROUPS.forEach(function (g) {
       var sec = el('div', 'cat-group');
+      sec.id = 'grp-' + g.key;
       sec.appendChild(el('h3', 'group-title', g.name));
       var grid2 = el('div', 'cat-grid');
       g.cats.forEach(function (x) {
@@ -1251,7 +1508,7 @@
     add('Communities', c.communities, communityCard);
     add('My picks', c.picks, promoCard);
     if (!body.childNodes.length) {
-      var e = emptyState('Nobody is listed in ' + x + ' yet. Premium members, this could be you.');
+      var e = emptyState('Nobody is listed in ' + x + ' yet. Run a business in this space? This could be you. See how to get listed at the bottom of the page.');
       body.appendChild(e);
     }
     var tb = document.querySelector('.topbar');
@@ -1269,6 +1526,11 @@
   };
   menuBtn.addEventListener('click', function () { setMenu(!sidebar.classList.contains('open')); });
   scrim.addEventListener('click', function () { setMenu(false); });
+  $('heroListed').addEventListener('click', function (e) {
+    e.preventDefault();
+    var el2 = $('listed');
+    if (el2) el2.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
   $('sideListed').addEventListener('click', function (e) {
     e.preventDefault();
     setMenu(false);
@@ -1414,6 +1676,7 @@
   /* Footer buttons */
   if (safeUrl(FORM_URL)) { $('formBtn').href = safeUrl(FORM_URL); $('formBtn').hidden = false; }
   $('plansBtn').href = PLANS_URL;
+  $('joinBtn').href = JOIN_URL;
   $('dmBtn').href = DM_URL;
 
   /* Load */
