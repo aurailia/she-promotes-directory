@@ -741,7 +741,7 @@
   var offerText = function (m) { return [(m.keywords || []).join(' '), m.name, m.business, m.offerName, m.offer, m.who, (m.categories || []).join(' '), (m.formats || []).join(' ')].join(' '); };
   var commCore = function (m) { var cm = m.community; return [(cm.keywords || []).join(' '), cm.name, cm.about, cm.platform, commCats(cm).join(' ')].join(' '); };
   var commText = function (m) { var cm = m.community; return [(cm.keywords || []).join(' '), cm.name, cm.about, cm.platform, commCats(cm).join(' '), m.name, m.business].join(' '); };
-  var recText = function (it) { return [it.rec.name, it.rec.about, it.rec.why, it.rec.category].join(' '); };
+  var recText = function (it) { return [it.rec.name, it.rec.about, (it.all || [it]).map(function (o) { return o.rec.why + ' ' + o.member.name; }).join(' '), it.rec.category].join(' '); };
   var promoText = function (f) { return [f.name, f.about, f.why, f.platform, 'promo promote networking'].join(' '); };
   /* Concepts nothing in the Directory matches (a typo, a word nobody uses) are skipped, so they don't empty the results */
   var liveConcepts = function (q) {
@@ -784,12 +784,39 @@
     communities = members.filter(function (m) { return m.community && m.community.name && m.community.link; });
     recs = [];
     members.forEach(function (m) {
+      var mine = {};
       (m.recommends || []).slice(0, 3).concat(m.extraRecommends || []).forEach(function (r) {
-        if (r && r.name && r.link) recs.push({ rec: r, member: m });
+        if (!r || !r.name || !r.link) return;
+        /* the same community twice from the same woman shows once */
+        var k = linkKey(r.link) || norm(r.name);
+        if (mine[k]) return;
+        mine[k] = true;
+        recs.push({ rec: r, member: m });
       });
     });
     $('c-offers').textContent = offers.length ? '(' + offers.length + ')' : '';
     $('c-communities').textContent = communities.length ? '(' + communities.length + ')' : '';
+    /* Same community recommended by more than one woman: one card, everyone's reasons inside.
+       The main button rotates daily between their links so each woman gets her turn at the referral. */
+    var grp = {}, gOrder = [];
+    recs.forEach(function (it) {
+      var k = linkKey(it.rec.link) || norm(it.rec.name);
+      if (!grp[k]) { grp[k] = []; gOrder.push(k); }
+      grp[k].push(it);
+    });
+    recs = gOrder.map(function (k) {
+      var all = grp[k];
+      var start = hash(today + k) % all.length;
+      all = all.slice(start).concat(all.slice(0, start));
+      var pick = all[0];
+      var disp = JSON.parse(JSON.stringify(pick.rec));
+      ['image', 'about', 'category', 'access', 'schedule'].forEach(function (f) {
+        if (!disp[f]) all.forEach(function (o) { if (!disp[f] && o.rec[f]) disp[f] = o.rec[f]; });
+      });
+      if (!parseDays(disp.promoDays).length) all.forEach(function (o) { if (!parseDays(disp.promoDays).length && parseDays(o.rec.promoDays).length) disp.promoDays = o.rec.promoDays; });
+      if (all.some(function (o) { return o.rec.affiliate; })) disp.affiliate = true;
+      return { rec: disp, member: pick.member, all: all };
+    });
     $('c-recommended').textContent = recs.length ? '(' + recs.length + ')' : '';
     promos = (data.featured || []).filter(function (f) { return f.name && f.link; });
     $('c-promo').textContent = promos.length ? '(' + promos.length + ')' : '';
@@ -995,15 +1022,28 @@
     if (r.access) tags.appendChild(el('span', 'tag', r.access.replace(/;/g, ' and ')));
     if (r.affiliate) tags.appendChild(el('span', 'tag gold', 'Affiliate link'));
     if (tags.childNodes.length) c.appendChild(tags);
-    var nb = el('button', '', m.name.split(' ')[0]);
-    nb.type = 'button';
-    nb.addEventListener('click', function () { openProfile(m, nb); });
-    if (r.why) c.appendChild(whyBox(['Why ', nb, ' recommends it'], r.why));
-    else { var by = el('p', 'by', 'Recommended by '); by.appendChild(nb); c.appendChild(by); }
-    var acts = el('div', 'actions');
-    var lb = linkBtn('Visit community', r.link, true);
-    if (lb) acts.appendChild(lb);
-    c.appendChild(acts);
+    var all = item.all || [item];
+    if (all.length > 1) c.appendChild(el('p', 'by', 'Recommended by ' + whoNames(item) + '. Each button below uses her own link, so she gets the credit.'));
+    all.forEach(function (o) {
+      var om = o.member, or = o.rec;
+      var nb = el('button', '', om.name.split(' ')[0]);
+      nb.type = 'button';
+      nb.addEventListener('click', function () { openProfile(om, nb); });
+      if (or.why) c.appendChild(whyBox(['Why ', nb, ' recommends it'], or.why));
+      else { var by = el('p', 'by', 'Recommended by '); by.appendChild(nb); c.appendChild(by); }
+      if (all.length > 1) {
+        var a2 = el('div', 'actions');
+        var lb2 = linkBtn('Visit with ' + om.name.split(' ')[0] + '\u2019s link', or.link, false);
+        if (lb2) a2.appendChild(lb2);
+        c.appendChild(a2);
+      }
+    });
+    if (all.length === 1) {
+      var acts = el('div', 'actions');
+      var lb = linkBtn('Visit community', r.link, true);
+      if (lb) acts.appendChild(lb);
+      c.appendChild(acts);
+    }
     return c;
   };
 
@@ -1076,13 +1116,17 @@
     tapCard(c, communityFull, m);
     return c;
   };
+  var whoNames = function (item) {
+    var n = (item.all || [item]).map(function (o) { return o.member.name.split(' ')[0]; });
+    return n.length < 3 ? n.join(' and ') : n.slice(0, -1).join(', ') + ' and ' + n[n.length - 1];
+  };
   var recCard = function (item) {
     var r = item.rec, m = item.member;
     var c = el('article', 'card compact');
     addThumb(c, r.image, 'recommended', r.name);
     c.appendChild(el('h3', '', r.name));
     if (r.about) c.appendChild(el('p', 'offer clamp2', r.about));
-    addAll(c, [metaLine([recCat(r.category), 'Recommended by ' + m.name.split(' ')[0], r.affiliate ? 'Affiliate link' : ''])]);
+    addAll(c, [metaLine([recCat(r.category), 'Recommended by ' + whoNames(item), r.affiliate ? 'Affiliate link' : ''])]);
     var acts = el('div', 'actions');
     var lb = linkBtn('Visit community', r.link, true);
     if (lb) acts.appendChild(lb);
@@ -1625,7 +1669,8 @@
       cb.appendChild(ca);
       body.appendChild(cb);
     }
-    var rlist = (m.recommends || []).slice(0, 3).concat(m.extraRecommends || []).filter(function (r) { return r && r.name && r.link; });
+    var seenR = {};
+    var rlist = (m.recommends || []).slice(0, 3).concat(m.extraRecommends || []).filter(function (r) { if (!r || !r.name || !r.link) return false; var k = linkKey(r.link) || norm(r.name); if (seenR[k]) return false; seenR[k] = true; return true; });
     if (rlist.length) {
       body.appendChild(el('h3', 'sub', 'Communities she recommends'));
       rlist.forEach(function (r) {

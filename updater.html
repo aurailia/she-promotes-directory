@@ -66,6 +66,11 @@
   .item-top { display: flex; gap: 10px; align-items: center; }
   .thumb { flex: 0 0 44px; width: 44px; height: 44px; border-radius: 50%; overflow: hidden; background: linear-gradient(135deg, var(--gold), var(--blush)); color: var(--plum-deep); display: flex; align-items: center; justify-content: center; font-weight: 600; }
   .thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .cimg { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; background: rgba(0,0,0,0.18); border-radius: 12px; padding: 10px 12px; }
+  .cimg .pv { flex: 0 0 96px; width: 96px; height: 64px; border-radius: 8px; overflow: hidden; background: rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: center; font-size: 11px; color: var(--muted); text-align: center; }
+  .cimg .pv img { width: 100%; height: 100%; object-fit: cover; }
+  .cimg .lbl { font-size: 13px; font-weight: 600; color: var(--blush-soft); }
+  .cimg .sub2 { font-size: 12px; color: var(--muted); }
   .nm { font-weight: 600; }
   .sub { color: var(--muted); font-size: 13px; }
   .grow { flex: 1; min-width: 0; }
@@ -256,14 +261,30 @@
   };
 
   /* Saved state: statuses by id, plus unsaved featured edits */
-  var saved = { status: {}, featuredDraft: null, spotlightDraft: null, lockEdits: {} };
+  var saved = { status: {}, featuredDraft: null, spotlightDraft: null, lockEdits: {}, cImg: {} };
   try {
     var raw = localStorage.getItem(STORE);
-    if (raw) { var p = JSON.parse(raw); if (p && typeof p === 'object') { saved.status = p.status || {}; saved.featuredDraft = p.featuredDraft || null; saved.spotlightDraft = p.spotlightDraft || null; saved.lockEdits = p.lockEdits || {}; } }
+    if (raw) { var p = JSON.parse(raw); if (p && typeof p === 'object') { saved.status = p.status || {}; saved.featuredDraft = p.featuredDraft || null; saved.spotlightDraft = p.spotlightDraft || null; saved.lockEdits = p.lockEdits || {}; saved.cImg = p.cImg || {}; } }
   } catch (e) { /* storage unavailable */ }
   var persist = function () { try { localStorage.setItem(STORE, JSON.stringify(saved)); } catch (e) { /* ignore */ } };
 
   var current = { featured: [], members: [] };   /* from directory.json */
+  /* Someone added by hand (or with an older form) has a different id than her form row.
+     If the name matches someone already in the Directory, treat them as the same woman. */
+  var nameKey = function (n) { return String(n || '').toLowerCase().replace(/[^a-z0-9]/g, ''); };
+  var linkByName = function () {
+    var ids = {}, byName = {}, used = {};
+    current.members.forEach(function (c) { ids[c.id] = true; if (nameKey(c.name)) byName[nameKey(c.name)] = c.id; });
+    csvMembers.forEach(function (m) { if (ids[m.id]) used[m.id] = true; });
+    csvMembers.forEach(function (m) {
+      if (ids[m.id]) return;
+      var match = byName[nameKey(m.name)];
+      if (match && !used[match]) {
+        if (saved.status[m.id] && !saved.status[match]) saved.status[match] = saved.status[m.id];
+        m.id = match; used[match] = true;
+      }
+    });
+  };
   var featured = [];
   var csvMembers = [];                              /* from the form CSV */
   var reviewFilter = 'all';
@@ -372,6 +393,7 @@
       }
       if (h.indexOf('email') !== -1) { emailCols++; return; }   /* never read */
       if (h.indexOf('premium') !== -1) { map.premium = i; return; }
+      if (h.indexOf('keyword') !== -1) { if (h.indexOf('community') !== -1 || section === 'community') map.cKeys = i; else map.keys = i; return; }
       if (h.indexOf('skool') !== -1 && h.indexOf('profile') !== -1) { map.skool = i; return; }
       if (h.indexOf('business name') !== -1) { map.business = i; return; }
       if (h.indexOf('community name') !== -1) { map.cName = i; section = 'community'; return; }
@@ -401,8 +423,17 @@
     return map;
   };
 
+  /* Up to 10 keywords, separated by commas */
+  var keyList = function (t) {
+    var seen = {}, out = [];
+    String(t || '').split(/[,;\n]+/).forEach(function (k) {
+      k = k.replace(/^[#\s]+|\s+$/g, '').slice(0, 40);
+      if (k && !seen[k.toLowerCase()] && out.length < 10) { seen[k.toLowerCase()] = true; out.push(k); }
+    });
+    return out;
+  };
   var rowToMember = function (row, map) {
-    var g = function (i) { return i == null ? '' : String(row[i] || '').replace(/[\u200B-\u200F\u2060-\u2064\uFEFF\u00AD]/g, '').trim(); };
+    var g = function (i) { return i == null ? '' : String(row[i] || '').replace(/[\u200B-\u200F\u2060-\u2064\uFEFF\u00AD\uFFFC]/g, '').trim(); };
     var name = g(map.name) || (g(map.first) + ' ' + g(map.last)).trim();
     var skool = g(map.skool);
     var m = {
@@ -419,20 +450,21 @@
       who: g(map.who),
       price: g(map.price),
       offerLink: cleanUrl(g(map.offerLink)),
+      keywords: keyList(g(map.keys)),
       community: null,
       recommends: []
     };
     if (g(map.cName) && cleanUrl(g(map.cLink))) {
       var ccats = pickKnown(g(map.cCat), ALL_CATS).slice(0, 4);
-      m.community = { name: g(map.cName), link: cleanUrl(g(map.cLink)), category: ccats[0] || '', categories: ccats, platform: g(map.cPlatform), about: g(map.cAbout), access: g(map.cAccess), promoDays: parseDays(g(map.cDays)), image: photoUrl(g(map.cImage)) };
+      m.community = { name: g(map.cName), link: cleanUrl(g(map.cLink)), category: ccats[0] || '', categories: ccats, platform: g(map.cPlatform), about: g(map.cAbout), access: g(map.cAccess), promoDays: parseDays(g(map.cDays)), image: photoUrl(g(map.cImage)), keywords: keyList(g(map.cKeys)) };
     }
     Object.keys(map.recs).sort().forEach(function (n) {
       var r = map.recs[n];
       var rn = g(r.name), rl = cleanUrl(g(r.link));
-      if (rn && rl && m.recommends.length < 3) m.recommends.push({ name: rn, link: rl, category: pickRec(g(r.category)), about: g(r.about), access: g(r.access), why: g(r.why), affiliate: truthy(g(r.affiliate)), promoDays: parseDays(g(r.days)) });
+      if (rn && rl && m.recommends.length < 3 && !m.recommends.some(function (x) { return normUrl(x.link) === normUrl(rl) || x.name.toLowerCase() === rn.toLowerCase(); })) m.recommends.push({ name: rn, link: rl, category: pickRec(g(r.category)), about: g(r.about), access: g(r.access), why: g(r.why), affiliate: truthy(g(r.affiliate)), promoDays: parseDays(g(r.days)) });
     });
     /* review-only info, never saved to the Directory */
-    m._skool = cleanUrl(skool);
+    m._skool = cleanUrl(/^@[\w.-]+$/.test(skool) ? 'https://www.skool.com/' + skool : skool);
     m._premium = map.premium == null ? null : truthy(g(map.premium));
     m._date = map.date == null ? NaN : Date.parse(g(map.date));
     return m;
@@ -461,6 +493,7 @@
       if (newer) byId[m.id] = m;
     });
     csvMembers = order.map(function (id) { return byId[id]; });
+    linkByName();
     var dupes = total - csvMembers.length;
     report.appendChild(el('div', 'note ok',
       total + ' submission' + (total === 1 ? '' : 's') + ' found, ' + csvMembers.length + ' unique ' + (csvMembers.length === 1 ? 'woman' : 'women') +
@@ -491,6 +524,7 @@
       if (seen[m.id]) return;
       var copy = JSON.parse(JSON.stringify(m));
       copy._fromCurrent = true;
+      if (copy.community && saved.cImg[copy.id] != null) copy.community.image = saved.cImg[copy.id];
       list.push(copy);
     });
     return list;
@@ -499,7 +533,7 @@
   /* ---------- What changed ---------- */
   var FIELDS = [['name', 'Name'], ['business', 'Business name'], ['about', 'About'], ['photo', 'Photo'], ['social', 'Social link'],
     ['categories', 'Categories'], ['formats', 'Formats'], ['offerName', 'Offer name'], ['offer', 'Signature offer'], ['who', 'Who it\u2019s for'], ['price', 'Starting price'],
-    ['offerLink', 'Offer link'], ['community', 'Community'], ['recommends', 'Recommended communities']];
+    ['offerLink', 'Offer link'], ['keywords', 'Offer keywords'], ['community', 'Community'], ['recommends', 'Recommended communities']];
   var show = function (k, v) {
     if (v == null || v === '' || (Array.isArray(v) && !v.length)) return '(blank)';
     if (k === 'photo') return 'new photo';
@@ -525,7 +559,21 @@
     saved.lockEdits[id][key] = on;
     persist(); renderReview(); renderStats(); renderSpotPicker();
   };
-  var eff = function (m) {
+  /* Community images you upload here win over the form, and stay put next time */
+  var isHand = function (u) { return /^(data:image\/|images\/)/.test(u || ''); };
+  var withImg = function (m) {
+    if (!m.community) return m;
+    var mine = saved.cImg[m.id], old = oldOf(m.id), keep = null;
+    if (mine != null) keep = mine;
+    else if (!m._fromCurrent && old && old.community && isHand(old.community.image) && !isHand(m.community.image)) keep = old.community.image;
+    if (keep == null || keep === m.community.image) return m;
+    var c = JSON.parse(JSON.stringify(m));
+    if (m._raw) c._raw = m._raw;
+    c.community.image = keep;
+    return c;
+  };
+  var eff = function (m) { return withImg(eff0(m)); };
+  var eff0 = function (m) {
     if (m._fromCurrent) return m;
     var old = oldOf(m.id), keys = lockedKeys(m.id);
     if (!old || !keys.length) return m;
@@ -638,6 +686,45 @@
         it.appendChild(kd);
       }
 
+      if (m.community) {
+        var ci = el('div', 'cimg');
+        var pv = el('div', 'pv', 'No image');
+        var src = m.community.image || '';
+        var purl = isHand(src) ? src : (function () { var id = String(src).match(/(?:id=|\/d\/)([\w-]{10,})/); return id ? 'https://lh3.googleusercontent.com/d/' + id[1] + '=w300' : cleanUrl(src); })();
+        var ct = el('div', 'grow');
+        ct.appendChild(el('div', 'lbl', 'Community image'));
+        var note = el('div', 'sub2', saved.cImg[m.id] ? 'Your upload. Download the file to save it.' : (isHand(src) ? 'Uploaded by you.' : (src ? 'From her form.' : 'None yet. The category image shows instead.')));
+        ct.appendChild(note);
+        if (!purl && saved.cImg[m.id] !== '') {
+          /* a banner saved in images/communities on GitHub still counts */
+          purl = 'images/communities/' + String(m.community.name).toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '.jpg';
+          var folderImg = true;
+        }
+        if (purl) { var pim = new Image(); pim.alt = ''; pim.onload = function () { pv.textContent = ''; pv.appendChild(pim); if (folderImg) note.textContent = 'From your images folder on GitHub.'; }; pim.onerror = function () { pv.textContent = folderImg ? 'No image' : 'Can\u2019t preview'; }; pim.src = purl; }
+        ci.appendChild(pv);
+        ci.appendChild(ct);
+        var up = document.createElement('label');
+        up.className = 'file';
+        var fin = document.createElement('input'); fin.type = 'file'; fin.accept = 'image/*';
+        up.appendChild(fin);
+        up.appendChild(el('span', 'btn btn-ghost btn-sm', src ? 'Change image' : 'Upload image'));
+        fin.addEventListener('change', function () {
+          var f = this.files[0]; if (!f) return;
+          shrink(f, function (d) {
+            if (!d) return;
+            saved.cImg[m.id] = d; persist(); renderReview(); renderStats();
+          });
+          this.value = '';
+        });
+        ci.appendChild(up);
+        if (saved.cImg[m.id] || isHand(src)) {
+          var rb = el('button', 'btn btn-ghost btn-sm', 'Remove');
+          rb.type = 'button';
+          rb.addEventListener('click', function () { saved.cImg[m.id] = ''; persist(); renderReview(); renderStats(); });
+          ci.appendChild(rb);
+        }
+        it.appendChild(ci);
+      }
       if (m.about) it.appendChild(el('p', 'sub', 'About: ' + m.about));
       if (m.offer) it.appendChild(el('p', '', m.offer));
       if (m.categories && m.categories.length) it.appendChild(el('p', 'sub', m.categories.join(' · ') + (m.formats && m.formats.length ? '  |  ' + m.formats.join(' · ') : '')));
@@ -797,7 +884,7 @@
 
   /* ---------- Spotlight ---------- */
   var spotlight = null;
-  var saveSpot = function () { saved.spotlightDraft = spotlight || { id: '' }; persist(); };
+  var saveSpot = function () { saved.spotlightDraft = spotlight ? JSON.parse(JSON.stringify(spotlight)) : { id: '' }; saved.spotlightDraft.savedAt = Date.now(); persist(); };
   var renderSpotPicker = function () {
     var sel = $('sp-id');
     var keep = spotlight && spotlight.id ? spotlight.id : '';
@@ -828,7 +915,7 @@
       var o = {};
       /* keep any hand-added bonus recommendations from the live Directory */
       if (!m.extraRecommends) current.members.forEach(function (c) { if (c.id === m.id && c.extraRecommends) m.extraRecommends = c.extraRecommends; });
-      ['id', 'name', 'business', 'about', 'offerName', 'photo', 'extraRecommends', 'social', 'categories', 'formats', 'offer', 'who', 'price', 'offerLink', 'community', 'recommends']
+      ['id', 'name', 'business', 'about', 'offerName', 'photo', 'extraRecommends', 'social', 'categories', 'formats', 'offer', 'who', 'price', 'offerLink', 'keywords', 'community', 'recommends']
         .forEach(function (k) { if (m[k] != null) o[k] = m[k]; });
       var lk = m._fromCurrent ? (m.locked || []) : lockedKeys(m.id);
       if (lk.length) o.locked = lk;
@@ -854,7 +941,7 @@
     stats.forEach(function (s) { var d = el('div', 'stat'); d.appendChild(el('b', '', String(s[0]))); d.appendChild(el('span', '', s[1])); w.appendChild(d); });
   };
   var finished = function (msg) {
-    saved.featuredDraft = null; saved.spotlightDraft = null; persist();
+    saved.featuredDraft = null; saved.spotlightDraft = null; saved.cImg = {}; persist();
     $('dlStatus').textContent = msg;
   };
   $('downloadBtn').addEventListener('click', function () {
@@ -886,8 +973,12 @@
       $('loadStatus').className = 'note ok';
       $('loadStatus').textContent = 'Loaded ' + source + ': ' + current.members.length + ' live listings and ' + featured.length + ' featured communities.';
     }
-    spotlight = saved.spotlightDraft ? (saved.spotlightDraft.id ? saved.spotlightDraft : null) : (json.spotlight || null);
+    /* A spotlight you picked but haven't uploaded wins, unless the Directory file is newer */
+    var dr = saved.spotlightDraft, fileTime = Date.parse(json.updated || '') || 0;
+    if (dr && dr.savedAt && fileTime > dr.savedAt) { dr = null; saved.spotlightDraft = null; persist(); }
+    spotlight = dr ? (dr.id ? { id: dr.id, note: dr.note || '', image: dr.image || '' } : null) : (json.spotlight || null);
     renderFeatured(); renderStats(); renderSpotPicker();
+    linkByName();
     if (current.members.length) { $('reviewPanel').hidden = false; renderReview(); }
   };
   $('jsonFile').addEventListener('change', function () {
@@ -910,7 +1001,7 @@
   $('freshBtn').addEventListener('click', function () { $('freshConfirm').hidden = false; });
   $('freshNo').addEventListener('click', function () { $('freshConfirm').hidden = true; });
   $('freshYes').addEventListener('click', function () {
-    saved = { status: {}, featuredDraft: null, spotlightDraft: null, lockEdits: {} }; persist();
+    saved = { status: {}, featuredDraft: null, spotlightDraft: null, lockEdits: {}, cImg: {} }; persist();
     current = { featured: [], members: [] }; featured = []; csvMembers = []; spotlight = null; renderSpotPicker();
     $('freshConfirm').hidden = true;
     $('csvReport').innerHTML = '';
