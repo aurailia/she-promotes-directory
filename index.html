@@ -600,7 +600,7 @@
     try { var w = new Date().toLocaleDateString('en-US', { weekday: 'short', timeZone: 'America/Los_Angeles' }); if (DAYS.indexOf(w) !== -1) return w; } catch (e) { /* ignore */ }
     return DAYS[(new Date().getDay() + 6) % 7];
   })();
-  var linkKey = function (u) { return String(u || '').toLowerCase().replace(/^https?:\/\//, '').replace(/^www\./, '').split(/[?#]/)[0].replace(/\/+$/, ''); };
+  var linkKey = function (u) { return String(u || '').toLowerCase().replace(/^https?:\/\//, '').replace(/^www\./, '').split(/[?#]/)[0].replace(/\/+$/, '').replace(/\/about$/, ''); };
   var TITLES = { calendar: 'Where can I promote today?', home: 'Home', offers: 'Offers', communities: 'Communities', recommended: 'Recommended Communities', promo: 'Promo Communities' };
   var INTROS = {
     calendar: 'Every promo group in the Directory and the days you can post there. Tap a day, or All to see the full week.',
@@ -778,10 +778,29 @@
 
   /* Derived lists */
   var offers = [], communities = [], recs = [], promos = [];
+  /* One listing per woman, even if the file has her twice. Keep the copy with your hand edits. */
+  var dedupeMembers = function (list) {
+    var by = {}, order = [];
+    list.forEach(function (m) {
+      if (!m || !m.name) return;
+      var k = String(m.name).toLowerCase().replace(/[^a-z0-9]/g, '') || m.id;
+      if (!by[k]) { by[k] = m; order.push(k); return; }
+      var cur = by[k];
+      if (((m.locked || []).length) > ((cur.locked || []).length)) by[k] = m;
+    });
+    return order.map(function (k) { return by[k]; });
+  };
   var build = function () {
-    var members = daily(data.members || [], function (m) { return m.id || m.name; });
+    var members = daily(dedupeMembers(data.members || []), function (m) { return m.id || m.name; });
     offers = members.filter(function (m) { return m.offer; });
-    communities = members.filter(function (m) { return m.community && m.community.name && m.community.link; });
+    var seenC = {};
+    communities = members.filter(function (m) {
+      if (!(m.community && m.community.name && m.community.link)) return false;
+      var k = linkKey(m.community.link) || norm(m.community.name);
+      if (seenC[k]) return false;
+      seenC[k] = true;
+      return true;
+    });
     recs = [];
     members.forEach(function (m) {
       var mine = {};
@@ -818,7 +837,14 @@
       return { rec: disp, member: pick.member, all: all };
     });
     $('c-recommended').textContent = recs.length ? '(' + recs.length + ')' : '';
-    promos = (data.featured || []).filter(function (f) { return f.name && f.link; });
+    var seenP = {};
+    promos = (data.featured || []).filter(function (f) {
+      if (!f.name || !f.link) return false;
+      var k = linkKey(f.link) || norm(f.name);
+      if (seenP[k]) return false;
+      seenP[k] = true;
+      return true;
+    });
     $('c-promo').textContent = promos.length ? '(' + promos.length + ')' : '';
     /* every group with promo days, for the calendar */
     calGroups = []; var seen = {};
@@ -843,10 +869,14 @@
     return c ? 'Other' : '';
   };
   var inCategory = function (cat) {
+    var cs = communities.filter(function (m) { return commCats(m.community).indexOf(cat) !== -1; });
+    var shown = {};
+    cs.forEach(function (m) { shown[linkKey(m.community.link)] = true; });
     return {
       offers: offers.filter(function (m) { return (m.categories || []).indexOf(cat) !== -1; }),
-      communities: communities.filter(function (m) { return commCats(m.community).indexOf(cat) !== -1; }),
-      picks: cat === PROMO_CAT ? promos : []
+      communities: cs,
+      /* a promo group that already shows above as someone's community isn't repeated */
+      picks: cat === PROMO_CAT ? promos.filter(function (f) { return !shown[linkKey(f.link)]; }) : []
     };
   };
 
@@ -1414,6 +1444,13 @@
     var full = cs0.length;
     var top = function (arr) { return arr.filter(function (r) { return r.n === full; }).map(function (r) { return r.x; }); };
     var o = top(so), cs = top(sc), rs = top(sr);
+    /* a recommended community that's already in the results as someone's own community isn't repeated */
+    var noRepeat = function () {
+      var shownC = {};
+      cs.forEach(function (m) { shownC[linkKey(m.community.link)] = true; });
+      rs = rs.filter(function (it) { return !shownC[linkKey(it.rec.link)]; });
+    };
+    noRepeat();
     var n = o.length + cs.length + rs.length;
     /* Nothing matches everything? Show what matches the most */
     var best = 0;
@@ -1422,6 +1459,7 @@
     if (partial) {
       var pick = function (arr) { return arr.filter(function (r) { return r.n === best; }).map(function (r) { return r.x; }); };
       o = pick(so); cs = pick(sc); rs = pick(sr);
+      noRepeat();
       n = o.length + cs.length + rs.length;
     }
     var head = el('div', 'hq-head');

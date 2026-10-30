@@ -261,10 +261,10 @@
   };
 
   /* Saved state: statuses by id, plus unsaved featured edits */
-  var saved = { status: {}, featuredDraft: null, spotlightDraft: null, lockEdits: {}, cImg: {} };
+  var saved = { status: {}, featuredDraft: null, spotlightDraft: null, lockEdits: {}, cImg: {}, rImg: {} };
   try {
     var raw = localStorage.getItem(STORE);
-    if (raw) { var p = JSON.parse(raw); if (p && typeof p === 'object') { saved.status = p.status || {}; saved.featuredDraft = p.featuredDraft || null; saved.spotlightDraft = p.spotlightDraft || null; saved.lockEdits = p.lockEdits || {}; saved.cImg = p.cImg || {}; } }
+    if (raw) { var p = JSON.parse(raw); if (p && typeof p === 'object') { saved.status = p.status || {}; saved.featuredDraft = p.featuredDraft || null; saved.spotlightDraft = p.spotlightDraft || null; saved.lockEdits = p.lockEdits || {}; saved.cImg = p.cImg || {}; saved.rImg = p.rImg || {}; } }
   } catch (e) { /* storage unavailable */ }
   var persist = function () { try { localStorage.setItem(STORE, JSON.stringify(saved)); } catch (e) { /* ignore */ } };
 
@@ -524,8 +524,7 @@
       if (seen[m.id]) return;
       var copy = JSON.parse(JSON.stringify(m));
       copy._fromCurrent = true;
-      if (copy.community && saved.cImg[copy.id] != null) copy.community.image = saved.cImg[copy.id];
-      list.push(copy);
+      list.push(withImg(copy));
     });
     return list;
   };
@@ -561,16 +560,27 @@
   };
   /* Community images you upload here win over the form, and stay put next time */
   var isHand = function (u) { return /^(data:image\/|images\/)/.test(u || ''); };
+  var rKey = function (id, r) { return id + '|' + (normUrl(r.link) || String(r.name || '').toLowerCase()); };
   var withImg = function (m) {
-    if (!m.community) return m;
-    var mine = saved.cImg[m.id], old = oldOf(m.id), keep = null;
-    if (mine != null) keep = mine;
-    else if (!m._fromCurrent && old && old.community && isHand(old.community.image) && !isHand(m.community.image)) keep = old.community.image;
-    if (keep == null || keep === m.community.image) return m;
-    var c = JSON.parse(JSON.stringify(m));
-    if (m._raw) c._raw = m._raw;
-    c.community.image = keep;
-    return c;
+    var old = oldOf(m.id), c = null;
+    var copy = function () { if (!c) { c = JSON.parse(JSON.stringify(m)); if (m._raw) c._raw = m._raw; } return c; };
+    if (m.community) {
+      var mine = saved.cImg[m.id], keep = null;
+      if (mine != null) keep = mine;
+      else if (!m._fromCurrent && old && old.community && isHand(old.community.image) && !isHand(m.community.image)) keep = old.community.image;
+      if (keep != null && keep !== m.community.image) copy().community.image = keep;
+    }
+    ['recommends', 'extraRecommends'].forEach(function (k) {
+      (m[k] || []).forEach(function (r, i) {
+        var mine2 = saved.rImg[rKey(m.id, r)], keep2 = null;
+        if (mine2 != null) keep2 = mine2;
+        else if (!m._fromCurrent && old) {
+          (old[k] || []).forEach(function (o) { if (normUrl(o.link) === normUrl(r.link) && isHand(o.image) && !isHand(r.image)) keep2 = o.image; });
+        }
+        if (keep2 != null && keep2 !== r.image) copy()[k][i].image = keep2;
+      });
+    });
+    return c || m;
   };
   var eff = function (m) { return withImg(eff0(m)); };
   var eff0 = function (m) {
@@ -600,6 +610,44 @@
       if (norm2(f[0], m[f[0]]) !== norm2(f[0], old[f[0]])) out.push({ label: f[1], from: show(f[0], old[f[0]]), to: show(f[0], m[f[0]]), key: f[0] });
     });
     return out;
+  };
+
+  /* One image row: preview, where it came from, upload, remove */
+  var imgRow = function (label, src, folder, name, mine, set) {
+    var ci = el('div', 'cimg');
+    var pv = el('div', 'pv', 'No image');
+    src = src || '';
+    var ct = el('div', 'grow');
+    ct.appendChild(el('div', 'lbl', label));
+    var note = el('div', 'sub2', mine ? 'Your upload. Download the file to save it.' : (isHand(src) ? 'Uploaded by you.' : (src ? 'From her form.' : 'None yet.')));
+    ct.appendChild(note);
+    var purl = isHand(src) ? src : (function () { var id = String(src).match(/(?:id=|\/d\/)([\w-]{10,})/); return id ? 'https://lh3.googleusercontent.com/d/' + id[1] + '=w300' : cleanUrl(src); })();
+    var folderImg = false;
+    if (!purl && mine !== '') {
+      purl = 'images/' + folder + '/' + String(name).toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '.jpg';
+      folderImg = true;
+    }
+    if (purl) { var pim = new Image(); pim.alt = ''; pim.onload = function () { pv.textContent = ''; pv.appendChild(pim); if (folderImg) note.textContent = 'From your images folder on GitHub.'; }; pim.onerror = function () { pv.textContent = folderImg ? 'No image' : 'Can\u2019t preview'; }; pim.src = purl; }
+    ci.appendChild(pv);
+    ci.appendChild(ct);
+    var up = document.createElement('label');
+    up.className = 'file';
+    var fin = document.createElement('input'); fin.type = 'file'; fin.accept = 'image/*';
+    up.appendChild(fin);
+    up.appendChild(el('span', 'btn btn-ghost btn-sm', 'Upload image'));
+    fin.addEventListener('change', function () {
+      var f = this.files[0]; if (!f) return;
+      shrink(f, function (d) { if (!d) return; set(d); persist(); renderReview(); renderStats(); });
+      this.value = '';
+    });
+    ci.appendChild(up);
+    if (mine || isHand(src)) {
+      var rb = el('button', 'btn btn-ghost btn-sm', 'Remove');
+      rb.type = 'button';
+      rb.addEventListener('click', function () { set(''); persist(); renderReview(); renderStats(); });
+      ci.appendChild(rb);
+    }
+    return ci;
   };
 
   /* ---------- Review ---------- */
@@ -686,45 +734,11 @@
         it.appendChild(kd);
       }
 
-      if (m.community) {
-        var ci = el('div', 'cimg');
-        var pv = el('div', 'pv', 'No image');
-        var src = m.community.image || '';
-        var purl = isHand(src) ? src : (function () { var id = String(src).match(/(?:id=|\/d\/)([\w-]{10,})/); return id ? 'https://lh3.googleusercontent.com/d/' + id[1] + '=w300' : cleanUrl(src); })();
-        var ct = el('div', 'grow');
-        ct.appendChild(el('div', 'lbl', 'Community image'));
-        var note = el('div', 'sub2', saved.cImg[m.id] ? 'Your upload. Download the file to save it.' : (isHand(src) ? 'Uploaded by you.' : (src ? 'From her form.' : 'None yet. The category image shows instead.')));
-        ct.appendChild(note);
-        if (!purl && saved.cImg[m.id] !== '') {
-          /* a banner saved in images/communities on GitHub still counts */
-          purl = 'images/communities/' + String(m.community.name).toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '.jpg';
-          var folderImg = true;
-        }
-        if (purl) { var pim = new Image(); pim.alt = ''; pim.onload = function () { pv.textContent = ''; pv.appendChild(pim); if (folderImg) note.textContent = 'From your images folder on GitHub.'; }; pim.onerror = function () { pv.textContent = folderImg ? 'No image' : 'Can\u2019t preview'; }; pim.src = purl; }
-        ci.appendChild(pv);
-        ci.appendChild(ct);
-        var up = document.createElement('label');
-        up.className = 'file';
-        var fin = document.createElement('input'); fin.type = 'file'; fin.accept = 'image/*';
-        up.appendChild(fin);
-        up.appendChild(el('span', 'btn btn-ghost btn-sm', src ? 'Change image' : 'Upload image'));
-        fin.addEventListener('change', function () {
-          var f = this.files[0]; if (!f) return;
-          shrink(f, function (d) {
-            if (!d) return;
-            saved.cImg[m.id] = d; persist(); renderReview(); renderStats();
-          });
-          this.value = '';
-        });
-        ci.appendChild(up);
-        if (saved.cImg[m.id] || isHand(src)) {
-          var rb = el('button', 'btn btn-ghost btn-sm', 'Remove');
-          rb.type = 'button';
-          rb.addEventListener('click', function () { saved.cImg[m.id] = ''; persist(); renderReview(); renderStats(); });
-          ci.appendChild(rb);
-        }
-        it.appendChild(ci);
-      }
+      if (m.community) it.appendChild(imgRow('Community image: ' + m.community.name, m.community.image, 'communities', m.community.name, saved.cImg[m.id], function (v) { saved.cImg[m.id] = v; }));
+      (m.recommends || []).concat(m.extraRecommends || []).forEach(function (r) {
+        if (!r || !r.name) return;
+        it.appendChild(imgRow('Recommended: ' + r.name, r.image, 'recommended', r.name, saved.rImg[rKey(m.id, r)], function (v) { saved.rImg[rKey(m.id, r)] = v; }));
+      });
       if (m.about) it.appendChild(el('p', 'sub', 'About: ' + m.about));
       if (m.offer) it.appendChild(el('p', '', m.offer));
       if (m.categories && m.categories.length) it.appendChild(el('p', 'sub', m.categories.join(' · ') + (m.formats && m.formats.length ? '  |  ' + m.formats.join(' · ') : '')));
@@ -941,7 +955,7 @@
     stats.forEach(function (s) { var d = el('div', 'stat'); d.appendChild(el('b', '', String(s[0]))); d.appendChild(el('span', '', s[1])); w.appendChild(d); });
   };
   var finished = function (msg) {
-    saved.featuredDraft = null; saved.spotlightDraft = null; saved.cImg = {}; persist();
+    saved.featuredDraft = null; saved.spotlightDraft = null; saved.cImg = {}; saved.rImg = {}; persist();
     $('dlStatus').textContent = msg;
   };
   $('downloadBtn').addEventListener('click', function () {
@@ -964,6 +978,18 @@
   /* ---------- Loading ---------- */
   var useCurrent = function (json, source) {
     current = { featured: Array.isArray(json.featured) ? json.featured : [], members: Array.isArray(json.members) ? json.members : [] };
+    /* If the Directory file has the same woman twice, keep one: the copy with your hand edits */
+    (function () {
+      var by = {}, order = [];
+      current.members.forEach(function (m) {
+        var k = nameKey(m.name) || m.id;
+        if (!by[k]) { by[k] = m; order.push(k); return; }
+        if (((m.locked || []).length) > ((by[k].locked || []).length)) by[k] = m;
+      });
+      current.members = order.map(function (k) { return by[k]; });
+      var seenF = {};
+      current.featured = current.featured.filter(function (f) { var k = normUrl(f.link) || String(f.name || '').toLowerCase(); if (seenF[k]) return false; seenF[k] = true; return true; });
+    })();
     if (saved.featuredDraft) {
       featured = saved.featuredDraft;
       $('loadStatus').className = 'note warn';
@@ -1001,7 +1027,7 @@
   $('freshBtn').addEventListener('click', function () { $('freshConfirm').hidden = false; });
   $('freshNo').addEventListener('click', function () { $('freshConfirm').hidden = true; });
   $('freshYes').addEventListener('click', function () {
-    saved = { status: {}, featuredDraft: null, spotlightDraft: null, lockEdits: {}, cImg: {} }; persist();
+    saved = { status: {}, featuredDraft: null, spotlightDraft: null, lockEdits: {}, cImg: {}, rImg: {} }; persist();
     current = { featured: [], members: [] }; featured = []; csvMembers = []; spotlight = null; renderSpotPicker();
     $('freshConfirm').hidden = true;
     $('csvReport').innerHTML = '';

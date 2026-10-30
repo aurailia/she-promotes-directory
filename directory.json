@@ -207,7 +207,19 @@
         "platform": "Skool",
         "about": "My deeper room for women ready to embody wealth, with hypnosis, Human Design and real business strategy all in one place.",
         "access": "Paid",
-        "promoDays": []
+        "promoDays": [],
+        "keywords": [
+          "AI",
+          "Claude",
+          "Build your Skool",
+          "Skool community",
+          "Hypnosis",
+          "Human Design",
+          "Money mindset",
+          "Wealth",
+          "Business strategy",
+          "Energy"
+        ]
       },
       "recommends": [
         {
@@ -254,66 +266,6 @@
         "offer",
         "photo",
         "community"
-      ]
-    },
-    {
-      "id": "m1k5w1ho",
-      "name": "Jennifer Garcia",
-      "business": "Promote With Confidence™",
-      "about": "I’m a therapist of over 20 years, but there’s so much more to me than that! I love psychology, understanding people, being creative, and coming up with ideas that bring people together. I started Promote With Confidence™ because I genuinely love helping people believe in what they’re building and find the confidence to put themselves out there.\n\nI’m also a wife, stepmom, crazy cat lady, and psychic medium! I love anything spiritual or paranormal, learning new things, and honestly, I tend to get a little carried away when I have a new idea. lol\n\nWhat really makes me happy is seeing people succeed, especially when they didn’t think they could. I love cheering people on, making connections, and creating spaces where everyone feels like they belong.",
-      "offerName": "Promote With Confidence™ helps entrepreneurs and Skool owners gain visibility, master marketing psychology, and grow through genuine connections.",
-      "photo": "https://lh3.googleusercontent.com/d/1uAaJ8BWCl56aoqxyNEhJnFiIlqZtORCT=w600",
-      "social": "https://www.instagram.com/jennifergarcia_lmhc?dlrf=MXA0cngyMHFtaWZyNw%3D%3D&utm_source=qr",
-      "categories": [
-        "Business Coaching & Strategy"
-      ],
-      "formats": [
-        "Membership or Skool Community"
-      ],
-      "offer": "",
-      "who": "Entrepreneurs, Skool owners, coaches, creators, and small business owners who want more visibility, stronger connections, and confidence promoting their work.",
-      "price": "Free to join Premium: $3/month or $27/year.",
-      "offerLink": "https://www.skool.com/promote-with-confidence-9625/about",
-      "community": {
-        "name": "Promote With Confidence™",
-        "link": "https://www.skool.com/promote-with-confidence-9625/about",
-        "category": "Business Coaching & Strategy",
-        "categories": [
-          "Business Coaching & Strategy"
-        ],
-        "platform": "Skool",
-        "about": "Promotion",
-        "access": "Free;Paid",
-        "promoDays": [
-          "Mon",
-          "Tue",
-          "Wed",
-          "Thu",
-          "Fri",
-          "Sat",
-          "Sun"
-        ],
-        "image": ""
-      },
-      "recommends": [
-        {
-          "name": "The Promo Lounge",
-          "link": "https://www.skool.com/thepromolounge/about?ref=8fd4e7a52c1a4f5cb5db718c38c2d79a",
-          "category": "Promo Group",
-          "about": "Community and connection",
-          "access": "Free;Paid",
-          "why": "This empowers businesses owners to grow and be visible",
-          "affiliate": true,
-          "promoDays": [
-            "Mon",
-            "Tue",
-            "Wed",
-            "Thu",
-            "Fri",
-            "Sat",
-            "Sun"
-          ]
-        }
       ]
     },
     {
@@ -440,8 +392,9 @@
       "community": {
         "name": "Come Home to Love Inner Circle",
         "link": "https://www.skool.com/come-home-to-love-inner-circle-5568/about",
-        "category": "Life & Purpose Coaching",
+        "category": "Promo & Networking",
         "categories": [
+          "Promo & Networking",
           "Life & Purpose Coaching",
           "Hypnosis & Subconscious Work",
           "Relationship & Family Coaching"
@@ -463,6 +416,9 @@
           "affiliate": true,
           "promoDays": []
         }
+      ],
+      "locked": [
+        "community"
       ]
     },
     {
