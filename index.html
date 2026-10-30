@@ -1633,14 +1633,14 @@
     row.querySelector('.name').id = 'dlgName';
     body.appendChild(row);
     if (m.about) {
-      body.appendChild(el('h3', 'sub', 'About her'));
+      body.appendChild(el('h3', 'sub', 'About me'));
       var ab = el('div', 'block');
       ab.appendChild(el('p', 'offer', m.about));
       body.appendChild(ab);
     }
-    var social = linkBtn('Instagram or social', m.social, false);
+    var social = linkBtn('Follow me', m.social, false);
     if (m.offer) {
-      body.appendChild(el('h3', 'sub', 'Her signature offer'));
+      body.appendChild(el('h3', 'sub', 'My offer'));
       var b = el('div', 'block');
       var op = offerParts(m);
       if (op.title) b.appendChild(el('p', 'name', op.title));
@@ -1648,23 +1648,23 @@
       var pfb = factBox(m);
       if (pfb) b.appendChild(pfb);
       var a = el('div', 'actions');
-      var ob = linkBtn('See her offer', m.offerLink, true);
+      var ob = linkBtn('See my offer', m.offerLink, true);
       if (ob) a.appendChild(ob);
       b.appendChild(a);
       body.appendChild(b);
     }
     if (m.community && m.community.name) {
-      body.appendChild(el('h3', 'sub', 'Her community'));
+      body.appendChild(el('h3', 'sub', 'My community'));
       var cb = el('div', 'block');
       cb.appendChild(el('p', 'name', m.community.name));
       if (m.community.about) cb.appendChild(el('p', 'offer', m.community.about));
       var ct = el('div', 'tags');
       commCats(m.community).forEach(function (x) { ct.appendChild(el('span', 'tag gold', x)); });
       if (m.community.platform) ct.appendChild(el('span', 'tag', m.community.platform));
-      if (m.community.access) ct.appendChild(el('span', 'tag', m.community.access));
+      if (m.community.access) ct.appendChild(el('span', 'tag', m.community.access.replace(/;/g, ' and ')));
       if (ct.childNodes.length) cb.appendChild(ct);
       var ca = el('div', 'actions');
-      var cbn = linkBtn('Join the community', m.community.link, true);
+      var cbn = linkBtn('Join my community', m.community.link, true);
       if (cbn) ca.appendChild(cbn);
       cb.appendChild(ca);
       body.appendChild(cb);
@@ -1672,11 +1672,11 @@
     var seenR = {};
     var rlist = (m.recommends || []).slice(0, 3).concat(m.extraRecommends || []).filter(function (r) { if (!r || !r.name || !r.link) return false; var k = linkKey(r.link) || norm(r.name); if (seenR[k]) return false; seenR[k] = true; return true; });
     if (rlist.length) {
-      body.appendChild(el('h3', 'sub', 'Communities she recommends'));
+      body.appendChild(el('h3', 'sub', 'Communities I recommend'));
       rlist.forEach(function (r) {
         var rb = el('div', 'block');
         rb.appendChild(el('p', 'name', r.name));
-        if (r.why) rb.appendChild(whyBox(['Why she recommends it'], r.why));
+        if (r.why) rb.appendChild(whyBox(['Why I recommend it'], r.why));
         var rt = el('div', 'tags');
         if (r.category) rt.appendChild(el('span', 'tag gold', recCat(r.category)));
         if (r.affiliate) rt.appendChild(el('span', 'tag gold', 'Affiliate link'));
