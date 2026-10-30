@@ -163,7 +163,7 @@
       "id": "m1hua3tb",
       "name": "Aurailia Arnold",
       "business": "Aurailia Coaching",
-      "about": "Hi my name is Aurailia I am here to create a life of freedom, doing what I love and create wealth along the way…and take as many with me as I can!",
+      "about": "Hi, I'm Aurailia. I spent 20 years as an E-Commerce Director before I left corporate to build my own business. At first I did what everyone told me to do. Show up on every platform and sell all the time. It drained me.\n\nThen I looked at my Human Design and it all made sense. I'm built to create in my cave and grow through community. When I leaned into that, clients and money started showing up.\n\nNow I help women grow their business by understanding how they're designed to make money, communicate, and show up. I build websites and funnels, I'm a hypnotherapist, and I'm the founder of Embody Wealth and She Promotes™.\n\nI created this Directory so we can find each other. Women supporting women, for real.",
       "offerName": "Business Alignment Blueprint Audit",
       "photo": "https://lh3.googleusercontent.com/d/1p9kyC83tcQdeTbgcAe-5XtRLqO4rvPK8=w600",
       "extraRecommends": [
@@ -262,10 +262,11 @@
         }
       ],
       "locked": [
-        "offerName",
+        "about",
+        "community",
         "offer",
-        "photo",
-        "community"
+        "offerName",
+        "photo"
       ]
     },
     {
@@ -492,8 +493,8 @@
       "id": "bessie-estonactoc",
       "name": "Bessie Estonactoc",
       "business": "Soul Rising Sanctuary",
-      "about": "Spiritual Mentor and Quantum Journeys Hypnotherapist. A former Marriage and Family Therapist, she has spent over 20 years guiding women through healing and awakening.",
-      "photo": "",
+      "about": "I'm a Spiritual Mentor and Quantum Journeys Hypnotherapist. I spent years as a Marriage and Family Therapist, and I've been guiding women through healing and awakening for over 20 years.",
+      "photo": "images/members/bessie-estonactoc.jpg",
       "social": "",
       "categories": [],
       "formats": [],
@@ -517,7 +518,8 @@
       },
       "recommends": [],
       "locked": [
-        "community"
+        "community",
+        "photo"
       ]
     }
   ]
