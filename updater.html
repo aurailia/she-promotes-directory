@@ -174,17 +174,20 @@
     </div>
   </section>
 
-  <!-- SPOTLIGHT -->
+  <!-- VIP SPOTLIGHT -->
   <section class="panel">
     <div class="step">Every week</div>
-    <h2>&#11088; Community Spotlight</h2>
-    <p class="help">Pick one premium member&rsquo;s community to feature at the top of the Directory&rsquo;s Home page.</p>
-    <div class="grid2">
-      <div class="full"><label class="f" for="sp-id">Community</label><select id="sp-id"></select></div>
-      <div class="full"><label class="f" for="sp-note">Why I&rsquo;m featuring it</label><textarea id="sp-note" placeholder="Jade's circle is the warmest room for women learning Human Design. Every call leaves you feeling seen."></textarea></div>
-      <div class="full imgpick"><span class="f" style="display:block;font-weight:600;font-size:13px;margin-bottom:5px;color:var(--blush-soft);">Image <span class="sub">(optional, otherwise the category image is used)</span></span><div class="imgrow"><div class="imgprev" id="sp-prev">No image</div><div class="imgbtns"><label class="file"><input type="file" id="sp-file" accept="image/*"><span class="btn btn-ghost btn-sm">Upload image</span></label><button type="button" class="btn btn-ghost btn-sm" id="sp-clear" hidden>Remove</button></div></div><input type="url" id="sp-imglink" placeholder="or paste an image link" style="margin-top:8px;"><input type="hidden" id="sp-image"></div>
+    <h2>&#11088; VIP Spotlight</h2>
+    <p class="help">Your VIPs fill out the VIP Spotlight form. Download its responses as a CSV and load it here, or add a VIP by hand. Everyone stays saved, so each week you just tap who&rsquo;s showing at the top of the Directory.</p>
+    <div class="row">
+      <label class="file"><input type="file" id="vipCsv" accept=".csv,text/csv"><span class="btn btn-primary">Load VIP form CSV</span></label>
+      <button class="btn btn-ghost" type="button" id="vipAdd">Add a VIP by hand</button>
+      <button class="btn btn-ghost" type="button" id="vipNone">No spotlight this week</button>
     </div>
-    <div class="status" id="spStatus" aria-live="polite"></div>
+    <div class="status" id="vipStatus" aria-live="polite"></div>
+    <div class="list" id="vipList"></div>
+    <div class="full" id="spNoteWrap" hidden style="margin-top:12px;"><label class="f" for="sp-note" id="spNoteLabel">Why I chose her</label><textarea id="sp-note" placeholder="She shows up for every woman in here. Her community feels like coming home."></textarea></div>
+    <div class="item" id="vipEditor" hidden style="margin-top:14px;"></div>
   </section>
 
   <!-- 3. CSV -->
@@ -230,7 +233,7 @@
 (function () {
   var STORE = 'spDirectoryUpdater';
   var CATEGORIES = [
-    'Energy Healing', 'Hypnosis & Subconscious Work', 'Money Mindset & Wealth', 'Manifestation', 'Life & Purpose Coaching',
+    'Energy Healing', 'Hypnosis & Subconscious Work', 'Quantum Journeys Hypnosis', 'Faith & Spiritual Growth', 'Money Mindset & Wealth', 'Manifestation', 'Life & Purpose Coaching',
     'Relationship & Family Coaching', 'Business Coaching & Strategy', 'Human Design & Astrology',
     'Intuitive Readings', 'Nutrition & Fitness', 'Perimenopause & Menopause', 'Beauty & Skincare',
     'Social Media & Content', 'Websites, Funnels & Tech', 'AI & Automation Support',
@@ -264,7 +267,7 @@
   var saved = { status: {}, featuredDraft: null, spotlightDraft: null, lockEdits: {}, cImg: {}, rImg: {} };
   try {
     var raw = localStorage.getItem(STORE);
-    if (raw) { var p = JSON.parse(raw); if (p && typeof p === 'object') { saved.status = p.status || {}; saved.featuredDraft = p.featuredDraft || null; saved.spotlightDraft = p.spotlightDraft || null; saved.lockEdits = p.lockEdits || {}; saved.cImg = p.cImg || {}; saved.rImg = p.rImg || {}; } }
+    if (raw) { var p = JSON.parse(raw); if (p && typeof p === 'object') { saved.status = p.status || {}; saved.featuredDraft = p.featuredDraft || null; saved.spotlightDraft = p.spotlightDraft || null; saved.lockEdits = p.lockEdits || {}; saved.cImg = p.cImg || {}; saved.rImg = p.rImg || {}; saved.vipDraft = p.vipDraft || null; } }
   } catch (e) { /* storage unavailable */ }
   var persist = function () { try { localStorage.setItem(STORE, JSON.stringify(saved)); } catch (e) { /* ignore */ } };
 
@@ -377,11 +380,13 @@
       if (/would you like to recommend|add another/.test(h)) return;
       /* recommended community questions (also "Community 2 name" style labels) */
       var numM = h.match(/community (\d)\b/) || (h.indexOf('recommend') !== -1 ? h.match(/\b([1-9])\b/) : null);
-      if (h.indexOf('recommend') !== -1 || /^community \d\b/.test(h) || (section === 'rec' && isDays)) {
+      var isOwnQ = /your (own )?community|is this yours|own community|i run|i host/.test(h);
+      if (h.indexOf('recommend') !== -1 || /^community \d\b/.test(h) || (section === 'rec' && (isDays || isOwnQ))) {
         if (numM) curRec = numM[1];
         section = 'rec';
         var r = map.recs[curRec] = map.recs[curRec] || {};
         if (h.indexOf('why') !== -1) r.why = i;
+        else if (isOwnQ) r.own = i;
         else if (h.indexOf('affiliate') !== -1) r.affiliate = i;
         else if (isDays) r.days = i;
         else if (h.indexOf('categor') !== -1) r.category = i;
@@ -461,7 +466,7 @@
     Object.keys(map.recs).sort().forEach(function (n) {
       var r = map.recs[n];
       var rn = g(r.name), rl = cleanUrl(g(r.link));
-      if (rn && rl && m.recommends.length < 3 && !m.recommends.some(function (x) { return normUrl(x.link) === normUrl(rl) || x.name.toLowerCase() === rn.toLowerCase(); })) m.recommends.push({ name: rn, link: rl, category: pickRec(g(r.category)), about: g(r.about), access: g(r.access), why: g(r.why), affiliate: truthy(g(r.affiliate)), promoDays: parseDays(g(r.days)) });
+      if (rn && rl && m.recommends.length < 3 && !m.recommends.some(function (x) { return normUrl(x.link) === normUrl(rl) || x.name.toLowerCase() === rn.toLowerCase(); })) m.recommends.push({ name: rn, link: rl, category: pickRec(g(r.category)), about: g(r.about), access: g(r.access), why: g(r.why), affiliate: truthy(g(r.affiliate)), own: truthy(g(r.own)), promoDays: parseDays(g(r.days)) });
     });
     /* review-only info, never saved to the Directory */
     m._skool = cleanUrl(/^@[\w.-]+$/.test(skool) ? 'https://www.skool.com/' + skool : skool);
@@ -695,7 +700,7 @@
       if (m.offer && !m.offerLink) flags.appendChild(el('span', 'flag warn', 'No offer link'));
       if (m.community) flags.appendChild(el('span', 'flag', 'Community: ' + m.community.name + ((m.community.categories || [m.community.category]).filter(Boolean).length ? ' (' + (m.community.categories || [m.community.category]).filter(Boolean).join(', ') + ')' : '')));
       if (m.community && !m.community.category) flags.appendChild(el('span', 'flag warn', 'Community has no category'));
-      (m.recommends || []).forEach(function (r) { flags.appendChild(el('span', 'flag', 'Recommends: ' + r.name + (r.category ? ' (' + r.category + ')' : ''))); });
+      (m.recommends || []).forEach(function (r) { flags.appendChild(el('span', 'flag', (r.own ? 'Her other community: ' : 'Recommends: ') + r.name + (r.category ? ' (' + r.category + ')' : ''))); });
       if (flags.childNodes.length) it.appendChild(flags);
       if (ch && ch !== 'new' && ch.length) {
         var det = document.createElement('details');
@@ -896,32 +901,240 @@
   });
   $('featCancel').addEventListener('click', function () { resetForm(); $('featStatus').textContent = ''; });
 
-  /* ---------- Spotlight ---------- */
-  var spotlight = null;
-  var saveSpot = function () { saved.spotlightDraft = spotlight ? JSON.parse(JSON.stringify(spotlight)) : { id: '' }; saved.spotlightDraft.savedAt = Date.now(); persist(); };
-  var renderSpotPicker = function () {
-    var sel = $('sp-id');
-    var keep = spotlight && spotlight.id ? spotlight.id : '';
-    sel.innerHTML = '';
-    var none = el('option', '', 'No spotlight this week'); none.value = ''; sel.appendChild(none);
-    var found = false;
-    allMembers().filter(function (m) { return m.community && statusOf(m.id) === 'live'; }).forEach(function (m) {
-      var o = el('option', '', m.community.name + ' (' + m.name + ')'); o.value = m.id; sel.appendChild(o);
-      if (m.id === keep) found = true;
+  /* ---------- VIP Spotlight ----------
+     VIPs fill out the VIP Spotlight form. Load that CSV here, or add a VIP by hand.
+     Every VIP stays saved in directory.json, so each week you just pick who shows. */
+  var vips = [];
+  var spotlight = null;   /* { vip: id, note } */
+  var vipEditing = null;  /* a VIP's id, or 'new' */
+  var vipConfirm = '';    /* id waiting on a second tap to remove */
+  var saveSpot = function () { saved.vipDraft = { vips: vips, spotlight: spotlight, savedAt: Date.now() }; persist(); };
+  var vipId = function (name) { return 'vip-' + hashId(nameKey(name)).slice(1); };
+  var blankVip = function () { return { id: '', name: '', headline: '', about: '', photo: '', banner: '', website: '', social: '', communities: [], offers: [], edited: false }; };
+  var vipOf = function (id) { var f = null; vips.forEach(function (v) { if (v.id === id) f = v; }); return f; };
+  /* Older Directory files featured a member's community. Turn that into a VIP card so nothing is lost. */
+  var vipFromMember = function (m, sp) {
+    var v = blankVip();
+    v.id = vipId(m.name); v.name = m.name; v.about = m.about || ''; v.photo = m.photo || ''; v.social = m.social || '';
+    v.banner = sp && sp.image ? sp.image : '';
+    if (m.community && m.community.name) v.communities.push({ name: m.community.name, link: m.community.link, about: m.community.about || '' });
+    return v;
+  };
+
+  var vipCsv = function (text) {
+    var rows = parseCSV(text);
+    if (rows.length < 2) { $('vipStatus').textContent = 'That file has no form answers in it yet.'; return; }
+    var h = rows[0].map(key), mp = { c: {}, o: {} };
+    h.forEach(function (x, i) {
+      if (!x || x.indexOf('email') !== -1) return;
+      if (/(timestamp|submitted|^date)/.test(x)) { if (mp.date == null) mp.date = i; return; }
+      if (x.indexOf('skool') !== -1 && x.indexOf('profile') !== -1) { mp.skool = i; return; }
+      var cm = x.match(/community (\d)/);
+      if (cm) { var c = mp.c[cm[1]] = mp.c[cm[1]] || {}; if (/link|url/.test(x)) c.link = i; else if (x.indexOf('name') !== -1) c.name = i; else c.about = i; return; }
+      var om = x.match(/offer (\d)/);
+      if (om) { var o = mp.o[om[1]] = mp.o[om[1]] || {}; if (x.indexOf('price') !== -1) o.price = i; else if (/link|url/.test(x)) o.link = i; else if (/name|title/.test(x)) o.title = i; else o.desc = i; return; }
+      if (/headline|tagline/.test(x)) { mp.headline = i; return; }
+      if (x.indexOf('website') !== -1) { mp.website = i; return; }
+      if (/instagram|social/.test(x)) { mp.social = i; return; }
+      if (/banner|cover/.test(x)) { mp.banner = i; return; }
+      if (/photo|headshot|picture/.test(x)) { mp.photo = i; return; }
+      if (/anything else|fun fact|know about you/.test(x)) { mp.extra = i; return; }
+      if (/about|story|bio/.test(x)) { mp.about = i; return; }
+      if (/^(full )?name$|^your name$/.test(x)) { mp.name = i; return; }
     });
-    sel.value = found ? keep : '';
-    $('sp-note').value = spotlight && spotlight.note || '';
-    $('sp-image').value = spotlight && spotlight.image || '';
-    spShow();
-    $('spStatus').textContent = keep && !found ? 'Last spotlight is no longer live, so nothing is selected.' : '';
+    if (mp.name == null) { $('vipStatus').textContent = 'I couldn’t find a Name question in that file. Is this the VIP Spotlight form?'; return; }
+    var latest = {};
+    rows.slice(1).forEach(function (row) {
+      var g = function (i) { return i == null ? '' : String(row[i] || '').replace(/[​-‏⁠-⁤﻿­￼]/g, '').trim(); };
+      var v = blankVip();
+      v.name = g(mp.name);
+      if (!v.name) return;
+      v.id = vipId(v.name);
+      v.headline = g(mp.headline);
+      v.about = g(mp.about) + (g(mp.extra) ? '\n\n' + g(mp.extra) : '');
+      v.photo = photoUrl(g(mp.photo));
+      v.banner = photoUrl(g(mp.banner));
+      v.website = cleanUrl(g(mp.website));
+      v.social = cleanUrl(g(mp.social));
+      Object.keys(mp.c).sort().forEach(function (n) { var c = mp.c[n], nm = g(c.name), ln = cleanUrl(g(c.link)); if (nm && ln) v.communities.push({ name: nm, link: ln, about: g(c.about) }); });
+      Object.keys(mp.o).sort().forEach(function (n) { var o = mp.o[n], t = g(o.title), d = g(o.desc); if (t || d) v.offers.push({ title: t, desc: d, link: cleanUrl(g(o.link)), price: g(o.price) }); });
+      v._date = mp.date == null ? 0 : (Date.parse(g(mp.date)) || 0);
+      var k = nameKey(v.name);
+      if (!latest[k] || v._date >= latest[k]._date) latest[k] = v;
+    });
+    var added = 0, updated = 0;
+    Object.keys(latest).forEach(function (k) {
+      var v = latest[k]; delete v._date;
+      var old = null;
+      vips.forEach(function (x) { if (nameKey(x.name) === k) old = x; });
+      if (!old) { vips.push(v); added++; return; }
+      var isHand = function (u) { return /^(data:image\/|images\/)/.test(u || ''); };
+      ['headline', 'about', 'website', 'social', 'photo', 'banner'].forEach(function (f) {
+        if (f === 'photo' || f === 'banner') { if (isHand(old[f])) return; }
+        if (old.edited) { if (!old[f] && v[f]) old[f] = v[f]; }
+        else if (v[f]) old[f] = v[f];
+      });
+      if (!old.edited || !old.communities.length) { if (v.communities.length) old.communities = v.communities; }
+      if (!old.edited || !old.offers.length) { if (v.offers.length) old.offers = v.offers; }
+      updated++;
+    });
+    saveSpot(); renderSpotPicker(); renderStats();
+    $('vipStatus').textContent = added + ' new VIP' + (added === 1 ? '' : 's') + ', ' + updated + ' updated. VIPs you edited by hand keep your edits. Their form answers only fill in blanks.';
   };
-  var readSpot = function () {
-    var id = $('sp-id').value;
-    spotlight = id ? { id: id, note: $('sp-note').value.trim(), image: keepImg($('sp-image').value) } : null;
-    saveSpot(); renderStats();
+  $('vipCsv').addEventListener('change', function () {
+    var f = this.files[0]; if (!f) return;
+    var r = new FileReader();
+    r.onload = function () { vipCsv(String(r.result || '')); };
+    r.readAsText(f);
+    this.value = '';
+  });
+
+  var renderSpotPicker = function () {
+    var list = $('vipList');
+    list.innerHTML = '';
+    if (spotlight && spotlight.vip && !vipOf(spotlight.vip)) spotlight = null;
+    if (!vips.length) list.appendChild(el('p', 'sub', 'No VIPs yet. Load your VIP Spotlight form CSV, or add one by hand.'));
+    vips.forEach(function (v) {
+      var it = el('div', 'item');
+      var top = el('div', 'item-top');
+      top.appendChild(thumb(v.photo, v.name));
+      var t = el('div', 'grow');
+      t.appendChild(el('div', 'nm', v.name));
+      if (v.headline) t.appendChild(el('div', 'sub', v.headline));
+      t.appendChild(el('div', 'sub', v.communities.length + (v.communities.length === 1 ? ' community, ' : ' communities, ') + v.offers.length + (v.offers.length === 1 ? ' offer' : ' offers') + (v.website ? ', website' : '') + (v.edited ? '. Edited by you.' : '.')));
+      top.appendChild(t);
+      it.appendChild(top);
+      var row = el('div', 'row');
+      row.style.marginTop = '0';
+      var on = spotlight && spotlight.vip === v.id;
+      var sb = el('button', 'btn ' + (on ? 'btn-primary' : 'btn-ghost') + ' btn-sm', on ? '⭐ Showing this week' : 'Show this week');
+      sb.type = 'button';
+      sb.addEventListener('click', function () { spotlight = on ? null : { vip: v.id, note: on ? '' : (spotlight && spotlight.vip === v.id ? spotlight.note : '') }; saveSpot(); renderSpotPicker(); renderStats(); });
+      row.appendChild(sb);
+      var eb = el('button', 'btn btn-ghost btn-sm', 'Edit');
+      eb.type = 'button';
+      eb.addEventListener('click', function () { openVipEditor(v.id); });
+      row.appendChild(eb);
+      var rb = el('button', 'btn btn-ghost btn-sm', vipConfirm === v.id ? 'Tap again to remove' : 'Remove');
+      rb.type = 'button';
+      rb.addEventListener('click', function () {
+        if (vipConfirm !== v.id) { vipConfirm = v.id; renderSpotPicker(); return; }
+        vipConfirm = '';
+        vips = vips.filter(function (x) { return x.id !== v.id; });
+        if (spotlight && spotlight.vip === v.id) spotlight = null;
+        saveSpot(); renderSpotPicker(); renderStats();
+      });
+      row.appendChild(rb);
+      it.appendChild(row);
+      list.appendChild(it);
+    });
+    var noteWrap = $('spNoteWrap');
+    noteWrap.hidden = !(spotlight && spotlight.vip);
+    if (spotlight && spotlight.vip) {
+      $('spNoteLabel').textContent = 'Why I chose ' + vipOf(spotlight.vip).name.split(' ')[0];
+      if (document.activeElement !== $('sp-note')) $('sp-note').value = spotlight.note || '';
+    }
   };
-  var spShow = picker('sp', function () { readSpot(); }, 'spStatus');
-  ['sp-id', 'sp-note'].forEach(function (k) { $(k).addEventListener(k === 'sp-id' ? 'change' : 'input', readSpot); });
+  $('sp-note').addEventListener('input', function () { if (spotlight) { spotlight.note = this.value.trim(); saveSpot(); } });
+  $('vipNone').addEventListener('click', function () { spotlight = null; saveSpot(); renderSpotPicker(); renderStats(); });
+
+  /* Editor: add a VIP by hand, or fix one from the form */
+  var openVipEditor = function (id) {
+    vipEditing = id;
+    var v = id === 'new' ? blankVip() : JSON.parse(JSON.stringify(vipOf(id)));
+    var box = $('vipEditor');
+    box.innerHTML = '';
+    box.hidden = false;
+    box.appendChild(el('h3', 'sub', id === 'new' ? 'Add a VIP' : 'Edit ' + v.name));
+    var grid = el('div', 'grid2');
+    var field = function (label, val, ph, area, full) {
+      var w = el('div', full ? 'full' : '');
+      var l = el('label', 'f', label);
+      var inp = document.createElement(area ? 'textarea' : 'input');
+      if (!area) inp.type = 'text';
+      inp.value = val || ''; inp.placeholder = ph || '';
+      l.appendChild(inp);
+      w.appendChild(l);
+      grid.appendChild(w);
+      return inp;
+    };
+    var fName = field('Name', v.name, 'Her full name');
+    var fHead = field('Headline', v.headline, 'One sentence about what she does');
+    var fAbout = field('About her', v.about, 'A few sentences in her words', true, true);
+    var fWeb = field('Website', v.website, 'https://');
+    var fSoc = field('Instagram or main social', v.social, 'https://');
+    var fPhoto = field('Photo link (optional)', /^data:/.test(v.photo) ? '' : v.photo, 'Leave blank to use her Directory photo', false, true);
+    box.appendChild(grid);
+    /* banner */
+    var bWrap = el('div', 'cimg');
+    var pv = el('div', 'pv', 'No banner');
+    var banner = v.banner || '';
+    var showB = function () { pv.innerHTML = ''; if (banner) { var im = new Image(); im.alt = ''; im.src = /^(data:|images\/)/.test(banner) ? banner : banner; im.onerror = function () { pv.textContent = 'Can’t preview'; }; pv.appendChild(im); } else pv.textContent = 'No banner'; };
+    showB();
+    bWrap.appendChild(pv);
+    var bt = el('div', 'grow');
+    bt.appendChild(el('div', 'lbl', 'Spotlight banner'));
+    bt.appendChild(el('div', 'sub2', 'Optional. Without one, her community image is used.'));
+    bWrap.appendChild(bt);
+    var up = document.createElement('label'); up.className = 'file';
+    var fin = document.createElement('input'); fin.type = 'file'; fin.accept = 'image/*';
+    up.appendChild(fin); up.appendChild(el('span', 'btn btn-ghost btn-sm', 'Upload banner'));
+    fin.addEventListener('change', function () { var f = this.files[0]; if (!f) return; shrink(f, function (d) { if (d) { banner = d; showB(); } }); this.value = ''; });
+    bWrap.appendChild(up);
+    var clr = el('button', 'btn btn-ghost btn-sm', 'Remove'); clr.type = 'button';
+    clr.addEventListener('click', function () { banner = ''; showB(); });
+    bWrap.appendChild(clr);
+    box.appendChild(bWrap);
+    /* communities and offers */
+    var rowsOf = function (title, items, n, cols) {
+      box.appendChild(el('h3', 'sub', title));
+      var out = [];
+      for (var i = 0; i < n; i++) {
+        var g2 = el('div', 'grid2');
+        var cur = items[i] || {};
+        var r = {};
+        cols.forEach(function (c) {
+          var w = el('div', c[3] ? 'full' : '');
+          var l = el('label', 'f', c[1] + ' ' + (i + 1));
+          var inp = document.createElement('input'); inp.type = 'text'; inp.value = cur[c[0]] || ''; inp.placeholder = c[2];
+          l.appendChild(inp); w.appendChild(l); g2.appendChild(w);
+          r[c[0]] = inp;
+        });
+        box.appendChild(g2);
+        out.push(r);
+      }
+      return out;
+    };
+    var cRows = rowsOf('Her communities', v.communities, 3, [['name', 'Community', 'Name'], ['link', 'Link', 'https://'], ['about', 'In one sentence', 'What it is', true]]);
+    var oRows = rowsOf('Her offers', v.offers, 3, [['title', 'Offer', 'Name'], ['link', 'Link', 'https://'], ['desc', 'In one sentence', 'What she gets', true], ['price', 'Starting price', 'Optional']]);
+    var acts = el('div', 'row');
+    var save = el('button', 'btn btn-primary', 'Save VIP'); save.type = 'button';
+    var cancel = el('button', 'btn btn-ghost', 'Cancel'); cancel.type = 'button';
+    var st = el('div', 'status');
+    acts.appendChild(save); acts.appendChild(cancel);
+    box.appendChild(acts); box.appendChild(st);
+    cancel.addEventListener('click', function () { vipEditing = null; box.hidden = true; box.innerHTML = ''; });
+    save.addEventListener('click', function () {
+      var name = fName.value.trim();
+      if (!name) { st.textContent = 'Add her name first.'; return; }
+      var nv = id === 'new' ? blankVip() : vipOf(id);
+      if (id === 'new' && vips.some(function (x) { return nameKey(x.name) === nameKey(name); })) { st.textContent = 'She’s already in your VIP list. Use Edit on her card instead.'; return; }
+      nv.name = name; nv.headline = fHead.value.trim(); nv.about = fAbout.value.trim();
+      nv.website = cleanUrl(fWeb.value); nv.social = cleanUrl(fSoc.value);
+      var ph = fPhoto.value.trim();
+      if (ph) nv.photo = photoUrl(ph); else if (!/^data:/.test(nv.photo)) nv.photo = '';
+      nv.banner = banner;
+      nv.communities = cRows.map(function (r) { return { name: r.name.value.trim(), link: cleanUrl(r.link.value), about: r.about.value.trim() }; }).filter(function (c) { return c.name && c.link; });
+      nv.offers = oRows.map(function (r) { return { title: r.title.value.trim(), desc: r.desc.value.trim(), link: cleanUrl(r.link.value), price: r.price.value.trim() }; }).filter(function (o) { return o.title || o.desc; });
+      nv.edited = true;
+      if (id === 'new') { nv.id = vipId(name); vips.push(nv); }
+      vipEditing = null; box.hidden = true; box.innerHTML = '';
+      saveSpot(); renderSpotPicker(); renderStats();
+      $('vipStatus').textContent = 'Saved ' + name + '.';
+    });
+    box.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+  $('vipAdd').addEventListener('click', function () { openVipEditor('new'); });
 
   /* ---------- Output ---------- */
   var buildOutput = function () {
@@ -935,9 +1148,8 @@
       if (lk.length) o.locked = lk;
       return o;
     });
-    var sp = null;
-    if (spotlight && spotlight.id) members.forEach(function (m) { if (m.id === spotlight.id && m.community) sp = spotlight; });
-    return { version: 1, updated: new Date().toISOString(), featured: featured, spotlight: sp, members: members };
+    var sp = spotlight && spotlight.vip && vipOf(spotlight.vip) ? { vip: spotlight.vip, note: spotlight.note || '' } : null;
+    return { version: 1, updated: new Date().toISOString(), featured: featured, spotlight: sp, vips: vips, members: members };
   };
   var renderStats = function () {
     var out = buildOutput();
@@ -946,7 +1158,7 @@
       [out.members.length, 'Live listings'],
       [list.filter(function (m) { return statusOf(m.id) === 'pending'; }).length, 'Pending'],
       [out.featured.length, 'Featured'],
-      [out.spotlight ? 1 : 0, 'Spotlight'],
+      [out.vips.length, 'VIPs'],
       [out.members.filter(function (m) { return m.community; }).length, 'Communities'],
       [out.members.reduce(function (n, m) { return n + (m.recommends || []).length; }, 0), 'Recommended']
     ];
@@ -955,7 +1167,7 @@
     stats.forEach(function (s) { var d = el('div', 'stat'); d.appendChild(el('b', '', String(s[0]))); d.appendChild(el('span', '', s[1])); w.appendChild(d); });
   };
   var finished = function (msg) {
-    saved.featuredDraft = null; saved.spotlightDraft = null; saved.cImg = {}; saved.rImg = {}; persist();
+    saved.featuredDraft = null; saved.spotlightDraft = null; saved.vipDraft = null; saved.cImg = {}; saved.rImg = {}; persist();
     $('dlStatus').textContent = msg;
   };
   $('downloadBtn').addEventListener('click', function () {
@@ -1000,9 +1212,23 @@
       $('loadStatus').textContent = 'Loaded ' + source + ': ' + current.members.length + ' live listings and ' + featured.length + ' featured communities.';
     }
     /* A spotlight you picked but haven't uploaded wins, unless the Directory file is newer */
-    var dr = saved.spotlightDraft, fileTime = Date.parse(json.updated || '') || 0;
-    if (dr && dr.savedAt && fileTime > dr.savedAt) { dr = null; saved.spotlightDraft = null; persist(); }
-    spotlight = dr ? (dr.id ? { id: dr.id, note: dr.note || '', image: dr.image || '' } : null) : (json.spotlight || null);
+    var dr = saved.vipDraft, fileTime = Date.parse(json.updated || '') || 0;
+    if (dr && dr.savedAt && fileTime > dr.savedAt) { dr = null; saved.vipDraft = null; persist(); }
+    if (dr) { vips = dr.vips || []; spotlight = dr.spotlight || null; }
+    else {
+      vips = Array.isArray(json.vips) ? JSON.parse(JSON.stringify(json.vips)) : [];
+      spotlight = json.spotlight && json.spotlight.vip ? { vip: json.spotlight.vip, note: json.spotlight.note || '' } : null;
+      /* older file: a member's community was featured. Carry her over as a VIP card. */
+      if (json.spotlight && json.spotlight.id && !json.spotlight.vip) {
+        var lm = null;
+        current.members.forEach(function (m) { if (m.id === json.spotlight.id) lm = m; });
+        if (lm) {
+          var lv = vips.filter(function (x) { return nameKey(x.name) === nameKey(lm.name); })[0];
+          if (!lv) { lv = vipFromMember(lm, json.spotlight); vips.push(lv); }
+          spotlight = { vip: lv.id, note: json.spotlight.note || '' };
+        }
+      }
+    }
     renderFeatured(); renderStats(); renderSpotPicker();
     linkByName();
     if (current.members.length) { $('reviewPanel').hidden = false; renderReview(); }
@@ -1028,7 +1254,7 @@
   $('freshNo').addEventListener('click', function () { $('freshConfirm').hidden = true; });
   $('freshYes').addEventListener('click', function () {
     saved = { status: {}, featuredDraft: null, spotlightDraft: null, lockEdits: {}, cImg: {}, rImg: {} }; persist();
-    current = { featured: [], members: [] }; featured = []; csvMembers = []; spotlight = null; renderSpotPicker();
+    current = { featured: [], members: [] }; featured = []; csvMembers = []; spotlight = null; vips = []; saved.vipDraft = null; persist(); renderSpotPicker();
     $('freshConfirm').hidden = true;
     $('csvReport').innerHTML = '';
     $('reviewPanel').hidden = true;
@@ -1043,7 +1269,7 @@
     .then(function (json) { useCurrent(json, 'your current Directory'); })
     .catch(function () {
       if (saved.featuredDraft) { featured = saved.featuredDraft; renderFeatured(); renderStats(); }
-      if (saved.spotlightDraft && saved.spotlightDraft.id) spotlight = saved.spotlightDraft;
+      if (saved.vipDraft) { vips = saved.vipDraft.vips || []; spotlight = saved.vipDraft.spotlight || null; }
       renderSpotPicker();
       $('loadStatus').className = 'note warn';
       $('loadStatus').textContent = 'I couldn’t load your current Directory automatically. Choose your directory.json file, or start fresh if this is your first time.';

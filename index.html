@@ -591,7 +591,7 @@
   var DATA_URL = 'directory.json';
 
   var CATEGORIES = [
-    'Energy Healing', 'Hypnosis & Subconscious Work', 'Quantum Journeys Hypnosis', 'Money Mindset & Wealth', 'Manifestation', 'Life & Purpose Coaching',
+    'Energy Healing', 'Hypnosis & Subconscious Work', 'Quantum Journeys Hypnosis', 'Faith & Spiritual Growth', 'Money Mindset & Wealth', 'Manifestation', 'Life & Purpose Coaching',
     'Relationship & Family Coaching', 'Business Coaching & Strategy', 'Human Design & Astrology',
     'Intuitive Readings', 'Nutrition & Fitness', 'Perimenopause & Menopause', 'Beauty & Skincare',
     'Social Media & Content', 'Websites, Funnels & Tech', 'AI & Automation Support',
@@ -601,6 +601,7 @@
     { key: 'business', name: 'Grow Your Business', short: 'Business', cats: ['Business Coaching & Strategy', 'Social Media & Content', 'Websites, Funnels & Tech', 'AI & Automation Support', 'Virtual Assistants & Admin', 'Branding, Design & Photography', 'Promo & Networking'] },
     { key: 'mindset', name: 'Mindset & Growth', short: 'Mindset', cats: ['Life & Purpose Coaching', 'Money Mindset & Wealth', 'Manifestation', 'Hypnosis & Subconscious Work', 'Relationship & Family Coaching'] },
     { key: 'spiritual', name: 'Spiritual & Energy', short: 'Spiritual', cats: ['Energy Healing', 'Quantum Journeys Hypnosis', 'Human Design & Astrology', 'Intuitive Readings'] },
+    { key: 'faith', name: 'Faith & Spirit', short: 'Faith', cats: ['Faith & Spiritual Growth'] },
     { key: 'wellness', name: 'Wellness & Self Care', short: 'Wellness', cats: ['Nutrition & Fitness', 'Perimenopause & Menopause', 'Beauty & Skincare'] },
     { key: 'shop', name: 'Shop', short: 'Shop', cats: ['Handmade & Gifts'] }
   ];
@@ -624,7 +625,7 @@
   var EMOJI = {
     'Promo & Networking': '\uD83D\uDCE3',
     'Perimenopause & Menopause': '\uD83C\uDF3A',
-    'Energy Healing': '\u2728', 'Hypnosis & Subconscious Work': '\uD83C\uDF00', 'Quantum Journeys Hypnosis': '\uD83C\uDF0C', 'Money Mindset & Wealth': '\uD83D\uDCB0', 'Manifestation': '\uD83E\uDE84', 'Life & Purpose Coaching': '\uD83E\uDDED',
+    'Energy Healing': '\u2728', 'Hypnosis & Subconscious Work': '\uD83C\uDF00', 'Quantum Journeys Hypnosis': '\uD83C\uDF0C', 'Faith & Spiritual Growth': '\uD83D\uDD4A\uFE0F', 'Money Mindset & Wealth': '\uD83D\uDCB0', 'Manifestation': '\uD83E\uDE84', 'Life & Purpose Coaching': '\uD83E\uDDED',
     'Relationship & Family Coaching': '\uD83D\uDC9E', 'Business Coaching & Strategy': '\uD83D\uDCC8', 'Human Design & Astrology': '\uD83C\uDF19',
     'Intuitive Readings': '\uD83D\uDD2E', 'Nutrition & Fitness': '\uD83C\uDF3F', 'Beauty & Skincare': '\uD83C\uDF38',
     'Social Media & Content': '\uD83D\uDCF1', 'Websites, Funnels & Tech': '\uD83D\uDCBB', 'AI & Automation Support': '\uD83E\uDD16',
@@ -712,6 +713,7 @@
      People search the way they talk: "money mindset", "learning Claude", "hypnosis for money", "help with entities".
      Each topic lists the words people type (say) and the words we look for in a listing (find). */
   var TOPICS = [
+    { label: 'Faith', say: ['faith', 'faith based', 'christian', 'christ', 'jesus', 'god', 'bible', 'bible study', 'scripture', 'prayer', 'pray', 'church', 'ministry', 'devotional', 'devotion', 'worship', 'kingdom', 'holy spirit', 'biblical', 'spiritual growth', 'spiritual mentor', 'spiritual coach'], find: ['faith', 'christian', 'christ', 'jesus', 'god', 'bible', 'biblical', 'scripture', 'prayer', 'church', 'ministry', 'devotion', 'worship', 'kingdom', 'spiritual growth', 'spiritual mentor'] },
     { label: 'Quantum Journeys', say: ['quantum journeys', 'quantum journey', 'quantum journeys hypnosis', 'qjh', 'quantum hypnosis', 'quantum healing', 'qhht', 'beyond quantum healing', 'bqh', 'past life', 'past lives', 'past life regression', 'higher self', 'soul journey', 'between lives'], find: ['quantum journey', 'qhht', 'past life', 'higher self', 'quantum heal'] },
     { label: 'Money', say: ['money', 'money mindset', 'money block', 'money wound', 'wealth', 'abundance', 'abundant', 'prosperity', 'rich', 'finance', 'financial', 'income', 'debt', 'cash flow', 'cash', 'profit', 'cfo', 'bookkeeping', 'charge more', 'raise my prices', 'receive more', 'receiving'], find: ['money', 'wealth', 'abundan', 'financ', 'prosper', 'income'] },
     { label: 'Manifesting', say: ['manifest', 'manifestation', 'manifesting', 'law of attraction', 'loa', 'vision board', 'scripting', 'attract', 'attraction', 'quantum', 'reality shifting'], find: ['manifest', 'law of attraction', 'abundan', 'quantum'] },
@@ -1556,7 +1558,7 @@
   window.addEventListener('resize', updateCue);
 
   /* Home search */
-  var HQ_CHIPS = [['Money mindset', 'money mindset'], ['Hypnosis', 'hypnosis'], ['Quantum Journeys', 'quantum journeys'], ['Energy healing', 'energy healing'], ['Manifesting', 'manifesting'], ['Human Design', 'human design', 'Human Design & Astrology'], ['Astrology', 'astrology', 'Human Design & Astrology'], ['Learn AI', 'learn ai'], ['Get clients', 'get more clients'], ['Marketing', 'marketing'], ['Websites', 'website'], ['Love', 'love'], ['Wellness', 'wellness']];
+  var HQ_CHIPS = [['Money mindset', 'money mindset'], ['Hypnosis', 'hypnosis'], ['Quantum Journeys', 'quantum journeys'], ['Energy healing', 'energy healing'], ['Manifesting', 'manifesting'], ['Human Design', 'human design', 'Human Design & Astrology'], ['Astrology', 'astrology', 'Human Design & Astrology'], ['Faith & Spiritual', 'faith', 'Faith & Spiritual Growth'], ['Learn AI', 'learn ai'], ['Get clients', 'get more clients'], ['Marketing', 'marketing'], ['Websites', 'website'], ['Love', 'love'], ['Wellness', 'wellness']];
   var renderHomeSearch = function () {
     var q = $('hq').value.trim();
     var chipWrap = $('hqChips');
