@@ -465,6 +465,7 @@
       </header>
 
       <section id="homeView" aria-labelledby="homeTitle" hidden>
+        <div id="spotlight" hidden></div>
         <div class="home-search" role="search">
           <div class="search">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
@@ -479,7 +480,6 @@
           <div class="jump-label">Browse by category</div>
           <div class="jump-row" id="jumpRow"></div>
         </nav>
-        <div id="spotlight" hidden></div>
         <div class="how" id="howTo">
           <h2>How to use the Directory</h2>
           <ul>
@@ -1408,7 +1408,7 @@
     var P = {
       name: v.name || mem.name, photo: v.photo || (mem && mem.photo) || '', headline: v.headline || '',
       about: v.about || (mem && mem.about) || '', website: v.website || '', social: v.social || (mem && mem.social) || '',
-      note: sp.note || '', member: mem, communities: [], offers: []
+      note: sp.note || '', member: mem, vip: v, communities: [], offers: []
     };
     var seen = {};
     var addC = function (c) { if (!c || !c.name || !c.link) return; var k = linkKey(c.link); if (seen[k]) return; seen[k] = true; P.communities.push(c); };
@@ -1471,6 +1471,13 @@
     }
     return w;
   };
+  /* One tap to her profile. VIPs who aren't listed yet get the same layout built from the VIP form. */
+  var openVip = function (P, from) {
+    var v = P.vip || {};
+    var extras = { headline: P.headline, note: P.note, website: P.website, social: P.social, about: P.about, offers: v.offers || [], communities: v.communities || [] };
+    if (P.member) openProfile(P.member, from, extras);
+    else openProfile({ name: P.name, photo: P.photo, about: P.about, social: P.social }, from, extras);
+  };
   var renderSpotlight = function () {
     var box = $('spotlight');
     box.innerHTML = '';
@@ -1492,7 +1499,7 @@
       var host = el('p', 'spot-host', 'with ');
       var hb = el('button', '', P.name);
       hb.type = 'button';
-      hb.addEventListener('click', function () { openDetail(vipFull(P), hb); });
+      hb.addEventListener('click', function () { openVip(P, hb); });
       host.appendChild(hb);
       body.appendChild(host);
       if (main.about) body.appendChild(el('p', 'offer clamp2', main.about));
@@ -1506,23 +1513,12 @@
     if (cta) acts.appendChild(cta);
     var more = el('button', 'btn btn-ghost', 'Meet ' + P.name.split(' ')[0]);
     more.type = 'button';
-    more.addEventListener('click', function () { openDetail(vipFull(P), more); });
+    more.addEventListener('click', function () { openVip(P, more); });
     acts.appendChild(more);
     body.appendChild(acts);
     top.appendChild(body);
     card.appendChild(top);
     box.appendChild(card);
-    var cue = el('button', 'scroll-cue');
-    cue.type = 'button';
-    cue.appendChild(el('span', '', 'Scroll down to browse the whole Directory'));
-    var arrow = el('span', 'arrow', '\u2193');
-    arrow.setAttribute('aria-hidden', 'true');
-    cue.appendChild(arrow);
-    cue.addEventListener('click', function () {
-      var t = $('howTo');
-      if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    });
-    box.appendChild(cue);
   };
 
   /* Floating "More below" pill, only while the spotlight fills the screen */
@@ -1560,6 +1556,7 @@
     var res = $('hqResults');
     res.innerHTML = '';
     $('homeMain').hidden = !!q;
+    if (q) $('spotlight').hidden = true; else if (spotlightProfile()) $('spotlight').hidden = false;
     res.hidden = !q;
     if (!q) { updateCue(); return; }
     floatCue.classList.remove('show');
@@ -1790,23 +1787,29 @@
 
   /* Profile dialog */
   var overlay = $('overlay'), lastFocus = null;
-  var openProfile = function (m, from) {
+  var openProfile = function (m, from, vip) {
     m = m._base || m;
+    vip = vip || {};
     lastFocus = from || null;
     var body = $('dlgBody');
     body.innerHTML = '';
     var row = personRow(m);
     row.querySelector('.name').id = 'dlgName';
     body.appendChild(row);
+    if (vip.headline) body.appendChild(el('p', 'vip-head', vip.headline));
+    if (vip.note) body.appendChild(whyBox(['Why I chose her'], vip.note));
+    if (vip.about && !m.about) m = Object.assign({}, m, { about: vip.about });
     if (m.about) {
       body.appendChild(el('h3', 'sub', 'About me'));
       var ab = el('div', 'block');
       ab.appendChild(el('p', 'offer', m.about));
       body.appendChild(ab);
     }
-    var social = linkBtn('Follow me', m.social, false);
+    var social = linkBtn('Follow me', m.social || vip.social, false);
+    var site = linkBtn('Visit my website', vip.website, false);
+    var extraO = (vip.offers || []).filter(function (o) { return (o.title || o.desc) && !(m.offerLink && linkKey(o.link) === linkKey(m.offerLink)); });
+    if (m.offer || extraO.length) body.appendChild(el('h3', 'sub', (m.offer ? 1 : 0) + extraO.length > 1 ? 'My offers' : 'My offer'));
     if (m.offer) {
-      body.appendChild(el('h3', 'sub', 'My offer'));
       var b = el('div', 'block');
       var op = offerParts(m);
       if (op.title) b.appendChild(el('p', 'name', op.title));
@@ -1819,7 +1822,19 @@
       b.appendChild(a);
       body.appendChild(b);
     }
+    extraO.forEach(function (o) {
+      var xb = el('div', 'block');
+      if (o.title) xb.appendChild(el('p', 'name', o.title));
+      if (o.desc) xb.appendChild(el('p', 'offer', o.desc));
+      if (o.price) xb.appendChild(el('p', 'price', /^free/i.test(o.price) ? 'Free' : 'Starting at ' + o.price));
+      var xa = el('div', 'actions');
+      var xl = linkBtn('See this offer', o.link, false);
+      if (xl) xa.appendChild(xl);
+      xb.appendChild(xa);
+      body.appendChild(xb);
+    });
     var mc = myComms(m);
+    (vip.communities || []).forEach(function (c) { if (c && c.name && c.link && !mc.some(function (x) { return linkKey(x.link) === linkKey(c.link); })) mc.push(c); });
     if (mc.length) {
       body.appendChild(el('h3', 'sub', mc.length > 1 ? 'My communities' : 'My community'));
       mc.forEach(function (cm) {
@@ -1857,10 +1872,11 @@
         body.appendChild(rb);
       });
     }
-    if (social) {
+    if (social || site) {
       var sa = el('div', 'actions');
       sa.style.marginTop = '16px';
-      sa.appendChild(social);
+      if (site) sa.appendChild(site);
+      if (social) sa.appendChild(social);
       body.appendChild(sa);
     }
     overlay.classList.add('open');
