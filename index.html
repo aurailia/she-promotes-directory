@@ -159,6 +159,31 @@
   .float-cue .arrow { animation: cueBob 1.8s ease-in-out infinite; display: inline-block; }
   @keyframes cueBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(6px); } }
   @media (prefers-reduced-motion: reduce) { .scroll-cue .arrow, .float-cue .arrow { animation: none; } .float-cue { transition: none; } }
+  /* VIP Spotlight */
+  .vip { margin-bottom: 26px; border-radius: 24px; overflow: hidden; border: 1px solid rgba(232, 196, 122, 0.65); background: linear-gradient(135deg, rgba(232, 196, 122, 0.14), rgba(196, 155, 255, 0.10)); box-shadow: 0 0 30px rgba(232, 196, 122, 0.12); }
+  .vip-top { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); align-items: center; }
+  .vip-banner { aspect-ratio: 16 / 9; background: linear-gradient(135deg, rgba(196, 155, 255, 0.35), rgba(244, 182, 200, 0.25)); display: flex; align-items: center; justify-content: center; font-size: 46px; }
+  .vip-banner img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .vip-body { padding: 22px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+  .vip-who { display: flex; align-items: center; gap: 14px; }
+  .vip-who .avatar { width: 64px; height: 64px; flex: 0 0 64px; font-size: 20px; border: 2px solid var(--gold); }
+  .vip h2 { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 32px; font-weight: 600; line-height: 1.1; }
+  .vip-head { color: var(--gold-bright); font-size: 15px; font-weight: 500; margin-top: 4px; }
+  .vip-about { color: var(--text); font-size: 15px; white-space: pre-line; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 4; overflow: hidden; }
+  .vip-about.open { display: block; }
+  .vip-more { align-self: flex-start; font-family: inherit; font-size: 13px; font-weight: 600; color: var(--gold-bright); background: none; border: none; padding: 0; cursor: pointer; }
+  .vip-sec { padding: 4px 22px 22px; }
+  .vip-sec h3 { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 24px; font-weight: 600; color: var(--blush); margin: 6px 0 12px; }
+  .vip-full .vip-who { margin-bottom: 12px; }
+  .vip-full .price { font-size: 13px; color: var(--muted); margin-top: 4px; }
+  .vip-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+  .vip-row .card { background: rgba(0,0,0,0.22); }
+  .vip-row .price { font-size: 13px; color: var(--muted); }
+  @media (max-width: 860px) { .vip-top { grid-template-columns: 1fr; } .vip h2 { font-size: 28px; } }
+  @media (max-width: 640px) {
+    .vip-row { display: flex; overflow-x: auto; margin: 0 -22px; padding: 0 22px 6px; scrollbar-width: none; }
+    .vip-row .card { flex: 0 0 82%; }
+  }
   @media (max-width: 860px) { .spot { grid-template-columns: 1fr; } .spot-img { aspect-ratio: 16 / 9; } .spot h2 { font-size: 28px; } }
 
   /* Category view */
@@ -513,10 +538,10 @@
 
       <section class="listed" id="listed">
         <h2>Want your business in the Directory?</h2>
-        <p>The Directory is for premium members of She Promotes&trade;, a community on Skool where women in business promote their offers, network, and collaborate. Joining is free. Premium is $3 a month or $27 a year, and it gets you listed with your signature offer, your community, and the communities you recommend. Premium communities can also be picked for the Community Spotlight.</p>
+        <p>The Directory is for premium and VIP members of She Promotes&trade;, a community on Skool where women in business promote their offers, network, and collaborate. Joining is free. Premium is $3 a month or $27 a year, and it gets you listed with your signature offer, your community, and the communities you recommend. VIP members can also be featured in the VIP Spotlight at the top of the Directory.</p>
         <ol class="steps">
           <li>Join She Promotes&trade; on Skool. It&rsquo;s free.</li>
-          <li>Upgrade to premium inside the community.</li>
+          <li>Upgrade to premium or VIP inside the community.</li>
           <li>Fill out the Directory form and I&rsquo;ll add you.</li>
         </ol>
         <div class="actions">
@@ -779,6 +804,19 @@
 
   /* Derived lists */
   var offers = [], communities = [], recs = [], promos = [];
+  /* A recommendation she marked as her own community counts as her community */
+  var ownComm = function (m, r) {
+    var cats = r.categories && r.categories.length ? r.categories : /promo/i.test(r.category || '') ? [PROMO_CAT] : (m.community ? commCats(m.community) : (m.categories || []).slice(0, 2));
+    return { name: r.name, link: r.link, about: r.about || r.why || '', category: cats[0] || '', categories: cats, platform: r.platform || '', access: r.access || '', promoDays: r.promoDays || [], image: r.image || 'images/recommended/' + slug(r.name) + '.jpg', schedule: r.schedule || '', keywords: r.keywords || [], own: true };
+  };
+  var myComms = function (m) {
+    var list = [], seen = {};
+    var add = function (c) { if (!c || !c.name || !c.link) return; var k = linkKey(c.link) || norm(c.name); if (seen[k]) return; seen[k] = true; list.push(c); };
+    add(m.community);
+    (m.recommends || []).concat(m.extraRecommends || []).forEach(function (r) { if (r && r.own) add(ownComm(m, r)); });
+    return list;
+  };
+
   /* One listing per woman, even if the file has her twice. Keep the copy with your hand edits. */
   var dedupeMembers = function (list) {
     var by = {}, order = [];
@@ -795,18 +833,20 @@
     var members = daily(dedupeMembers(data.members || []), function (m) { return m.id || m.name; });
     offers = members.filter(function (m) { return m.offer; });
     var seenC = {};
-    communities = members.filter(function (m) {
-      if (!(m.community && m.community.name && m.community.link)) return false;
-      var k = linkKey(m.community.link) || norm(m.community.name);
-      if (seenC[k]) return false;
-      seenC[k] = true;
-      return true;
+    communities = [];
+    members.forEach(function (m) {
+      myComms(m).forEach(function (c) {
+        var k = linkKey(c.link) || norm(c.name);
+        if (seenC[k]) return;
+        seenC[k] = true;
+        communities.push(c === m.community ? m : Object.assign({}, m, { community: c, _base: m }));
+      });
     });
     recs = [];
     members.forEach(function (m) {
       var mine = {};
       (m.recommends || []).slice(0, 3).concat(m.extraRecommends || []).forEach(function (r) {
-        if (!r || !r.name || !r.link) return;
+        if (!r || !r.name || !r.link || r.own) return;
         /* the same community twice from the same woman shows once */
         var k = linkKey(r.link) || norm(r.name);
         if (mine[k]) return;
@@ -1085,8 +1125,7 @@
     body.innerHTML = '';
     full.classList.add('detail');
     body.appendChild(full);
-    var h = full.querySelector('h3, .name');
-    if (h) h.id = 'dlgName';
+    if (!full.querySelector('#dlgName')) { var h = full.querySelector('h3, .name'); if (h) h.id = 'dlgName'; }
     overlay.classList.add('open');
     document.body.style.overflow = 'hidden';
     $('dialog').scrollTop = 0;
@@ -1355,36 +1394,123 @@
   };
 
   /* Spotlight */
+  /* VIP Spotlight: her communities, her offers, her website. Built from her VIP form, filled in from her listing. */
+  var nameK = function (n) { return String(n || '').toLowerCase().replace(/[^a-z0-9]/g, ''); };
+  var spotlightProfile = function () {
+    var sp = data.spotlight;
+    if (!sp) return null;
+    var v = null, mem = null;
+    if (sp.vip) (data.vips || []).forEach(function (x) { if (x.id === sp.vip) v = x; });
+    if (v) (data.members || []).forEach(function (x) { if (!mem && nameK(x.name) === nameK(v.name)) mem = x; });
+    else if (sp.id) (data.members || []).forEach(function (x) { if (x.id === sp.id) mem = x; });
+    if (!v && !mem) return null;
+    v = v || {};
+    var P = {
+      name: v.name || mem.name, photo: v.photo || (mem && mem.photo) || '', headline: v.headline || '',
+      about: v.about || (mem && mem.about) || '', website: v.website || '', social: v.social || (mem && mem.social) || '',
+      note: sp.note || '', member: mem, communities: [], offers: []
+    };
+    var seen = {};
+    var addC = function (c) { if (!c || !c.name || !c.link) return; var k = linkKey(c.link); if (seen[k]) return; seen[k] = true; P.communities.push(c); };
+    (v.communities || []).forEach(addC);
+    if (mem) myComms(mem).forEach(addC);
+    var seenO = {};
+    var addO = function (o) { if (!o || !(o.title || o.desc)) return; var k = linkKey(o.link) || norm(o.title); if (seenO[k]) return; seenO[k] = true; P.offers.push(o); };
+    (v.offers || []).forEach(addO);
+    if (mem && mem.offer) { var op = offerParts(mem); addO({ title: op.title, desc: op.desc, link: mem.offerLink, price: mem.price }); }
+    P.banner = sp.image || v.banner || (P.communities[0] && (photoSources(P.communities[0].image)[0] || 'images/communities/' + slug(P.communities[0].name) + '.jpg')) || '';
+    return P;
+  };
+  /* Everything about her lives in the pop-up. The card up top stays simple. */
+  var vipFull = function (P) {
+    var w = el('div', 'vip-full');
+    var who = el('div', 'vip-who');
+    if (P.photo) who.appendChild(avatar(P.photo, P.name));
+    var wt = el('div', '');
+    var nm = el('h2', '', P.name);
+    nm.id = 'dlgName';
+    wt.appendChild(nm);
+    if (P.headline) wt.appendChild(el('p', 'vip-head', P.headline));
+    who.appendChild(wt);
+    w.appendChild(who);
+    if (P.note) w.appendChild(whyBox(['Why I chose her'], P.note));
+    if (P.about) { w.appendChild(el('h3', 'sub', 'About her')); w.appendChild(el('p', 'vip-about open', P.about)); }
+    var acts = el('div', 'actions');
+    var wb = linkBtn('Visit her website', P.website, false);
+    if (wb) acts.appendChild(wb);
+    var sb = linkBtn('Follow her', P.social, false);
+    if (sb) acts.appendChild(sb);
+    if (P.member) acts.appendChild(profileLink(P.member, 'See her full profile'));
+    if (acts.childNodes.length) w.appendChild(acts);
+    if (P.communities.length) {
+      w.appendChild(el('h3', 'sub', P.communities.length > 1 ? 'Her communities' : 'Her community'));
+      P.communities.forEach(function (c) {
+        var cc = el('div', 'block');
+        cc.appendChild(el('p', 'name', c.name));
+        if (c.about) cc.appendChild(el('p', 'offer', c.about));
+        var a2 = el('div', 'actions');
+        var jb = linkBtn('Join the community', c.link, true);
+        if (jb) a2.appendChild(jb);
+        cc.appendChild(a2);
+        w.appendChild(cc);
+      });
+    }
+    if (P.offers.length) {
+      w.appendChild(el('h3', 'sub', P.offers.length > 1 ? 'Her offers' : 'Her offer'));
+      P.offers.forEach(function (o) {
+        var oc = el('div', 'block');
+        if (o.title) oc.appendChild(el('p', 'name', o.title));
+        if (o.desc) oc.appendChild(el('p', 'offer', o.desc));
+        if (o.price) oc.appendChild(el('p', 'price', /^free/i.test(o.price) ? 'Free' : 'Starting at ' + o.price));
+        var a3 = el('div', 'actions');
+        var ob = linkBtn('See this offer', o.link, false);
+        if (ob) a3.appendChild(ob);
+        oc.appendChild(a3);
+        w.appendChild(oc);
+      });
+    }
+    return w;
+  };
   var renderSpotlight = function () {
     var box = $('spotlight');
     box.innerHTML = '';
-    var sp = data.spotlight;
-    var m = null;
-    if (sp && sp.id) (data.members || []).forEach(function (x) { if (x.id === sp.id && x.community && x.community.name && x.community.link) m = x; });
-    box.hidden = !m;
-    if (!m) return;
-    var card = el('article', 'spot');
-    var pic = el('div', 'spot-img', EMOJI[m.community.category] || '\u2B50');
+    var P = spotlightProfile();
+    box.hidden = !P;
+    if (!P) return;
+    var card = el('article', 'vip');
+    var top = el('div', 'vip-top');
+    var pic = el('div', 'vip-banner', '⭐');
     pic.setAttribute('aria-hidden', 'true');
-    var src = (/^(images\/|data:image\/)/.test(sp.image || '') ? sp.image : safeUrl(sp.image)) || (photoSources(m.community.image)[0] || '') || (m.community.category ? catImage(m.community.category) : '');
-    if (src) swapImage(pic, src);
-    card.appendChild(pic);
-    var body = el('div', 'spot-body');
-    body.appendChild(el('span', 'spot-label', '\u2B50 Community Spotlight'));
-    body.appendChild(el('h2', '', m.community.name));
-    var host = el('p', 'spot-host', 'with ');
-    var hb = el('button', '', m.name);
-    hb.type = 'button';
-    hb.addEventListener('click', function () { openProfile(m, hb); });
-    host.appendChild(hb);
-    body.appendChild(host);
-    if (m.community.about) body.appendChild(el('p', 'offer', m.community.about));
-    if (sp.note) body.appendChild(whyBox(['Why I chose it'], sp.note));
+    var bsrc = /^(images\/|data:image\/)/.test(P.banner) ? P.banner : (photoSources(P.banner)[0] || '');
+    if (bsrc) swapImage(pic, bsrc);
+    top.appendChild(pic);
+    var body = el('div', 'vip-body');
+    body.appendChild(el('span', 'spot-label', '⭐ VIP Spotlight'));
+    var main = P.communities[0];
+    if (main) {
+      body.appendChild(el('h2', '', main.name));
+      var host = el('p', 'spot-host', 'with ');
+      var hb = el('button', '', P.name);
+      hb.type = 'button';
+      hb.addEventListener('click', function () { openDetail(vipFull(P), hb); });
+      host.appendChild(hb);
+      body.appendChild(host);
+      if (main.about) body.appendChild(el('p', 'offer clamp2', main.about));
+    } else {
+      body.appendChild(el('h2', '', P.name));
+      if (P.headline) body.appendChild(el('p', 'vip-head', P.headline));
+    }
+    if (P.note) body.appendChild(whyBox(['Why I chose her'], P.note));
     var acts = el('div', 'actions');
-    var jb = linkBtn('Join the community', m.community.link, true);
-    if (jb) acts.appendChild(jb);
+    var cta = main ? linkBtn('Join her community', main.link, true) : linkBtn('Visit her website', P.website, true);
+    if (cta) acts.appendChild(cta);
+    var more = el('button', 'btn btn-ghost', 'Meet ' + P.name.split(' ')[0]);
+    more.type = 'button';
+    more.addEventListener('click', function () { openDetail(vipFull(P), more); });
+    acts.appendChild(more);
     body.appendChild(acts);
-    card.appendChild(body);
+    top.appendChild(body);
+    card.appendChild(top);
     box.appendChild(card);
     var cue = el('button', 'scroll-cue');
     cue.type = 'button';
@@ -1665,6 +1791,7 @@
   /* Profile dialog */
   var overlay = $('overlay'), lastFocus = null;
   var openProfile = function (m, from) {
+    m = m._base || m;
     lastFocus = from || null;
     var body = $('dlgBody');
     body.innerHTML = '';
@@ -1692,24 +1819,27 @@
       b.appendChild(a);
       body.appendChild(b);
     }
-    if (m.community && m.community.name) {
-      body.appendChild(el('h3', 'sub', 'My community'));
-      var cb = el('div', 'block');
-      cb.appendChild(el('p', 'name', m.community.name));
-      if (m.community.about) cb.appendChild(el('p', 'offer', m.community.about));
-      var ct = el('div', 'tags');
-      commCats(m.community).forEach(function (x) { ct.appendChild(el('span', 'tag gold', x)); });
-      if (m.community.platform) ct.appendChild(el('span', 'tag', m.community.platform));
-      if (m.community.access) ct.appendChild(el('span', 'tag', m.community.access.replace(/;/g, ' and ')));
-      if (ct.childNodes.length) cb.appendChild(ct);
-      var ca = el('div', 'actions');
-      var cbn = linkBtn('Join my community', m.community.link, true);
-      if (cbn) ca.appendChild(cbn);
-      cb.appendChild(ca);
-      body.appendChild(cb);
+    var mc = myComms(m);
+    if (mc.length) {
+      body.appendChild(el('h3', 'sub', mc.length > 1 ? 'My communities' : 'My community'));
+      mc.forEach(function (cm) {
+        var cb = el('div', 'block');
+        cb.appendChild(el('p', 'name', cm.name));
+        if (cm.about) cb.appendChild(el('p', 'offer', cm.about));
+        var ct = el('div', 'tags');
+        commCats(cm).forEach(function (x) { ct.appendChild(el('span', 'tag gold', x)); });
+        if (cm.platform) ct.appendChild(el('span', 'tag', cm.platform));
+        if (cm.access) ct.appendChild(el('span', 'tag', cm.access.replace(/;/g, ' and ')));
+        if (ct.childNodes.length) cb.appendChild(ct);
+        var ca = el('div', 'actions');
+        var cbn = linkBtn('Join my community', cm.link, true);
+        if (cbn) ca.appendChild(cbn);
+        cb.appendChild(ca);
+        body.appendChild(cb);
+      });
     }
     var seenR = {};
-    var rlist = (m.recommends || []).slice(0, 3).concat(m.extraRecommends || []).filter(function (r) { if (!r || !r.name || !r.link) return false; var k = linkKey(r.link) || norm(r.name); if (seenR[k]) return false; seenR[k] = true; return true; });
+    var rlist = (m.recommends || []).slice(0, 3).concat(m.extraRecommends || []).filter(function (r) { if (!r || !r.name || !r.link || r.own) return false; var k = linkKey(r.link) || norm(r.name); if (seenR[k]) return false; seenR[k] = true; return true; });
     if (rlist.length) {
       body.appendChild(el('h3', 'sub', 'Communities I recommend'));
       rlist.forEach(function (r) {
