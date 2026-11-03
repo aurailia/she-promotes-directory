@@ -370,7 +370,7 @@
   var key = function (h) { return String(h || '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim(); };
 
   var mapColumns = function (headers) {
-    var map = { recs: {} }, emailCols = 0;
+    var map = { recs: {}, offers: {} }, emailCols = 0;
     var section = 'profile', curRec = '1';
     headers.forEach(function (raw, i) {
       var h = key(raw);
@@ -398,6 +398,20 @@
       }
       if (h.indexOf('email') !== -1) { emailCols++; return; }   /* never read */
       if (h.indexOf('premium') !== -1) { map.premium = i; return; }
+      /* extra offers: "Offer 2 name", "Offer 2 in one sentence", "Offer 2 link", "Offer 2 starting price", "Offer 2 category" */
+      var xo = h.match(/^(?:signature )?offer ([2-9])\b/) || h.match(/\boffer ([2-9])\b/);
+      if (xo) {
+        var ofr = map.offers[xo[1]] = map.offers[xo[1]] || {};
+        if (h.indexOf('price') !== -1) ofr.price = i;
+        else if (/link|url/.test(h)) ofr.link = i;
+        else if (h.indexOf('categor') !== -1) ofr.cat = i;
+        else if (h.indexOf('format') !== -1) ofr.format = i;
+        else if (h.indexOf('keyword') !== -1) ofr.keys = i;
+        else if (/who it|who its for|best for/.test(h)) ofr.who = i;
+        else if (/name|title/.test(h)) ofr.title = i;
+        else ofr.desc = i;
+        return;
+      }
       if (h.indexOf('keyword') !== -1) { if (h.indexOf('community') !== -1 || section === 'community') map.cKeys = i; else map.keys = i; return; }
       if (h.indexOf('skool') !== -1 && h.indexOf('profile') !== -1) { map.skool = i; return; }
       if (h.indexOf('business name') !== -1) { map.business = i; return; }
@@ -456,6 +470,10 @@
       price: g(map.price),
       offerLink: cleanUrl(g(map.offerLink)),
       keywords: keyList(g(map.keys)),
+      offers: Object.keys(map.offers || {}).sort().map(function (n) {
+        var o = map.offers[n];
+        return { title: g(o.title), desc: g(o.desc), link: cleanUrl(g(o.link)), price: g(o.price), who: g(o.who), categories: pickKnown(g(o.cat), CATEGORIES).slice(0, 3), formats: pickKnown(g(o.format), FORMATS), keywords: keyList(g(o.keys)) };
+      }).filter(function (o) { return o.title || o.desc; }).slice(0, 2),
       community: null,
       recommends: []
     };
@@ -537,18 +555,27 @@
   /* ---------- What changed ---------- */
   var FIELDS = [['name', 'Name'], ['business', 'Business name'], ['about', 'About'], ['photo', 'Photo'], ['social', 'Social link'],
     ['categories', 'Categories'], ['formats', 'Formats'], ['offerName', 'Offer name'], ['offer', 'Signature offer'], ['who', 'Who it\u2019s for'], ['price', 'Starting price'],
-    ['offerLink', 'Offer link'], ['keywords', 'Offer keywords'], ['community', 'Community'], ['recommends', 'Recommended communities']];
+    ['offerLink', 'Offer link'], ['keywords', 'Offer keywords'], ['offers', 'More offers'], ['community', 'Community'], ['recommends', 'Recommended communities']];
   var show = function (k, v) {
     if (v == null || v === '' || (Array.isArray(v) && !v.length)) return '(blank)';
     if (k === 'photo') return 'new photo';
     if (k === 'community') return v.name || '(blank)';
     if (k === 'recommends') return v.map(function (r) { return r.name; }).join(', ');
+    if (k === 'offers') return v.map(function (o) { return o.title || o.desc; }).join(', ');
     if (Array.isArray(v)) return v.join(', ');
     return String(v);
   };
   var norm2 = function (k, v) {
     if (k === 'photo') { var m = String(v || '').match(/(?:id=|\/d\/)([\w-]{10,})/); return m ? m[1] : String(v || ''); }
-    return JSON.stringify(v == null ? '' : (Array.isArray(v) && !v.length ? '' : v));
+    /* blank answers and new empty fields don't count as a change */
+    var clean = function (x) {
+      if (Array.isArray(x)) { var a = x.map(clean).filter(function (y) { return y !== undefined; }); return a.length ? a : undefined; }
+      if (x && typeof x === 'object') { var o = {}, any = false; Object.keys(x).sort().forEach(function (kk) { var c = clean(x[kk]); if (c !== undefined) { o[kk] = c; any = true; } }); return any ? o : undefined; }
+      if (x === '' || x === null || x === false || x === undefined) return undefined;
+      return x;
+    };
+    var c = clean(v);
+    return JSON.stringify(c === undefined ? '' : c);
   };
   /* Hand edits: fields you changed in the Directory yourself stay put, even if her form says something else */
   var oldOf = function (id) { var o = null; current.members.forEach(function (c) { if (c.id === id) o = c; }); return o; };
@@ -1142,7 +1169,7 @@
       var o = {};
       /* keep any hand-added bonus recommendations from the live Directory */
       if (!m.extraRecommends) current.members.forEach(function (c) { if (c.id === m.id && c.extraRecommends) m.extraRecommends = c.extraRecommends; });
-      ['id', 'name', 'business', 'about', 'offerName', 'photo', 'extraRecommends', 'social', 'categories', 'formats', 'offer', 'who', 'price', 'offerLink', 'keywords', 'community', 'recommends']
+      ['id', 'name', 'business', 'about', 'offerName', 'photo', 'extraRecommends', 'social', 'categories', 'formats', 'offer', 'who', 'price', 'offerLink', 'keywords', 'offers', 'community', 'recommends']
         .forEach(function (k) { if (m[k] != null) o[k] = m[k]; });
       var lk = m._fromCurrent ? (m.locked || []) : lockedKeys(m.id);
       if (lk.length) o.locked = lk;

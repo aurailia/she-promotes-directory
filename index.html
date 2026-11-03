@@ -848,7 +848,22 @@
   };
   var build = function () {
     var members = daily(dedupeMembers(data.members || []), function (m) { return m.id || m.name; });
-    offers = members.filter(function (m) { return m.offer; });
+    /* her signature offer plus up to 2 more, each with its own card */
+    offers = [];
+    var seenO = {};
+    members.forEach(function (m) {
+      var push = function (o) {
+        var k = (linkKey(o.offerLink) || norm(o.offerName || o.offer)) + '|' + norm(m.name);
+        if (seenO[k]) return;
+        seenO[k] = true;
+        offers.push(o);
+      };
+      if (m.offer) push(m);
+      (m.offers || []).slice(0, 2).forEach(function (x) {
+        if (!x || !(x.title || x.desc)) return;
+        push(Object.assign({}, m, { offerName: x.title || '', offer: x.desc || x.title, offerLink: x.link || '', price: x.price || '', who: x.who || '', categories: x.categories && x.categories.length ? x.categories : (m.categories || []), formats: x.formats || [], keywords: x.keywords || [], _base: m }));
+      });
+    });
     var seenC = {};
     communities = [];
     members.forEach(function (m) {
@@ -1435,6 +1450,7 @@
     var addO = function (o) { if (!o || !(o.title || o.desc)) return; var k = linkKey(o.link) || norm(o.title); if (seenO[k]) return; seenO[k] = true; P.offers.push(o); };
     (v.offers || []).forEach(addO);
     if (mem && mem.offer) { var op = offerParts(mem); addO({ title: op.title, desc: op.desc, link: mem.offerLink, price: mem.price }); }
+    if (mem) (mem.offers || []).slice(0, 2).forEach(addO);
     P.banner = sp.image || v.banner || (P.communities[0] && (photoSources(P.communities[0].image)[0] || 'images/communities/' + slug(P.communities[0].name) + '.jpg')) || '';
     return P;
   };
@@ -1834,7 +1850,15 @@
     }
     var social = linkBtn('Follow me', m.social || vip.social, false);
     var site = linkBtn('Visit my website', vip.website, false);
-    var extraO = (vip.offers || []).filter(function (o) { return (o.title || o.desc) && !(m.offerLink && linkKey(o.link) === linkKey(m.offerLink)); });
+    var extraO = [], seenXO = {};
+    if (m.offerLink) seenXO[linkKey(m.offerLink)] = true;
+    (m.offers || []).slice(0, 2).concat(vip.offers || []).forEach(function (o) {
+      if (!o || !(o.title || o.desc)) return;
+      var k = linkKey(o.link) || norm(o.title || o.desc);
+      if (seenXO[k]) return;
+      seenXO[k] = true;
+      extraO.push(o);
+    });
     if (m.offer || extraO.length) body.appendChild(el('h3', 'sub', (m.offer ? 1 : 0) + extraO.length > 1 ? 'My offers' : 'My offer'));
     if (m.offer) {
       var b = el('div', 'block');
