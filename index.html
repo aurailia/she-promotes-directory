@@ -33,7 +33,6 @@
   }
   h1, .listed h2 { margin-left: auto; margin-right: auto; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  html { scroll-behavior: smooth; }
   body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     background: radial-gradient(ellipse at top, var(--plum-soft) 0%, var(--plum) 40%, var(--plum-deep) 100%);
@@ -223,9 +222,9 @@
   .feat.has-thumb .feat-top .avatar { display: none; }
   .card-thumb { margin: -18px -18px 4px; aspect-ratio: 16 / 9; max-width: calc(100% + 36px); overflow: hidden; border-radius: 19px 19px 0 0; background: rgba(0,0,0,0.25); }
   .card-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .card-thumb img, .feat-thumb img { animation: thumbIn 0.25s ease; }
+  .fade-in { animation: thumbIn 0.25s ease; }
   @keyframes thumbIn { from { opacity: 0; } to { opacity: 1; } }
-  @media (prefers-reduced-motion: reduce) { .card-thumb img, .feat-thumb img { animation: none; } }
+  @media (prefers-reduced-motion: reduce) { .fade-in { animation: none; } }
   .feat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
   .feat {
     position: relative; border-radius: 20px; padding: 20px 18px;
@@ -287,7 +286,7 @@
     .menu-btn { font-family: inherit; font-size: 14px; font-weight: 600; color: var(--plum-deep); background: var(--gold); border: none; border-radius: 999px; padding: 8px 14px; cursor: pointer; }
     .topbar-sec { font-size: 14px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   }
-  @media (prefers-reduced-motion: reduce) { .sidebar { transition: none; } html { scroll-behavior: auto; } }
+  @media (prefers-reduced-motion: reduce) { .sidebar { transition: none; } }
 
   /* Controls */
   .controls { display: grid; gap: 10px; margin-bottom: 14px; }
@@ -695,6 +694,16 @@
     var u = safeUrl(src);
     return u ? [u] : [];
   };
+  /* Images already loaded show right away when someone changes tabs. */
+  var seenImg = {};
+  var showImg = function (im, src, place, retry) {
+    if (seenImg[src]) { place(); im.src = src; return; }
+    im.className = 'fade-in';
+    im.onload = function () { seenImg[src] = 1; place(); };
+    im.onerror = retry;
+    im.src = src;
+  };
+  var jumpTo = function (y) { window.scrollTo(0, y); };
   var avatar = function (src, name, square) {
     var a = el('div', 'avatar' + (square ? ' sq' : ''));
     a.textContent = initials(name);
@@ -704,9 +713,7 @@
       var img = new Image();
       img.alt = '';
       img.referrerPolicy = 'no-referrer';
-      img.onload = function () { a.textContent = ''; a.appendChild(img); };
-      img.onerror = tryNext;
-      img.src = list[i++];
+      showImg(img, list[i++], function () { a.textContent = ''; a.appendChild(img); }, tryNext);
     };
     tryNext();
     return a;
@@ -968,9 +975,7 @@
     var timg = new Image();
     timg.alt = '';
     c.classList.add('has-thumb');
-    timg.onload = function () { thumb.appendChild(timg); };
-    timg.onerror = function () { thumb.hidden = true; c.classList.remove('has-thumb'); };
-    timg.src = tsrc;
+    showImg(timg, tsrc, function () { thumb.appendChild(timg); }, function () { thumb.hidden = true; c.classList.remove('has-thumb'); });
     var top = el('div', 'feat-top');
     top.appendChild(avatar('', f.name, true));
     var t = el('div');
@@ -1109,9 +1114,7 @@
       var im = new Image();
       im.alt = '';
       im.referrerPolicy = 'no-referrer';
-      im.onload = function () { box.appendChild(im); };
-      im.onerror = tryNext;
-      im.src = list[i++];
+      showImg(im, list[i++], function () { box.appendChild(im); }, tryNext);
     };
     tryNext();
   };
@@ -1248,9 +1251,7 @@
     var timg = new Image();
     timg.alt = '';
     c.classList.add('has-thumb');
-    timg.onload = function () { thumb.appendChild(timg); };
-    timg.onerror = function () { thumb.hidden = true; c.classList.remove('has-thumb'); };
-    timg.src = localOrUrl(f.image) || (ASSETS.promo && ASSETS.promo[slug(f.name)]) || 'images/promo/' + slug(f.name) + '.jpg';
+    showImg(timg, localOrUrl(f.image) || (ASSETS.promo && ASSETS.promo[slug(f.name)]) || 'images/promo/' + slug(f.name) + '.jpg', function () { thumb.appendChild(timg); }, function () { thumb.hidden = true; c.classList.remove('has-thumb'); });
     var top = el('div', 'feat-top');
     top.appendChild(avatar('', f.name, true));
     var t = el('div');
@@ -1818,7 +1819,8 @@
       setSection(b.getAttribute('data-sec'));
       setMenu(false);
       var top = $('panel').getBoundingClientRect().top + window.pageYOffset - 70;
-      if (window.pageYOffset > top) window.scrollTo(0, Math.max(0, top));
+      if (b.getAttribute('data-sec') === 'home') jumpTo(0);
+      else if (window.pageYOffset > top) jumpTo(Math.max(0, top));
     });
   });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && sidebar.classList.contains('open')) setMenu(false); });
@@ -1828,7 +1830,7 @@
     clearTimeout(qTimer);
     qTimer = setTimeout(function () { state.q = norm($('q').value.trim()); renderGrid(); }, 120);
   });
-  $('backBtn').addEventListener('click', function () { setSection('home'); window.scrollTo(0, 0); });
+  $('backBtn').addEventListener('click', function () { setSection('home'); jumpTo(0); });
   $('cat').addEventListener('change', function () { state.cat = $('cat').value; renderGrid(); });
   $('fmt').addEventListener('change', function () { state.fmt = $('fmt').value; renderGrid(); });
 
@@ -1973,6 +1975,11 @@
     build();
     var h = (location.hash || '').replace('#', '').toLowerCase();
     setSection(chipSets[h] ? h : 'home', true);
+    setTimeout(function () {
+      try {
+        offers.forEach(offerCard); communities.forEach(communityCard); promos.forEach(promoCard); recs.forEach(recCard);
+      } catch (e) { /* Images still load when she opens the tab. */ }
+    }, 600);
   };
   window.addEventListener('hashchange', function () {
     var h = (location.hash || '').replace('#', '').toLowerCase();
