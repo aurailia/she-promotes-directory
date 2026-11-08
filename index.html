@@ -26,7 +26,7 @@
     --violet: #c49bff;
     --title-grad: linear-gradient(100deg, #c49bff 0%, #e3a6f0 45%, #f4b6c8 100%);
   }
-  .grad, .group-title, .spot h2, .cal h3, h1, h2.section, .card h3, .feat h3, .dialog h3.sub, .listed h2, .side-brand, .how h2 {
+  .grad, .group-title, .spot h2, .cal h3, h1, h2.section, .card h3, .feat h3, .dialog h3.sub, .listed h2, .side-brand, .how-in h2 {
     background: var(--title-grad); -webkit-background-clip: text; background-clip: text;
     -webkit-text-fill-color: transparent; color: var(--blush);
     width: fit-content; max-width: 100%;
@@ -70,6 +70,12 @@
   .section-sub { color: var(--muted); font-size: 15px; margin-bottom: 18px; max-width: 640px; }
 
   /* Home */
+  .how-in { text-align: left; margin: 16px 0 6px; border-radius: 18px; padding: 18px 20px; background: linear-gradient(135deg, rgba(196, 155, 255, 0.12), rgba(244, 182, 200, 0.08)); border: 1px solid rgba(196, 155, 255, 0.4); }
+  .how-in h2 { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 24px; font-weight: 600; margin-bottom: 8px; }
+  .how-in ul { list-style: none; display: grid; gap: 8px; }
+  .how-in li { padding-left: 24px; position: relative; font-size: 15px; }
+  .how-in li::before { content: "\2726"; position: absolute; left: 0; color: var(--gold); }
+  .what-box { max-width: 620px !important; }
   .how {
     border-radius: 20px; padding: 20px 20px; margin-bottom: 28px;
     background: linear-gradient(135deg, rgba(196, 155, 255, 0.12), rgba(244, 182, 200, 0.08));
@@ -80,7 +86,7 @@
   .how li { padding-left: 24px; position: relative; font-size: 15px; }
   .how li::before { content: "\2726"; position: absolute; left: 0; color: var(--gold); }
   .cat-group { margin-bottom: 30px; scroll-margin-top: 80px; }
-  .jump { margin: -6px 0 24px; }
+  .jump { margin: 0 0 24px; }
   .jump-label { font-size: 13px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold); margin-bottom: 10px; }
   .jump-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px; }
   .jump-btn { display: flex; align-items: center; gap: 10px; text-align: left; font-family: inherit; font-size: 15px; font-weight: 600; color: var(--text); background: rgba(255,255,255,0.06); border: 1px solid rgba(232, 196, 122, 0.4); border-radius: 14px; padding: 8px 12px 8px 8px; cursor: pointer; transition: border-color .2s ease, background .2s ease, box-shadow .2s ease; }
@@ -151,7 +157,7 @@
   .spot-host button { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 24px; font-weight: 600; font-style: italic; color: var(--gold-bright); background: none; border: none; padding: 0; cursor: pointer; }
   .spot-host button:hover, .spot-host button:focus-visible { color: var(--blush); text-decoration: underline; text-underline-offset: 4px; }
   .spot h2 { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 32px; font-weight: 600; line-height: 1.1; }
-  #howTo { scroll-margin-top: 80px; }
+  #homeTitle { scroll-margin-top: 80px; }
   .scroll-cue { display: flex; flex-direction: column; align-items: center; gap: 4px; margin: -10px auto 26px; font-family: inherit; font-size: 15px; font-weight: 600; color: var(--gold-bright); background: none; border: none; cursor: pointer; padding: 8px 14px; }
   .scroll-cue .arrow { font-size: 22px; line-height: 1; animation: cueBob 1.8s ease-in-out infinite; }
   .scroll-cue:hover .arrow, .scroll-cue:focus-visible .arrow { color: var(--blush); }
@@ -472,9 +478,19 @@
         <div class="eyebrow">She Promotes&trade;</div>
         <h1>The <span>Directory</span></h1>
         <p class="lede">A directory of women in business. Find the healer, coach or helper you&rsquo;ve been looking for.</p>
-        <button class="what-btn" type="button" id="whatBtn" aria-expanded="false" aria-controls="whatBox">What is this?</button>
+        <button class="what-btn" type="button" id="whatBtn" aria-expanded="false" aria-controls="whatBox">What is this? How to use it</button>
         <div class="what-box" id="whatBox" hidden>
           <p class="lede small">If you&rsquo;re looking for a healer, a coach, an Akashic Records reader, a Human Design guide or someone to build your website, you might find her here. Every woman listed is part of She Promotes&trade;, a Skool community where women in business support each other. Created by Aurailia Arnold.</p>
+          <div class="how-in">
+            <h2>How to use it</h2>
+            <ul>
+              <li>Search for what you need, or tap a category below to see who offers it.</li>
+              <li>Use the menu to see every offer, the communities these women run, the ones they recommend, and promo communities where you can share your own business.</li>
+              <li>Tap <strong>Details</strong> to see more, or tap her name to see her full profile.</li>
+              <li>Found someone you love? Book her, join her community, or follow her on social.</li>
+              <li><strong>New to Skool?</strong> It&rsquo;s a free app where most of these communities live. Tap <strong>Join the community</strong>, sign up with your email, and you&rsquo;re in. Some communities are free and some are paid. You&rsquo;ll see which on each one.</li>
+            </ul>
+          </div>
           <p class="hero-cta"><a href="#listed" id="heroListed">Own a business? Here&rsquo;s how to get listed &darr;</a></p>
         </div>
         <p class="updated" id="updated"></p>
@@ -492,22 +508,11 @@
         <div id="spotlight" hidden></div>
         <div id="hqResults" hidden></div>
         <div id="homeMain">
-        <nav class="jump" aria-label="Browse by category">
-          <div class="jump-label">Browse by category</div>
-          <div class="jump-row" id="jumpRow"></div>
-        </nav>
-        <div class="how" id="howTo">
-          <h2>How to use the Directory</h2>
-          <ul>
-            <li>Search for what you need, or tap a category below to see who offers it.</li>
-            <li>Use the menu to see every offer, the communities these women run, the ones they recommend, and promo communities where you can share your own business.</li>
-            <li>Tap <strong>Details</strong> to see more, or tap her name to see her full profile.</li>
-            <li>Found someone you love? Book her, join her community, or follow her on social. In She Promotes&trade;? Tag her in Tuesday&rsquo;s What Do You Need? thread.</li>
-            <li><strong>New to Skool?</strong> It&rsquo;s a free app where most of these communities live. Tap <strong>Join the community</strong>, sign up with your email, and you&rsquo;re in. Some communities are free and some are paid. You&rsquo;ll see which on each one.</li>
-          </ul>
-        </div>
         <h2 class="section" id="homeTitle">Browse by category</h2>
         <p class="section-sub">Tap a category to see the offers and communities in it.</p>
+        <nav class="jump" aria-label="Jump to a category group">
+          <div class="jump-row" id="jumpRow"></div>
+        </nav>
         <div id="catGrid"></div>
         </div>
       </section>
@@ -1572,7 +1577,7 @@
   floatCue.addEventListener('click', function () {
     cueSeen = true;
     floatCue.classList.remove('show');
-    var t = $('howTo');
+    var t = $('homeTitle');
     if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
   window.addEventListener('scroll', updateCue, { passive: true });
@@ -1652,7 +1657,7 @@
     block('Offers', o, offerCard);
     block('Communities', cs, communityCard);
     block('Recommended communities', rs, recCard);
-    if (!n) res.appendChild(emptyState('Nothing in the Directory for \u201C' + q + '\u201D yet. Try another word, or browse by category below. In She Promotes\u2122? Ask in Tuesday\u2019s What Do You Need? thread. Someone in there knows someone.'));
+    if (!n) res.appendChild(emptyState('Nothing in the Directory for \u201C' + q + '\u201D yet. Try another word, or browse by category below.'));
   };
   var hqTimer = null;
   $('hq').addEventListener('input', function () { clearTimeout(hqTimer); hqTimer = setTimeout(renderHomeSearch, 150); });
@@ -1778,7 +1783,7 @@
     var open = $('whatBox').hidden;
     $('whatBox').hidden = !open;
     this.setAttribute('aria-expanded', open ? 'true' : 'false');
-    this.textContent = open ? 'Show less' : 'What is this?';
+    this.textContent = open ? 'Show less' : 'What is this? How to use it';
   });
   $('heroListed').addEventListener('click', function (e) {
     e.preventDefault();
