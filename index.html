@@ -413,9 +413,12 @@
   .overlay { position: fixed; inset: 0; background: rgba(10, 2, 10, 0.7); z-index: 40; display: none; align-items: flex-end; justify-content: center; }
   .overlay.open { display: flex; }
   .dialog {
-    width: 100%; max-width: 560px; max-height: 88vh; overflow-y: auto;
+    width: 100%; max-width: 560px; max-height: 88vh; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
     background: var(--plum-deep); border: 1px solid var(--card-border); border-bottom: none;
     border-radius: 24px 24px 0 0; padding: 22px 18px 30px; position: relative;
+  }
+  @media (max-width: 639px) {
+    .dialog { height: 92vh; height: 92dvh; max-height: 92vh; max-height: 92dvh; padding-bottom: calc(30px + env(safe-area-inset-bottom)); }
   }
   @media (min-width: 640px) {
     .overlay { align-items: center; }
@@ -429,6 +432,139 @@
   .dialog .avatar { flex-basis: 72px; width: 72px; height: 72px; font-size: 24px; }
   .dialog h3.sub { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 22px; margin: 20px 0 8px; }
   .dialog .block { background: rgba(255,255,255,0.05); border-radius: 16px; padding: 14px; margin-bottom: 10px; display: grid; gap: 8px; }
+  .block.has-img { overflow: hidden; }
+
+  /* Featured Businesses and their pages */
+  #featRow, #weekRow { margin: 8px 0 30px; }
+  .ev-filters { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; margin-bottom: 20px; }
+  .ev-filters .chips { flex-wrap: wrap; overflow: visible; padding: 0; }
+  .ev-loc { display: inline-flex; align-items: center; gap: 8px; font-size: 14px; color: var(--muted); }
+  .ev-loc select { font: inherit; font-size: 15px; color: var(--text); background: rgba(255,255,255,0.06); border: 1px solid var(--card-border); border-radius: 999px; padding: 8px 14px; max-width: 70vw; }
+  .ev-loc select option { color: #2a1028; background: #fff; }
+  .ev-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 18px; }
+  .ev-card { display: flex; flex-direction: column; gap: 10px; }
+  .ev-when { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+  .ev-date { font-size: 13px; font-weight: 600; letter-spacing: 0.04em; color: var(--gold-bright, #f3d89b); text-transform: uppercase; }
+  .ev-now { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--plum-deep); background: linear-gradient(135deg, var(--gold), var(--blush)); padding: 3px 9px; border-radius: 999px; }
+  .ev-card h3 { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 26px; font-weight: 600; line-height: 1.12; margin: 0; }
+  .ev-host { font-size: 14px; color: var(--muted); margin: 0; }
+  .ev-desc { font-size: 15px; margin: 0; }
+  .ev-desc.clamp3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  .ev-more { align-self: flex-start; background: none; border: 0; color: var(--gold); font: inherit; font-size: 14px; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; padding: 0; min-height: 32px; }
+  .ev-card .actions { margin-top: auto; }
+  .ev-mini { scroll-snap-align: start; display: flex; flex-direction: column; text-align: left; background: var(--card); border: 1px solid var(--card-border); border-radius: 18px; overflow: hidden; color: var(--text); font: inherit; cursor: pointer; padding: 0 0 14px; }
+  .ev-mini:hover { border-color: var(--gold); }
+  .ev-mini .fm-art { aspect-ratio: 16 / 8; }
+  .ev-mini .ev-date { margin: 12px 14px 0; font-size: 12px; }
+  .ev-mini .fm-name { margin: 4px 14px 0; text-align: left; }
+  .ev-mini .fm-who { margin: 2px 14px 0; }
+  .ev-empty { grid-column: 1 / -1; text-align: center; color: var(--muted); padding: 30px 10px; }
+  .feat-row-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+  .feat-row-head h2.section { margin: 0; }
+  .feat-row-head .back { margin: 0; white-space: nowrap; }
+  .feat-row { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(200px, 240px); gap: 14px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
+  .feat-mini { scroll-snap-align: start; display: flex; flex-direction: column; align-items: center; text-align: center; background: var(--card); border: 1px solid var(--card-border); border-radius: 18px; overflow: hidden; padding: 0 0 14px; color: var(--text); font: inherit; cursor: pointer; }
+  .feat-mini:hover { border-color: var(--gold); }
+  .fm-art { width: 100%; aspect-ratio: 16 / 8; background: linear-gradient(135deg, var(--plum-soft), #6d3a5f); overflow: hidden; }
+  .fm-art img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .fm-pic { width: 64px; height: 64px; margin-top: -32px; border-radius: 50%; padding: 3px; background: linear-gradient(135deg, #f3d89b, var(--blush)); }
+  .fm-pic .avatar { width: 100% !important; height: 100% !important; border: 0 !important; }
+  .fm-name { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 21px; font-weight: 600; line-height: 1.15; margin: 8px 12px 0; }
+  .fm-who { font-size: 13px; color: var(--muted); margin: 2px 12px 0; }
+  .lounge-head { text-align: center; margin: 4px 0 26px; }
+  .lounge-title { margin: 6px auto 0; width: fit-content; max-width: 100%; }
+  .lounge-sub { max-width: 560px; margin: 8px auto 0; }
+  .doors { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px; }
+  .door { position: relative; display: flex; flex-direction: column; background: var(--card); border: 1px solid var(--card-border); border-radius: 22px; overflow: hidden; cursor: pointer; transition: transform 0.15s ease, border-color 0.15s ease; }
+  .door:hover { border-color: var(--gold); transform: translateY(-2px); }
+  .door-art { aspect-ratio: 16 / 8; background: linear-gradient(135deg, var(--plum-soft), #6d3a5f); overflow: hidden; }
+  .door-art img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .door-body { position: relative; padding: 0 20px 20px; display: flex; flex-direction: column; align-items: center; text-align: center; flex: 1 1 auto; }
+  .door-pic { width: 92px; height: 92px; margin-top: -46px; border-radius: 50%; padding: 3px; background: linear-gradient(135deg, var(--gold-bright, #f3d89b), var(--blush) 60%, #c49bff); }
+  .door-pic .avatar { width: 100% !important; height: 100% !important; border: 0 !important; }
+  .door h3 { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 27px; font-weight: 600; line-height: 1.1; margin-top: 10px; }
+  .door .door-biz { color: var(--gold); font-size: 14px; font-weight: 500; margin-top: 2px; }
+  .door .door-line { font-size: 14.5px; color: var(--muted); margin-top: 8px; flex: 1 1 auto; }
+  .door .btn { margin-top: 16px; width: 100%; }
+  .door .now { position: absolute; top: 12px; left: 12px; z-index: 1; font-size: 11px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--plum-deep); background: linear-gradient(135deg, var(--gold), var(--blush)); padding: 4px 10px; border-radius: 999px; }
+  .lounge-foot { text-align: center; margin: 44px auto 10px; max-width: 520px; padding: 26px 22px; border-radius: 22px; border: 1px dashed rgba(232, 196, 122, 0.5); }
+  .lounge-foot h3 { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 28px; font-weight: 600; color: var(--gold); }
+  .lounge-foot p { color: var(--muted); margin: 6px 0 16px; }
+  .empty-lounge { grid-column: 1 / -1; text-align: center; color: var(--muted); padding: 30px 10px; }
+
+  .room-back { margin-bottom: 14px; }
+  .room-hero { position: relative; border-radius: 24px; overflow: hidden; }
+  .room-art { height: 300px; background: linear-gradient(135deg, var(--plum-soft), #6d3a5f); }
+  .room-art img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .room-intro { position: relative; text-align: center; margin: -78px auto 0; padding: 0 16px; max-width: 720px; }
+  .room-pic { width: 150px; height: 150px; margin: 0 auto; border-radius: 50%; padding: 4px; background: linear-gradient(135deg, #f3d89b, var(--blush) 60%, #c49bff); box-shadow: 0 14px 40px rgba(0,0,0,0.45); }
+  .room-pic .avatar { width: 100% !important; height: 100% !important; border: 0 !important; font-size: 44px !important; }
+  .room-badge { display: inline-block; margin-top: 16px; font-size: 11px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--plum-deep); background: linear-gradient(135deg, #f3d89b, var(--blush)); padding: 5px 14px; border-radius: 999px; }
+  .room-intro h2 { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 60px; font-weight: 600; line-height: 1.04; margin: 10px auto 0; width: fit-content; max-width: 100%; padding-bottom: 4px; }
+  .room-biz { font-family: 'Cormorant Garamond', Georgia, serif; font-style: italic; font-size: 25px; color: var(--gold); line-height: 1.2; }
+  .room-headline { font-size: 17px; max-width: 560px; margin: 12px auto 0; }
+  .room-cta { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 22px; }
+  .room-sec { margin-top: 64px; }
+  .room-sec .eyebrow { text-align: left; }
+  .room-sec h3.rh { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 40px; font-weight: 600; line-height: 1.1; margin: 4px 0 20px; width: fit-content; max-width: 100%; padding-bottom: 3px; }
+  .room-story { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 40px; align-items: start; }
+  .room-story p { font-size: 17px; line-height: 1.75; white-space: pre-line; }
+  .room-who { border-left: 2px solid var(--gold); padding: 2px 0 2px 20px; }
+  .room-who .eyebrow { display: block; margin-bottom: 6px; }
+  .room-who p { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 26px; font-style: italic; line-height: 1.28; color: #f3d89b; white-space: normal; }
+  .room-comm { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); background: var(--card); border: 1px solid var(--card-border); border-radius: 22px; overflow: hidden; margin-bottom: 16px; }
+  .room-comm .rc-art { background: var(--plum-soft); min-height: 220px; }
+  .room-comm .rc-art img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .room-comm .rc-body { padding: 28px 28px 30px; display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
+  .room-comm h4 { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 32px; font-weight: 600; line-height: 1.1; color: #f3d89b; }
+  .room-comm .lbl2 { font-size: 13px; font-weight: 600; color: var(--blush); margin-top: 6px; }
+  .room-list { list-style: none; display: grid; gap: 4px; }
+  .room-list li { position: relative; padding-left: 22px; }
+  .room-list li::before { content: "\2726"; position: absolute; left: 0; color: var(--gold); font-size: 12px; top: 3px; }
+  .room-comm .access { color: var(--muted); font-size: 14px; }
+  .room-offers { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+  .room-offer { display: flex; flex-direction: column; background: var(--card); border: 1px solid var(--card-border); border-radius: 18px; overflow: hidden; }
+  .room-offer .ro-art { aspect-ratio: 16 / 9; overflow: hidden; background: rgba(0,0,0,0.25); }
+  .room-offer .ro-art img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .room-offer .ro-body { padding: 20px; display: flex; flex-direction: column; gap: 10px; flex: 1 1 auto; }
+  .room-offer h4 { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 27px; font-weight: 600; line-height: 1.12; }
+  .room-offer .desc { font-size: 15px; flex: 1 1 auto; }
+  .room-facts { background: rgba(0,0,0,0.2); border-radius: 12px; padding: 10px 14px; font-size: 14px; }
+  .room-facts div + div { margin-top: 6px; padding-top: 6px; border-top: 1px solid rgba(232,196,122,0.15); }
+  .room-facts b { display: block; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold); }
+  .room-offer .btn, .room-comm .btn, .room-love .btn { flex: 0 0 auto; height: auto; }
+  .room-offer .btn { width: 100%; margin-top: auto; }
+  .room-end h3.rh { margin: 0 auto; }
+  .room-links { display: flex; flex-wrap: wrap; gap: 10px; }
+  .room-loves { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+  .room-love { display: flex; flex-direction: column; gap: 10px; background: var(--card); border: 1px solid var(--card-border); border-radius: 18px; padding: 20px; }
+  .room-love h4 { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 25px; font-weight: 600; line-height: 1.15; }
+  .room-love .disclose { font-size: 12px; color: var(--muted); }
+  .room-end { margin-top: 64px; padding-top: 34px; border-top: 1px solid rgba(232,196,122,0.2); text-align: center; }
+  .room-end .room-cta { margin-top: 14px; }
+  .copy-link { background: none; border: 0; color: var(--gold); font: inherit; font-size: 14px; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; min-height: 44px; margin-top: 10px; }
+  @media (max-width: 760px) {
+    .room-story { grid-template-columns: minmax(0, 1fr); gap: 26px; }
+    .room-comm { grid-template-columns: minmax(0, 1fr); }
+    .room-comm .rc-art { aspect-ratio: 16 / 9; min-height: 0; }
+  }
+  @media (max-width: 600px) {
+    .room-art { height: 190px; }
+    .room-intro { margin-top: -62px; }
+    .room-pic { width: 118px; height: 118px; }
+    .room-intro h2 { font-size: 44px; }
+    .room-biz { font-size: 21px; }
+    .room-headline { font-size: 16px; }
+    .room-cta .btn { width: 100%; }
+    .room-sec { margin-top: 48px; }
+    .room-sec h3.rh { font-size: 33px; }
+    .room-story p { font-size: 16px; }
+    .room-who p { font-size: 22px; }
+    .room-comm .rc-body { padding: 22px 18px; }
+    .room-comm .rc-body .btn { width: 100%; }
+    .room-links .btn { flex: 1 1 calc(50% - 10px); }
+  }
+  .block .card-thumb { margin: -14px -14px 2px; max-width: calc(100% + 28px); border-radius: 16px 16px 0 0; }
 
   .status { text-align: center; color: var(--muted); padding: 30px 0; }
   .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
@@ -456,6 +592,8 @@
     </div>
     <nav class="nav" id="nav">
       <button class="nav-item" type="button" data-sec="home"><span class="ico" aria-hidden="true">&#127969;</span><span class="lbl">Home</span><span class="count"></span></button>
+      <button class="nav-item vip-nav" type="button" data-sec="vip"><span class="ico" aria-hidden="true">&#128081;</span><span class="lbl" id="vipNavLbl">Featured Businesses</span><span class="count" id="c-vip"></span></button>
+      <button class="nav-item" type="button" data-sec="events"><span class="ico" aria-hidden="true">&#127903;</span><span class="lbl">Upcoming Events</span><span class="count" id="c-events"></span></button>
       <button class="nav-item" type="button" data-sec="offers"><span class="ico" aria-hidden="true">&#128717;&#65039;</span><span class="lbl">Offers</span><span class="count" id="c-offers"></span></button>
       <button class="nav-item" type="button" data-sec="communities"><span class="ico" aria-hidden="true">&#128150;</span><span class="lbl">Communities</span><span class="count" id="c-communities"></span></button>
       <button class="nav-item" type="button" data-sec="promo"><span class="ico" aria-hidden="true">&#11088;</span><span class="lbl">Promo Communities</span><span class="count" id="c-promo"></span></button>
@@ -506,6 +644,8 @@
           <div class="chips" id="hqChips" role="group" aria-label="Popular searches"></div>
         </div>
         <div id="spotlight" hidden></div>
+        <div id="featRow" hidden></div>
+        <div id="weekRow" hidden></div>
         <div id="hqResults" hidden></div>
         <div id="homeMain">
         <h2 class="section" id="homeTitle">Browse by category</h2>
@@ -514,6 +654,42 @@
           <div class="jump-row" id="jumpRow"></div>
         </nav>
         <div id="catGrid"></div>
+        </div>
+      </section>
+
+      <section id="vipView" aria-labelledby="vipTitle" hidden>
+        <div id="vipLounge">
+          <div class="lounge-head">
+            <div class="eyebrow">Hand-picked for you</div>
+            <h2 class="section lounge-title" id="vipTitle"></h2>
+            <p class="section-sub lounge-sub">Step inside and see what these women offer, from their communities to their courses and services.</p>
+          </div>
+          <div class="doors" id="vipDoors"></div>
+          <div class="lounge-foot">
+            <h3>Want your business featured?</h3>
+            <p>Featured Businesses are VIP members of She Promotes&trade;, a Skool community for women in business. Join, go VIP, and you get your own page here to share your story, your community and your offers.</p>
+            <a class="btn btn-primary" id="vipUpgrade" target="_blank" rel="noopener">Get featured</a>
+          </div>
+        </div>
+        <div id="vipRoom" hidden></div>
+      </section>
+
+      <section id="eventsView" aria-labelledby="evTitle" hidden>
+        <div class="lounge-head">
+          <div class="eyebrow">Workshops, webinars and gatherings</div>
+          <h2 class="section lounge-title" id="evTitle">Upcoming Events</h2>
+          <p class="section-sub lounge-sub">Free and paid events hosted by women in business. Times show in your time zone for online events, and in local time for in-person ones.</p>
+        </div>
+        <div class="ev-filters">
+          <div class="chips" id="evMode" role="group" aria-label="Online or in person"></div>
+          <div class="chips" id="evCost" role="group" aria-label="Price"></div>
+          <label class="ev-loc" id="evLocWrap" hidden><span>Where</span><select id="evLoc"></select></label>
+        </div>
+        <div class="ev-grid" id="evGrid"></div>
+        <div class="lounge-foot">
+          <h3>Hosting an event?</h3>
+          <p>Premium and VIP members of She Promotes&trade;, a Skool community for women in business, can share their workshops, webinars and events here.</p>
+          <a class="btn btn-primary" id="evUpgrade" target="_blank" rel="noopener">Share your event</a>
         </div>
       </section>
 
@@ -594,6 +770,7 @@
   var FORM_URL = '';   /* Paste your Google Form link here to show the Get listed button */
   var PLANS_URL = 'https://www.skool.com/she-promotes-7924/plans';
   var JOIN_URL = 'https://www.skool.com/she-promotes-7924/about';
+  var UPGRADE_URL = 'https://www.skool.com/she-promotes-7924/plans';   /* where women go to become a VIP */
   var DM_URL = 'https://www.skool.com/@aurailis-arnold-5599';   /* your Skool profile, where members can message you */
   var DATA_URL = 'directory.json';
 
@@ -649,7 +826,8 @@
     return DAYS[(new Date().getDay() + 6) % 7];
   })();
   var linkKey = function (u) { return String(u || '').toLowerCase().replace(/^https?:\/\//, '').replace(/^www\./, '').split(/[?#]/)[0].replace(/\/+$/, '').replace(/\/about$/, ''); };
-  var TITLES = { calendar: 'Where can I promote today?', home: 'Home', offers: 'Offers', communities: 'Communities', recommended: 'Recommended Communities', promo: 'Promo Communities' };
+  var VIP_NAME = 'Featured Businesses';   /* the page that holds every VIP's page */
+  var TITLES = { events: 'Upcoming Events', vip: VIP_NAME, calendar: 'Where can I promote today?', home: 'Home', offers: 'Offers', communities: 'Communities', recommended: 'Recommended Communities', promo: 'Promo Communities' };
   var INTROS = {
     calendar: 'Every promo group in the Directory and the days you can post there. Tap a day, or All to see the full week.',
     promo: 'Have a business to share? These are the promo communities that inspired me to create She Promotes&trade;. More places to post your offer and meet amazing women.',
@@ -834,6 +1012,30 @@
     return list.slice().sort(function (a, b) { return hash(today + keyFn(a)) - hash(today + keyFn(b)); });
   };
 
+  /* Each woman's offers (or communities) take turns with everyone else's,
+     and which of hers comes first changes every day */
+  var takeTurns = function (lists) {
+    lists = lists.map(function (x) {
+      var l = x.list; if (l.length < 2) return l;
+      var k = hash(today + '|first|' + x.key) % l.length;
+      return l.slice(k).concat(l.slice(0, k));
+    });
+    /* spread each woman's items evenly down the page, so hers never bunch together */
+    var N = 0; lists.forEach(function (l) { N += l.length; });
+    var slots = new Array(N), order = lists.map(function (l, i) { return i; });
+    order.sort(function (x, y) { return lists[y].length - lists[x].length || x - y; });
+    order.forEach(function (i) {
+      var l = lists[i], n = l.length; if (!n) return;
+      var gap = N / n, start = n > 1 ? (hash(today + '|spot|' + i) % 1000) / 1000 * gap : 0;
+      l.forEach(function (item, j) {
+        var at = n > 1 ? Math.floor(start + j * gap) % N : 0;
+        while (slots[at] !== undefined) at = (at + 1) % N;
+        slots[at] = item;
+      });
+    });
+    return slots;
+  };
+
   /* Derived lists */
   var offers = [], communities = [], recs = [], promos = [];
   /* A recommendation she marked as her own community counts as her community */
@@ -864,31 +1066,35 @@
   var build = function () {
     var members = daily(dedupeMembers(data.members || []), function (m) { return m.id || m.name; });
     /* her signature offer plus up to 2 more, each with its own card */
-    offers = [];
-    var seenO = {};
+    var seenO = {}, perO = [];
     members.forEach(function (m) {
+      var mine = [];
       var push = function (o) {
         var k = (linkKey(o.offerLink) || norm(o.offerName || o.offer)) + '|' + norm(m.name);
         if (seenO[k]) return;
         seenO[k] = true;
-        offers.push(o);
+        mine.push(o);
       };
       if (m.offer) push(m);
       (m.offers || []).slice(0, 2).forEach(function (x) {
         if (!x || !(x.title || x.desc)) return;
-        push(Object.assign({}, m, { offerName: x.title || '', offer: x.desc || x.title, offerLink: x.link || '', price: x.price || '', who: x.who || '', categories: x.categories && x.categories.length ? x.categories : (m.categories || []), formats: x.formats || [], keywords: x.keywords || [], _base: m }));
+        push(Object.assign({}, m, { offerImage: x.image || '', offerName: x.title || '', offer: x.desc || x.title, offerLink: x.link || '', price: x.price || '', who: x.who || '', categories: x.categories && x.categories.length ? x.categories : (m.categories || []), formats: x.formats || [], keywords: x.keywords || [], _base: m }));
       });
+      perO.push({ key: m.id || m.name, list: mine });
     });
-    var seenC = {};
-    communities = [];
+    offers = takeTurns(perO);
+    var seenC = {}, perC = [];
     members.forEach(function (m) {
+      var mine = [];
       myComms(m).forEach(function (c) {
         var k = linkKey(c.link) || norm(c.name);
         if (seenC[k]) return;
         seenC[k] = true;
-        communities.push(c === m.community ? m : Object.assign({}, m, { community: c, _base: m }));
+        mine.push(c === m.community ? m : Object.assign({}, m, { community: c, _base: m }));
       });
+      perC.push({ key: m.id || m.name, list: mine });
     });
+    communities = takeTurns(perC);
     recs = [];
     members.forEach(function (m) {
       var mine = {};
@@ -1060,6 +1266,7 @@
   };
   var offerFull = function (m) {
     var c = el('article', 'card');
+    if (m.offerImage) addThumb(c, m.offerImage, 'offers', '');
     c.appendChild(personRow(m));
     var o = offerParts(m);
     if (o.title) c.appendChild(el('h3', 'offer-title', o.title));
@@ -1111,8 +1318,10 @@
     card.appendChild(box);
     var key = slug(name);
     var list = photoSources(img);
-    if (ASSETS[folder] && ASSETS[folder][key]) list.push(ASSETS[folder][key]);
-    list.push('images/' + folder + '/' + key + '.jpg');
+    [].concat(folder).forEach(function (f) {
+      if (ASSETS[f] && ASSETS[f][key]) list.push(ASSETS[f][key]);
+      list.push('images/' + f + '/' + key + '.jpg');
+    });
     var i = 0;
     var tryNext = function () {
       if (i >= list.length) { box.hidden = true; return; }
@@ -1193,6 +1402,7 @@
 
   var offerCard = function (m) {
     var c = el('article', 'card compact');
+    if (m.offerImage) addThumb(c, m.offerImage, 'offers', '');
     c.appendChild(personRow(m));
     var o = offerParts(m);
     if (o.title) c.appendChild(el('h3', 'offer-title', o.title));
@@ -1281,6 +1491,8 @@
     communities: ['', 'Promo Groups', 'Skool', 'Facebook Group', 'Other', 'Free', 'Paid'],
     recommended: ['', 'Promo Group', 'Business', 'Healing & Spiritual', 'Other'],
     home: [],
+    vip: [],
+    events: [],
     calendar: [],
     promo: ['', 'Skool', 'Facebook Group', 'Other']
   };
@@ -1488,7 +1700,8 @@
     if (P.communities.length) {
       w.appendChild(el('h3', 'sub', P.communities.length > 1 ? 'Her communities' : 'Her community'));
       P.communities.forEach(function (c) {
-        var cc = el('div', 'block');
+        var cc = el('div', 'block has-img');
+        addThumb(cc, c.image, ['communities', 'recommended', 'promo'], c.name);
         cc.appendChild(el('p', 'name', c.name));
         if (c.about) cc.appendChild(el('p', 'offer', c.about));
         var a2 = el('div', 'actions');
@@ -1501,7 +1714,8 @@
     if (P.offers.length) {
       w.appendChild(el('h3', 'sub', P.offers.length > 1 ? 'Her offers' : 'Her offer'));
       P.offers.forEach(function (o) {
-        var oc = el('div', 'block');
+        var oc = el('div', 'block' + (o.image ? ' has-img' : ''));
+        if (o.image) addThumb(oc, o.image, 'offers', '');
         if (o.title) oc.appendChild(el('p', 'name', o.title));
         if (o.desc) oc.appendChild(el('p', 'offer', o.desc));
         if (o.price) oc.appendChild(el('p', 'price', /^free/i.test(o.price) ? 'Free' : 'Starting at ' + o.price));
@@ -1514,6 +1728,388 @@
     }
     return w;
   };
+  /* ---------- Upcoming Events ---------- */
+  var upcoming = function () {
+    var now = Date.now();
+    return (data.events || []).filter(function (e) { return e && e.title && e.startUtc && (e.endUtc || e.startUtc + 7200000) > now; })
+      .sort(function (a, b) { return a.startUtc - b.startUtc; });
+  };
+  var evWhen = function (e, short) {
+    var opts = { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', timeZoneName: 'short' };
+    if (e.mode === 'inperson' && e.tz) opts.timeZone = e.tz;
+    try { return new Intl.DateTimeFormat(undefined, opts).format(new Date(e.startUtc)); }
+    catch (x) { delete opts.timeZone; return new Intl.DateTimeFormat(undefined, opts).format(new Date(e.startUtc)); }
+  };
+  var evPlace = function (e) {
+    var parts = [e.city, e.region].filter(Boolean);
+    if (e.country && !/^(us|usa|united states( of america)?)$/i.test(e.country)) parts.push(e.country);
+    return parts.join(', ');
+  };
+  var evLocKey = function (e) {
+    var r = e.region || e.city || '';
+    var c = e.country && !/^(us|usa|united states( of america)?)$/i.test(e.country) ? e.country : '';
+    return [r, c].filter(Boolean).join(', ');
+  };
+  var eventCard = function (e) {
+    var c = el('article', 'card compact ev-card');
+    if (e.image) addThumb(c, e.image, 'events', '');
+    var w = el('div', 'ev-when');
+    var now = Date.now();
+    if (e.startUtc <= now) w.appendChild(el('span', 'ev-now', 'Happening now'));
+    w.appendChild(el('span', 'ev-date', evWhen(e)));
+    w.appendChild(el('span', 'tag', e.mode === 'inperson' ? 'In person' : 'Online'));
+    c.appendChild(w);
+    c.appendChild(el('h3', '', e.title));
+    if (e.host) c.appendChild(el('p', 'ev-host', 'Hosted by ' + e.host + (e.hostBusiness ? ' · ' + e.hostBusiness : '')));
+    if (e.desc) {
+      var d = el('p', 'ev-desc clamp3', e.desc);
+      c.appendChild(d);
+      if (e.desc.length > 160) {
+        var more = el('button', 'ev-more', 'Read more');
+        more.type = 'button';
+        more.addEventListener('click', function () { var open = d.classList.toggle('clamp3'); more.textContent = open ? 'Read more' : 'Show less'; });
+        c.appendChild(more);
+      }
+    }
+    var box = el('div', 'factbox');
+    var row = function (label, text) { var r = el('div', 'fr'); r.appendChild(el('span', 'wl', label)); r.appendChild(el('span', 'ft', text)); box.appendChild(r); };
+    row('Event', e.cost === 'paid' ? (e.price || 'Paid') : 'Free');
+    if (e.mode === 'inperson') row('Where', [e.venue, e.address, evPlace(e)].filter(Boolean).join(', '));
+    if (e.where === 'skool' && e.community) row('Happening inside', e.community + ' on Skool' + (e.joinCost ? ' · ' + (/^free/i.test(e.joinCost) ? 'Free to join' : e.joinCost + ' to join') : ''));
+    c.appendChild(box);
+    if ((e.categories || []).length) {
+      var tags = el('div', 'tags');
+      e.categories.forEach(function (x) { tags.appendChild(el('span', 'tag gold', x)); });
+      c.appendChild(tags);
+    }
+    var acts = el('div', 'actions');
+    var label = e.where === 'skool' ? 'Join the community to attend' : e.where === 'page' ? 'Sign up' : 'Save my spot';
+    var b = linkBtn(label, e.link, true);
+    if (b) acts.appendChild(b);
+    if (acts.childNodes.length) c.appendChild(acts);
+    return c;
+  };
+  var evState = { mode: 'all', cost: 'any', loc: '' };
+  try { var evSaved = JSON.parse(localStorage.getItem('shePromotesEventFilters') || 'null'); if (evSaved && typeof evSaved === 'object') evState = Object.assign(evState, evSaved); } catch (e) { /* ignore */ }
+  var saveEvState = function () { try { localStorage.setItem('shePromotesEventFilters', JSON.stringify(evState)); } catch (e) { /* ignore */ } };
+  var chipRow = function (box, opts, key) {
+    box.innerHTML = '';
+    opts.forEach(function (o) {
+      var b = el('button', 'chip', o[1]);
+      b.type = 'button';
+      b.setAttribute('aria-pressed', evState[key] === o[0] ? 'true' : 'false');
+      b.addEventListener('click', function () { evState[key] = o[0]; saveEvState(); renderEvents(); });
+      box.appendChild(b);
+    });
+  };
+  var renderEvents = function () {
+    $('topbarSec').textContent = 'Upcoming Events';
+    var all = upcoming();
+    chipRow($('evMode'), [['all', 'All'], ['online', 'Online'], ['inperson', 'In person']], 'mode');
+    chipRow($('evCost'), [['any', 'Any price'], ['free', 'Free'], ['paid', 'Paid'], ['week', 'This week']], 'cost');
+    var locs = {};
+    all.forEach(function (e) { if (e.mode === 'inperson') { var k = evLocKey(e); if (k) locs[k] = 1; } });
+    var locList = Object.keys(locs).sort();
+    var lw = $('evLocWrap'), ls = $('evLoc');
+    lw.hidden = evState.mode !== 'inperson' || !locList.length;
+    if (evState.loc && !locs[evState.loc]) evState.loc = '';
+    ls.innerHTML = '';
+    [['', 'Everywhere']].concat(locList.map(function (k) { return [k, k]; })).forEach(function (o) { var op = document.createElement('option'); op.value = o[0]; op.textContent = o[1]; ls.appendChild(op); });
+    ls.value = evState.loc;
+    var weekEnd = Date.now() + 7 * 86400000;
+    var list = all.filter(function (e) {
+      if (evState.mode !== 'all' && (e.mode === 'inperson' ? 'inperson' : 'online') !== evState.mode) return false;
+      if (evState.cost === 'free' && e.cost === 'paid') return false;
+      if (evState.cost === 'paid' && e.cost !== 'paid') return false;
+      if (evState.cost === 'week' && e.startUtc > weekEnd) return false;
+      if (evState.mode === 'inperson' && evState.loc && evLocKey(e) !== evState.loc) return false;
+      return true;
+    });
+    var g = $('evGrid');
+    g.innerHTML = '';
+    if (!all.length) g.appendChild(el('p', 'ev-empty', 'No events on the calendar yet. Check back soon.'));
+    else if (!list.length) g.appendChild(el('p', 'ev-empty', 'No events match that yet. Try All or Any price.'));
+    list.forEach(function (e) { g.appendChild(eventCard(e)); });
+  };
+  $('evLoc').addEventListener('change', function () { evState.loc = this.value; saveEvState(); renderEvents(); });
+  var renderWeekRow = function () {
+    var box = $('weekRow');
+    box.innerHTML = '';
+    var weekEnd = Date.now() + 7 * 86400000;
+    var list = upcoming().filter(function (e) { return e.startUtc <= weekEnd; });
+    box.hidden = !list.length;
+    if (box.hidden) return;
+    var head = el('div', 'feat-row-head');
+    head.appendChild(el('h2', 'section', 'Coming up this week'));
+    var all = el('button', 'back', 'All events →');
+    all.type = 'button';
+    all.addEventListener('click', function () { setSection('events'); jumpTo(0); });
+    head.appendChild(all);
+    box.appendChild(head);
+    var row = el('div', 'feat-row');
+    list.forEach(function (e) {
+      var b = el('button', 'ev-mini');
+      b.type = 'button';
+      var art = el('div', 'fm-art'); art.setAttribute('aria-hidden', 'true');
+      if (e.image) putImg(art, e.image, []);
+      b.appendChild(art);
+      b.appendChild(el('span', 'ev-date', evWhen(e)));
+      b.appendChild(el('span', 'fm-name', e.title));
+      b.appendChild(el('span', 'fm-who', (e.mode === 'inperson' ? 'In person' + (e.city ? ' · ' + e.city : '') : 'Online') + ' · ' + (e.cost === 'paid' ? (e.price || 'Paid') : 'Free')));
+      b.addEventListener('click', function () { setSection('events'); jumpTo(0); });
+      row.appendChild(b);
+    });
+    box.appendChild(row);
+  };
+
+  /* ---------- VIP Lounge and VIP Rooms ---------- */
+  var vipMember = function (v) {
+    var mem = null;
+    (data.members || []).forEach(function (x) { if (!mem && nameK(x.name) === nameK(v.name)) mem = x; });
+    return mem;
+  };
+  var roomSlug = function (v) { return slug(v.name || v.id || 'vip'); };
+  var vipList = function () { return (data.vips || []).filter(function (v) { return v && v.name; }); };
+  var roomData = function (v) {
+    var mem = vipMember(v);
+    var R = {
+      v: v, mem: mem, name: v.name, first: String(v.name).split(' ')[0],
+      photo: v.photo || (mem && mem.photo) || '',
+      business: v.business || (mem && mem.business) || '',
+      headline: v.headline || '',
+      story: v.about || (mem && mem.about) || '',
+      who: v.who || (mem && mem.who) || '',
+      communities: [], offers: [], links: [], loves: []
+    };
+    var seenC = {};
+    var addC = function (c) { if (!c || !c.name || !c.link) return; var k = linkKey(c.link) || norm(c.name); if (!seenC[k] && seenC['n:' + norm(c.name)]) k = 'n:' + norm(c.name); if (seenC[k]) { var o = seenC[k]; ['about', 'image', 'access', 'platform'].forEach(function (f) { if (!o[f] && c[f]) o[f] = c[f]; }); if ((!o.inside || !o.inside.length) && c.inside && c.inside.length) o.inside = c.inside; return; } var cc = Object.assign({}, c); seenC[k] = cc; seenC['n:' + norm(c.name)] = cc; R.communities.push(cc); };
+    (v.communities || []).forEach(addC);
+    if (mem) myComms(mem).forEach(addC);
+    var seenO = {};
+    var addO = function (o) { if (!o || !(o.title || o.desc)) return; var k = linkKey(o.link) || norm(o.title); if (seenO[k]) return; seenO[k] = true; R.offers.push(o); };
+    if (mem && mem.offer) { var op = offerParts(mem); addO({ title: op.title, desc: op.desc, link: mem.offerLink, price: mem.price, who: mem.who, image: mem.offerImage }); }
+    if (mem) (mem.offers || []).slice(0, 2).forEach(addO);
+    (v.offers || []).forEach(addO);
+    if (!R.headline && R.offers[0]) R.headline = R.offers[0].desc || '';
+    var seenL = {};
+    var addL = function (label, url) { var u = safeUrl(url); if (!u || seenL[u]) return; seenL[u] = true; R.links.push([label, u]); };
+    addL('My website', v.website);
+    var socials = v.socials || {};
+    [['instagram', 'Instagram'], ['facebook', 'Facebook'], ['tiktok', 'TikTok'], ['youtube', 'YouTube'], ['linkedin', 'LinkedIn']].forEach(function (s) { addL(s[1], socials[s[0]]); });
+    var socialLabel = function (u) { u = String(u || ''); return /instagram/i.test(u) ? 'Instagram' : /facebook/i.test(u) ? 'Facebook' : /tiktok/i.test(u) ? 'TikTok' : /youtu/i.test(u) ? 'YouTube' : /linkedin/i.test(u) ? 'LinkedIn' : /skool\.com\/@/i.test(u) ? 'Skool profile' : 'Follow me'; };
+    addL(socialLabel(v.social), v.social);
+    if (mem) addL(socialLabel(mem.social), mem.social);
+    var seenR = {};
+    if (mem) (mem.recommends || []).slice(0, 3).concat(mem.extraRecommends || []).forEach(function (r) {
+      if (!r || !r.name || !r.link || r.own) return;
+      var k = linkKey(r.link) || norm(r.name); if (seenR[k] || seenC[k]) return; seenR[k] = true; R.loves.push(r);
+    });
+    var c0 = R.communities[0];
+    R.banner = v.banner || (c0 && c0.image) || '';
+    R.bannerFallback = c0 ? 'images/communities/' + slug(c0.name) + '.jpg' : '';
+    return R;
+  };
+  var putImg = function (holder, src, fallbacks) {
+    var list = photoSources(src).concat(fallbacks || []).filter(Boolean), i = 0;
+    var next = function () {
+      if (i >= list.length) return;
+      var im = new Image(); im.alt = ''; im.referrerPolicy = 'no-referrer';
+      showImg(im, list[i++], function () { holder.textContent = ''; holder.appendChild(im); }, next);
+    };
+    next();
+  };
+  var renderLounge = function () {
+    $('vipTitle').textContent = VIP_NAME;
+    var doors = $('vipDoors');
+    doors.innerHTML = '';
+    var list = vipList();
+    var spot = data.spotlight && data.spotlight.vip;
+    /* this week's VIP Spotlight leads, then everyone else in the daily order */
+    list = list.slice().sort(function (a, b) {
+      if (a.id === spot) return -1; if (b.id === spot) return 1;
+      return hash(today + '|room|' + a.id) - hash(today + '|room|' + b.id);
+    });
+    if (!list.length) { doors.appendChild(el('p', 'empty-lounge', 'The first rooms are being set up. Check back soon.')); return; }
+    list.forEach(function (v) {
+      var R = roomData(v);
+      var d = el('article', 'door');
+      if (v.id === spot) d.appendChild(el('span', 'now', '⭐ In the spotlight'));
+      var art = el('div', 'door-art'); art.setAttribute('aria-hidden', 'true');
+      putImg(art, R.banner, [R.bannerFallback]);
+      d.appendChild(art);
+      var body = el('div', 'door-body');
+      var pic = el('div', 'door-pic'); pic.appendChild(avatar(R.photo, R.name)); body.appendChild(pic);
+      body.appendChild(el('h3', '', R.name));
+      if (R.business) body.appendChild(el('div', 'door-biz', R.business));
+      var line = R.v.headline || (R.communities[0] && R.communities[0].about) || '';
+      if (line) body.appendChild(el('p', 'door-line clamp2', line));
+      var go = el('button', 'btn btn-primary', 'Step inside');
+      go.type = 'button';
+      body.appendChild(go);
+      d.appendChild(body);
+      var open = function () { openRoom(v); };
+      go.addEventListener('click', function (e) { e.stopPropagation(); open(); });
+      d.addEventListener('click', open);
+      doors.appendChild(d);
+    });
+  };
+  var roomFacts = function (o) {
+    if (!o.who && !o.price) return null;
+    var f = el('div', 'room-facts');
+    if (o.who) { var a = el('div'); a.appendChild(el('b', '', 'Best for')); a.appendChild(document.createTextNode(bestFor(o.who) || o.who)); f.appendChild(a); }
+    if (o.price) { var b = el('div'); b.appendChild(el('b', '', /^free/i.test(o.price) ? 'Price' : 'Starts at')); b.appendChild(document.createTextNode(/^free/i.test(o.price) ? 'Free' : o.price)); f.appendChild(b); }
+    return f;
+  };
+  var openRoom = function (v, fromHash) {
+    var R = roomData(v);
+    $('vipLounge').hidden = true;
+    var box = $('vipRoom');
+    box.hidden = false;
+    box.innerHTML = '';
+    $('topbarSec').textContent = R.name;
+    if (!fromHash && canUseHash) { try { history.replaceState(null, '', '#featured/' + roomSlug(v)); } catch (e) { /* ignore */ } }
+    var back = el('button', 'back room-back', '← All ' + VIP_NAME);
+    back.type = 'button';
+    back.addEventListener('click', function () { setSection('vip'); jumpTo(0); });
+    box.appendChild(back);
+
+    /* Welcome */
+    var hero = el('div', 'room-hero');
+    var art = el('div', 'room-art'); art.setAttribute('aria-hidden', 'true');
+    putImg(art, R.banner, [R.bannerFallback]);
+    hero.appendChild(art);
+    box.appendChild(hero);
+    var intro = el('div', 'room-intro');
+    var pic = el('div', 'room-pic'); pic.appendChild(avatar(R.photo, R.name)); intro.appendChild(pic);
+    intro.appendChild(el('span', 'room-badge', 'Featured Business'));
+    intro.appendChild(el('h2', 'grad', R.name));
+    if (R.business) intro.appendChild(el('div', 'room-biz', R.business));
+    if (R.headline) intro.appendChild(el('p', 'room-headline', R.headline));
+    var cta = el('div', 'room-cta');
+    var mainC = R.communities[0];
+    var jb = mainC ? linkBtn('Join my community', mainC.link, true) : null;
+    if (jb) cta.appendChild(jb);
+    if (R.offers.length) {
+      var so = el('button', 'btn ' + (jb ? 'btn-ghost' : 'btn-primary'), R.offers.length > 1 ? 'See my offers' : 'See my offer');
+      so.type = 'button';
+      so.addEventListener('click', function () { var t = $('roomOffers'); if (t) t.scrollIntoView({ block: 'start' }); });
+      cta.appendChild(so);
+    }
+    if (cta.childNodes.length) intro.appendChild(cta);
+    box.appendChild(intro);
+
+    var sec = function (id, eyebrow, title) {
+      var s = el('section', 'room-sec');
+      if (id) s.id = id;
+      s.appendChild(el('div', 'eyebrow', eyebrow));
+      s.appendChild(el('h3', 'rh grad', title));
+      box.appendChild(s);
+      return s;
+    };
+
+    /* Her story */
+    if (R.story || R.who) {
+      var st = sec('', 'My story', 'Hi, I’m ' + R.first);
+      var g = el('div', 'room-story');
+      var txt = el('div'); if (R.story) txt.appendChild(el('p', '', R.story)); g.appendChild(txt);
+      if (R.who) { var w = el('aside', 'room-who'); w.appendChild(el('span', 'eyebrow', 'Who I help')); w.appendChild(el('p', '', bestFor(R.who) || R.who)); g.appendChild(w); }
+      st.appendChild(g);
+    }
+
+    /* Her community */
+    if (R.communities.length) {
+      var cs = sec('roomComm', R.communities.length > 1 ? 'My communities' : 'My community', 'Come spend time with us');
+      R.communities.forEach(function (c) {
+        var cc = el('div', 'room-comm');
+        var ca = el('div', 'rc-art'); ca.setAttribute('aria-hidden', 'true');
+        putImg(ca, c.image, ['images/communities/' + slug(c.name) + '.jpg', 'images/recommended/' + slug(c.name) + '.jpg', 'images/promo/' + slug(c.name) + '.jpg']);
+        cc.appendChild(ca);
+        var cb = el('div', 'rc-body');
+        cb.appendChild(el('h4', '', c.name));
+        if (c.about) cb.appendChild(el('p', '', c.about));
+        var inside = Array.isArray(c.inside) ? c.inside : String(c.inside || '').split(/\n+/);
+        inside = inside.map(function (x) { return String(x).trim(); }).filter(Boolean);
+        if (inside.length) {
+          cb.appendChild(el('div', 'lbl2', 'What’s inside'));
+          var ul = el('ul', 'room-list'); inside.forEach(function (x) { ul.appendChild(el('li', '', x)); }); cb.appendChild(ul);
+        }
+        if (c.access) cb.appendChild(el('p', 'access', String(c.access).replace(/;/g, ' and ')));
+        var j = linkBtn('Join ' + c.name, c.link, true); if (j) cb.appendChild(j);
+        cc.appendChild(cb);
+        cs.appendChild(cc);
+      });
+    }
+
+    /* Her offers */
+    if (R.offers.length) {
+      var os = sec('roomOffers', R.offers.length > 1 ? 'My offers' : 'My offer', 'Ways to work with me');
+      var grid = el('div', 'room-offers');
+      R.offers.forEach(function (o) {
+        var oc = el('article', 'room-offer');
+        if (o.image) { var oa = el('div', 'ro-art'); oa.setAttribute('aria-hidden', 'true'); putImg(oa, o.image, []); oc.appendChild(oa); }
+        var ob = el('div', 'ro-body');
+        if (o.title) ob.appendChild(el('h4', '', o.title));
+        if (o.desc) ob.appendChild(el('p', 'desc', o.desc));
+        var f = roomFacts(o); if (f) ob.appendChild(f);
+        var l = linkBtn('See this offer', o.link, true); if (l) ob.appendChild(l);
+        oc.appendChild(ob);
+        grid.appendChild(oc);
+      });
+      os.appendChild(grid);
+    }
+
+    /* Find her everywhere */
+    if (R.links.length) {
+      var ls = sec('', 'Stay in touch', 'Find me everywhere');
+      var lw = el('div', 'room-links');
+      R.links.forEach(function (x) { var b = linkBtn(x[0], x[1], false); if (b) lw.appendChild(b); });
+      ls.appendChild(lw);
+    }
+
+    /* Communities she loves */
+    if (R.loves.length) {
+      var rs = sec('', 'Recommended', 'Communities I love');
+      var rg = el('div', 'room-loves');
+      R.loves.forEach(function (r) {
+        var rc = el('article', 'room-love has-img');
+        addThumb(rc, r.image, ['recommended', 'promo', 'communities'], r.name);
+        rc.appendChild(el('h4', '', r.name));
+        if (r.why) rc.appendChild(whyBox(['Why ' + R.first + ' recommends it'], r.why));
+        var rb = linkBtn('See the community', r.link, false); if (rb) rc.appendChild(rb);
+        if (r.affiliate) rc.appendChild(el('p', 'disclose', 'Affiliate link. ' + R.first + ' may earn a fee if you join through it.'));
+        rg.appendChild(rc);
+      });
+      rs.appendChild(rg);
+    }
+
+    /* The way out */
+    var end = el('div', 'room-end');
+    end.appendChild(el('h3', 'rh grad', 'Find more support for your business'));
+    var ec = el('div', 'room-cta');
+    var bl = el('button', 'btn btn-primary', 'See all ' + VIP_NAME);
+    bl.type = 'button';
+    bl.addEventListener('click', function () { setSection('vip'); jumpTo(0); });
+    ec.appendChild(bl);
+    var up = linkBtn('Want your business featured?', UPGRADE_URL, false); if (up) ec.appendChild(up);
+    end.appendChild(ec);
+    var cp = el('button', 'copy-link', 'Copy the link to ' + R.first + '’s page');
+    cp.type = 'button';
+    cp.addEventListener('click', function () {
+      var url = location.href.split('#')[0] + '#featured/' + roomSlug(v);
+      var done = function (ok) { cp.textContent = ok ? 'Link copied' : url; };
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(function () { done(true); }, function () { done(false); });
+      else done(false);
+    });
+    end.appendChild(cp);
+    box.appendChild(end);
+    jumpTo(0);
+  };
+  var openRoomBySlug = function (sl) {
+    var v = null;
+    vipList().forEach(function (x) { if (!v && roomSlug(x) === sl) v = x; });
+    return v;
+  };
+
   /* One tap to her profile. VIPs who aren't listed yet get the same layout built from the VIP form. */
   var openVip = function (P, from) {
     var v = P.vip || {};
@@ -1535,7 +2131,7 @@
     if (bsrc) swapImage(pic, bsrc);
     top.appendChild(pic);
     var body = el('div', 'vip-body');
-    body.appendChild(el('span', 'spot-label', '⭐ VIP Spotlight'));
+    body.appendChild(el('span', 'spot-label', '⭐ In the Spotlight'));
     var main = P.communities[0];
     if (main) {
       body.appendChild(el('h2', '', main.name));
@@ -1554,9 +2150,9 @@
     var acts = el('div', 'actions');
     var cta = main ? linkBtn('Join her community', main.link, true) : linkBtn('Visit her website', P.website, true);
     if (cta) acts.appendChild(cta);
-    var more = el('button', 'btn btn-ghost', 'Meet ' + P.name.split(' ')[0]);
+    var more = el('button', 'btn btn-ghost', 'Step inside');
     more.type = 'button';
-    more.addEventListener('click', function () { openVip(P, more); });
+    more.addEventListener('click', function () { if (P.vip && P.vip.id) { setSection('vip', false, true); openRoom(P.vip); } else openVip(P, more); });
     acts.appendChild(more);
     body.appendChild(acts);
     top.appendChild(body);
@@ -1689,10 +2285,41 @@
   };
 
   /* Home */
+  /* Featured Businesses row on Home, once there's more than the one in the spotlight */
+  var renderFeatRow = function () {
+    var box = $('featRow');
+    box.innerHTML = '';
+    var spot = data.spotlight && data.spotlight.vip;
+    var list = vipList().filter(function (v) { return v.id !== spot; });
+    box.hidden = !list.length;
+    if (box.hidden) return;
+    var head = el('div', 'feat-row-head');
+    head.appendChild(el('h2', 'section', VIP_NAME));
+    var all = el('button', 'back', 'See all \u2192');
+    all.type = 'button';
+    all.addEventListener('click', function () { setSection('vip'); jumpTo(0); });
+    head.appendChild(all);
+    box.appendChild(head);
+    var row = el('div', 'feat-row');
+    list.sort(function (a, b) { return hash(today + '|room|' + a.id) - hash(today + '|room|' + b.id); }).forEach(function (v) {
+      var R = roomData(v);
+      var b = el('button', 'feat-mini');
+      b.type = 'button';
+      var art = el('div', 'fm-art'); art.setAttribute('aria-hidden', 'true'); putImg(art, R.banner, [R.bannerFallback]); b.appendChild(art);
+      var pic = el('div', 'fm-pic'); pic.appendChild(avatar(R.photo, R.name)); b.appendChild(pic);
+      b.appendChild(el('span', 'fm-name', R.business || R.name));
+      if (R.business) b.appendChild(el('span', 'fm-who', 'with ' + R.name));
+      b.addEventListener('click', function () { setSection('vip', false, true); openRoom(v); });
+      row.appendChild(b);
+    });
+    box.appendChild(row);
+  };
   var renderHome = function () {
     renderHomeSearch();
     renderJump();
     renderSpotlight();
+    renderFeatRow();
+    renderWeekRow();
     setTimeout(updateCue, 50);
     var wrap = $('catGrid');
     wrap.innerHTML = '';
@@ -1737,6 +2364,8 @@
     $('homeView').hidden = true;
     $('hero').hidden = true;
     $('panel').hidden = true;
+    $('vipView').hidden = true;
+    $('eventsView').hidden = true;
     $('catView').hidden = false;
     $('topbarSec').textContent = x;
     var g = groupOf(x);
@@ -1757,6 +2386,7 @@
       sec.appendChild(gr);
       body.appendChild(sec);
     };
+    add('Upcoming events', upcoming().filter(function (e) { return (e.categories || []).indexOf(x) !== -1; }), eventCard);
     add('Offers', c.offers, offerCard);
     add('Communities', c.communities, communityCard);
     add('My picks', c.picks, promoCard);
@@ -1801,21 +2431,25 @@
   var canUseHash = (function () {
     try { return /^https?:$/.test(location.protocol) && window.self === window.top; } catch (e) { return false; }
   })();
-  var setSection = function (t, fromHash) {
+  var setSection = function (t, fromHash, quiet) {
     if (!chipSets[t]) t = 'home';
     $('homeView').hidden = t !== 'home';
     $('hero').hidden = t !== 'home';
-    $('panel').hidden = t === 'home';
+    $('panel').hidden = t === 'home' || t === 'vip' || t === 'events';
+    $('vipView').hidden = t !== 'vip';
+    $('eventsView').hidden = t !== 'events';
     $('catView').hidden = true;
     state.tab = t; state.chip = ''; state.cat = ''; state.fmt = ''; state.day = '';
     navItems.forEach(function (b) {
       b.setAttribute('aria-current', b.getAttribute('data-sec') === t ? 'true' : 'false');
     });
     $('topbarSec').textContent = TITLES[t];
-    $('q').placeholder = t === 'offers' ? 'Search by name, offer, or what you need' : 'Search ' + TITLES[t].toLowerCase();
-    if (!fromHash && canUseHash) { try { history.replaceState(null, '', '#' + t); } catch (e) { /* ignore */ } }
+    $('q').placeholder = t === 'offers' ? 'Search by name, offer, or what you need' : 'Search ' + String(TITLES[t] || '').toLowerCase();
+    if (!fromHash && canUseHash) { try { history.replaceState(null, '', '#' + (t === 'vip' ? 'featured' : t)); } catch (e) { /* ignore */ } }
     if (t === 'home') { renderHome(); return; }
     floatCue.classList.remove('show');
+    if (t === 'vip') { $('vipRoom').hidden = true; $('vipLounge').hidden = false; if (!quiet) renderLounge(); return; }
+    if (t === 'events') { renderEvents(); return; }
     renderControls();
     renderGrid();
   };
@@ -1872,7 +2506,8 @@
     });
     if (m.offer || extraO.length) body.appendChild(el('h3', 'sub', (m.offer ? 1 : 0) + extraO.length > 1 ? 'My offers' : 'My offer'));
     if (m.offer) {
-      var b = el('div', 'block');
+      var b = el('div', 'block' + (m.offerImage ? ' has-img' : ''));
+      if (m.offerImage) addThumb(b, m.offerImage, 'offers', '');
       var op = offerParts(m);
       if (op.title) b.appendChild(el('p', 'name', op.title));
       if (op.desc) b.appendChild(el('p', 'offer', op.desc));
@@ -1885,7 +2520,8 @@
       body.appendChild(b);
     }
     extraO.forEach(function (o) {
-      var xb = el('div', 'block');
+      var xb = el('div', 'block' + (o.image ? ' has-img' : ''));
+      if (o.image) addThumb(xb, o.image, 'offers', '');
       if (o.title) xb.appendChild(el('p', 'name', o.title));
       if (o.desc) xb.appendChild(el('p', 'offer', o.desc));
       if (o.price) xb.appendChild(el('p', 'price', /^free/i.test(o.price) ? 'Free' : 'Starting at ' + o.price));
@@ -1900,7 +2536,8 @@
     if (mc.length) {
       body.appendChild(el('h3', 'sub', mc.length > 1 ? 'My communities' : 'My community'));
       mc.forEach(function (cm) {
-        var cb = el('div', 'block');
+        var cb = el('div', 'block has-img');
+        addThumb(cb, cm.image, ['communities', 'recommended', 'promo'], cm.name);
         cb.appendChild(el('p', 'name', cm.name));
         if (cm.about) cb.appendChild(el('p', 'offer', cm.about));
         var ct = el('div', 'tags');
@@ -1920,7 +2557,8 @@
     if (rlist.length) {
       body.appendChild(el('h3', 'sub', 'Communities I recommend'));
       rlist.forEach(function (r) {
-        var rb = el('div', 'block');
+        var rb = el('div', 'block has-img');
+        addThumb(rb, r.image, ['recommended', 'promo', 'communities'], r.name);
         rb.appendChild(el('p', 'name', r.name));
         if (r.why) rb.appendChild(whyBox(['Why I recommend it'], r.why));
         var rt = el('div', 'tags');
@@ -1978,8 +2616,15 @@
       if (!isNaN(d)) $('updated').textContent = 'Updated ' + d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
     }
     build();
-    var h = (location.hash || '').replace('#', '').toLowerCase();
-    setSection(chipSets[h] ? h : 'home', true);
+    var h = (location.hash || '').replace('#', '').toLowerCase().replace(/^featured(\/|$)/, 'vip$1');
+    var rv = /^vip\//.test(h) ? openRoomBySlug(h.slice(4)) : null;
+    if (rv) { setSection('vip', true, true); openRoom(rv, true); }
+    else setSection(chipSets[h] ? h : 'home', true);
+    var vc = vipList().length; if ($('c-vip')) $('c-vip').textContent = vc ? vc : '';
+    var ec = upcoming().length; if ($('c-events')) $('c-events').textContent = ec ? ec : '';
+    if (safeUrl(UPGRADE_URL)) $('evUpgrade').href = safeUrl(UPGRADE_URL); else $('evUpgrade').hidden = true;
+    $('vipNavLbl').textContent = VIP_NAME;
+    if (safeUrl(UPGRADE_URL)) $('vipUpgrade').href = safeUrl(UPGRADE_URL); else $('vipUpgrade').hidden = true;
     setTimeout(function () {
       try {
         offers.forEach(offerCard); communities.forEach(communityCard); promos.forEach(promoCard); recs.forEach(recCard);
@@ -1987,8 +2632,10 @@
     }, 600);
   };
   window.addEventListener('hashchange', function () {
-    var h = (location.hash || '').replace('#', '').toLowerCase();
-    if (chipSets[h] && h !== state.tab) setSection(h, true);
+    var h = (location.hash || '').replace('#', '').toLowerCase().replace(/^featured(\/|$)/, 'vip$1');
+    var rv = /^vip\//.test(h) ? openRoomBySlug(h.slice(4)) : null;
+    if (rv) { setSection('vip', true, true); openRoom(rv, true); return; }
+    if (chipSets[h] && (h !== state.tab || h === 'vip')) setSection(h, true);
   });
 
   var embedded = document.getElementById('embedded-data');

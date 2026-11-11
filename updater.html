@@ -36,6 +36,13 @@
   .note.ok { border-left: 3px solid var(--ok); }
   .note.warn { border-left: 3px solid var(--warn); }
   .grid2 { display: grid; gap: 12px; grid-template-columns: 1fr 1fr; }
+  input[type="date"], input[type="time"] { width: 100%; font-family: inherit; font-size: 16px; color: var(--text); background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 12px; padding: 10px 12px; color-scheme: dark; }
+  .cats { display: flex; flex-wrap: wrap; gap: 6px; }
+  .cats label { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; background: rgba(255,255,255,0.06); border-radius: 999px; padding: 6px 10px; cursor: pointer; }
+  .cats input { accent-color: var(--gold); }
+  .item.past { opacity: 0.6; }
+  .ev-img { width: 120px; height: 68px; border-radius: 8px; object-fit: cover; background: rgba(255,255,255,0.06); }
+  .err { color: #ffb4b4; font-size: 13px; font-weight: 600; }
   @media (max-width: 600px) { .grid2 { grid-template-columns: 1fr; } }
   label.f { display: block; font-weight: 600; font-size: 13px; margin-bottom: 5px; color: var(--blush-soft); }
   input[type="text"], input[type="url"], textarea, select {
@@ -190,6 +197,19 @@
     <div class="item" id="vipEditor" hidden style="margin-top:14px;"></div>
   </section>
 
+  <!-- EVENTS -->
+  <section class="panel" id="eventsPanel">
+    <div class="step">Anytime</div>
+    <h2>&#127915; Upcoming Events</h2>
+    <p class="help">Add workshops, webinars and in-person events from Premium and VIP members, or your own. Past events drop off the Directory on their own.</p>
+    <div class="row">
+      <button class="btn btn-primary" type="button" id="evAdd">Add an event</button>
+    </div>
+    <div class="status" id="evStatus" aria-live="polite"></div>
+    <div class="item" id="evEditor" hidden style="margin-top:14px;"></div>
+    <div class="list" id="evList"></div>
+  </section>
+
   <!-- 3. CSV -->
   <section class="panel">
     <div class="step">Step 2</div>
@@ -267,7 +287,7 @@
   var saved = { status: {}, featuredDraft: null, spotlightDraft: null, lockEdits: {}, cImg: {}, rImg: {} };
   try {
     var raw = localStorage.getItem(STORE);
-    if (raw) { var p = JSON.parse(raw); if (p && typeof p === 'object') { saved.status = p.status || {}; saved.featuredDraft = p.featuredDraft || null; saved.spotlightDraft = p.spotlightDraft || null; saved.lockEdits = p.lockEdits || {}; saved.cImg = p.cImg || {}; saved.rImg = p.rImg || {}; saved.vipDraft = p.vipDraft || null; } }
+    if (raw) { var p = JSON.parse(raw); if (p && typeof p === 'object') { saved.status = p.status || {}; saved.featuredDraft = p.featuredDraft || null; saved.spotlightDraft = p.spotlightDraft || null; saved.lockEdits = p.lockEdits || {}; saved.cImg = p.cImg || {}; saved.rImg = p.rImg || {}; saved.vipDraft = p.vipDraft || null; saved.eventsDraft = p.eventsDraft || null; } }
   } catch (e) { /* storage unavailable */ }
   var persist = function () { try { localStorage.setItem(STORE, JSON.stringify(saved)); } catch (e) { /* ignore */ } };
 
@@ -601,6 +621,16 @@
       if (mine != null) keep = mine;
       else if (!m._fromCurrent && old && old.community && isHand(old.community.image) && !isHand(m.community.image)) keep = old.community.image;
       if (keep != null && keep !== m.community.image) copy().community.image = keep;
+    }
+    /* Offer images you added by hand stay put, even when her form answers come in again */
+    if (old && !m._fromCurrent) {
+      if (isHand(old.offerImage) && !m.offerImage) copy().offerImage = old.offerImage;
+      (m.offers || []).forEach(function (o, i) {
+        if (o.image) return;
+        (old.offers || []).forEach(function (q) {
+          if (isHand(q.image) && ((normUrl(q.link) && normUrl(q.link) === normUrl(o.link)) || String(q.title || '').toLowerCase() === String(o.title || '').toLowerCase())) copy().offers[i].image = q.image;
+        });
+      });
     }
     ['recommends', 'extraRecommends'].forEach(function (k) {
       (m[k] || []).forEach(function (r, i) {
@@ -1164,19 +1194,215 @@
   $('vipAdd').addEventListener('click', function () { openVipEditor('new'); });
 
   /* ---------- Output ---------- */
+  /* ---------- Upcoming Events ----------
+     Added here by hand for now. Times are saved with the host's time zone,
+     so the Directory can show each visitor the right time. */
+  var events = [];
+  var evEditing = null, evConfirm = '';
+  var saveEvents = function () { saved.eventsDraft = { events: events, savedAt: Date.now() }; persist(); };
+  var TZS = [
+    ['America/Los_Angeles', 'Pacific (Los Angeles)'], ['America/Denver', 'Mountain (Denver)'], ['America/Phoenix', 'Arizona'], ['America/Chicago', 'Central (Chicago)'],
+    ['America/New_York', 'Eastern (New York)'], ['America/Anchorage', 'Alaska'], ['Pacific/Honolulu', 'Hawaii'], ['America/Halifax', 'Atlantic (Halifax)'],
+    ['America/Toronto', 'Toronto'], ['America/Vancouver', 'Vancouver'], ['America/Mexico_City', 'Mexico City'], ['Europe/London', 'UK (London)'], ['Europe/Dublin', 'Ireland'],
+    ['Europe/Paris', 'Central Europe (Paris, Berlin)'], ['Europe/Athens', 'Eastern Europe (Athens)'], ['Africa/Johannesburg', 'South Africa'], ['Asia/Dubai', 'Dubai'],
+    ['Asia/Kolkata', 'India'], ['Asia/Singapore', 'Singapore'], ['Australia/Perth', 'Perth'], ['Australia/Sydney', 'Sydney'], ['Pacific/Auckland', 'New Zealand']
+  ];
+  var tzOffset = function (ts, tz) {
+    var p = {};
+    new Intl.DateTimeFormat('en-US', { timeZone: tz, hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' })
+      .formatToParts(new Date(ts)).forEach(function (x) { p[x.type] = x.value; });
+    return Date.UTC(+p.year, +p.month - 1, +p.day, +p.hour % 24, +p.minute, +p.second) - ts;
+  };
+  /* "2026-11-20" + "17:00" in Los Angeles time, as a moment in time */
+  var zoned = function (date, time, tz) {
+    var d = String(date || '').split('-'), t = String(time || '00:00').split(':');
+    if (d.length !== 3) return 0;
+    var guess = Date.UTC(+d[0], +d[1] - 1, +d[2], +t[0] || 0, +t[1] || 0);
+    var utc = guess - tzOffset(guess, tz);
+    var off2 = tzOffset(utc, tz);
+    return guess - off2;
+  };
+  var evWhen = function (e) {
+    if (!e.startUtc) return 'No date';
+    try {
+      return new Intl.DateTimeFormat('en-US', { timeZone: e.tz, weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', timeZoneName: 'short' }).format(new Date(e.startUtc));
+    } catch (x) { return new Date(e.startUtc).toString(); }
+  };
+  var blankEvent = function () { return { id: '', title: '', host: '', hostBusiness: '', desc: '', image: '', date: '', start: '', end: '', tz: 'America/Los_Angeles', cost: 'free', price: '', mode: 'online', venue: '', address: '', city: '', region: '', country: '', where: 'skool', community: '', joinCost: '', link: '', categories: [] }; };
+  var renderEvents = function () {
+    var list = $('evList');
+    if (!list) return;
+    list.innerHTML = '';
+    var now = Date.now();
+    var sorted = events.slice().sort(function (a, b) { return (a.startUtc || 0) - (b.startUtc || 0); });
+    var up = sorted.filter(function (e) { return (e.endUtc || e.startUtc) > now; }), past = sorted.filter(function (e) { return (e.endUtc || e.startUtc) <= now; });
+    if (!events.length) list.appendChild(el('p', 'sub', 'No events yet. Tap Add an event.'));
+    up.concat(past).forEach(function (e) {
+      var isPast = past.indexOf(e) !== -1;
+      var it = el('div', 'item' + (isPast ? ' past' : ''));
+      var top = el('div', 'item-top');
+      if (e.image) { var im = new Image(); im.className = 'ev-img'; im.alt = ''; im.src = keepImg(e.image); top.appendChild(im); }
+      var t = el('div', 'grow');
+      t.appendChild(el('div', 'nm', e.title));
+      t.appendChild(el('div', 'sub', evWhen(e) + (e.host ? ' · ' + e.host : '')));
+      t.appendChild(el('div', 'sub', (e.mode === 'inperson' ? 'In person' + (e.city ? ', ' + e.city : '') : 'Online') + ' · ' + (e.cost === 'paid' ? (e.price || 'Paid') : 'Free') + (isPast ? ' · Past, hidden on the Directory' : '')));
+      top.appendChild(t);
+      it.appendChild(top);
+      var row = el('div', 'row'); row.style.marginTop = '0';
+      if (!isPast) { var eb = el('button', 'btn btn-ghost btn-sm', 'Edit'); eb.type = 'button'; eb.addEventListener('click', function () { openEvEditor(e.id); }); row.appendChild(eb); }
+      var rb = el('button', 'btn btn-ghost btn-sm', evConfirm === e.id ? 'Tap again to remove' : 'Remove');
+      rb.type = 'button';
+      rb.addEventListener('click', function () {
+        if (evConfirm !== e.id) { evConfirm = e.id; renderEvents(); return; }
+        evConfirm = '';
+        events = events.filter(function (x) { return x.id !== e.id; });
+        saveEvents(); renderEvents(); renderStats();
+        $('evStatus').textContent = 'Removed. Download and upload directory.json to update the Directory.';
+      });
+      row.appendChild(rb);
+      it.appendChild(row);
+      list.appendChild(it);
+    });
+  };
+  var openEvEditor = function (id) {
+    evEditing = id;
+    var e = id === 'new' ? blankEvent() : JSON.parse(JSON.stringify(events.filter(function (x) { return x.id === id; })[0] || blankEvent()));
+    var box = $('evEditor');
+    box.innerHTML = '';
+    box.hidden = false;
+    box.appendChild(el('h3', 'sub', id === 'new' ? 'Add an event' : 'Edit ' + e.title));
+    var grid = el('div', 'grid2');
+    var wrapOf = {};
+    var add = function (key, label, node, full) {
+      var w = el('div', full ? 'full' : '');
+      var l = el('label', 'f', label);
+      l.appendChild(node);
+      w.appendChild(l);
+      grid.appendChild(w);
+      wrapOf[key] = w;
+      return node;
+    };
+    var text = function (key, label, ph, full, area) {
+      var inp = document.createElement(area ? 'textarea' : 'input');
+      if (!area) inp.type = 'text';
+      inp.value = e[key] || ''; inp.placeholder = ph || '';
+      return add(key, label, inp, full);
+    };
+    var pick = function (key, label, opts, full) {
+      var sel = document.createElement('select');
+      opts.forEach(function (o) { var op = document.createElement('option'); op.value = o[0]; op.textContent = o[1]; sel.appendChild(op); });
+      sel.value = e[key];
+      return add(key, label, sel, full);
+    };
+    var fTitle = text('title', 'Event name', 'Calm Evenings Pour-Along', true);
+    var fHost = text('host', 'Hosted by', 'Her name');
+    var fBiz = text('hostBusiness', 'Her business (optional)', 'Slow Flame Candle Co.');
+    var fDesc = text('desc', 'Description', 'Two or three sentences about the event', true, true);
+    var fDate = document.createElement('input'); fDate.type = 'date'; fDate.value = e.date || ''; add('date', 'Date', fDate);
+    var fTz = pick('tz', 'Her time zone', TZS);
+    var fStart = document.createElement('input'); fStart.type = 'time'; fStart.value = e.start || ''; add('start', 'Start time', fStart);
+    var fEnd = document.createElement('input'); fEnd.type = 'time'; fEnd.value = e.end || ''; add('end', 'End time (optional)', fEnd);
+    var fCost = pick('cost', 'Event cost', [['free', 'Free'], ['paid', 'Paid']]);
+    var fPrice = text('price', 'Price', '$27');
+    var fMode = pick('mode', 'Online or in person', [['online', 'Online'], ['inperson', 'In person']], true);
+    var fVenue = text('venue', 'Venue name', 'The Wellness Loft');
+    var fAddr = text('address', 'Street address (optional)', '123 Main St');
+    var fCity = text('city', 'City', 'Austin');
+    var fRegion = text('region', 'State or region', 'TX');
+    var fCountry = text('country', 'Country', 'United States');
+    var fWhere = pick('where', 'Where do people sign up?', [['skool', 'Inside a Skool community'], ['page', 'A landing page or webinar page'], ['other', 'Somewhere else, like Zoom']], true);
+    var fComm = text('community', 'Community name', 'The Slow Evening Club');
+    var fJoin = text('joinCost', 'Cost to join the community', 'Free, or $9 a month');
+    var fLink = text('link', 'Link for the button', 'https://', true);
+    /* categories, up to two */
+    var cw = el('div', 'full');
+    cw.appendChild(el('label', 'f', 'Categories (up to 2)'));
+    var cats = el('div', 'cats');
+    var chosen = (e.categories || []).slice();
+    ALL_CATS.forEach(function (c) {
+      var l = el('label'); var cb = document.createElement('input'); cb.type = 'checkbox'; cb.value = c; cb.checked = chosen.indexOf(c) !== -1;
+      cb.addEventListener('change', function () {
+        if (cb.checked) { if (chosen.length >= 2) { cb.checked = false; $('evStatus').textContent = 'Two categories max.'; return; } chosen.push(c); }
+        else chosen = chosen.filter(function (x) { return x !== c; });
+      });
+      l.appendChild(cb); l.appendChild(document.createTextNode(c)); cats.appendChild(l);
+    });
+    cw.appendChild(cats);
+    grid.appendChild(cw);
+    /* image */
+    var iw = el('div', 'full cimg');
+    var pv = el('div', 'pv', 'No image');
+    var imgVal = e.image || '';
+    var showPv = function () { pv.innerHTML = ''; if (imgVal) { var im = new Image(); im.alt = ''; im.src = keepImg(imgVal); im.style.width = '100%'; im.style.height = '100%'; im.style.objectFit = 'cover'; pv.appendChild(im); } else pv.textContent = 'No image'; };
+    showPv();
+    iw.appendChild(pv);
+    var up = el('label', 'file'); var upi = document.createElement('input'); upi.type = 'file'; upi.accept = 'image/*';
+    up.appendChild(upi); up.appendChild(el('span', 'btn btn-ghost btn-sm', 'Upload event image'));
+    upi.addEventListener('change', function () { var f = this.files[0]; if (!f) return; shrink(f, function (d) { if (d) { imgVal = d; showPv(); } }); this.value = ''; });
+    iw.appendChild(up);
+    var clr = el('button', 'btn btn-ghost btn-sm', 'Remove image'); clr.type = 'button'; clr.addEventListener('click', function () { imgVal = ''; showPv(); });
+    iw.appendChild(clr);
+    grid.appendChild(iw);
+    box.appendChild(grid);
+    var sync = function () {
+      wrapOf.price.hidden = fCost.value !== 'paid';
+      ['venue', 'address', 'city', 'region', 'country'].forEach(function (k) { wrapOf[k].hidden = fMode.value !== 'inperson'; });
+      wrapOf.community.hidden = wrapOf.joinCost.hidden = fWhere.value !== 'skool';
+    };
+    [fCost, fMode, fWhere].forEach(function (x) { x.addEventListener('change', sync); });
+    sync();
+    var err = el('p', 'err'); err.hidden = true; box.appendChild(err);
+    var row = el('div', 'row');
+    var save = el('button', 'btn btn-primary', 'Save event'); save.type = 'button';
+    var cancel = el('button', 'btn btn-ghost', 'Cancel'); cancel.type = 'button';
+    cancel.addEventListener('click', function () { box.hidden = true; evEditing = null; });
+    save.addEventListener('click', function () {
+      var v = function (x) { return String(x.value || '').trim(); };
+      var miss = [];
+      if (!v(fTitle)) miss.push('event name');
+      if (!fDate.value) miss.push('date');
+      if (!fStart.value) miss.push('start time');
+      if (!cleanUrl(v(fLink))) miss.push('a link for the button');
+      if (fMode.value === 'inperson' && !v(fCity)) miss.push('city');
+      if (fWhere.value === 'skool' && !v(fComm)) miss.push('community name');
+      if (miss.length) { err.textContent = 'Please add: ' + miss.join(', ') + '.'; err.hidden = false; return; }
+      var ne = {
+        id: e.id || ('ev-' + Date.now().toString(36)),
+        title: v(fTitle), host: v(fHost), hostBusiness: v(fBiz), desc: v(fDesc), image: keepImg(imgVal),
+        date: fDate.value, start: fStart.value, end: fEnd.value, tz: fTz.value,
+        cost: fCost.value, price: fCost.value === 'paid' ? v(fPrice) : '',
+        mode: fMode.value, where: fWhere.value, link: cleanUrl(v(fLink)), categories: chosen.slice(0, 2)
+      };
+      if (ne.mode === 'inperson') { ne.venue = v(fVenue); ne.address = v(fAddr); ne.city = v(fCity); ne.region = v(fRegion); ne.country = v(fCountry); }
+      if (ne.where === 'skool') { ne.community = v(fComm); ne.joinCost = v(fJoin); }
+      ne.startUtc = zoned(ne.date, ne.start, ne.tz);
+      if (ne.end) { ne.endUtc = zoned(ne.date, ne.end, ne.tz); if (ne.endUtc <= ne.startUtc) ne.endUtc += 86400000; }
+      else ne.endUtc = ne.startUtc + 2 * 3600000;
+      var i = -1; events.forEach(function (x, k) { if (x.id === ne.id) i = k; });
+      if (i === -1) events.push(ne); else events[i] = ne;
+      saveEvents(); renderEvents(); renderStats();
+      box.hidden = true; evEditing = null;
+      $('evStatus').textContent = 'Saved ' + ne.title + '. Download and upload directory.json to put it on the Directory.';
+    });
+    row.appendChild(save); row.appendChild(cancel);
+    box.appendChild(row);
+    box.scrollIntoView({ block: 'start' });
+  };
+  $('evAdd').addEventListener('click', function () { openEvEditor('new'); });
+
   var buildOutput = function () {
     var members = allMembers().filter(function (m) { return statusOf(m.id) === 'live'; }).map(function (m) {
       var o = {};
       /* keep any hand-added bonus recommendations from the live Directory */
       if (!m.extraRecommends) current.members.forEach(function (c) { if (c.id === m.id && c.extraRecommends) m.extraRecommends = c.extraRecommends; });
-      ['id', 'name', 'business', 'about', 'offerName', 'photo', 'extraRecommends', 'social', 'categories', 'formats', 'offer', 'who', 'price', 'offerLink', 'keywords', 'offers', 'community', 'recommends']
+      ['id', 'name', 'business', 'about', 'offerName', 'photo', 'extraRecommends', 'social', 'categories', 'formats', 'offer', 'who', 'price', 'offerLink', 'offerImage', 'keywords', 'offers', 'community', 'recommends']
         .forEach(function (k) { if (m[k] != null) o[k] = m[k]; });
       var lk = m._fromCurrent ? (m.locked || []) : lockedKeys(m.id);
       if (lk.length) o.locked = lk;
       return o;
     });
     var sp = spotlight && spotlight.vip && vipOf(spotlight.vip) ? { vip: spotlight.vip, note: spotlight.note || '' } : null;
-    return { version: 1, updated: new Date().toISOString(), featured: featured, spotlight: sp, vips: vips, members: members };
+    return { version: 1, updated: new Date().toISOString(), featured: featured, spotlight: sp, vips: vips, events: events, members: members };
   };
   var renderStats = function () {
     var out = buildOutput();
@@ -1186,6 +1412,7 @@
       [list.filter(function (m) { return statusOf(m.id) === 'pending'; }).length, 'Pending'],
       [out.featured.length, 'Featured'],
       [out.vips.length, 'VIPs'],
+      [out.events.filter(function (e) { return (e.endUtc || e.startUtc) > Date.now(); }).length, 'Upcoming events'],
       [out.members.filter(function (m) { return m.community; }).length, 'Communities'],
       [out.members.reduce(function (n, m) { return n + (m.recommends || []).length; }, 0), 'Recommended']
     ];
@@ -1194,7 +1421,7 @@
     stats.forEach(function (s) { var d = el('div', 'stat'); d.appendChild(el('b', '', String(s[0]))); d.appendChild(el('span', '', s[1])); w.appendChild(d); });
   };
   var finished = function (msg) {
-    saved.featuredDraft = null; saved.spotlightDraft = null; saved.vipDraft = null; saved.cImg = {}; saved.rImg = {}; persist();
+    saved.featuredDraft = null; saved.spotlightDraft = null; saved.vipDraft = null; saved.eventsDraft = null; saved.cImg = {}; saved.rImg = {}; persist();
     $('dlStatus').textContent = msg;
   };
   $('downloadBtn').addEventListener('click', function () {
@@ -1256,6 +1483,10 @@
         }
       }
     }
+    var ed = saved.eventsDraft;
+    if (ed && ed.savedAt && fileTime > ed.savedAt) { ed = null; saved.eventsDraft = null; persist(); }
+    events = ed ? (ed.events || []) : (Array.isArray(json.events) ? JSON.parse(JSON.stringify(json.events)) : []);
+    renderEvents();
     renderFeatured(); renderStats(); renderSpotPicker();
     linkByName();
     if (current.members.length) { $('reviewPanel').hidden = false; renderReview(); }
@@ -1281,7 +1512,7 @@
   $('freshNo').addEventListener('click', function () { $('freshConfirm').hidden = true; });
   $('freshYes').addEventListener('click', function () {
     saved = { status: {}, featuredDraft: null, spotlightDraft: null, lockEdits: {}, cImg: {}, rImg: {} }; persist();
-    current = { featured: [], members: [] }; featured = []; csvMembers = []; spotlight = null; vips = []; saved.vipDraft = null; persist(); renderSpotPicker();
+    current = { featured: [], members: [] }; featured = []; csvMembers = []; spotlight = null; vips = []; events = []; saved.vipDraft = null; saved.eventsDraft = null; persist(); renderSpotPicker(); renderEvents();
     $('freshConfirm').hidden = true;
     $('csvReport').innerHTML = '';
     $('reviewPanel').hidden = true;
@@ -1297,7 +1528,8 @@
     .catch(function () {
       if (saved.featuredDraft) { featured = saved.featuredDraft; renderFeatured(); renderStats(); }
       if (saved.vipDraft) { vips = saved.vipDraft.vips || []; spotlight = saved.vipDraft.spotlight || null; }
-      renderSpotPicker();
+      if (saved.eventsDraft) events = saved.eventsDraft.events || [];
+      renderSpotPicker(); renderEvents();
       $('loadStatus').className = 'note warn';
       $('loadStatus').textContent = 'I couldn’t load your current Directory automatically. Choose your directory.json file, or start fresh if this is your first time.';
     });
