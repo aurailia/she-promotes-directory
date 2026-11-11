@@ -144,6 +144,22 @@
   .opt-btn.on { background: var(--gold); border-color: var(--gold); color: var(--plum-deep); font-weight: 600; }
   .opts.many .opt-btn { font-size: 13.5px; padding: 8px 13px; min-height: 40px; }
   .divider-space { height: 22px; }
+
+  .ai-box { position: relative; border: 1px solid rgba(232, 196, 122, 0.45); border-radius: 18px; padding: 20px 22px; margin-bottom: 26px; background: radial-gradient(circle at 100% 0%, rgba(196, 155, 255, 0.16), transparent 60%), var(--card); }
+  .ai-box h2 { font-family: var(--serif); font-size: 26px; font-weight: 600; color: var(--gold-bright); line-height: 1.15; }
+  .ai-box p { font-size: 14.5px; margin-top: 6px; }
+  .ai-box ol { margin: 12px 0 0 20px; font-size: 14.5px; }
+  .ai-box ol li { margin-top: 6px; padding-left: 4px; }
+  .ai-box .ai-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+  .ai-box .btn { flex: 1 1 180px; }
+  .ai-box textarea { min-height: 120px; font-size: 14px; }
+  .ai-box .ai-note { margin-top: 10px; font-size: 14px; color: var(--gold-bright); }
+  .ai-box .ai-note.bad { color: #ffb3c1; }
+  .ai-prompt { margin-top: 12px; width: 100%; min-height: 160px; font-size: 13px; }
+  .ai-open { margin-top: 12px; }
+  .done-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 26px; }
+  .done-actions .btn { flex: 0 0 auto; text-decoration: none; padding-left: 26px; padding-right: 26px; }
+  .confetti { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 50; }
 </style>
 </head>
 <body>
@@ -163,6 +179,7 @@
   var LIVE = /^https:\/\/script\.google\.com\//.test(SCRIPT_URL);
   var DRAFT_KEY = 'shePromotesDirectoryFormDraft';
   var UPGRADE_URL = 'https://www.skool.com/she-promotes-7924/plans';
+  var DIRECTORY_URL = 'https://aurailia.github.io/she-promotes-directory/';
 
   var CATEGORIES = ['Energy Healing', 'Hypnosis & Subconscious Work', 'Quantum Journeys Hypnosis', 'Faith & Spiritual Growth', 'Money Mindset & Wealth', 'Manifestation', 'Life & Purpose Coaching',
     'Relationship & Family Coaching', 'Business Coaching & Strategy', 'Human Design & Astrology', 'Intuitive Readings', 'Nutrition & Fitness', 'Perimenopause & Menopause', 'Beauty & Skincare',
@@ -366,6 +383,7 @@
     h += '<h1 class="step-title grad" tabindex="-1" id="stepTitle">' + (S.token && i === 0 ? 'Update your listing' : esc(st.title)) + '</h1>';
     h += '<p class="step-sub">' + esc(st.sub) + '</p><form class="form-body" id="form" novalidate>';
     if (i === 0 && !S.token && !has('name')) h += '<div class="ready"><b>This form is for She Promotes™ Premium and VIP members.</b> It takes about 10 minutes, and your answers save on this device as you go. Have these handy:<ul><li>A photo of you or your logo</li><li>Your offer and community links</li><li>Any affiliate links for communities you love</li></ul>Not Premium yet? <a href="' + UPGRADE_URL + '" target="_blank" rel="noopener">Upgrade here</a>.</div>';
+    if (i === 0 && !S.token) h += aiHtml();
     if (st.group) h += groupHtml(st.group);
     else if (st.id === 'review') h += reviewHtml();
     else st.keys.forEach(function (k) {
@@ -388,8 +406,180 @@
     if (res && res.editLink && !S.token) h += '<div class="edit-box">' + (res.emailed ? 'I emailed you a private link so you can change your answers anytime.' : 'Save this private link so you can change your answers anytime.') + ' Please keep it to yourself, since anyone with it can change your listing.' + (res.emailed ? '' : '<code>' + esc(res.editLink) + '</code>') + '</div>';
     if (res && res.imageProblems && res.imageProblems.length) h += '<p>One of your images didn\'t save. Please send it to team@aurailia.com.</p>';
     if (!LIVE) h += '<p>This is the preview, so nothing was saved.</p>';
+    h += '<div class="done-actions"><a class="btn btn-primary" href="' + DIRECTORY_URL + '">Browse the Directory</a></div>';
     h += '<p class="signoff">I believe in you. To living our dreams.<br>Aurailia &#10022;</p></div>';
     app.innerHTML = h; window.scrollTo(0, 0);
+    confetti();
+  }
+
+
+  /* ---------- Let AI fill it in ---------- */
+  var AI_PROMPT = [
+    'I\'m filling out the She Promotes™ Directory form so women can find my business. Please help me fill it in.',
+    '',
+    'Use only what I give you below this message. That might be my Skool about page, my bio, my offer pages, my website, or me just talking about my business. Keep my own words where you can. If something isn\'t there, leave it as "". Never make up links, prices or details.',
+    '',
+    'Reply with only this JSON in one code block, filled in:',
+    '',
+    '{',
+    '  "name": "my full name",',
+    '  "business": "my business name",',
+    '  "skool": "my Skool profile link",',
+    '  "about": "2 or 3 sentences about me and what I do, in first person, 400 characters max",',
+    '  "social": "my Instagram or main social link",',
+    '  "offers": [',
+    '    { "title": "offer name", "desc": "what it is and who it\'s for in one sentence, 150 characters max", "who": "who it\'s for, short", "price": "starting price, like $47 or Free", "link": "", "categories": ["up to 2 from the list below"], "formats": ["from the format list below"], "keywords": "up to 10 search words, separated by commas" }',
+    '  ],',
+    '  "community": { "name": "", "link": "", "about": "one sentence", "categories": ["up to 2 from the list below"], "platform": "Skool, Facebook or Other", "access": "Free, Paid, or Free with a paid upgrade", "promoCommunity": "Yes if people can promote their business there, otherwise No", "promoDays": ["Mon", "Wed"] },',
+    '  "secondCommunity": { "name": "", "link": "", "about": "", "access": "" },',
+    '  "recommends": [',
+    '    { "name": "", "link": "", "about": "one sentence", "type": "Promo Group, Business, Healing & Spiritual, or Other", "access": "Free, Paid, or Free with a paid upgrade", "promoDays": [], "why": "why I recommend it, in my words", "affiliate": "Yes or No" }',
+    '  ],',
+    '  "vip": { "headline": "one sentence on what I do and who it\'s for", "story": "2 or 3 short paragraphs in first person, how I started and why I do this work", "who": "who I help, short", "website": "", "inside": ["what\'s inside my community, one item each"], "access": "who can join and what it costs" }',
+    '}',
+    '',
+    'Up to 3 offers, my main one first. Up to 3 recommended communities, and my second community counts as one of the 3.',
+    'Leave "vip" empty unless I say I\'m a VIP member.',
+    '',
+    'Categories to pick from: ' + CATEGORIES.join('; ') + '. For a community you can also use Promo & Networking.',
+    'Formats to pick from: ' + FORMATS.join('; ') + '.',
+    '',
+    'Here\'s what I have about my business:'
+  ].join('\n');
+  function aiHtml() {
+    var h = '<div class="ai-box"><h2>Want AI to fill this in for you?</h2>';
+    h += '<p>Save yourself the typing. Claude or ChatGPT can fill in most of this form for you, then you just check it and add your images.</p>';
+    if (!S.aiOpen) return h + '<button type="button" class="btn btn-ghost ai-open" id="aiToggle">Show me how</button></div>';
+    h += '<ol><li>Tap <b>Copy the prompt</b>.</li><li>Open a new chat in Claude or ChatGPT and paste it in.</li><li>Under it, paste your Skool about page, your bio, your offer pages, or just talk about your business. Easier to talk? Tap the microphone on your keyboard.</li><li>Copy the whole answer it gives you, paste it in the box below and tap <b>Fill in my form</b>.</li></ol>';
+    h += '<div class="ai-row"><button type="button" class="btn btn-primary" id="aiCopy">' + (S.aiCopied ? 'Copied. Now open Claude or ChatGPT' : 'Copy the prompt') + '</button></div>';
+    if (S.aiShowPrompt) h += '<textarea class="ai-prompt" id="aiPromptBox" readonly aria-label="The prompt to copy">' + esc(AI_PROMPT) + '</textarea>';
+    h += '<div class="field" style="margin:16px 0 0"><label for="aiPaste">Paste the AI\'s answer here</label><textarea id="aiPaste" placeholder="Paste the whole answer, including the part in curly brackets">' + esc(S.aiText || '') + '</textarea></div>';
+    h += '<div class="ai-row"><button type="button" class="btn btn-primary" id="aiFill">Fill in my form</button></div>';
+    if (S.aiNote) h += '<div class="ai-note' + (S.aiBad ? ' bad' : '') + '" role="status">' + esc(S.aiNote) + '</div>';
+    return h + '</div>';
+  }
+  function pickJson(txt) {
+    txt = String(txt || '').replace(/[“”]/g, '"').replace(/[‘’]/g, "'");
+    var fence = txt.match(/```(?:json)?\s*([\s\S]*?)```/i);
+    if (fence) txt = fence[1];
+    var a = txt.indexOf('{'), b = txt.lastIndexOf('}');
+    if (a === -1 || b <= a) return null;
+    try { return JSON.parse(txt.slice(a, b + 1)); } catch (e) { return null; }
+  }
+  function str(x, max) { var v = String(x == null ? '' : x).replace(/\r\n/g, '\n').trim(); return max ? v.slice(0, max) : v; }
+  function arr(x) { return Array.isArray(x) ? x : (x ? String(x).split(/\s*[,;]\s*/) : []); }
+  function known(list, opts, max) {
+    var out = [];
+    arr(list).forEach(function (v) {
+      var k = str(v).toLowerCase(); if (!k) return;
+      var hit = null;
+      opts.forEach(function (o) { if (!hit && o.toLowerCase() === k) hit = o; });
+      if (!hit) opts.forEach(function (o) { if (!hit && (o.toLowerCase().indexOf(k) !== -1 || k.indexOf(o.toLowerCase()) !== -1)) hit = o; });
+      if (hit && out.indexOf(hit) === -1) out.push(hit);
+    });
+    return max ? out.slice(0, max) : out;
+  }
+  function oneOf(v, opts) { var r = known([v], opts, 1); return r[0] || ''; }
+  function accessOf(v) {
+    v = str(v).toLowerCase(); if (!v) return '';
+    if (/upgrade|premium|free.*paid|paid.*free/.test(v)) return 'Free with a paid upgrade';
+    if (/^free/.test(v)) return 'Free';
+    return 'Paid';
+  }
+  function daysOf(v) {
+    var out = [];
+    arr(v).forEach(function (d) { var k = str(d).slice(0, 3).toLowerCase(); DAYS.forEach(function (x) { if (x.toLowerCase() === k && out.indexOf(x) === -1) out.push(x); }); });
+    return out.sort(function (a, b) { return DAYS.indexOf(a) - DAYS.indexOf(b); });
+  }
+  function yes(v) { return /^(y|yes|true)/i.test(str(v)); }
+  function aiFill(j) {
+    var n = 0, i;
+    var set = function (k, v) { if (Array.isArray(v) ? v.length : str(v)) { S.a[k] = Array.isArray(v) ? v : str(v, F[k].max); n++; } };
+    set('name', j.name); set('business', j.business); set('skool', j.skool); set('about', j.about); set('social', j.social);
+    var offers = (Array.isArray(j.offers) ? j.offers : []).filter(function (o) { return o && (str(o.title) || str(o.desc)); }).slice(0, 3);
+    if (offers.length) {
+      for (i = 1; i <= 3; i++) OFFER_SFX.forEach(function (sx) { if (sx !== 'image') delete S.a['o' + i + sx]; });
+      offers.forEach(function (o, x) {
+        var p = 'o' + (x + 1);
+        set(p + 'title', o.title); set(p + 'desc', o.desc); set(p + 'who', o.who); set(p + 'price', o.price); set(p + 'link', o.link);
+        set(p + 'cat', known(o.categories, CATEGORIES, 2)); set(p + 'format', known(o.formats, FORMATS, 3));
+        set(p + 'keys', Array.isArray(o.keywords) ? o.keywords.slice(0, 10).join(', ') : o.keywords);
+      });
+      S.offers = offers.length;
+    }
+    var c = j.community || {};
+    if (str(c.name)) {
+      set('cname', c.name); set('clink', c.link); set('cabout', c.about); set('ccat', known(c.categories, COMM_CATS, 2));
+      set('cplatform', oneOf(c.platform, ['Skool', 'Facebook', 'Other'])); set('caccess', accessOf(c.access));
+      var dd = daysOf(c.promoDays);
+      if (yes(c.promoCommunity) || dd.length) { S.a.cpromo = 'Yes'; set('cdays', dd); } else if (str(c.promoCommunity)) S.a.cpromo = 'No';
+    }
+    var c2 = j.secondCommunity || {};
+    if (str(c2.name)) { S.a.c2has = 'Yes'; set('c2name', c2.name); set('c2link', c2.link); set('c2about', c2.about); set('c2access', accessOf(c2.access)); }
+    var recs = (Array.isArray(j.recommends) ? j.recommends : []).filter(function (r) { return r && str(r.name); }).slice(0, maxRecs());
+    if (recs.length) {
+      for (i = 1; i <= 3; i++) REC_SFX.forEach(function (sx) { delete S.a['r' + i + sx]; });
+      recs.forEach(function (r, x) {
+        var p = 'r' + (x + 1);
+        set(p + 'name', r.name); set(p + 'link', r.link); set(p + 'about', r.about);
+        var ty = oneOf(r.type, REC_CATS) || (/promo/i.test(str(r.type)) ? 'Promo Group' : 'Other');
+        S.a[p + 'cat'] = ty; set(p + 'access', accessOf(r.access));
+        if (ty === 'Promo Group') set(p + 'days', daysOf(r.promoDays));
+        set(p + 'why', r.why); S.a[p + 'aff'] = yes(r.affiliate) ? 'Yes' : 'No';
+      });
+      S.recs = recs.length;
+    }
+    var v = j.vip || {};
+    if (str(v.headline) || str(v.story)) {
+      set('vheadline', v.headline); set('vstory', v.story); set('vwho', v.who); set('vwebsite', v.website);
+      set('vinside', arr(v.inside).map(function (x) { return str(x); }).filter(Boolean).join('\n')); set('vaccess', v.access);
+      if (!val('tier')) S.a.tier = 'VIP';
+    }
+    ['skool', 'social', 'vwebsite', 'clink', 'c2link', 'o1link', 'o2link', 'o3link', 'r1link', 'r2link', 'r3link'].forEach(function (k) { if (has(k)) normUrl(k); });
+    return n;
+  }
+  function copyText(text, ok, fail) {
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(text).then(ok, fail); return; }
+    } catch (e) { /* fall through */ }
+    fail();
+  }
+
+  /* ---------- confetti for the thank you page ---------- */
+  function confetti() {
+    try { if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return; } catch (e) { /* fine */ }
+    var cv = document.createElement('canvas'); cv.className = 'confetti'; cv.setAttribute('aria-hidden', 'true');
+    document.body.appendChild(cv);
+    var ctx = cv.getContext('2d'); if (!ctx) { cv.remove(); return; }
+    var dpr = Math.min(window.devicePixelRatio || 1, 2), W = 0, H = 0;
+    var size = function () { W = window.innerWidth; H = window.innerHeight; cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); };
+    size(); window.addEventListener('resize', size);
+    var COLORS = ['#e8c47a', '#f3d89b', '#c9a3ff', '#b48ae8', '#ffffff', '#7b3fa0', '#5b2a86'];
+    var bits = [], k;
+    for (k = 0; k < 170; k++) bits.push({
+      x: W / 2 + (Math.random() - 0.5) * W * 0.3, y: H * 0.32 + (Math.random() - 0.5) * 40,
+      vx: (Math.random() - 0.5) * 13, vy: -Math.random() * 13 - 4,
+      w: 6 + Math.random() * 7, h: 4 + Math.random() * 5, r: Math.random() * Math.PI, vr: (Math.random() - 0.5) * 0.3,
+      c: COLORS[k % COLORS.length], round: Math.random() < 0.3, wob: Math.random() * 10
+    });
+    var start = Date.now();
+    var tick = function () {
+      var t = Date.now() - start;
+      ctx.clearRect(0, 0, W, H);
+      var alive = 0;
+      bits.forEach(function (b) {
+        b.vy += 0.26; b.vx *= 0.985; b.vy *= 0.99; b.x += b.vx + Math.sin((t / 260) + b.wob) * 0.6; b.y += b.vy; b.r += b.vr;
+        if (b.y < H + 20) alive++;
+        ctx.save(); ctx.globalAlpha = t > 3600 ? Math.max(0, 1 - (t - 3600) / 900) : 1;
+        ctx.translate(b.x, b.y); ctx.rotate(b.r); ctx.fillStyle = b.c;
+        if (b.round) { ctx.beginPath(); ctx.arc(0, 0, b.h / 2 + 1, 0, Math.PI * 2); ctx.fill(); }
+        else ctx.fillRect(-b.w / 2, -b.h / 2, b.w, b.h * Math.abs(Math.cos(b.r * 2)) + 1);
+        ctx.restore();
+      });
+      if (alive && t < 4500) window.requestAnimationFrame(tick);
+      else { window.removeEventListener('resize', size); cv.remove(); }
+    };
+    window.requestAnimationFrame(tick);
   }
 
   /* ---------- checking answers ---------- */
@@ -457,7 +647,7 @@
   /* ---------- turning answers into the columns the Updater reads ---------- */
   function payload() {
     var A = {}, i, j = 1;
-    var put = function (k, v) { A[k] = Array.isArray(v) ? v.join(', ') : String(v == null ? '' : v).trim(); };
+    var put = function (k, v) { A[k] = Array.isArray(v) ? v.join(/days$/.test(k) ? ', ' : '; ') : String(v == null ? '' : v).trim(); };
     ['name', 'email', 'skool', 'tier', 'business', 'about', 'social'].forEach(function (k) { put(k, val(k)); });
     for (i = 1; i <= 3; i++) OFFER_SFX.forEach(function (s) { if (s !== 'image') put('o' + i + s, i <= S.offers ? val('o' + i + s) : ''); });
     ['cname', 'clink', 'cabout', 'ccat', 'cplatform', 'caccess'].forEach(function (k) { put(k, val(k)); });
@@ -505,9 +695,11 @@
     var st = {}; try { st = JSON.parse(ans.formState || '{}'); } catch (e) { st = {}; }
     var a = {}, i, j = 1;
     ['name', 'email', 'skool', 'tier', 'business', 'about', 'social', 'cname', 'clink', 'cabout', 'cplatform', 'caccess', 'vheadline', 'vstory', 'vwho', 'vwebsite', 'vinside', 'vaccess'].forEach(function (k) { a[k] = ans[k] || ''; });
-    var list = function (v) { return String(v || '').split(/\s*,\s*/).filter(Boolean); };
-    a.ccat = list(ans.ccat); a.cdays = list(ans.cdays); a.cpromo = st.cpromo || (a.cdays.length ? 'Yes' : '');
-    for (i = 1; i <= 3; i++) OFFER_SFX.forEach(function (s) { if (s === 'image') return; a['o' + i + s] = (s === 'cat' || s === 'format') ? list(ans['o' + i + s]) : (ans['o' + i + s] || ''); });
+    var list = function (v) { return String(v || '').split(/\s*[,;]\s*/).filter(Boolean); };
+    /* match whole names, since some categories have a comma in them */
+    var pick = function (v, opts) { var c = String(v || '').toLowerCase(); return opts.filter(function (o) { return c.indexOf(o.toLowerCase()) !== -1; }).sort(function (x, y) { return c.indexOf(x.toLowerCase()) - c.indexOf(y.toLowerCase()); }); };
+    a.ccat = pick(ans.ccat, COMM_CATS); a.cdays = list(ans.cdays); a.cpromo = st.cpromo || (a.cdays.length ? 'Yes' : '');
+    for (i = 1; i <= 3; i++) OFFER_SFX.forEach(function (s) { if (s === 'image') return; a['o' + i + s] = s === 'cat' ? pick(ans['o' + i + s], CATEGORIES) : s === 'format' ? pick(ans['o' + i + s], FORMATS) : (ans['o' + i + s] || ''); });
     var offers = 0; for (i = 1; i <= 3; i++) if (a['o' + i + 'title'] || a['o' + i + 'desc']) offers = i;
     if (ans.r1own === 'Yes') { a.c2has = 'Yes'; a.c2name = ans.r1name; a.c2link = ans.r1link; a.c2about = ans.r1about; a.c2access = ans.r1access; j = 2; }
     var recs = 0;
@@ -516,11 +708,12 @@
       REC_SFX.forEach(function (s) { a['r' + i + s] = s === 'days' ? list(ans['r' + j + s]) : (ans['r' + j + s] || ''); });
       recs = i; i++;
     }
-    S.a = a; S.offers = Math.max(1, offers); S.recs = recs; S.existing = imgs || {};
+    S.a = a; S.offers = offers; S.recs = recs; S.existing = imgs || {};
   }
 
   /* ---------- events ---------- */
   app.addEventListener('input', function (e) {
+    if (e.target.id === 'aiPaste') { S.aiText = e.target.value; return; }
     var k = e.target.getAttribute('data-a'); if (!k) return;
     S.a[k] = e.target.value;
     var c = app.querySelector('[data-count="' + k + '"]'); if (c) c.textContent = e.target.value.length + ' / ' + F[k].max;
@@ -541,6 +734,23 @@
   app.addEventListener('click', function (e) {
     var t = e.target.closest ? e.target.closest('button') : null;
     if (!t) return;
+    if (t.id === 'aiToggle') { S.aiOpen = true; render(false); var bx = app.querySelector('.ai-box'); if (bx) bx.scrollIntoView({ block: 'start' }); return; }
+    if (t.id === 'aiCopy') {
+      copyText(AI_PROMPT, function () { S.aiCopied = true; S.aiShowPrompt = false; var y0 = window.pageYOffset; render(false); window.scrollTo(0, y0); },
+        function () { S.aiShowPrompt = true; var y1 = window.pageYOffset; render(false); window.scrollTo(0, y1); var pb = document.getElementById('aiPromptBox'); if (pb) { pb.focus(); pb.select(); } S.aiNote = 'Copy the prompt from the box above.'; });
+      return;
+    }
+    if (t.id === 'aiFill') {
+      var pj = pickJson(S.aiText);
+      if (!pj) { S.aiBad = true; S.aiNote = 'I couldn\'t read that. Paste the whole answer, including the part in curly brackets.'; }
+      else {
+        var got = aiFill(pj); saveDraft();
+        S.aiBad = !got;
+        S.aiNote = got ? 'Done. I filled in ' + got + ' answers. Tap Next to check each step, add your images, and make sure it sounds like you.' : 'That answer was empty. Add more about your business in the chat and try again.';
+      }
+      var y2 = window.pageYOffset; render(false); window.scrollTo(0, y2);
+      return;
+    }
     var pk = t.getAttribute('data-pick');
     if (pk) {
       var f = F[pk], v = t.getAttribute('data-v');
