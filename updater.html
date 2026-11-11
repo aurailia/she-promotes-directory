@@ -41,6 +41,10 @@
   .cats label { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; background: rgba(255,255,255,0.06); border-radius: 999px; padding: 6px 10px; cursor: pointer; }
   .cats input { accent-color: var(--gold); }
   .item.past { opacity: 0.6; }
+  .quickvip { margin-top: 16px; padding: 16px; border-radius: 16px; background: rgba(0,0,0,0.18); border: 1px dashed rgba(232,196,122,0.4); }
+  .quickvip .sub-h { font-size: 16px; margin: 0 0 6px; color: var(--gold); }
+  .quickvip select { flex: 1 1 220px; width: auto; }
+  .tagline { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--plum-deep); background: var(--gold); border-radius: 999px; padding: 2px 8px; margin-left: 6px; vertical-align: middle; }
   .ev-img { width: 120px; height: 68px; border-radius: 8px; object-fit: cover; background: rgba(255,255,255,0.06); }
   .err { color: #ffb4b4; font-size: 13px; font-weight: 600; }
   @media (max-width: 600px) { .grid2 { grid-template-columns: 1fr; } }
@@ -192,6 +196,24 @@
       <button class="btn btn-ghost" type="button" id="vipNone">No spotlight this week</button>
     </div>
     <div class="status" id="vipStatus" aria-live="polite"></div>
+
+    <div class="quickvip">
+      <h3 class="sub-h">Quick add a VIP</h3>
+      <p class="help"><b>Already listed?</b> Pick her and tap Make VIP. Her page uses her listing: photo, story, community, offers and the communities she recommends.</p>
+      <div class="row">
+        <select id="qvMember" aria-label="Pick a listed member"></select>
+        <button class="btn btn-primary" type="button" id="qvMake">Make VIP</button>
+      </div>
+      <p class="help" style="margin-top:16px;"><b>Not listed, or want more on her page?</b> Copy the prompt, paste it into Claude with what you already have from her (your welcome post, her Skool profile, her community&rsquo;s about page), then paste Claude&rsquo;s answer here.</p>
+      <div class="row">
+        <button class="btn btn-ghost" type="button" id="qvCopy">Copy the VIP prompt</button>
+      </div>
+      <textarea id="qvPaste" placeholder="Paste Claude&rsquo;s answer here" style="margin-top:10px; min-height:110px;"></textarea>
+      <div class="row">
+        <button class="btn btn-primary" type="button" id="qvAdd">Add VIP from Claude&rsquo;s answer</button>
+      </div>
+      <textarea id="qvPrompt" readonly hidden style="margin-top:10px; min-height:110px;"></textarea>
+    </div>
     <div class="list" id="vipList"></div>
     <div class="full" id="spNoteWrap" hidden style="margin-top:12px;"><label class="f" for="sp-note" id="spNoteLabel">Why I chose her</label><textarea id="sp-note" placeholder="She shows up for every woman in here. Her community feels like coming home."></textarea></div>
     <div class="item" id="vipEditor" hidden style="margin-top:14px;"></div>
@@ -1047,6 +1069,7 @@
   });
 
   var renderSpotPicker = function () {
+    fillQuickPick();
     var list = $('vipList');
     list.innerHTML = '';
     if (spotlight && spotlight.vip && !vipOf(spotlight.vip)) spotlight = null;
@@ -1056,7 +1079,9 @@
       var top = el('div', 'item-top');
       top.appendChild(thumb(v.photo, v.name));
       var t = el('div', 'grow');
-      t.appendChild(el('div', 'nm', v.name));
+      var nmEl = el('div', 'nm', v.name);
+      if (v.fromListing) nmEl.appendChild(el('span', 'tagline', 'Uses her listing'));
+      t.appendChild(nmEl);
       if (v.headline) t.appendChild(el('div', 'sub', v.headline));
       t.appendChild(el('div', 'sub', v.communities.length + (v.communities.length === 1 ? ' community, ' : ' communities, ') + v.offers.length + (v.offers.length === 1 ? ' offer' : ' offers') + (v.website ? ', website' : '') + (v.edited ? '. Edited by you.' : '.')));
       top.appendChild(t);
@@ -1094,6 +1119,105 @@
   };
   $('sp-note').addEventListener('input', function () { if (spotlight) { spotlight.note = this.value.trim(); saveSpot(); } });
   $('vipNone').addEventListener('click', function () { spotlight = null; saveSpot(); renderSpotPicker(); renderStats(); });
+
+  /* ---------- Quick add ---------- */
+  var listedNotVip = function () {
+    var have = {}; vips.forEach(function (v) { have[nameKey(v.name)] = 1; });
+    return allMembers().filter(function (m) { return m.name && !have[nameKey(m.name)]; })
+      .sort(function (a, b) { return a.name.localeCompare(b.name); });
+  };
+  var fillQuickPick = function () {
+    var sel = $('qvMember'); if (!sel) return;
+    sel.innerHTML = '';
+    var list = listedNotVip();
+    var first = document.createElement('option'); first.value = ''; first.textContent = list.length ? 'Pick a listed member' : 'Everyone listed is already a VIP'; sel.appendChild(first);
+    list.forEach(function (m) { var o = document.createElement('option'); o.value = m.name; o.textContent = m.name + (m.business ? ' · ' + m.business : ''); sel.appendChild(o); });
+  };
+  $('qvMake').addEventListener('click', function () {
+    var nm = $('qvMember').value;
+    if (!nm) { $('vipStatus').textContent = 'Pick a listed member first.'; return; }
+    var v = blankVip(); v.id = vipId(nm); v.name = nm; v.fromListing = true;
+    vips.push(v); saveSpot(); renderSpotPicker(); renderStats();
+    $('vipStatus').textContent = nm + ' is a VIP now. Her page uses her listing. Tap Edit to add a banner or anything extra.';
+  });
+  var VIP_PROMPT = [
+    'I’m adding a VIP to the Featured Businesses page of my She Promotes™ Directory. Her page shows her story, who she helps, her community, her offers and where to find her.',
+    '',
+    'Use only what I paste below this message: my welcome post about her, her Skool profile, her community’s about page, her website, anything she sent me. Keep her own words where you can. If something isn’t in what I gave you, leave it as "". Never make up prices, links or details.',
+    '',
+    'Reply with only this JSON in one code block, filled in:',
+    '',
+    '{',
+    '  "name": "her full name",',
+    '  "business": "her business name",',
+    '  "headline": "one sentence on what she does and who it’s for",',
+    '  "story": "2 or 3 short paragraphs in first person, how she started and why she does this work. Separate paragraphs with a blank line",',
+    '  "who": "who she helps, in a short phrase",',
+    '  "photo": "link to her photo, if I gave one",',
+    '  "website": "",',
+    '  "skool": "her Skool profile link",',
+    '  "instagram": "", "facebook": "", "tiktok": "", "youtube": "", "linkedin": "",',
+    '  "communities": [',
+    '    { "name": "", "link": "", "about": "one sentence", "inside": ["what’s inside, one item each"], "access": "who can join and what it costs, like Free to join. Premium is $9 a month." }',
+    '  ],',
+    '  "offers": [',
+    '    { "title": "", "desc": "one or two sentences", "who": "who it’s for", "price": "starting price, like $47", "link": "" }',
+    '  ]',
+    '}',
+    '',
+    'Up to 3 communities and 3 offers. Her main community goes first.',
+    '',
+    'Here’s what I have about her:'
+  ].join('\n');
+  $('qvCopy').addEventListener('click', function () {
+    var box = $('qvPrompt');
+    var show = function () { box.value = VIP_PROMPT; box.hidden = false; box.focus(); box.select(); $('vipStatus').textContent = 'Copy the prompt from the box below.'; };
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(VIP_PROMPT).then(function () { $('vipStatus').textContent = 'Prompt copied. Paste it into Claude, add what you have about her, then paste Claude’s answer below.'; }, show);
+      else show();
+    } catch (e) { show(); }
+  });
+  var pickJson = function (txt) {
+    txt = String(txt || '').replace(/[“”]/g, '"').replace(/[‘’]/g, "'");
+    var fence = txt.match(/```(?:json)?\s*([\s\S]*?)```/i);
+    if (fence) txt = fence[1];
+    var a = txt.indexOf('{'), b = txt.lastIndexOf('}');
+    if (a === -1 || b <= a) return null;
+    try { return JSON.parse(txt.slice(a, b + 1)); } catch (e) { return null; }
+  };
+  var str = function (x) { return String(x == null ? '' : x).trim(); };
+  $('qvAdd').addEventListener('click', function () {
+    var j = pickJson($('qvPaste').value);
+    if (!j || !str(j.name)) { $('vipStatus').textContent = 'I couldn’t read that. Paste Claude’s whole answer, including the part in curly brackets.'; return; }
+    var nk = nameKey(j.name), v = null;
+    vips.forEach(function (x) { if (nameKey(x.name) === nk) v = x; });
+    var isNew = !v;
+    if (!v) { v = blankVip(); v.id = vipId(str(j.name)); v.name = str(j.name); }
+    var set = function (k, val) { val = str(val); if (val) v[k] = val; };
+    set('business', j.business); set('headline', j.headline); set('about', j.story || j.about); set('who', j.who);
+    var ph = cleanUrl(str(j.photo)); if (ph) v.photo = ph;
+    var ws = cleanUrl(str(j.website)); if (ws) v.website = ws;
+    var sk = cleanUrl(str(j.skool)); if (sk) v.social = sk;
+    v.socials = v.socials || {};
+    ['instagram', 'facebook', 'tiktok', 'youtube', 'linkedin'].forEach(function (k) { var u = cleanUrl(str(j[k])); if (u) v.socials[k] = u; });
+    if (!v.social) { var firstSoc = ['instagram', 'facebook', 'tiktok', 'youtube', 'linkedin'].map(function (k) { return v.socials[k]; }).filter(Boolean)[0]; if (firstSoc) v.social = firstSoc; }
+    var cs = (Array.isArray(j.communities) ? j.communities : []).map(function (c) {
+      return { name: str(c.name), link: cleanUrl(str(c.link)), about: str(c.about), inside: (Array.isArray(c.inside) ? c.inside : String(c.inside || '').split(/\n+/)).map(str).filter(Boolean), access: str(c.access), image: '' };
+    }).filter(function (c) { return c.name && c.link; }).slice(0, 3);
+    if (cs.length) {
+      cs.forEach(function (c) { (v.communities || []).forEach(function (o) { if (nameKey(o.name) === nameKey(c.name) && o.image) c.image = o.image; }); });
+      v.communities = cs;
+    }
+    var os = (Array.isArray(j.offers) ? j.offers : []).map(function (o) {
+      return { title: str(o.title), desc: str(o.desc), who: str(o.who), price: str(o.price), link: cleanUrl(str(o.link)) };
+    }).filter(function (o) { return o.title || o.desc; }).slice(0, 3);
+    if (os.length) v.offers = os;
+    v.edited = true;
+    if (isNew) vips.push(v);
+    saveSpot(); renderSpotPicker(); renderStats();
+    $('qvPaste').value = '';
+    $('vipStatus').textContent = (isNew ? 'Added ' : 'Updated ') + v.name + '. Tap Edit to add her banner, then download and upload directory.json.';
+  });
 
   /* Editor: add a VIP by hand, or fix one from the form */
   var openVipEditor = function (id) {
