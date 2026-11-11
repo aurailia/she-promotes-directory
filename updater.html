@@ -351,10 +351,10 @@
     return /^https?:\/\/[^\s"'<>]+\.[^\s"'<>]+/i.test(u) ? u : '';
   };
   /* Google Forms photo uploads arrive as Drive links; turn the first one into a viewable image link */
-  var photoUrl = function (v) {
+  var photoUrl = function (v, w) {
     var first = String(v || '').split(/[\s,]+/)[0];
     var m = /drive\.google\.com/.test(first) ? (first.match(/[?&]id=([\w-]{10,})/) || first.match(/\/d\/([\w-]{10,})/)) : null;
-    if (m) return 'https://lh3.googleusercontent.com/d/' + m[1] + '=w600';
+    if (m) return 'https://lh3.googleusercontent.com/d/' + m[1] + '=w' + (w || 600);
     return cleanUrl(first);
   };
   var truthy = function (v) {
@@ -417,6 +417,16 @@
     headers.forEach(function (raw, i) {
       var h = key(raw);
       if (!h) return;
+      /* columns from the She Promotes form that only the form uses */
+      if (/^(edit token|okay to show|form state)/.test(h)) return;
+      /* Featured Business page answers from the She Promotes form */
+      if (/^vip /.test(h)) {
+        map.vip = map.vip || {};
+        var vk = h.indexOf('headline') !== -1 ? 'headline' : h.indexOf('story') !== -1 ? 'story' : h.indexOf('who you help') !== -1 ? 'who' : h.indexOf('website') !== -1 ? 'website' : h.indexOf('inside') !== -1 ? 'inside' : h.indexOf('who can join') !== -1 ? 'access' : /cover|banner|image/.test(h) ? 'cover' : '';
+        if (vk) map.vip[vk] = i;
+        return;
+      }
+      if (h === 'offer image') { map.offerImage = i; return; }
       var isDays = h.indexOf('promo day') !== -1 || /\bdays\b/.test(h);
       /* questions that only steer the form */
       if (/would you like to recommend|add another/.test(h)) return;
@@ -439,12 +449,13 @@
         return;
       }
       if (h.indexOf('email') !== -1) { emailCols++; return; }   /* never read */
-      if (h.indexOf('premium') !== -1) { map.premium = i; return; }
+      if (h.indexOf('premium') !== -1) { map.premium = i; if (h.indexOf('vip') !== -1) map.tier = i; return; }
       /* extra offers: "Offer 2 name", "Offer 2 in one sentence", "Offer 2 link", "Offer 2 starting price", "Offer 2 category" */
       var xo = h.match(/^(?:signature )?offer ([2-9])\b/) || h.match(/\boffer ([2-9])\b/);
       if (xo) {
         var ofr = map.offers[xo[1]] = map.offers[xo[1]] || {};
-        if (h.indexOf('price') !== -1) ofr.price = i;
+        if (/image|photo/.test(h)) ofr.image = i;
+        else if (h.indexOf('price') !== -1) ofr.price = i;
         else if (/link|url/.test(h)) ofr.link = i;
         else if (h.indexOf('categor') !== -1) ofr.cat = i;
         else if (h.indexOf('format') !== -1) ofr.format = i;
@@ -512,16 +523,17 @@
       price: g(map.price),
       offerLink: cleanUrl(g(map.offerLink)),
       keywords: keyList(g(map.keys)),
+      offerImage: photoUrl(g(map.offerImage), 1200),
       offers: Object.keys(map.offers || {}).sort().map(function (n) {
         var o = map.offers[n];
-        return { title: g(o.title), desc: g(o.desc), link: cleanUrl(g(o.link)), price: g(o.price), who: g(o.who), categories: pickKnown(g(o.cat), CATEGORIES).slice(0, 3), formats: pickKnown(g(o.format), FORMATS), keywords: keyList(g(o.keys)) };
+        return { title: g(o.title), desc: g(o.desc), link: cleanUrl(g(o.link)), price: g(o.price), who: g(o.who), categories: pickKnown(g(o.cat), CATEGORIES).slice(0, 3), formats: pickKnown(g(o.format), FORMATS), keywords: keyList(g(o.keys)), image: photoUrl(g(o.image), 1200) };
       }).filter(function (o) { return o.title || o.desc; }).slice(0, 2),
       community: null,
       recommends: []
     };
     if (g(map.cName) && cleanUrl(g(map.cLink))) {
       var ccats = pickKnown(g(map.cCat), ALL_CATS).slice(0, 4);
-      m.community = { name: g(map.cName), link: cleanUrl(g(map.cLink)), category: ccats[0] || '', categories: ccats, platform: g(map.cPlatform), about: g(map.cAbout), access: g(map.cAccess), promoDays: parseDays(g(map.cDays)), image: photoUrl(g(map.cImage)), keywords: keyList(g(map.cKeys)) };
+      m.community = { name: g(map.cName), link: cleanUrl(g(map.cLink)), category: ccats[0] || '', categories: ccats, platform: g(map.cPlatform), about: g(map.cAbout), access: g(map.cAccess), promoDays: parseDays(g(map.cDays)), image: photoUrl(g(map.cImage), 1200), keywords: keyList(g(map.cKeys)) };
     }
     Object.keys(map.recs).sort().forEach(function (n) {
       var r = map.recs[n];
@@ -532,9 +544,38 @@
     m._skool = cleanUrl(/^@[\w.-]+$/.test(skool) ? 'https://www.skool.com/' + skool : skool);
     m._premium = map.premium == null ? null : truthy(g(map.premium));
     m._date = map.date == null ? NaN : Date.parse(g(map.date));
+    m._tier = map.tier == null ? '' : g(map.tier);
+    if (map.vip && /vip/i.test(m._tier)) {
+      var vg = function (k) { return g(map.vip[k]); };
+      m._vip = { headline: vg('headline'), story: vg('story'), who: vg('who'), website: cleanUrl(vg('website')), inside: vg('inside').split(/\n+/).map(function (x) { return x.replace(/^[\s\-*\u2022\u2726]+/, '').trim(); }).filter(Boolean), access: vg('access'), cover: photoUrl(vg('cover'), 1600) };
+    }
     return m;
   };
 
+  /* VIPs who filled out the She Promotes form get their Featured Business page from it.
+     If you edited her page by hand, the form only fills in what's still empty. */
+  var formVips = function (list) {
+    var count = 0;
+    list.forEach(function (m) {
+      var x = m._vip; if (!x) return;
+      var nk = nameKey(m.name), v = null;
+      vips.forEach(function (q) { if (nameKey(q.name) === nk) v = q; });
+      if (!v) { v = blankVip(); v.id = vipId(m.name); v.name = m.name; v.fromListing = true; vips.push(v); }
+      var hand = !!v.edited;
+      var set = function (k, val) { if (val && (!hand || !v[k])) v[k] = val; };
+      set('headline', x.headline); set('about', x.story); set('who', x.who); set('website', x.website); set('banner', x.cover);
+      if (m.community && (x.inside.length || x.access)) {
+        var cs = v.communities || (v.communities = []), c = null;
+        cs.forEach(function (q) { if (!c && ((normUrl(q.link) && normUrl(q.link) === normUrl(m.community.link)) || nameKey(q.name) === nameKey(m.community.name))) c = q; });
+        if (!c) { c = { name: m.community.name, link: m.community.link, about: '', inside: [], access: '' }; cs.unshift(c); }
+        if (x.inside.length && (!hand || !(c.inside && c.inside.length))) c.inside = x.inside.slice(0, 12);
+        if (x.access && (!hand || !c.access)) c.access = x.access;
+      }
+      count++;
+    });
+    if (count) { saveSpot(); renderSpotPicker(); }
+    return count;
+  };
   var handleCSV = function (text) {
     var report = $('csvReport');
     report.innerHTML = '';
@@ -559,10 +600,12 @@
     });
     csvMembers = order.map(function (id) { return byId[id]; });
     linkByName();
+    var vipCount = formVips(csvMembers);
     var dupes = total - csvMembers.length;
     report.appendChild(el('div', 'note ok',
       total + ' submission' + (total === 1 ? '' : 's') + ' found, ' + csvMembers.length + ' unique ' + (csvMembers.length === 1 ? 'woman' : 'women') +
       (dupes ? '. ' + dupes + ' older duplicate' + (dupes === 1 ? '' : 's') + ' replaced by the newest version.' : '.')));
+    if (vipCount) report.appendChild(el('div', 'note ok', vipCount + ' VIP page' + (vipCount === 1 ? '' : 's') + ' added or updated from the form. Check them in Featured Businesses.'));
     if (map.emailCols) report.appendChild(el('div', 'note ok', 'Emails removed. They stay out of the Directory file.'));
     var nNew = 0, nUp = 0, nSame = 0;
     csvMembers.forEach(function (m) { var c = changesFor(eff(m)); if (c === 'new') nNew++; else if (c && c.length) nUp++; else nSame++; });

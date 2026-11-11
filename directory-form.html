@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Get Listed | She Promotes&trade; Directory</title>
+<meta name="description" content="The form Premium and VIP members of She Promotes fill out to get listed in the Directory.">
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+    --plum-deep: #2a1028;
+    --plum: #3d1a3a;
+    --plum-soft: #52264e;
+    --card: rgba(255, 255, 255, 0.06);
+    --card-border: rgba(232, 196, 122, 0.25);
+    --gold: #e8c47a;
+    --gold-bright: #f3d89b;
+    --blush: #f4b6c8;
+    --text: #fbeff3;
+    --muted: #d8bfd0;
+    --error: #ffb4b4;
+    --title-grad: linear-gradient(100deg, #c49bff 0%, #e3a6f0 45%, #f4b6c8 100%);
+    --serif: 'Cormorant Garamond', Georgia, serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-text-size-adjust: 100%; }
+  [hidden] { display: none !important; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background-color: var(--plum-deep);
+    background-image: linear-gradient(180deg, var(--plum-soft) 0%, var(--plum) 28%, var(--plum-deep) 100%);
+    background-repeat: no-repeat;
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+  a { color: var(--gold-bright); }
+  button, input, textarea { font-family: inherit; }
+  a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible, .pick:focus-within { outline: 2px solid var(--gold-bright); outline-offset: 2px; }
+  .grad { background: var(--title-grad); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: var(--blush); width: fit-content; max-width: 100%; }
+
+  .preview-note { background: rgba(232, 196, 122, 0.14); color: var(--gold-bright); font-size: 13px; text-align: center; padding: 8px 16px; }
+  .wrap { width: 100%; max-width: 680px; margin: 0 auto; padding: 0 20px 72px; }
+  .brand { font-family: var(--serif); font-size: 24px; font-weight: 600; text-align: center; padding-top: 28px; margin: 0 auto; }
+  .brand span { font-style: italic; }
+  .brand-sub { text-align: center; font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold); font-weight: 600; margin-top: 2px; }
+
+  .progress { margin: 26px 0 30px; }
+  .bars { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
+  .bars i { display: block; height: 5px; border-radius: 99px; background: rgba(255, 255, 255, 0.14); }
+  .bars i.on { background: linear-gradient(90deg, var(--gold), var(--blush)); }
+  .progress-label { display: flex; justify-content: space-between; gap: 12px; margin-top: 8px; font-size: 13px; color: var(--muted); }
+
+  .step-title { font-family: var(--serif); font-size: 46px; font-weight: 600; line-height: 1.08; padding-bottom: 3px; outline: none; }
+  .step-sub { margin-top: 10px; font-size: 16px; color: var(--muted); }
+  .form-body { margin-top: 28px; }
+
+  .field { margin-top: 24px; }
+  .field:first-child { margin-top: 0; }
+  .field label, .field .label { display: block; font-size: 15px; font-weight: 600; }
+  .opt { font-weight: 400; color: var(--muted); font-size: 13px; }
+  .help { font-size: 13.5px; color: var(--muted); margin-top: 3px; }
+  input[type=text], input[type=email], input[type=url], textarea {
+    display: block; width: 100%; margin-top: 8px; padding: 13px 15px; min-height: 50px;
+    background: #fff9fb; color: #2a1028; border: 1px solid transparent; border-radius: 12px;
+    font-size: 16px; line-height: 1.5;
+  }
+  textarea { resize: vertical; min-height: 118px; }
+  textarea.tall { min-height: 200px; }
+  textarea.short { min-height: 84px; }
+  input::placeholder, textarea::placeholder { color: #8d7288; }
+  .invalid input, .invalid textarea { border-color: var(--error); box-shadow: 0 0 0 1px var(--error); }
+  .err { font-size: 13.5px; color: var(--error); margin-top: 6px; font-weight: 500; }
+  .count { font-size: 12px; color: var(--muted); text-align: right; margin-top: 4px; }
+
+  .pick { display: block; margin-top: 8px; border: 1px dashed rgba(232, 196, 122, 0.55); border-radius: 14px; background: var(--card); cursor: pointer; overflow: hidden; position: relative; }
+  .pick input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+  .pick-empty { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 28px 16px; text-align: center; }
+  .pick-empty b { color: var(--gold-bright); font-weight: 600; font-size: 15px; }
+  .pick-empty small { color: var(--muted); font-size: 13px; }
+  .pick-img { display: block; width: 100%; aspect-ratio: 16 / 7; object-fit: cover; }
+  .pick.round { width: 164px; border-radius: 50%; aspect-ratio: 1; }
+  .pick.round .pick-empty { height: 100%; justify-content: center; padding: 12px; }
+  .pick.round .pick-img { aspect-ratio: 1; height: 100%; }
+  .pick-actions { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-top: 6px; }
+  .link-btn { background: none; border: none; color: var(--gold-bright); font-size: 14px; font-weight: 600; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; min-height: 44px; padding: 0; }
+  .busy-note { font-size: 13.5px; color: var(--muted); margin-top: 6px; }
+
+  .group { background: var(--card); border: 1px solid var(--card-border); border-radius: 18px; padding: 24px 22px; margin-top: 18px; }
+  .group:first-child { margin-top: 0; }
+  .group-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
+  .group-head h2 { font-family: var(--serif); font-size: 27px; font-weight: 600; color: var(--gold-bright); line-height: 1.15; }
+  .add { width: 100%; margin-top: 16px; }
+  .tier-note { margin-top: 10px; color: var(--gold-bright); }
+
+  .btn { display: inline-flex; align-items: center; justify-content: center; min-height: 50px; padding: 12px 26px; border-radius: 999px; font-size: 15px; font-weight: 600; line-height: 1.25; text-decoration: none; cursor: pointer; border: 1px solid transparent; text-align: center; }
+  .btn:active { transform: scale(0.98); }
+  .btn[disabled] { opacity: 0.6; cursor: wait; }
+  .btn-primary { background: linear-gradient(135deg, var(--gold), var(--blush)); color: var(--plum-deep); }
+  .btn-ghost { background: transparent; color: var(--text); border-color: rgba(216, 191, 208, 0.4); }
+  .nav { display: flex; justify-content: space-between; gap: 12px; margin-top: 34px; }
+  .nav .btn-primary { flex: 1 1 auto; max-width: 340px; margin-left: auto; }
+  .saved-note { text-align: center; font-size: 13px; color: var(--muted); margin-top: 16px; }
+  .form-error { background: rgba(255, 120, 120, 0.13); border: 1px solid rgba(255, 180, 180, 0.5); border-radius: 12px; padding: 12px 14px; font-size: 14.5px; margin-top: 20px; }
+
+  .ready { background: var(--card); border: 1px solid var(--card-border); border-radius: 16px; padding: 18px 20px; margin-bottom: 26px; font-size: 14.5px; }
+  .ready b { color: var(--gold-bright); }
+  .ready ul { list-style: none; margin-top: 8px; }
+  .ready li { padding-left: 20px; position: relative; margin-top: 4px; }
+  .ready li::before { content: "\2726"; position: absolute; left: 0; color: var(--gold); font-size: 12px; top: 2px; }
+
+  .rev { background: var(--card); border: 1px solid var(--card-border); border-radius: 16px; padding: 18px 20px; margin-top: 14px; }
+  .rev-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  .rev-head h2 { font-family: var(--serif); font-size: 25px; font-weight: 600; color: var(--gold-bright); line-height: 1.2; }
+  .rev dl { margin-top: 6px; }
+  .rev dt { font-size: 12.5px; color: var(--blush); font-weight: 600; margin-top: 10px; }
+  .rev dd { font-size: 15px; white-space: pre-line; overflow-wrap: anywhere; }
+  .rev img { display: block; max-width: 180px; max-height: 110px; border-radius: 10px; margin-top: 4px; object-fit: cover; }
+  .rev .none { color: var(--muted); font-size: 14px; margin-top: 8px; }
+  .consent { display: flex; gap: 12px; align-items: flex-start; margin-top: 24px; font-size: 15px; cursor: pointer; }
+  .consent input { width: 22px; height: 22px; flex: 0 0 22px; margin-top: 2px; accent-color: var(--gold); }
+
+  .done { text-align: center; padding-top: 56px; }
+  .done h1 { font-family: var(--serif); font-size: 54px; font-weight: 600; line-height: 1.06; margin: 0 auto; padding-bottom: 3px; }
+  .done p { margin: 14px auto 0; max-width: 500px; font-size: 16.5px; }
+  .edit-box { max-width: 520px; margin: 24px auto 0; background: var(--card); border: 1px solid var(--card-border); border-radius: 14px; padding: 16px 18px; font-size: 14.5px; }
+  .edit-box code { display: block; margin-top: 8px; font-family: inherit; overflow-wrap: anywhere; color: var(--gold-bright); font-size: 13px; }
+  .signoff { margin-top: 28px !important; color: var(--muted); }
+  .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+  .center-msg { text-align: center; padding: 60px 0; color: var(--muted); }
+
+  @media (max-width: 600px) {
+    .wrap { padding: 0 16px 56px; }
+    .step-title { font-size: 38px; }
+    .group { padding: 20px 16px; }
+    .done h1 { font-size: 44px; }
+    .nav .btn-primary { max-width: none; }
+  }
+  .opts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .opt-btn { border: 1px solid var(--card-border); background: var(--card); color: var(--text, #f6e9ef); border-radius: 999px; padding: 10px 16px; font-size: 14.5px; min-height: 44px; cursor: pointer; text-align: left; }
+  .opt-btn.on { background: var(--gold); border-color: var(--gold); color: var(--plum-deep); font-weight: 600; }
+  .opts.many .opt-btn { font-size: 13.5px; padding: 8px 13px; min-height: 40px; }
+  .divider-space { height: 22px; }
+</style>
+</head>
+<body>
+<div class="preview-note" id="previewNote" hidden>Preview only. Answers you send from this page aren't saved yet.</div>
+<div class="wrap">
+  <div class="brand grad">She <span>Promotes</span>&trade;</div>
+  <div class="brand-sub">Directory Form</div>
+  <div id="app"></div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* Paste the Google script's web app URL here after setup. */
+  var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbycxguYXDx0CMH59VFBONGluY7yDboFzXaQe4po_ZKmj4XCaLtR4C-ERZMXT3pg5ACk/exec';
+  var LIVE = /^https:\/\/script\.google\.com\//.test(SCRIPT_URL);
+  var DRAFT_KEY = 'shePromotesDirectoryFormDraft';
+  var UPGRADE_URL = 'https://www.skool.com/she-promotes-7924/plans';
+
+  var CATEGORIES = ['Energy Healing', 'Hypnosis & Subconscious Work', 'Quantum Journeys Hypnosis', 'Faith & Spiritual Growth', 'Money Mindset & Wealth', 'Manifestation', 'Life & Purpose Coaching',
+    'Relationship & Family Coaching', 'Business Coaching & Strategy', 'Human Design & Astrology', 'Intuitive Readings', 'Nutrition & Fitness', 'Perimenopause & Menopause', 'Beauty & Skincare',
+    'Social Media & Content', 'Websites, Funnels & Tech', 'AI & Automation Support', 'Virtual Assistants & Admin', 'Branding, Design & Photography', 'Handmade & Gifts'];
+  var COMM_CATS = CATEGORIES.concat(['Promo & Networking']);
+  var FORMATS = ['1:1 Sessions', 'Group Program', 'Course', 'Membership or Skool Community', 'Physical Product', 'Digital Product', 'Live Event or Workshop'];
+  var REC_CATS = ['Promo Group', 'Business', 'Healing & Spiritual', 'Other'];
+  var DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+  /* ---------- the questions ---------- */
+  var F = {
+    name: { label: 'Your name', required: true, auto: 'name' },
+    email: { label: 'Your email', type: 'email', required: true, auto: 'email', help: 'Private. I\'ll send your edit link here.' },
+    skool: { label: 'Your Skool profile link', type: 'url', required: true, help: 'So I can confirm your membership.', ph: 'https://www.skool.com/@your-name' },
+    tier: { label: 'Are you a Premium or VIP member?', type: 'choice', required: true, options: ['Premium', 'VIP'], note: function () {
+      if (val('tier') === 'VIP') return 'You fill out your offers and community once, and they carry over to your Featured Business page. You get one extra step at the end for your story and cover image.';
+      if (val('tier') === 'Premium') return S.token ? '' : 'Already listed and upgrading to VIP? Use the private link in your email so you don\'t start over.';
+      return '';
+    } },
+    business: { label: 'Your business name', optional: true },
+    photo: { label: 'A photo of you, or your logo', type: 'image', required: true, shape: 'round', size: 900, help: 'A clear photo of your face works best. Faces get remembered.' },
+    about: { label: 'A short bio', type: 'textarea', short: true, optional: true, max: 400, help: 'Two or three sentences about you and what you do.' },
+    social: { label: 'Instagram or main social', type: 'url', optional: true, ph: 'Your link or @name', base: 'https://www.instagram.com/' },
+
+    vheadline: { label: 'Your headline', type: 'textarea', short: true, required: true, max: 150, help: 'One sentence that says what you do and who it\'s for.', ph: 'Hand-poured soy candles for women who want their home to feel like a retreat.' },
+    vstory: { label: 'Your story', type: 'textarea', tall: true, required: true, help: 'How did you get started? Why do you do this work? Write it the way you\'d tell a friend. Easier to talk it out? Tap the microphone on your phone\'s keyboard.' },
+    vwho: { label: 'Who you help', type: 'textarea', short: true, required: true, max: 160, ph: 'The woman who takes care of everyone and forgets to take care of herself.' },
+    vwebsite: { label: 'Your website', type: 'url', optional: true, ph: 'yourwebsite.com' },
+    vinside: { label: 'What\'s inside your community?', type: 'textarea', optional: true, help: 'Put each thing on its own line.', ph: 'A live pour-along every month\nScent blending guides you can save' },
+    vaccess: { label: 'Who can join, and what does it cost?', optional: true, ph: 'Free to join. Premium is $9 a month.' },
+    vcover: { label: 'A wide cover image for your page', type: 'image', optional: true, size: 1800, help: 'Your brand photo or Skool banner works great.' },
+
+    cname: { label: 'Community name', gr: true },
+    clink: { label: 'Link to join', type: 'url', gr: true, ph: 'https://www.skool.com/your-community/about' },
+    cabout: { label: 'Your community in one sentence', type: 'textarea', short: true, max: 200, gr: true },
+    ccat: { label: 'Categories', type: 'multi', options: COMM_CATS, maxPick: 2, gr: true, help: 'Pick up to 2.' },
+    cplatform: { label: 'Where is it?', type: 'choice', options: ['Skool', 'Facebook', 'Other'], optional: true },
+    caccess: { label: 'Free or paid?', type: 'choice', options: ['Free', 'Paid', 'Free with a paid upgrade'], optional: true },
+    cpromo: { label: 'Is it a promo community where people share their business?', type: 'choice', options: ['No', 'Yes'], optional: true },
+    cdays: { label: 'Which days can people promote?', type: 'days', optional: true, showIf: function () { return val('cpromo') === 'Yes'; } },
+    cbanner: { label: 'Community banner', type: 'image', optional: true, size: 1400, help: 'Your Skool community banner works great.' },
+    c2has: { label: 'Do you run another community?', type: 'choice', options: ['No', 'Yes'], optional: true },
+    c2name: { label: 'Second community name', gr: true, showIf: function () { return val('c2has') === 'Yes'; } },
+    c2link: { label: 'Link to join', type: 'url', gr: true, showIf: function () { return val('c2has') === 'Yes'; } },
+    c2about: { label: 'In one sentence', type: 'textarea', short: true, max: 200, optional: true, showIf: function () { return val('c2has') === 'Yes'; } },
+    c2access: { label: 'Free or paid?', type: 'choice', options: ['Free', 'Paid', 'Free with a paid upgrade'], optional: true, showIf: function () { return val('c2has') === 'Yes'; } }
+  };
+  var n;
+  for (n = 1; n <= 3; n++) {
+    F['o' + n + 'title'] = { label: 'Offer name', gr: true, ph: 'The Retreat Box' };
+    F['o' + n + 'desc'] = { label: 'Your offer in one sentence', type: 'textarea', short: true, max: 150, gr: true, help: 'Say what it is and who it\'s for.', ph: 'Three candles chosen for your morning, afternoon and night.' };
+    F['o' + n + 'who'] = { label: 'Who it\'s for', optional: true, ph: 'Busy moms who want a calm evening' };
+    F['o' + n + 'price'] = { label: 'Starting price', optional: true, ph: '$48, or Free' };
+    F['o' + n + 'link'] = { label: 'Link to your offer', type: 'url', gr: true, ph: 'yourwebsite.com/offer' };
+    F['o' + n + 'cat'] = { label: 'Categories', type: 'multi', options: CATEGORIES, maxPick: 2, gr: true, help: 'Pick up to 2.' };
+    F['o' + n + 'format'] = { label: 'What kind of offer is it?', type: 'multi', options: FORMATS, maxPick: 3, optional: true };
+    F['o' + n + 'keys'] = { label: 'Search words', optional: true, help: 'Up to 10, separated by commas. Words someone would type to find you.', ph: 'money blocks, pricing, abundance' };
+    F['o' + n + 'image'] = { label: 'Offer image', type: 'image', optional: true, size: 1400, help: 'A wide image of your offer looks great on its card.' };
+    F['r' + n + 'name'] = { label: 'Community name', gr: true };
+    F['r' + n + 'link'] = { label: 'Link to join (your affiliate link is great)', type: 'url', gr: true };
+    F['r' + n + 'about'] = { label: 'What it is, in one sentence', type: 'textarea', short: true, max: 200, optional: true };
+    F['r' + n + 'cat'] = { label: 'What kind of community?', type: 'choice', options: REC_CATS, gr: true };
+    F['r' + n + 'access'] = { label: 'Free or paid?', type: 'choice', options: ['Free', 'Paid', 'Free with a paid upgrade'], optional: true };
+    F['r' + n + 'days'] = { label: 'Which days can people promote there?', type: 'days', optional: true, showIf: (function (k) { return function () { return val(k) === 'Promo Group'; }; })('r' + n + 'cat') };
+    F['r' + n + 'why'] = { label: 'Why you recommend it', type: 'textarea', short: true, max: 300, gr: true, ph: 'This is where I learned to price my candles so I actually get paid.' };
+    F['r' + n + 'aff'] = { label: 'Is that an affiliate link?', type: 'choice', options: ['No', 'Yes'], gr: true, help: 'We always let people know when a link pays you a fee.' };
+  }
+  var OFFER_SFX = ['title', 'desc', 'who', 'price', 'link', 'cat', 'format', 'keys', 'image'];
+  var REC_SFX = ['name', 'link', 'about', 'cat', 'access', 'days', 'why', 'aff'];
+  var IMAGE_KEYS = ['photo', 'vcover', 'cbanner', 'o1image', 'o2image', 'o3image'];
+
+  var STEPS = [
+    { id: 'you', nav: 'You', title: 'Let\'s start with you', sub: 'This is how people meet you in the Directory.', keys: ['tier', 'name', 'email', 'skool', 'business', 'photo', 'about', 'social'] },
+    { id: 'offers', nav: 'Your offers', title: 'Your offers', sub: 'Add up to 3. Put the one you\'d most want people to find first. No offer yet? You can skip this step.', group: 'o' },
+    { id: 'community', nav: 'Your community', title: 'Your community', sub: 'Run a Skool or Facebook community? Add it here. No community? You can skip this step.', keys: ['cname', 'clink', 'cabout', 'ccat', 'cplatform', 'caccess', 'cpromo', 'cdays', 'cbanner', 'c2has', 'c2name', 'c2link', 'c2about', 'c2access'] },
+    { id: 'recs', nav: 'You recommend', title: 'Communities you love', sub: 'Recommend communities you\'re in and love. Use your affiliate link, and you can earn when someone joins. You can skip this step.', group: 'r' },
+    { id: 'vip', nav: 'Your VIP page', title: 'Your Featured Business page', sub: 'As a VIP you get your own page in the Directory. These answers fill it in.', keys: ['vheadline', 'vstory', 'vwho', 'vwebsite', 'vinside', 'vaccess', 'vcover'], vipOnly: true },
+    { id: 'review', nav: 'Review', title: 'Take one last look', sub: 'Make sure it sounds like you, then send it to me.' }
+  ];
+
+  var app = document.getElementById('app');
+  var S = { step: 0, a: {}, images: {}, existing: {}, offers: 1, recs: 0, consent: false, affConsent: false, token: '', errors: {}, sending: false, formError: '', busy: 0, confirmRemove: '' };
+
+  /* ---------- helpers ---------- */
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function val(k) { var v = S.a[k]; return Array.isArray(v) ? v : String(v == null ? '' : v); }
+  function has(k) { var v = val(k); return Array.isArray(v) ? v.length > 0 : v.trim() !== ''; }
+  function isVip() { return val('tier') === 'VIP'; }
+  function steps() { return STEPS.filter(function (s) { return !s.vipOnly || isVip(); }); }
+  function cur() { return steps()[Math.min(S.step, steps().length - 1)]; }
+  function shown(k) { var f = F[k]; return !f.showIf || f.showIf(); }
+  function maxRecs() { return val('c2has') === 'Yes' ? 2 : 3; }
+  function imgSrc(k) {
+    if (S.images[k] && S.images[k].preview) return S.images[k].preview;
+    if (S.images[k] === null) return '';
+    var u = S.existing[k] || '';
+    var m = u.match(/\/d\/([\w-]{10,})/);
+    return m ? 'https://lh3.googleusercontent.com/d/' + m[1] + '=w600' : u;
+  }
+  function normUrl(k) {
+    var f = F[k], v = String(val(k)).trim();
+    if (!v || !f || f.type !== 'url') return;
+    if (f.base && /^@?[\w.]+$/.test(v) && (v.charAt(0) === '@' || v.indexOf('.') === -1)) v = f.base + v.replace(/^@/, '');
+    else if (k === 'skool' && /^@[\w.-]+$/.test(v)) v = 'https://www.skool.com/' + v;
+    else if (!/^https?:\/\//i.test(v)) v = 'https://' + v.replace(/^\/+/, '');
+    S.a[k] = v;
+  }
+  function okUrl(v) { return /^https?:\/\/[^\s/]+\.[^\s]+$/i.test(v); }
+  function saveDraft() { if (S.token) return; try { localStorage.setItem(DRAFT_KEY, JSON.stringify({ a: S.a, offers: S.offers, recs: S.recs, step: S.step })); } catch (e) { /* fine */ } }
+  function loadDraft() {
+    try {
+      var d = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null');
+      if (d && d.a) { S.a = d.a; S.offers = Math.min(Math.max(d.offers || 1, 1), 3); S.recs = Math.min(Math.max(d.recs || 0, 0), 3); S.step = Math.max(0, d.step || 0); }
+    } catch (e) { /* fresh start */ }
+  }
+  function clearDraft() { try { localStorage.removeItem(DRAFT_KEY); } catch (e) { /* fine */ } }
+
+  /* ---------- drawing a question ---------- */
+  function fieldHtml(k) {
+    var f = F[k];
+    if (!shown(k)) return '';
+    var err = S.errors[k];
+    var lab = esc(f.label) + (f.optional ? ' <span class="opt">(optional)</span>' : '');
+    var help = f.help ? '<div class="help" id="' + k + '-h">' + esc(f.help) + '</div>' : '';
+    var errH = err ? '<div class="err" id="' + k + '-e">' + esc(err) + '</div>' : '';
+    var h = '<div class="field' + (err ? ' invalid' : '') + '" data-field="' + k + '">';
+    if (f.type === 'image') {
+      var src = imgSrc(k);
+      h += '<div class="label">' + lab + '</div>' + help;
+      h += '<label class="pick' + (f.shape === 'round' ? ' round' : '') + '"><input type="file" accept="image/*" data-image="' + k + '" aria-label="' + esc(f.label) + '">';
+      h += src ? '<img class="pick-img" src="' + esc(src) + '" alt="">' : '<span class="pick-empty"><b>Choose an image</b><small>JPG or PNG</small></span>';
+      h += '</label>';
+      if (src) h += '<div class="pick-actions"><button type="button" class="link-btn" data-replace="' + k + '">Choose a different image</button>' + (f.optional ? '<button type="button" class="link-btn" data-clear="' + k + '">Remove</button>' : '') + '</div>';
+      return h + errH + '</div>';
+    }
+    if (f.type === 'choice' || f.type === 'multi' || f.type === 'days') {
+      var opts = f.type === 'days' ? DAYS : f.options;
+      var cur2 = f.type === 'choice' ? [val(k)] : (Array.isArray(val(k)) ? val(k) : []);
+      h += '<div class="label" id="' + k + '-l">' + lab + '</div>' + help;
+      h += '<div class="opts' + (f.type === 'multi' && opts.length > 8 ? ' many' : '') + '" role="group" aria-labelledby="' + k + '-l">';
+      opts.forEach(function (o) {
+        var on = cur2.indexOf(o) !== -1;
+        h += '<button type="button" class="opt-btn' + (on ? ' on' : '') + '" aria-pressed="' + on + '" data-pick="' + k + '" data-v="' + esc(o) + '">' + esc(o) + '</button>';
+      });
+      var nt = f.note ? f.note() : '';
+      return h + '</div>' + (nt ? '<div class="help tier-note">' + esc(nt) + '</div>' : '') + errH + '</div>';
+    }
+    h += '<label for=""' + k + '">' + lab + '</label>' + help;
+    var attrs = ' id="' + k + '" data-a="' + k + '"' + (f.ph ? ' placeholder="' + esc(f.ph) + '"' : '') + (f.max ? ' maxlength="' + f.max + '"' : '') + (f.auto ? ' autocomplete="' + f.auto + '"' : '') + (err ? ' aria-invalid="true" aria-describedby="' + k + '-e"' : '');
+    if (f.type === 'textarea') h += '<textarea' + (f.tall ? ' class="tall"' : f.short ? ' class="short"' : '') + attrs + '>' + esc(val(k)) + '</textarea>';
+    else h += '<input type="' + (f.type === 'email' ? 'email' : 'text') + '"' + (f.type === 'url' ? ' inputmode="url" autocapitalize="off" autocorrect="off" spellcheck="false"' : '') + attrs + ' value="' + esc(val(k)) + '">';
+    if (f.max) h += '<div class="count" data-count="' + k + '">' + String(val(k)).length + ' / ' + f.max + '</div>';
+    return h + errH + '</div>';
+  }
+  function groupHtml(kind) {
+    var isO = kind === 'o', count = isO ? S.offers : S.recs, max = isO ? 3 : maxRecs(), sfx = isO ? OFFER_SFX : REC_SFX, h = '';
+    for (var i = 1; i <= count; i++) {
+      h += '<div class="group"><div class="group-head"><h2>' + (isO ? (i === 1 ? 'Your main offer' : 'Offer ' + i) : 'Community ' + i) + '</h2>';
+      h += '<button type="button" class="link-btn" data-remove="' + kind + i + '">' + (S.confirmRemove === kind + i ? 'Tap again to remove' : 'Remove') + '</button></div>';
+      sfx.forEach(function (s) { h += fieldHtml(kind + i + s); });
+      h += '</div>';
+    }
+    if (count < max) h += '<button type="button" class="btn btn-ghost add" data-add="' + kind + '">' + (isO ? (count ? 'Add another offer' : 'Add an offer') : (count ? 'Recommend another community' : 'Recommend a community')) + '</button>';
+    if (!isO && count >= max && max < 3) h += '<p class="help" style="margin-top:12px">You can share 3 communities in all, and your second community counts as one.</p>';
+    return h;
+  }
+
+  /* ---------- review ---------- */
+  function shownVal(k) {
+    var f = F[k], v = val(k);
+    if (!shown(k)) return '';
+    if (f.type === 'image') { var s = imgSrc(k); return s ? '<img src="' + esc(s) + '" alt="">' : ''; }
+    if (Array.isArray(v)) return v.length ? esc(v.join(', ')) : '';
+    return String(v).trim() ? esc(String(v).trim()) : '';
+  }
+  function revCard(stepId, title, keys) {
+    var idx = -1; steps().forEach(function (s, i) { if (s.id === stepId) idx = i; });
+    var rows = keys.map(function (k) { var v = shownVal(k); return v ? '<dt>' + esc(F[k].label) + '</dt><dd>' + v + '</dd>' : ''; }).join('');
+    return '<div class="rev"><div class="rev-head"><h2>' + esc(title) + '</h2><button type="button" class="link-btn" data-goto="' + idx + '">Edit</button></div>' + (rows ? '<dl>' + rows + '</dl>' : '<p class="none">Nothing added.</p>') + '</div>';
+  }
+  function reviewHtml() {
+    var h = revCard('you', 'You', STEPS[0].keys);
+    var o = [], r = [], i;
+    for (i = 1; i <= S.offers; i++) OFFER_SFX.forEach(function (s) { o.push('o' + i + s); });
+    for (i = 1; i <= S.recs; i++) REC_SFX.forEach(function (s) { r.push('r' + i + s); });
+    h += revCard('offers', 'Your offers', o) + revCard('community', 'Your community', STEPS[2].keys) + revCard('recs', 'Communities you love', r);
+    if (isVip()) h += revCard('vip', 'Your Featured Business page', STEPS[4].keys);
+    var anyAff = false; for (i = 1; i <= S.recs; i++) if (val('r' + i + 'aff') === 'Yes') anyAff = true;
+    h += '<div class="field' + (S.errors.consent ? ' invalid' : '') + '"><label class="consent"><input type="checkbox" id="consent"' + (S.consent ? ' checked' : '') + '><span>I\'m a ' + esc(val('tier') || 'Premium or VIP') + ' member of She Promotes™, I\'m okay with this showing in the public Directory, and I have the rights to the images I shared.</span></label>' + (S.errors.consent ? '<div class="err">' + esc(S.errors.consent) + '</div>' : '') + '</div>';
+    if (anyAff) h += '<div class="field' + (S.errors.aff ? ' invalid' : '') + '"><label class="consent"><input type="checkbox" id="affConsent"' + (S.affConsent ? ' checked' : '') + '><span>I understand my affiliate links will be labeled as affiliate links.</span></label>' + (S.errors.aff ? '<div class="err">' + esc(S.errors.aff) + '</div>' : '') + '</div>';
+    return h;
+  }
+
+  /* ---------- screens ---------- */
+  function render(top) {
+    var st = cur(), all = steps(), i = all.indexOf(st), h = '';
+    S.step = i;
+    h += '<div class="progress"><div class="bars" style="grid-template-columns:repeat(' + all.length + ',1fr)" aria-hidden="true">';
+    all.forEach(function (s, j) { h += '<i class="' + (j <= i ? 'on' : '') + '"></i>'; });
+    h += '</div><div class="progress-label"><span>Step ' + (i + 1) + ' of ' + all.length + '</span><span>' + esc(st.nav) + '</span></div></div>';
+    h += '<h1 class="step-title grad" tabindex="-1" id="stepTitle">' + (S.token && i === 0 ? 'Update your listing' : esc(st.title)) + '</h1>';
+    h += '<p class="step-sub">' + esc(st.sub) + '</p><form class="form-body" id="form" novalidate>';
+    if (i === 0 && !S.token && !has('name')) h += '<div class="ready"><b>This form is for She Promotes™ Premium and VIP members.</b> It takes about 10 minutes, and your answers save on this device as you go. Have these handy:<ul><li>A photo of you or your logo</li><li>Your offer and community links</li><li>Any affiliate links for communities you love</li></ul>Not Premium yet? <a href="' + UPGRADE_URL + '" target="_blank" rel="noopener">Upgrade here</a>.</div>';
+    if (st.group) h += groupHtml(st.group);
+    else if (st.id === 'review') h += reviewHtml();
+    else st.keys.forEach(function (k) {
+      if (k === 'c2has') h += '<div class="divider-space"></div>';
+      h += fieldHtml(k);
+    });
+    h += '<div class="hp" aria-hidden="true"><label>Leave this empty<input type="text" id="hpField" tabindex="-1" autocomplete="off"></label></div>';
+    if (S.formError) h += '<div class="form-error" role="alert">' + esc(S.formError) + '</div>';
+    var last = i === all.length - 1;
+    h += '<div class="nav">' + (i > 0 ? '<button type="button" class="btn btn-ghost" id="backBtn">Back</button>' : '');
+    h += '<button type="submit" class="btn btn-primary" id="nextBtn"' + (S.sending || S.busy ? ' disabled' : '') + '>' + (S.sending ? 'Sending...' : S.busy ? 'Getting your image ready...' : last ? (S.token ? 'Save my changes' : 'Send to Aurailia') : (st.group && !(st.group === 'o' ? S.offers : S.recs) ? 'Skip' : 'Next')) + '</button></div></form>';
+    if (!S.token) h += '<p class="saved-note">Your answers save on this device as you go. If you leave before sending, you\'ll need to add your images again.</p>';
+    app.innerHTML = h;
+    if (top) { window.scrollTo(0, 0); var t = document.getElementById('stepTitle'); if (t) t.focus({ preventScroll: true }); }
+  }
+  function renderDone(res) {
+    var first = String(val('name')).trim().split(/\s+/)[0];
+    var h = '<div class="done"><h1 class="grad">' + (S.token ? 'Your changes are in' : 'You\'re in' + (first ? ', ' + esc(first) : '')) + '</h1>';
+    h += '<p>' + (S.token ? 'Thank you. I got your updates and they\'ll show in the Directory after my next weekly update.' : 'Your answers came through. You\'ll show in the Directory after my next weekly update.') + '</p>';
+    if (res && res.editLink && !S.token) h += '<div class="edit-box">' + (res.emailed ? 'I emailed you a private link so you can change your answers anytime.' : 'Save this private link so you can change your answers anytime.') + ' Please keep it to yourself, since anyone with it can change your listing.' + (res.emailed ? '' : '<code>' + esc(res.editLink) + '</code>') + '</div>';
+    if (res && res.imageProblems && res.imageProblems.length) h += '<p>One of your images didn\'t save. Please send it to team@aurailia.com.</p>';
+    if (!LIVE) h += '<p>This is the preview, so nothing was saved.</p>';
+    h += '<p class="signoff">I believe in you. To living our dreams.<br>Aurailia &#10022;</p></div>';
+    app.innerHTML = h; window.scrollTo(0, 0);
+  }
+
+  /* ---------- checking answers ---------- */
+  function check(k, errs, groupMode) {
+    var f = F[k]; if (!shown(k)) return;
+    var need = f.required || (groupMode && f.gr);
+    if (f.type === 'image') { if (need && !imgSrc(k)) errs[k] = 'Please add an image.'; return; }
+    if (f.type === 'choice' || f.type === 'multi' || f.type === 'days') { if (need && !has(k)) errs[k] = 'Please pick one.'; return; }
+    var v = String(val(k)).trim();
+    if (need && !v) { errs[k] = 'Please fill this in.'; return; }
+    if (v && f.type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) errs[k] = 'That email doesn\'t look right. Mind checking it?';
+    if (v && f.type === 'url') { normUrl(k); if (!okUrl(val(k))) errs[k] = 'That link doesn\'t look right. Mind checking it?'; }
+  }
+  function validate() {
+    var st = cur(), errs = {}, i;
+    if (st.group === 'o') for (i = 1; i <= S.offers; i++) OFFER_SFX.forEach(function (s) { check('o' + i + s, errs, true); });
+    else if (st.group === 'r') for (i = 1; i <= S.recs; i++) REC_SFX.forEach(function (s) { check('r' + i + s, errs, true); });
+    else if (st.id === 'community') {
+      var started = ['cname', 'clink', 'cabout'].some(has) || has('ccat');
+      st.keys.forEach(function (k) { check(k, errs, started && /^c[a-z]/.test(k) || (/^c2/.test(k) && val('c2has') === 'Yes')); });
+    } else if (st.id === 'review') {
+      if (!S.consent) errs.consent = 'Please check this box so I can list you.';
+      var anyAff = false; for (i = 1; i <= S.recs; i++) if (val('r' + i + 'aff') === 'Yes') anyAff = true;
+      if (anyAff && !S.affConsent) errs.aff = 'Please check this box.';
+    } else st.keys.forEach(function (k) { check(k, errs, false); });
+    return errs;
+  }
+  function showErrors(errs) {
+    S.errors = errs; render(false);
+    var k = Object.keys(errs)[0];
+    var box = k === 'consent' ? document.getElementById('consent') : k === 'aff' ? document.getElementById('affConsent') : document.querySelector('[data-field="' + k + '"]');
+    if (box) { var inp = box.matches && box.matches('input') ? box : box.querySelector('input, textarea, button'); if (inp) inp.focus({ preventScroll: true }); box.scrollIntoView({ block: 'center' }); }
+  }
+
+  /* ---------- images ---------- */
+  function readImage(file, max, done, fail) {
+    var url = URL.createObjectURL(file), img = new Image();
+    img.onload = function () {
+      try {
+        var sc = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+        var w = Math.max(1, Math.round(img.naturalWidth * sc)), hh = Math.max(1, Math.round(img.naturalHeight * sc));
+        var c = document.createElement('canvas'); c.width = w; c.height = hh;
+        var x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, w, hh); x.drawImage(img, 0, 0, w, hh);
+        var d = c.toDataURL('image/jpeg', 0.86); URL.revokeObjectURL(url);
+        done({ preview: d, data: d.split(',')[1], mime: 'image/jpeg' });
+      } catch (e) { URL.revokeObjectURL(url); fail(); }
+    };
+    img.onerror = function () { URL.revokeObjectURL(url); fail(); };
+    img.src = url;
+  }
+
+  /* ---------- adding and removing offers or communities ---------- */
+  function removeGroup(kind, idx) {
+    var isO = kind === 'o', count = isO ? S.offers : S.recs, sfx = isO ? OFFER_SFX : REC_SFX;
+    for (var i = idx; i <= count; i++) sfx.forEach(function (s) {
+      var from = kind + (i + 1) + s, to = kind + i + s;
+      if (F[to].type === 'image') {
+        if (i < count) { S.images[to] = S.images[from]; S.existing[to] = S.existing[from] || ''; if (S.images[to] === undefined) delete S.images[to]; }
+        else if (S.existing[to]) { S.images[to] = null; S.existing[to] = ''; } else delete S.images[to];
+      } else if (i < count) S.a[to] = S.a[from]; else delete S.a[to];
+    });
+    if (isO) S.offers--; else S.recs--;
+  }
+
+  /* ---------- turning answers into the columns the Updater reads ---------- */
+  function payload() {
+    var A = {}, i, j = 1;
+    var put = function (k, v) { A[k] = Array.isArray(v) ? v.join(', ') : String(v == null ? '' : v).trim(); };
+    ['name', 'email', 'skool', 'tier', 'business', 'about', 'social'].forEach(function (k) { put(k, val(k)); });
+    for (i = 1; i <= 3; i++) OFFER_SFX.forEach(function (s) { if (s !== 'image') put('o' + i + s, i <= S.offers ? val('o' + i + s) : ''); });
+    ['cname', 'clink', 'cabout', 'ccat', 'cplatform', 'caccess'].forEach(function (k) { put(k, val(k)); });
+    put('cdays', val('cpromo') === 'Yes' ? val('cdays') : '');
+    /* her second community rides in the first recommendation spot, marked as her own */
+    for (i = 1; i <= 3; i++) ['name', 'link', 'about', 'cat', 'access', 'days', 'why', 'aff', 'own'].forEach(function (s) { put('r' + i + s, ''); });
+    if (val('c2has') === 'Yes' && has('c2name')) {
+      put('r1name', val('c2name')); put('r1link', val('c2link')); put('r1about', val('c2about')); put('r1access', val('c2access')); put('r1own', 'Yes'); put('r1cat', 'Other'); put('r1aff', 'No');
+      j = 2;
+    }
+    for (i = 1; i <= S.recs && j <= 3; i++, j++) REC_SFX.forEach(function (s) {
+      var v = val('r' + i + s);
+      if (s === 'days' && val('r' + i + 'cat') !== 'Promo Group') v = '';
+      put('r' + j + s, v);
+    });
+    if (isVip()) ['vheadline', 'vstory', 'vwho', 'vwebsite', 'vinside', 'vaccess'].forEach(function (k) { put(k, val(k)); });
+    else ['vheadline', 'vstory', 'vwho', 'vwebsite', 'vinside', 'vaccess'].forEach(function (k) { put(k, ''); });
+    /* for reopening the form later */
+    A.formState = JSON.stringify({ offers: S.offers, recs: S.recs, c2has: val('c2has'), cpromo: val('cpromo') });
+    return A;
+  }
+  function submit() {
+    S.sending = true; S.formError = ''; render(false);
+    var images = {};
+    IMAGE_KEYS.forEach(function (k) {
+      if (k === 'vcover' && !isVip()) return;
+      if (/^o(\d)image$/.test(k) && +k.charAt(1) > S.offers) { if (S.token) images[k] = null; return; }
+      if (S.images[k] === null) images[k] = null;
+      else if (S.images[k] && S.images[k].data) images[k] = { data: S.images[k].data, mime: S.images[k].mime };
+    });
+    var hp = document.getElementById('hpField');
+    var body = { answers: payload(), images: images, consent: S.consent === true, token: S.token, hp: hp ? hp.value : '' };
+    if (!LIVE) { S.sending = false; window.__lastPayload = body; clearDraft(); renderDone({ editLink: 'preview', emailed: true }); return; }
+    fetch(SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(body) })
+      .then(function (r) { return r.json(); })
+      .then(function (res) { S.sending = false; if (!res || !res.ok) throw new Error((res && res.error) || 'failed'); clearDraft(); renderDone(res); })
+      .catch(function () {
+        S.sending = false;
+        S.formError = 'That didn\'t go through, but your answers are still here. Please try again. If it keeps happening, email team@aurailia.com.';
+        render(false); var e = document.querySelector('.form-error'); if (e) e.scrollIntoView({ block: 'center' });
+      });
+  }
+  /* bring saved answers back into the form */
+  function unpack(ans, imgs) {
+    var st = {}; try { st = JSON.parse(ans.formState || '{}'); } catch (e) { st = {}; }
+    var a = {}, i, j = 1;
+    ['name', 'email', 'skool', 'tier', 'business', 'about', 'social', 'cname', 'clink', 'cabout', 'cplatform', 'caccess', 'vheadline', 'vstory', 'vwho', 'vwebsite', 'vinside', 'vaccess'].forEach(function (k) { a[k] = ans[k] || ''; });
+    var list = function (v) { return String(v || '').split(/\s*,\s*/).filter(Boolean); };
+    a.ccat = list(ans.ccat); a.cdays = list(ans.cdays); a.cpromo = st.cpromo || (a.cdays.length ? 'Yes' : '');
+    for (i = 1; i <= 3; i++) OFFER_SFX.forEach(function (s) { if (s === 'image') return; a['o' + i + s] = (s === 'cat' || s === 'format') ? list(ans['o' + i + s]) : (ans['o' + i + s] || ''); });
+    var offers = 0; for (i = 1; i <= 3; i++) if (a['o' + i + 'title'] || a['o' + i + 'desc']) offers = i;
+    if (ans.r1own === 'Yes') { a.c2has = 'Yes'; a.c2name = ans.r1name; a.c2link = ans.r1link; a.c2about = ans.r1about; a.c2access = ans.r1access; j = 2; }
+    var recs = 0;
+    for (i = 1; j <= 3; j++) {
+      if (!ans['r' + j + 'name']) continue;
+      REC_SFX.forEach(function (s) { a['r' + i + s] = s === 'days' ? list(ans['r' + j + s]) : (ans['r' + j + s] || ''); });
+      recs = i; i++;
+    }
+    S.a = a; S.offers = Math.max(1, offers); S.recs = recs; S.existing = imgs || {};
+  }
+
+  /* ---------- events ---------- */
+  app.addEventListener('input', function (e) {
+    var k = e.target.getAttribute('data-a'); if (!k) return;
+    S.a[k] = e.target.value;
+    var c = app.querySelector('[data-count="' + k + '"]'); if (c) c.textContent = e.target.value.length + ' / ' + F[k].max;
+    saveDraft();
+  });
+  app.addEventListener('change', function (e) {
+    if (e.target.id === 'consent' || e.target.id === 'affConsent') {
+      var ek = e.target.id === 'consent' ? 'consent' : 'aff';
+      if (ek === 'consent') S.consent = e.target.checked; else S.affConsent = e.target.checked;
+      if (e.target.checked && S.errors[ek]) { delete S.errors[ek]; var row = e.target.closest('.field'); if (row) { row.classList.remove('invalid'); var m = row.querySelector('.err'); if (m) m.remove(); } }
+      return;
+    }
+    var k = e.target.getAttribute('data-image');
+    if (!k || !e.target.files || !e.target.files[0]) return;
+    S.busy++; delete S.errors[k]; render(false);
+    readImage(e.target.files[0], F[k].size || 1400, function (img) { S.images[k] = img; S.busy--; render(false); }, function () { S.busy--; S.errors[k] = 'I couldn\'t open that image. Please try a JPG or PNG.'; render(false); });
+  });
+  app.addEventListener('click', function (e) {
+    var t = e.target.closest ? e.target.closest('button') : null;
+    if (!t) return;
+    var pk = t.getAttribute('data-pick');
+    if (pk) {
+      var f = F[pk], v = t.getAttribute('data-v');
+      if (f.type === 'choice') S.a[pk] = v;
+      else {
+        var arr = Array.isArray(S.a[pk]) ? S.a[pk].slice() : [];
+        var at = arr.indexOf(v);
+        if (at !== -1) arr.splice(at, 1);
+        else if (f.maxPick && arr.length >= f.maxPick) { S.errors[pk] = 'You can pick up to ' + f.maxPick + '. Tap one to unpick it first.'; render(false); return; }
+        else arr.push(v);
+        if (f.type === 'days') arr.sort(function (x, y) { return DAYS.indexOf(x) - DAYS.indexOf(y); });
+        S.a[pk] = arr;
+      }
+      delete S.errors[pk];
+      if (pk === 'c2has' && val('c2has') === 'Yes' && S.recs > 2) S.recs = 2;
+      saveDraft();
+      var y = window.pageYOffset; render(false); window.scrollTo(0, y);
+      return;
+    }
+    if (t.id === 'backBtn') { S.errors = {}; S.formError = ''; S.step--; saveDraft(); render(true); return; }
+    var add = t.getAttribute('data-add');
+    if (add) { if (add === 'o') S.offers++; else S.recs++; S.confirmRemove = ''; saveDraft(); render(false); return; }
+    var rem = t.getAttribute('data-remove');
+    if (rem) {
+      if (S.confirmRemove !== rem) { S.confirmRemove = rem; render(false); return; }
+      S.confirmRemove = ''; S.errors = {}; removeGroup(rem.charAt(0), +rem.slice(1)); saveDraft(); render(false); return;
+    }
+    var go = t.getAttribute('data-goto');
+    if (go !== null) { S.errors = {}; S.formError = ''; S.step = +go; saveDraft(); render(true); return; }
+    var rp = t.getAttribute('data-replace');
+    if (rp) { var inp = app.querySelector('[data-image="' + rp + '"]'); if (inp) inp.click(); return; }
+    var cl = t.getAttribute('data-clear');
+    if (cl) { if (S.existing[cl]) { S.images[cl] = null; S.existing[cl] = ''; } else delete S.images[cl]; render(false); }
+  });
+  app.addEventListener('submit', function (e) {
+    e.preventDefault();
+    if (S.sending || S.busy) return;
+    var errs = validate();
+    if (Object.keys(errs).length) { showErrors(errs); return; }
+    S.errors = {}; S.formError = '';
+    if (S.step === steps().length - 1) { submit(); return; }
+    S.step++; saveDraft(); render(true);
+  });
+
+  /* ---------- start ---------- */
+  document.getElementById('previewNote').hidden = LIVE;
+  var token = '';
+  try { token = new URLSearchParams(location.search).get('edit') || ''; } catch (e) { token = ''; }
+  if (token && LIVE) {
+    app.innerHTML = '<div class="center-msg">Getting your answers...</div>';
+    fetch(SCRIPT_URL + '?action=load&token=' + encodeURIComponent(token))
+      .then(function (r) { return r.json(); })
+      .then(function (res) { if (!res || !res.ok) throw new Error('nf'); S.token = token; unpack(res.answers || {}, res.images || {}); render(true); })
+      .catch(function () { app.innerHTML = '<div class="center-msg">I couldn\'t find your answers with that link. Please email team@aurailia.com and I\'ll help you.</div>'; });
+  } else { loadDraft(); render(false); }
+  window.__shePromotesForm = { unpack: unpack, payload: payload, S: S };
+})();
+</script>
+</body>
+</html>

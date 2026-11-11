@@ -735,7 +735,7 @@
 
       <section class="listed" id="listed">
         <h2>Want your business in the Directory?</h2>
-        <p>The Directory is for premium and VIP members of She Promotes&trade;, a community on Skool where women in business promote their offers, network, and collaborate. Joining is free. Premium is $3 a month or $27 a year, and it gets you listed with your signature offer, your community, and the communities you recommend. VIP members can also be featured in the VIP Spotlight at the top of the Directory.</p>
+        <p>The Directory is for premium and VIP members of She Promotes&trade;, a community on Skool where women in business promote their offers, network, and collaborate. Joining is free. Premium is $3 a month or $27 a year, and it gets you listed with your signature offer, your community, and the communities you recommend. VIP members also get their own Featured Business page.</p>
         <ol class="steps">
           <li>Join She Promotes&trade; on Skool. It&rsquo;s free.</li>
           <li>Upgrade to premium or VIP inside the community.</li>
@@ -767,7 +767,7 @@
 <script>
 (function () {
   /* Settings */
-  var FORM_URL = '';   /* Paste your Google Form link here to show the Get listed button */
+  var FORM_URL = 'https://aurailia.github.io/she-promotes-directory/directory-form.html';
   var PLANS_URL = 'https://www.skool.com/she-promotes-7924/plans';
   var JOIN_URL = 'https://www.skool.com/she-promotes-7924/about';
   var UPGRADE_URL = 'https://www.skool.com/she-promotes-7924/plans';   /* where women go to become a VIP */
@@ -873,7 +873,8 @@
     if (!src) return [];
     if (/^(images\/|data:image\/)/.test(src)) return [src];
     var m = /drive\.google\.com|googleusercontent\.com/.test(src) ? (src.match(/[?&]id=([\w-]{10,})/) || src.match(/\/d\/([\w-]{10,})/)) : null;
-    if (m) return ['https://lh3.googleusercontent.com/d/' + m[1] + '=w600', 'https://drive.google.com/thumbnail?id=' + m[1] + '&sz=w600', 'https://drive.google.com/uc?export=view&id=' + m[1]];
+    var wd = (src.match(/=w(\d{3,4})/) || [])[1] || '600';
+    if (m) return ['https://lh3.googleusercontent.com/d/' + m[1] + '=w' + wd, 'https://drive.google.com/thumbnail?id=' + m[1] + '&sz=w' + wd, 'https://drive.google.com/uc?export=view&id=' + m[1]];
     var u = safeUrl(src);
     return u ? [u] : [];
   };
