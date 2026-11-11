@@ -580,6 +580,132 @@
     .cat-img { font-size: 32px; }
     .selects { grid-template-columns: 1fr; }
   }
+
+  /* ---------- Wider, more upscale Events and Featured Businesses ---------- */
+  .wrap[data-sec="events"], .wrap[data-sec="vip"] { max-width: 1240px; }
+  .orn { display: flex; align-items: center; justify-content: center; gap: 14px; }
+  .orn::before, .orn::after { content: ""; height: 1px; width: 56px; background: linear-gradient(90deg, transparent, var(--gold)); }
+  .orn::after { background: linear-gradient(90deg, var(--gold), transparent); }
+  .lounge-head { margin: 10px 0 34px; }
+  .lounge-head .lounge-title { font-size: 52px; line-height: 1.05; }
+  .lounge-head .lounge-sub { max-width: 620px; font-size: 16.5px; }
+  .star-rule { display: flex; align-items: center; gap: 12px; color: var(--gold); font-size: 12px; margin: 14px auto 0; width: 180px; }
+  .star-rule::before, .star-rule::after { content: ""; flex: 1; height: 1px; background: rgba(232, 196, 122, 0.45); }
+
+  /* Featured Businesses: the doors */
+  .doors { grid-template-columns: repeat(auto-fit, minmax(290px, 380px)); justify-content: center; gap: 26px; }
+  .door { border-radius: 26px; background: linear-gradient(180deg, rgba(82, 38, 78, 0.55), rgba(42, 16, 40, 0.75)); border-color: rgba(232, 196, 122, 0.32); box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35); }
+  .door::after { content: ""; position: absolute; inset: 9px; border: 1px solid rgba(232, 196, 122, 0.22); border-radius: 19px; pointer-events: none; }
+  .door:hover { transform: translateY(-4px); box-shadow: 0 30px 70px rgba(0, 0, 0, 0.45); }
+  .door-art { aspect-ratio: 16 / 10; position: relative; }
+  .door-art::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 45%, rgba(42, 16, 40, 0.85)); }
+  .door-body { padding: 0 28px 30px; }
+  .door-pic { width: 112px; height: 112px; margin-top: -60px; padding: 3px; box-shadow: 0 0 0 5px rgba(42, 16, 40, 0.9), 0 16px 34px rgba(0, 0, 0, 0.45); position: relative; z-index: 1; }
+  .door h3 { font-size: 32px; margin-top: 14px; }
+  .door .door-biz { font-family: 'Cormorant Garamond', Georgia, serif; font-style: italic; font-size: 19px; color: var(--gold-bright); }
+  .door .door-line { font-size: 15px; line-height: 1.6; margin-top: 10px; }
+  .door .btn { width: auto; align-self: center; margin-top: 20px; padding: 11px 26px; background: transparent; color: var(--gold-bright); border: 1px solid rgba(232, 196, 122, 0.6); letter-spacing: 0.04em; }
+  .door .btn:hover { background: rgba(232, 196, 122, 0.12); }
+  .door .now { top: 18px; left: 18px; color: var(--gold-bright); background: rgba(42, 16, 40, 0.72); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); border: 1px solid rgba(232, 196, 122, 0.5); }
+  .lounge-foot { max-width: 640px; margin-top: 64px; padding: 40px 34px; border: 1px solid rgba(232, 196, 122, 0.4); background: radial-gradient(circle at 50% 0%, rgba(232, 196, 122, 0.12), transparent 70%), rgba(255, 255, 255, 0.03); position: relative; }
+  .lounge-foot::after { content: ""; position: absolute; inset: 8px; border: 1px solid rgba(232, 196, 122, 0.18); border-radius: 16px; pointer-events: none; }
+  .lounge-foot h3 { font-size: 34px; line-height: 1.15; color: var(--gold-bright); }
+  .lounge-foot .btn { position: relative; z-index: 1; padding: 12px 30px; }
+
+  /* Her room */
+  .room-hero { border-radius: 28px; box-shadow: 0 30px 70px rgba(0, 0, 0, 0.4); }
+  .room-hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 55%, rgba(42, 16, 40, 0.7)); pointer-events: none; }
+  .room-hero::before { content: ""; position: absolute; inset: 12px; border: 1px solid rgba(243, 216, 155, 0.45); border-radius: 18px; z-index: 1; pointer-events: none; }
+  .room-art { height: 380px; }
+  .room-intro { margin-top: -92px; max-width: 760px; }
+  .room-pic { width: 176px; height: 176px; box-shadow: 0 0 0 7px var(--plum-deep), 0 20px 50px rgba(0, 0, 0, 0.5); }
+  .room-badge { margin-top: 22px; color: var(--gold-bright); background: transparent; border: 1px solid rgba(232, 196, 122, 0.6); padding: 6px 16px; }
+  .room-intro h2 { font-size: 66px; margin-top: 14px; }
+  .room-biz { font-size: 27px; }
+  .room-headline { font-size: 18px; line-height: 1.6; color: var(--text); }
+  .room-cta .btn { flex: 0 0 auto; min-width: 210px; padding: 13px 28px; font-size: 15px; }
+  .room-sec { margin-top: 88px; }
+  .room-sec .eyebrow { display: flex; align-items: center; gap: 12px; }
+  .room-sec .eyebrow::before { content: ""; width: 40px; height: 1px; background: var(--gold); }
+  .room-sec h3.rh { font-size: 46px; margin-bottom: 26px; }
+  .room-story { grid-template-columns: minmax(0, 1fr) 320px; gap: 56px; }
+  .room-story p { font-size: 18px; line-height: 1.85; }
+  .room-story.solo { grid-template-columns: minmax(0, 1fr); max-width: 820px; }
+  .room-story > div > p { border-left: 2px solid rgba(232, 196, 122, 0.45); padding-left: 26px; }
+  .room-who { border: 1px solid rgba(232, 196, 122, 0.35); border-radius: 20px; padding: 30px 28px; background: rgba(255, 255, 255, 0.03); position: relative; }
+  .room-who::before { content: "\201C"; position: absolute; top: -26px; left: 22px; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 90px; line-height: 1; color: var(--gold); }
+  .room-comm { border-radius: 26px; border-color: rgba(232, 196, 122, 0.32); box-shadow: 0 24px 60px rgba(0, 0, 0, 0.3); }
+  .room-comm .rc-art { position: relative; min-height: 300px; background: radial-gradient(circle at 30% 20%, rgba(232, 196, 122, 0.28), transparent 55%), radial-gradient(circle at 80% 90%, rgba(244, 182, 200, 0.25), transparent 50%), linear-gradient(135deg, #52264e, #2a1028); }
+  .room-comm .rc-art::before { content: attr(data-mono); position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 150px; font-weight: 600; color: rgba(243, 216, 155, 0.55); }
+  .room-comm .rc-art img { position: absolute; inset: 0; z-index: 1; }
+  .room-comm .rc-body { padding: 38px 38px 40px; gap: 12px; }
+  .room-comm h4 { font-size: 38px; }
+  .room-comm .lbl2 { letter-spacing: 0.14em; text-transform: uppercase; font-size: 12px; color: var(--gold); }
+  .room-comm .btn { margin-top: 8px; padding: 12px 26px; }
+  .room-offers { grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 22px; }
+  .room-offer { position: relative; border-radius: 24px; border-color: rgba(232, 196, 122, 0.3); background: linear-gradient(180deg, rgba(82, 38, 78, 0.5), rgba(42, 16, 40, 0.6)); }
+  .room-offer::after { content: ""; position: absolute; inset: 8px; border: 1px solid rgba(232, 196, 122, 0.16); border-radius: 18px; pointer-events: none; }
+  .room-offer .ro-body { padding: 26px; }
+  .room-offer h4 { font-size: 30px; }
+  .room-offer .btn { position: relative; z-index: 1; }
+  .room-love { border-radius: 22px; padding: 24px; }
+  .room-end { margin-top: 96px; padding-top: 48px; border-top: 0; position: relative; }
+  .room-end::before { content: "\2726"; position: absolute; top: -10px; left: 50%; transform: translateX(-50%); color: var(--gold); font-size: 16px; padding: 0 16px; }
+  .room-end .room-cta .btn { min-width: 0; }
+
+  /* Upcoming Events */
+  .ev-filters { justify-content: center; padding: 14px 18px; border: 1px solid rgba(232, 196, 122, 0.22); border-radius: 999px; background: rgba(255, 255, 255, 0.03); width: fit-content; max-width: 100%; margin: 0 auto 32px; }
+  .ev-grid { grid-template-columns: 1fr; gap: 26px; }
+  .ev2 { position: relative; display: grid; grid-template-columns: 340px minmax(0, 1fr) 270px; border-radius: 26px; overflow: hidden; border: 1px solid rgba(232, 196, 122, 0.3); background: linear-gradient(180deg, rgba(82, 38, 78, 0.5), rgba(42, 16, 40, 0.65)); box-shadow: 0 24px 60px rgba(0, 0, 0, 0.3); }
+  .ev2::after { content: ""; position: absolute; inset: 9px; border: 1px solid rgba(232, 196, 122, 0.16); border-radius: 19px; pointer-events: none; }
+  .ev-art { position: relative; min-height: 100%; background: radial-gradient(circle at 30% 20%, rgba(232, 196, 122, 0.25), transparent 55%), linear-gradient(135deg, #52264e, #2a1028); }
+  .ev-art::before { content: "\2726"; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 64px; color: rgba(243, 216, 155, 0.35); }
+  .ev-art .ev-pic { position: absolute; inset: 0; }
+  .ev-art .ev-pic img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .ev-tile { position: absolute; top: 20px; left: 20px; z-index: 1; width: 78px; text-align: center; border-radius: 16px; overflow: hidden; background: rgba(42, 16, 40, 0.82); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); border: 1px solid rgba(232, 196, 122, 0.55); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35); }
+  .ev-tile .m { display: block; font-size: 11px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--plum-deep); background: linear-gradient(135deg, var(--gold), var(--blush)); padding: 4px 0; }
+  .ev-tile .d { display: block; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 38px; font-weight: 600; line-height: 1; color: var(--gold-bright); padding: 6px 0 2px; }
+  .ev-tile .w { display: block; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); padding-bottom: 7px; }
+  .ev-main { padding: 30px 30px 30px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+  .ev-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; }
+  .ev-time { font-size: 13px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--gold-bright); }
+  .ev-main h3 { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 36px; font-weight: 600; line-height: 1.08; margin: 2px 0 0; width: fit-content; max-width: 100%; padding-bottom: 2px; }
+  .ev-main .ev-host { font-size: 15px; }
+  .ev-main .ev-host b { color: var(--text); font-weight: 600; }
+  .ev-main .ev-desc { font-size: 15.5px; line-height: 1.65; }
+  .ev-main .tags { margin-top: 4px; }
+  .ev-side { position: relative; z-index: 1; padding: 30px 28px; border-left: 1px solid rgba(232, 196, 122, 0.18); background: rgba(0, 0, 0, 0.14); display: flex; flex-direction: column; gap: 16px; }
+  .ev-fact b { display: block; font-size: 11px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold); margin-bottom: 3px; }
+  .ev-fact span { font-size: 15px; }
+  .ev-fact .ev-price { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 34px; font-weight: 600; line-height: 1; color: var(--gold-bright); }
+  .ev-side .btn { margin-top: auto; flex: 0 0 auto; width: 100%; padding: 13px 16px; text-align: center; }
+  @media (max-width: 1180px) {
+    .ev2 { grid-template-columns: 300px minmax(0, 1fr); }
+    .ev-side { grid-column: 2; border-left: 0; border-top: 1px solid rgba(232, 196, 122, 0.18); background: transparent; padding: 0 30px 30px; flex-direction: row; flex-wrap: wrap; align-items: flex-end; gap: 14px 28px; }
+    .ev-side .btn { width: auto; margin-top: 0; margin-left: auto; padding: 13px 26px; }
+    .ev-side { border-top: 0; }
+  }
+  @media (max-width: 760px) {
+    .ev2 { grid-template-columns: 1fr; }
+    .ev-art { aspect-ratio: 16 / 9; min-height: 0; }
+    .ev-main { padding: 22px 22px 6px; }
+    .ev-main h3 { font-size: 30px; }
+    .ev-side { grid-column: auto; padding: 14px 22px 24px; flex-direction: column; align-items: stretch; }
+    .ev-side .btn { width: 100%; margin-left: 0; }
+    .ev-filters { border-radius: 22px; }
+    .lounge-head .lounge-title { font-size: 40px; }
+    .room-art { height: 220px; }
+    .room-intro { margin-top: -70px; }
+    .room-pic { width: 136px; height: 136px; }
+    .room-intro h2 { font-size: 44px; }
+    .room-sec { margin-top: 64px; }
+    .room-sec h3.rh { font-size: 36px; }
+    .room-story { grid-template-columns: 1fr; gap: 36px; }
+    .room-comm .rc-art { min-height: 220px; }
+    .room-comm .rc-body { padding: 26px 24px 28px; }
+    .room-comm h4 { font-size: 32px; }
+    .room-cta .btn { min-width: 0; flex: 1 1 auto; }
+  }
 </style>
 </head>
 <body>
@@ -660,9 +786,10 @@
       <section id="vipView" aria-labelledby="vipTitle" hidden>
         <div id="vipLounge">
           <div class="lounge-head">
-            <div class="eyebrow">Hand-picked for you</div>
+            <div class="eyebrow orn">Hand-picked for you</div>
             <h2 class="section lounge-title" id="vipTitle"></h2>
             <p class="section-sub lounge-sub">Step inside and see what these women offer, from their communities to their courses and services.</p>
+            <div class="star-rule" aria-hidden="true">&#10022;</div>
           </div>
           <div class="doors" id="vipDoors"></div>
           <div class="lounge-foot">
@@ -676,9 +803,10 @@
 
       <section id="eventsView" aria-labelledby="evTitle" hidden>
         <div class="lounge-head">
-          <div class="eyebrow">Workshops, webinars and gatherings</div>
+          <div class="eyebrow orn">Workshops, webinars and gatherings</div>
           <h2 class="section lounge-title" id="evTitle">Upcoming Events</h2>
           <p class="section-sub lounge-sub">Free and paid events hosted by women in business. Times show in your time zone for online events, and in local time for in-person ones.</p>
+          <div class="star-rule" aria-hidden="true">&#10022;</div>
         </div>
         <div class="ev-filters">
           <div class="chips" id="evMode" role="group" aria-label="Online or in person"></div>
@@ -1751,43 +1879,75 @@
     var c = e.country && !/^(us|usa|united states( of america)?)$/i.test(e.country) ? e.country : '';
     return [r, c].filter(Boolean).join(', ');
   };
+  var evParts = function (e) {
+    var opts = { month: 'short', day: 'numeric', weekday: 'short', hour: 'numeric', minute: '2-digit', timeZoneName: 'short' };
+    if (e.mode === 'inperson' && e.tz) opts.timeZone = e.tz;
+    var out = { m: '', d: '', w: '', t: '' }, parts;
+    try { parts = new Intl.DateTimeFormat(undefined, opts).formatToParts(new Date(e.startUtc)); }
+    catch (x) { delete opts.timeZone; parts = new Intl.DateTimeFormat(undefined, opts).formatToParts(new Date(e.startUtc)); }
+    var t = [];
+    parts.forEach(function (p) {
+      if (p.type === 'month') out.m = p.value; else if (p.type === 'day') out.d = p.value; else if (p.type === 'weekday') out.w = p.value;
+      else if (p.type === 'hour' || p.type === 'minute' || p.type === 'dayPeriod' || p.type === 'timeZoneName') t.push([p.type, p.value]);
+    });
+    var h = '', mi = '', dp = '', tz = '';
+    t.forEach(function (x) { if (x[0] === 'hour') h = x[1]; else if (x[0] === 'minute') mi = x[1]; else if (x[0] === 'dayPeriod') dp = x[1]; else tz = x[1]; });
+    out.t = h + ':' + mi + (dp ? ' ' + dp : '') + (tz ? ' ' + tz : '');
+    return out;
+  };
   var eventCard = function (e) {
-    var c = el('article', 'card compact ev-card');
-    if (e.image) addThumb(c, e.image, 'events', '');
-    var w = el('div', 'ev-when');
-    var now = Date.now();
-    if (e.startUtc <= now) w.appendChild(el('span', 'ev-now', 'Happening now'));
-    w.appendChild(el('span', 'ev-date', evWhen(e)));
-    w.appendChild(el('span', 'tag', e.mode === 'inperson' ? 'In person' : 'Online'));
-    c.appendChild(w);
-    c.appendChild(el('h3', '', e.title));
-    if (e.host) c.appendChild(el('p', 'ev-host', 'Hosted by ' + e.host + (e.hostBusiness ? ' · ' + e.hostBusiness : '')));
+    var c = el('article', 'ev2');
+    var art = el('div', 'ev-art');
+    var pic = el('div', 'ev-pic'); pic.setAttribute('aria-hidden', 'true');
+    if (e.image) putImg(pic, e.image, []);
+    art.appendChild(pic);
+    var P = evParts(e);
+    var tile = el('div', 'ev-tile');
+    tile.setAttribute('aria-hidden', 'true');
+    tile.appendChild(el('span', 'm', P.m)); tile.appendChild(el('span', 'd', P.d)); tile.appendChild(el('span', 'w', P.w));
+    art.appendChild(tile);
+    c.appendChild(art);
+
+    var m = el('div', 'ev-main');
+    var meta = el('div', 'ev-meta');
+    if (e.startUtc <= Date.now()) meta.appendChild(el('span', 'ev-now', 'Happening now'));
+    meta.appendChild(el('span', 'ev-time', evWhen(e)));
+    meta.appendChild(el('span', 'tag', e.mode === 'inperson' ? 'In person' : 'Online'));
+    m.appendChild(meta);
+    m.appendChild(el('h3', 'grad', e.title));
+    if (e.host) {
+      var hp = el('p', 'ev-host');
+      hp.appendChild(document.createTextNode('Hosted by '));
+      hp.appendChild(el('b', '', e.host));
+      if (e.hostBusiness) hp.appendChild(document.createTextNode(' · ' + e.hostBusiness));
+      m.appendChild(hp);
+    }
     if (e.desc) {
       var d = el('p', 'ev-desc clamp3', e.desc);
-      c.appendChild(d);
+      m.appendChild(d);
       if (e.desc.length > 160) {
         var more = el('button', 'ev-more', 'Read more');
         more.type = 'button';
         more.addEventListener('click', function () { var open = d.classList.toggle('clamp3'); more.textContent = open ? 'Read more' : 'Show less'; });
-        c.appendChild(more);
+        m.appendChild(more);
       }
     }
-    var box = el('div', 'factbox');
-    var row = function (label, text) { var r = el('div', 'fr'); r.appendChild(el('span', 'wl', label)); r.appendChild(el('span', 'ft', text)); box.appendChild(r); };
-    row('Event', e.cost === 'paid' ? (e.price || 'Paid') : 'Free');
-    if (e.mode === 'inperson') row('Where', [e.venue, e.address, evPlace(e)].filter(Boolean).join(', '));
-    if (e.where === 'skool' && e.community) row('Happening inside', e.community + ' on Skool' + (e.joinCost ? ' · ' + (/^free/i.test(e.joinCost) ? 'Free to join' : e.joinCost + ' to join') : ''));
-    c.appendChild(box);
     if ((e.categories || []).length) {
       var tags = el('div', 'tags');
       e.categories.forEach(function (x) { tags.appendChild(el('span', 'tag gold', x)); });
-      c.appendChild(tags);
+      m.appendChild(tags);
     }
-    var acts = el('div', 'actions');
+    c.appendChild(m);
+
+    var side = el('aside', 'ev-side');
+    var fact = function (label, text, cls) { var f = el('div', 'ev-fact'); f.appendChild(el('b', '', label)); f.appendChild(el('span', cls || '', text)); side.appendChild(f); };
+    fact(e.cost === 'paid' ? 'Ticket' : 'Price', e.cost === 'paid' ? (e.price || 'Paid') : 'Free', 'ev-price');
+    if (e.mode === 'inperson') fact('Where', [e.venue, e.address, evPlace(e)].filter(Boolean).join(', '));
+    if (e.where === 'skool' && e.community) fact('Happening inside', e.community + ' on Skool' + (e.joinCost ? ' · ' + (/^free/i.test(e.joinCost) ? 'Free to join' : e.joinCost + ' to join') : ''));
     var label = e.where === 'skool' ? 'Join the community to attend' : e.where === 'page' ? 'Sign up' : 'Save my spot';
     var b = linkBtn(label, e.link, true);
-    if (b) acts.appendChild(b);
-    if (acts.childNodes.length) c.appendChild(acts);
+    if (b) side.appendChild(b);
+    c.appendChild(side);
     return c;
   };
   var evState = { mode: 'all', cost: 'any', loc: '' };
@@ -1944,7 +2104,7 @@
       if (R.business) body.appendChild(el('div', 'door-biz', R.business));
       var line = R.v.headline || (R.communities[0] && R.communities[0].about) || '';
       if (line) body.appendChild(el('p', 'door-line clamp2', line));
-      var go = el('button', 'btn btn-primary', 'Step inside');
+      var go = el('button', 'btn btn-primary', 'Step inside →');
       go.type = 'button';
       body.appendChild(go);
       d.appendChild(body);
@@ -2011,7 +2171,7 @@
     /* Her story */
     if (R.story || R.who) {
       var st = sec('', 'My story', 'Hi, I’m ' + R.first);
-      var g = el('div', 'room-story');
+      var g = el('div', 'room-story' + (R.who ? '' : ' solo'));
       var txt = el('div'); if (R.story) txt.appendChild(el('p', '', R.story)); g.appendChild(txt);
       if (R.who) { var w = el('aside', 'room-who'); w.appendChild(el('span', 'eyebrow', 'Who I help')); w.appendChild(el('p', '', bestFor(R.who) || R.who)); g.appendChild(w); }
       st.appendChild(g);
@@ -2022,7 +2182,7 @@
       var cs = sec('roomComm', R.communities.length > 1 ? 'My communities' : 'My community', 'Come spend time with us');
       R.communities.forEach(function (c) {
         var cc = el('div', 'room-comm');
-        var ca = el('div', 'rc-art'); ca.setAttribute('aria-hidden', 'true');
+        var ca = el('div', 'rc-art'); ca.setAttribute('aria-hidden', 'true'); ca.setAttribute('data-mono', String(c.name || '').replace(/^[^A-Za-z0-9]+/, '').charAt(0).toUpperCase());
         putImg(ca, c.image, ['images/communities/' + slug(c.name) + '.jpg', 'images/recommended/' + slug(c.name) + '.jpg', 'images/promo/' + slug(c.name) + '.jpg']);
         cc.appendChild(ca);
         var cb = el('div', 'rc-body');
@@ -2440,6 +2600,7 @@
     $('vipView').hidden = t !== 'vip';
     $('eventsView').hidden = t !== 'events';
     $('catView').hidden = true;
+    var wrapEl = document.querySelector('.wrap'); if (wrapEl) wrapEl.setAttribute('data-sec', t);
     state.tab = t; state.chip = ''; state.cat = ''; state.fmt = ''; state.day = '';
     navItems.forEach(function (b) {
       b.setAttribute('aria-current', b.getAttribute('data-sec') === t ? 'true' : 'false');
