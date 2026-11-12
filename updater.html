@@ -139,11 +139,48 @@
     <p class="lede">Everything here happens on your computer. Emails from your form export never leave your browser and never go into the Directory.</p>
   </header>
 
-  <!-- 1. CURRENT DIRECTORY -->
   <section class="panel">
     <div class="step">Step 1</div>
-    <h2>Start from your current Directory</h2>
-    <p class="help">This keeps everyone who&rsquo;s already live, plus your featured communities.</p>
+    <h2>Bring in your form submissions</h2>
+    <p class="help">Open your <b>She Promotes Directory Form Responses</b> Sheet. On the first tab, choose File, Download, Comma Separated Values (.csv), and choose that file here. Download all of it every time. Duplicates are handled for you. Got approved events? Download the <b>Events</b> tab the same way and choose it with the second button.</p>
+    <div class="row">
+      <label class="file"><input type="file" id="csvFile" accept=".csv,text/csv"><span class="btn btn-primary">Choose form CSV</span></label>
+      <label class="file"><input type="file" id="evCsvTop" accept=".csv,text/csv"><span class="btn btn-ghost">Choose Events CSV</span></label>
+    </div>
+    <div id="csvReport"></div>
+  </section>
+
+  <!-- 4. REVIEW -->
+  <section class="panel" id="reviewPanel" hidden>
+    <div class="step">Step 2</div>
+    <h2>Review and approve</h2>
+    <p class="help">Open her Skool profile to check she&rsquo;s premium, then set her to Live. Pending and Hidden listings stay out of the Directory.</p>
+    <div class="row" id="reviewFilter"></div>
+    <div class="list" id="reviewList"></div>
+  </section>
+
+  <!-- 5. DOWNLOAD -->
+  <section class="panel">
+    <div class="step">Step 3</div>
+    <h2>Download and upload</h2>
+    <div class="stats" id="stats"></div>
+    <div class="row">
+      <button class="btn btn-primary" type="button" id="downloadBtn">Download directory.json</button>
+      <button class="btn btn-ghost" type="button" id="copyBtn">Copy instead</button>
+    </div>
+    <div class="status" id="dlStatus" aria-live="polite"></div>
+    <ol class="how">
+      <li>Go to your <b>she-promotes-directory</b> repo on GitHub.</li>
+      <li>Click <b>Add file</b>, then <b>Upload files</b>, and drop in the new <b>directory.json</b>.</li>
+      <li>Click <b>Commit changes</b>. The Directory updates in a minute or two.</li>
+    </ol>
+  </section>
+
+  <!-- 1. CURRENT DIRECTORY -->
+  <section class="panel">
+    <div class="step">Your current Directory</div>
+    <h2>Where you&rsquo;re starting from</h2>
+    <p class="help">This loads on its own when you open the Updater, so everyone who&rsquo;s already live stays. You only need these buttons if something looks off.</p>
     <div id="loadStatus" class="note">Looking for your current Directory&hellip;</div>
     <div class="row">
       <label class="file"><input type="file" id="jsonFile" accept=".json,application/json"><span class="btn btn-ghost">Choose directory.json</span></label>
@@ -237,41 +274,6 @@
   </section>
 
   <!-- 3. CSV -->
-  <section class="panel">
-    <div class="step">Step 2</div>
-    <h2>Bring in your form submissions</h2>
-    <p class="help">In your Google Form, open the responses spreadsheet, then choose File, Download, Comma Separated Values (.csv). Choose that file here. Export all submissions every time. Duplicates are handled for you.</p>
-    <div class="row">
-      <label class="file"><input type="file" id="csvFile" accept=".csv,text/csv"><span class="btn btn-primary">Choose form CSV</span></label>
-    </div>
-    <div id="csvReport"></div>
-  </section>
-
-  <!-- 4. REVIEW -->
-  <section class="panel" id="reviewPanel" hidden>
-    <div class="step">Step 3</div>
-    <h2>Review and approve</h2>
-    <p class="help">Open her Skool profile to check she&rsquo;s premium, then set her to Live. Pending and Hidden listings stay out of the Directory.</p>
-    <div class="row" id="reviewFilter"></div>
-    <div class="list" id="reviewList"></div>
-  </section>
-
-  <!-- 5. DOWNLOAD -->
-  <section class="panel">
-    <div class="step">Step 4</div>
-    <h2>Download and upload</h2>
-    <div class="stats" id="stats"></div>
-    <div class="row">
-      <button class="btn btn-primary" type="button" id="downloadBtn">Download directory.json</button>
-      <button class="btn btn-ghost" type="button" id="copyBtn">Copy instead</button>
-    </div>
-    <div class="status" id="dlStatus" aria-live="polite"></div>
-    <ol class="how">
-      <li>Go to your <b>she-promotes-directory</b> repo on GitHub.</li>
-      <li>Click <b>Add file</b>, then <b>Upload files</b>, and drop in the new <b>directory.json</b>.</li>
-      <li>Click <b>Commit changes</b>. The Directory updates in a minute or two.</li>
-    </ol>
-  </section>
 
 </div>
 
@@ -1492,7 +1494,7 @@
     if (past) bits.push(past + ' already over, so I left ' + (past === 1 ? 'it' : 'them') + ' out');
     if (skipped) bits.push(skipped + ' missing a date or time');
     st.textContent = bits.join('. ') + '. Download your directory.json when you\u2019re ready.';
-    $('eventsPanel').scrollIntoView({ block: 'start' });
+    var rp = $('csvReport'); if (rp) { rp.innerHTML = ''; rp.appendChild(el('div', 'note ok', '\uD83C\uDF9F\uFE0F Events: ' + st.textContent)); }
   };
   var renderEvents = function () {
     var list = $('evList');
@@ -1774,7 +1776,7 @@
     r.readAsText(f);
     this.value = '';
   });
-  $('evCsv').addEventListener('change', function () {
+  var evCsvHandler = function () {
     var f = this.files[0]; if (!f) return;
     var r = new FileReader();
     r.onload = function () {
@@ -1784,7 +1786,9 @@
     };
     r.readAsText(f);
     this.value = '';
-  });
+  };
+  $('evCsv').addEventListener('change', evCsvHandler);
+  $('evCsvTop').addEventListener('change', evCsvHandler);
   $('freshBtn').addEventListener('click', function () { $('freshConfirm').hidden = false; });
   $('freshNo').addEventListener('click', function () { $('freshConfirm').hidden = true; });
   $('freshYes').addEventListener('click', function () {
