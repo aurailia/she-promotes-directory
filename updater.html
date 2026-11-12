@@ -108,6 +108,9 @@
   .seg button[aria-pressed="true"].live { background: var(--ok); color: #123; }
   .seg button[aria-pressed="true"].pending { background: var(--warn); color: #321; }
   .seg button[aria-pressed="true"].hidden { background: var(--blush); color: var(--plum-deep); }
+  .tier-seg { margin-left: 6px; }
+  .seg button[aria-pressed="true"].prem { background: rgba(255,255,255,0.85); color: var(--plum-deep); }
+  .seg button[aria-pressed="true"].vip { background: var(--gold); color: var(--plum-deep); }
   a.link { color: var(--gold-bright); }
   .stats { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
   .stat { background: rgba(0,0,0,0.22); border-radius: 12px; padding: 10px 14px; min-width: 110px; }
@@ -310,8 +313,9 @@
   var saved = { status: {}, featuredDraft: null, spotlightDraft: null, lockEdits: {}, cImg: {}, rImg: {} };
   try {
     var raw = localStorage.getItem(STORE);
-    if (raw) { var p = JSON.parse(raw); if (p && typeof p === 'object') { saved.status = p.status || {}; saved.featuredDraft = p.featuredDraft || null; saved.spotlightDraft = p.spotlightDraft || null; saved.lockEdits = p.lockEdits || {}; saved.cImg = p.cImg || {}; saved.rImg = p.rImg || {}; saved.vipDraft = p.vipDraft || null; saved.eventsDraft = p.eventsDraft || null; } }
+    if (raw) { var p = JSON.parse(raw); if (p && typeof p === 'object') { saved.status = p.status || {}; saved.featuredDraft = p.featuredDraft || null; saved.spotlightDraft = p.spotlightDraft || null; saved.lockEdits = p.lockEdits || {}; saved.cImg = p.cImg || {}; saved.rImg = p.rImg || {}; saved.vipDraft = p.vipDraft || null; saved.eventsDraft = p.eventsDraft || null; saved.tierSet = p.tierSet || {}; } }
   } catch (e) { /* storage unavailable */ }
+  if (!saved.tierSet) saved.tierSet = {};
   var persist = function () { try { localStorage.setItem(STORE, JSON.stringify(saved)); } catch (e) { /* ignore */ } };
 
   var current = { featured: [], members: [] };   /* from directory.json */
@@ -566,6 +570,7 @@
     var count = 0;
     list.forEach(function (m) {
       var x = m._vip; if (!x) return;
+      if (saved.tierSet[nameKey(m.name)] === 'Premium') return;   /* you set her back to Premium */
       var nk = nameKey(m.name), v = null;
       vips.forEach(function (q) { if (nameKey(q.name) === nk) v = q; });
       if (!v) { v = blankVip(); v.id = vipId(m.name); v.name = m.name; v.fromListing = true; vips.push(v); }
@@ -898,9 +903,42 @@
         s.appendChild(b);
       });
       row.appendChild(s);
+      /* Premium or VIP, one tap */
+      var nk = nameKey(m.name);
+      var isVip = vips.some(function (v) { return nameKey(v.name) === nk; });
+      var ts = el('div', 'seg tier-seg');
+      ts.setAttribute('role', 'group'); ts.setAttribute('aria-label', 'Membership');
+      [['Premium', 'Premium'], ['VIP', '\u2B50 VIP']].forEach(function (o) {
+        var b = el('button', o[0] === 'VIP' ? 'vip' : 'prem', tierConfirm === nk && o[0] === 'Premium' ? 'Tap again to remove her VIP page' : o[1]);
+        b.type = 'button';
+        b.setAttribute('aria-pressed', (o[0] === 'VIP') === isVip ? 'true' : 'false');
+        b.addEventListener('click', function () { setTier(m, o[0]); });
+        ts.appendChild(b);
+      });
+      row.appendChild(ts);
       it.appendChild(row);
       wrap.appendChild(it);
     });
+  };
+  var tierConfirm = '';
+  var setTier = function (m, tier) {
+    var nk = nameKey(m.name);
+    var isVip = vips.some(function (v) { return nameKey(v.name) === nk; });
+    if (tier === 'VIP') {
+      tierConfirm = '';
+      saved.tierSet[nk] = 'VIP';
+      if (!isVip) { var v = blankVip(); v.id = vipId(m.name); v.name = m.name; v.fromListing = true; vips.push(v); }
+      if (m._vip) formVips([m]);
+      saveSpot(); persist(); renderReview(); renderSpotPicker(); renderStats();
+      return;
+    }
+    if (!isVip) { saved.tierSet[nk] = 'Premium'; persist(); renderReview(); return; }
+    if (tierConfirm !== nk) { tierConfirm = nk; renderReview(); return; }
+    tierConfirm = '';
+    saved.tierSet[nk] = 'Premium';
+    vips.forEach(function (v) { if (nameKey(v.name) === nk && spotlight && spotlight.vip === v.id) spotlight = null; });
+    vips = vips.filter(function (v) { return nameKey(v.name) !== nk; });
+    saveSpot(); persist(); renderReview(); renderSpotPicker(); renderStats();
   };
 
   /* ---------- Featured ---------- */
@@ -1157,6 +1195,7 @@
       rb.addEventListener('click', function () {
         if (vipConfirm !== v.id) { vipConfirm = v.id; renderSpotPicker(); return; }
         vipConfirm = '';
+        saved.tierSet[nameKey(v.name)] = 'Premium';
         vips = vips.filter(function (x) { return x.id !== v.id; });
         if (spotlight && spotlight.vip === v.id) spotlight = null;
         saveSpot(); renderSpotPicker(); renderStats();
@@ -1192,6 +1231,7 @@
     var nm = $('qvMember').value;
     if (!nm) { $('vipStatus').textContent = 'Pick a listed member first.'; return; }
     var v = blankVip(); v.id = vipId(nm); v.name = nm; v.fromListing = true;
+    saved.tierSet[nameKey(nm)] = 'VIP';
     vips.push(v); saveSpot(); renderSpotPicker(); renderStats();
     $('vipStatus').textContent = nm + ' is a VIP now. Her page uses her listing. Tap Edit to add a banner or anything extra.';
   });

@@ -41,7 +41,9 @@
     line-height: 1.6;
   }
   /* The page glow sits on its own layer, so the browser doesn't repaint it on every scroll */
-  body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none; background: radial-gradient(ellipse at top, var(--plum-soft) 0%, var(--plum) 40%, var(--plum-deep) 100%); transform: translateZ(0); }
+  /* The glow sits at the top of the page and scrolls with it. Nothing fixed, so phones never repaint or flash it. */
+  html { background: var(--plum-deep); }
+  body { background: radial-gradient(ellipse 140% 1600px at 50% 0, var(--plum-soft) 0%, var(--plum) 40%, var(--plum-deep) 100%) no-repeat, var(--plum-deep); }
   a { color: inherit; }
   .wrap { max-width: 1040px; margin: 0 auto; padding: 0 16px 72px; }
 
@@ -1033,8 +1035,7 @@
     im.decoding = 'async';
     im.onload = function () {
       seenImg[src] = 1;
-      /* finish decoding off the main thread first, so scrolling doesn't hitch when it appears */
-      if (im.decode) im.decode().then(place, place); else place();
+      place();
     };
     im.onerror = retry;
     im.src = src;
