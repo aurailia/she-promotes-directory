@@ -205,7 +205,7 @@
       return '';
     } },
     business: { label: 'Your business name', optional: true },
-    photo: { label: 'A photo of you, or your logo', type: 'image', required: true, shape: 'round', size: 900, help: 'A clear photo of your face works best. Faces get remembered.' },
+    photo: { label: 'A photo of you, or your logo', type: 'image', required: true, shape: 'round', size: 900, dims: '800 x 800 px square', help: 'Best size: 800 x 800 px, square. A clear photo of your face works best, centered, since it shows in a circle.' },
     about: { label: 'A short bio', type: 'textarea', optional: true, max: 1200, help: 'A few sentences about you and what you do. This shows on your profile.' },
     website: { label: 'Your website', type: 'url', optional: true, ph: 'yourwebsite.com' },
     social: { label: 'Instagram', type: 'url', optional: true, ph: '@yourname or link', base: 'https://www.instagram.com/', help: 'Add the ones you use. Skip the rest.' },
@@ -222,7 +222,7 @@
     vvideo: { label: 'Welcome video', type: 'url', optional: true, ph: 'https://youtu.be/...', help: 'A short hello so people feel like they know you. Paste a YouTube, Vimeo or Loom link and it plays right on your page. Skool videos won\'t play outside Skool, so upload it to YouTube as Unlisted. That keeps it off your channel, but it still plays on your page.' },
     vinside: { label: 'What\'s inside your community?', type: 'textarea', optional: true, help: 'Put each thing on its own line.', ph: 'A live pour-along every month\nScent blending guides you can save' },
     vaccess: { label: 'Who can join, and what does it cost?', optional: true, ph: 'Free to join. Premium is $9 a month.' },
-    vcover: { label: 'A wide cover image for your page', type: 'image', optional: true, size: 1800, help: 'Your brand photo or Skool banner works great.' },
+    vcover: { label: 'A wide cover image for your page', type: 'image', optional: true, size: 1800, dims: '1600 x 900 px', help: 'Best size: 1600 x 900 px (wide, like a YouTube thumbnail). Keep words and faces toward the middle. Your brand photo or Skool banner works great.' },
 
     cname: { label: 'Community name', gr: true },
     clink: { label: 'Link to join', type: 'url', gr: true, ph: 'https://www.skool.com/your-community/about' },
@@ -232,13 +232,13 @@
     caccess: { label: 'Free or paid?', type: 'choice', options: ['Free', 'Paid', 'Free with a paid upgrade'], optional: true },
     cpromo: { label: 'Is it a promo community where people share their business?', type: 'choice', options: ['No', 'Yes'], optional: true },
     cdays: { label: 'Which days can people promote?', type: 'days', optional: true, showIf: function () { return val('cpromo') === 'Yes'; } },
-    cbanner: { label: 'Community banner', type: 'image', optional: true, size: 1400, help: 'Your Skool community banner works great.' },
+    cbanner: { label: 'Community banner', type: 'image', optional: true, size: 1600, dims: '1600 x 900 px', help: 'Best size: 1600 x 900 px (wide, like a YouTube thumbnail). Keep words and faces toward the middle. Your Skool community banner works great too.' },
     c2has: { label: 'Do you run another community?', type: 'choice', options: ['No', 'Yes'], optional: true },
     c2name: { label: 'Second community name', gr: true, showIf: function () { return val('c2has') === 'Yes'; } },
     c2link: { label: 'Link to join', type: 'url', gr: true, showIf: function () { return val('c2has') === 'Yes'; } },
     c2about: { label: 'In one sentence', type: 'textarea', short: true, max: 200, optional: true, showIf: function () { return val('c2has') === 'Yes'; } },
     c2access: { label: 'Free or paid?', type: 'choice', options: ['Free', 'Paid', 'Free with a paid upgrade'], optional: true, showIf: function () { return val('c2has') === 'Yes'; } },
-    c2banner: { label: 'Community banner', type: 'image', optional: true, size: 1400, help: 'Your Skool community banner works great.', showIf: function () { return val('c2has') === 'Yes'; } }
+    c2banner: { label: 'Community banner', type: 'image', optional: true, size: 1600, dims: '1600 x 900 px', help: 'Best size: 1600 x 900 px (wide, like a YouTube thumbnail). Keep words and faces toward the middle. Your Skool community banner works great too.', showIf: function () { return val('c2has') === 'Yes'; } }
   };
   var n;
   for (n = 1; n <= 3; n++) {
@@ -250,7 +250,7 @@
     F['o' + n + 'cat'] = { label: 'Categories', type: 'multi', options: CATEGORIES, maxPick: 3, gr: true, help: 'Pick up to 3.' };
     F['o' + n + 'format'] = { label: 'What kind of offer is it?', type: 'multi', options: FORMATS, maxPick: 3, optional: true };
     F['o' + n + 'keys'] = { label: 'Search words', optional: true, help: 'Up to 10, separated by commas. Words someone would type to find you.', ph: 'money blocks, pricing, abundance' };
-    F['o' + n + 'image'] = { label: 'Offer image', type: 'image', optional: true, size: 1400, help: 'A wide image of your offer looks great on its card.' };
+    F['o' + n + 'image'] = { label: 'Offer image', type: 'image', optional: true, size: 1600, dims: '1600 x 900 px', help: 'Best size: 1600 x 900 px (wide, like a YouTube thumbnail). Keep words and faces toward the middle.' };
     F['r' + n + 'name'] = { label: 'Community name', gr: true };
     F['r' + n + 'link'] = { label: 'Link to join (your affiliate link is great)', type: 'url', gr: true };
     F['r' + n + 'about'] = { label: 'What it is, in one sentence', type: 'textarea', short: true, max: 200, optional: true };
@@ -259,7 +259,7 @@
     F['r' + n + 'days'] = { label: 'Which days can people promote there?', type: 'days', optional: true, showIf: (function (k) { return function () { return val(k) === 'Promo Group'; }; })('r' + n + 'cat') };
     F['r' + n + 'why'] = { label: 'Why you recommend it', type: 'textarea', short: true, max: 300, gr: true, ph: 'This is where I learned to price my candles so I actually get paid.' };
     F['r' + n + 'aff'] = { label: 'Is that an affiliate link?', type: 'choice', options: ['No', 'Yes'], gr: true, help: 'We always let people know when a link pays you a fee.' };
-    F['r' + n + 'image'] = { label: 'Community banner', type: 'image', optional: true, size: 1400, help: 'Their Skool banner works great. Save it from their about page.' };
+    F['r' + n + 'image'] = { label: 'Community banner', type: 'image', optional: true, size: 1600, dims: '1600 x 900 px', help: 'Best size: 1600 x 900 px (wide, like a YouTube thumbnail). Keep words and faces toward the middle. Their Skool banner works great. Save it from their about page.' };
   }
   var WANT_LIST = 'Get listed or update my listing', WANT_EVENT = 'Share an event';
   F.want = { label: 'What would you like to do?', type: 'choice', required: true, options: [WANT_LIST, WANT_EVENT] };
@@ -276,7 +276,7 @@
   var inPerson = function () { return val('emode') === 'In person'; };
   F.etitle = { label: 'Event name', required: true, max: 90, ph: 'Money Mindset Morning' };
   F.edesc = { label: 'What is it about?', type: 'textarea', required: true, max: 900, help: 'Tell people what happens and what they walk away with. Two or three short paragraphs is perfect.' };
-  F.eimage = { label: 'Event image', type: 'image', optional: true, size: 1600, help: 'A wide image works best. Your event banner is perfect.' };
+  F.eimage = { label: 'Event image', type: 'image', optional: true, size: 1600, dims: '1600 x 900 px', help: 'Best size: 1600 x 900 px (wide, like a YouTube thumbnail). Keep words and faces toward the middle. Your event banner is perfect.' };
   F.ecat = { label: 'Categories', type: 'multi', options: CATEGORIES, maxPick: 2, optional: true, help: 'Pick up to 2 so people can find it.' };
   F.ecost = { label: 'Is it free or paid?', type: 'choice', required: true, options: ['Free', 'Paid'] };
   F.eprice = { label: 'Ticket price', required: true, ph: '$27', showIf: function () { return val('ecost') === 'Paid'; } };
@@ -367,7 +367,7 @@
       var src = imgSrc(k);
       h += '<div class="label">' + lab + '</div>' + help;
       h += '<label class="pick' + (f.shape === 'round' ? ' round' : '') + '"><input type="file" accept="image/*" data-image="' + k + '" aria-label="' + esc(f.label) + '">';
-      h += src ? '<img class="pick-img" src="' + esc(src) + '" alt="">' : '<span class="pick-empty"><b>Choose an image</b><small>JPG or PNG</small></span>';
+      h += src ? '<img class="pick-img" src="' + esc(src) + '" alt="">' : '<span class="pick-empty"><b>Choose an image</b><small>' + esc(f.dims ? f.dims + ', JPG or PNG' : 'JPG or PNG') + '</small></span>';
       h += '</label>';
       if (src) h += '<div class="pick-actions"><button type="button" class="link-btn" data-replace="' + k + '">Choose a different image</button>' + (f.optional ? '<button type="button" class="link-btn" data-clear="' + k + '">Remove</button>' : '') + '</div>';
       return h + errH + '</div>';
