@@ -617,7 +617,7 @@
   .room-hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 55%, rgba(42, 16, 40, 0.7)); pointer-events: none; }
   .room-hero::before { content: ""; position: absolute; inset: 12px; border: 1px solid rgba(243, 216, 155, 0.45); border-radius: 18px; z-index: 1; pointer-events: none; }
   .room-art { height: 380px; }
-  .room-intro { margin-top: -92px; max-width: 760px; }
+  .room-intro { margin-top: -92px; max-width: 760px; position: relative; z-index: 2; }
   .room-pic { width: 176px; height: 176px; box-shadow: 0 0 0 7px var(--plum-deep), 0 20px 50px rgba(0, 0, 0, 0.5); }
   .room-badge { margin-top: 22px; color: var(--gold-bright); background: transparent; border: 1px solid rgba(232, 196, 122, 0.6); padding: 6px 16px; }
   .room-intro h2 { font-size: 66px; margin-top: 14px; }
@@ -2072,9 +2072,10 @@
     if (!R.headline && R.offers[0]) R.headline = R.offers[0].desc || '';
     var seenL = {};
     var addL = function (label, url) { var u = safeUrl(url); if (!u || seenL[u]) return; seenL[u] = true; R.links.push([label, u]); };
-    addL('My website', v.website);
+    addL('My website', v.website || (mem && mem.website));
     var socials = v.socials || {};
-    [['instagram', 'Instagram'], ['facebook', 'Facebook'], ['tiktok', 'TikTok'], ['youtube', 'YouTube'], ['linkedin', 'LinkedIn']].forEach(function (s) { addL(s[1], socials[s[0]]); });
+    var msoc = (mem && mem.socials) || {};
+    [['instagram', 'Instagram'], ['facebook', 'Facebook'], ['tiktok', 'TikTok'], ['youtube', 'YouTube'], ['linkedin', 'LinkedIn'], ['pinterest', 'Pinterest']].forEach(function (s) { addL(s[1], socials[s[0]] || msoc[s[0]]); });
     var socialLabel = function (u) { u = String(u || ''); return /instagram/i.test(u) ? 'Instagram' : /facebook/i.test(u) ? 'Facebook' : /tiktok/i.test(u) ? 'TikTok' : /youtu/i.test(u) ? 'YouTube' : /linkedin/i.test(u) ? 'LinkedIn' : /skool\.com\/@/i.test(u) ? 'Skool profile' : 'Follow me'; };
     addL(socialLabel(v.social), v.social);
     if (mem) addL(socialLabel(mem.social), mem.social);
@@ -2714,8 +2715,14 @@
       ab.appendChild(el('p', 'offer', m.about));
       body.appendChild(ab);
     }
-    var social = linkBtn('Follow me', m.social || vip.social, false);
-    var site = linkBtn('Visit my website', vip.website, false);
+    var site = linkBtn('Visit my website', vip.website || m.website, false);
+    var socLinks = [], seenSoc = {};
+    var addSoc = function (label, u) { var x = safeUrl(u); if (!x || seenSoc[x]) return; seenSoc[x] = true; var b2 = linkBtn(label, x, false); if (b2) socLinks.push(b2); };
+    var socName = function (u) { u = String(u || ''); return /instagram/i.test(u) ? 'Instagram' : /facebook/i.test(u) ? 'Facebook' : /tiktok/i.test(u) ? 'TikTok' : /youtu/i.test(u) ? 'YouTube' : /linkedin/i.test(u) ? 'LinkedIn' : /pinterest/i.test(u) ? 'Pinterest' : 'Follow me'; };
+    addSoc(socName(m.social || vip.social), m.social || vip.social);
+    var ms = m.socials || {};
+    [['facebook', 'Facebook'], ['tiktok', 'TikTok'], ['youtube', 'YouTube'], ['linkedin', 'LinkedIn'], ['pinterest', 'Pinterest'], ['instagram', 'Instagram']].forEach(function (s) { addSoc(s[1], ms[s[0]]); });
+    var social = socLinks.length ? true : null;
     var extraO = [], seenXO = {};
     if (m.offerLink) seenXO[linkKey(m.offerLink)] = true;
     (m.offers || []).slice(0, 2).concat(vip.offers || []).forEach(function (o) {
@@ -2797,7 +2804,7 @@
       var sa = el('div', 'actions');
       sa.style.marginTop = '16px';
       if (site) sa.appendChild(site);
-      if (social) sa.appendChild(social);
+      socLinks.forEach(function (b3) { sa.appendChild(b3); });
       body.appendChild(sa);
     }
     overlay.classList.add('open');

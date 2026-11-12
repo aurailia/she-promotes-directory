@@ -206,8 +206,14 @@
     } },
     business: { label: 'Your business name', optional: true },
     photo: { label: 'A photo of you, or your logo', type: 'image', required: true, shape: 'round', size: 900, help: 'A clear photo of your face works best. Faces get remembered.' },
-    about: { label: 'A short bio', type: 'textarea', short: true, optional: true, max: 400, help: 'Two or three sentences about you and what you do.' },
-    social: { label: 'Instagram or main social', type: 'url', optional: true, ph: 'Your link or @name', base: 'https://www.instagram.com/' },
+    about: { label: 'A short bio', type: 'textarea', optional: true, max: 1200, help: 'A few sentences about you and what you do. This shows on your profile.' },
+    website: { label: 'Your website', type: 'url', optional: true, ph: 'yourwebsite.com' },
+    social: { label: 'Instagram', type: 'url', optional: true, ph: '@yourname or link', base: 'https://www.instagram.com/', help: 'Add the ones you use. Skip the rest.' },
+    sfacebook: { label: 'Facebook', type: 'url', optional: true, ph: '@yourname or link', base: 'https://www.facebook.com/' },
+    stiktok: { label: 'TikTok', type: 'url', optional: true, ph: '@yourname or link', base: 'https://www.tiktok.com/@' },
+    syoutube: { label: 'YouTube', type: 'url', optional: true, ph: '@yourname or link', base: 'https://www.youtube.com/@' },
+    slinkedin: { label: 'LinkedIn', type: 'url', optional: true, ph: '@yourname or link', base: 'https://www.linkedin.com/in/' },
+    spinterest: { label: 'Pinterest', type: 'url', optional: true, ph: '@yourname or link', base: 'https://www.pinterest.com/' },
 
     vheadline: { label: 'Your headline', type: 'textarea', short: true, required: true, max: 150, help: 'One sentence that says what you do and who it\'s for.', ph: 'Hand-poured soy candles for women who want their home to feel like a retreat.' },
     vstory: { label: 'Your story', type: 'textarea', tall: true, required: true, help: 'How did you get started? Why do you do this work? Write it the way you\'d tell a friend. Easier to talk it out? Tap the microphone on your phone\'s keyboard.' },
@@ -294,13 +300,13 @@
   var IMAGE_KEYS = ['photo', 'vcover', 'cbanner', 'o1image', 'o2image', 'o3image'];
 
   var STEPS = [
-    { id: 'you', nav: 'You', title: 'Let\'s start with you', sub: 'This is how people meet you in the Directory.', keys: ['tier', 'name', 'email', 'skool', 'business', 'photo', 'about', 'social'] },
+    { id: 'you', nav: 'You', title: 'Let\'s start with you', sub: 'This is how people meet you in the Directory.', keys: ['tier', 'name', 'email', 'skool', 'business', 'photo', 'about', 'website', 'social', 'sfacebook', 'stiktok', 'syoutube', 'slinkedin', 'spinterest'] },
     { id: 'event', nav: 'Your event', title: 'Tell me about your event', sub: 'This is what people see on the Upcoming Events page.', keys: ['etitle', 'edesc', 'eimage', 'ecat', 'ecost', 'eprice'], eventOnly: true },
     { id: 'when', nav: 'When and where', title: 'When and where', sub: 'Set the time in your own time zone.', keys: ['edate', 'estart', 'eend', 'etz', 'emode', 'evenue', 'eaddress', 'ecity', 'eregion', 'ecountry', 'ewhere', 'ecomm', 'ejoin', 'elink'], eventOnly: true },
     { id: 'offers', nav: 'Your offers', title: 'Your offers', sub: 'Add up to 3. Put the one you\'d most want people to find first. No offer yet? You can skip this step.', group: 'o', listOnly: true },
     { id: 'community', nav: 'Your community', title: 'Your community', sub: 'Run a Skool or Facebook community? Add it here. No community? You can skip this step.', keys: ['cname', 'clink', 'cabout', 'ccat', 'cplatform', 'caccess', 'cpromo', 'cdays', 'cbanner', 'c2has', 'c2name', 'c2link', 'c2about', 'c2access', 'c2banner'], listOnly: true },
     { id: 'recs', nav: 'You recommend', title: 'Communities you love', sub: 'Recommend communities you\'re in and love. Use your affiliate link, and you can earn when someone joins. You can skip this step.', group: 'r', listOnly: true },
-    { id: 'vip', nav: 'Your VIP page', title: 'Your Featured Business page', sub: 'As a VIP you get your own page in the Directory. These answers fill it in.', keys: ['vheadline', 'vstory', 'vwho', 'vwebsite', 'vvideo', 'vinside', 'vaccess', 'vcover'], vipOnly: true, listOnly: true },
+    { id: 'vip', nav: 'Your VIP page', title: 'Your Featured Business page', sub: 'As a VIP you get your own page in the Directory. These answers fill it in.', keys: ['vheadline', 'vstory', 'vwho', 'vvideo', 'vinside', 'vaccess', 'vcover'], vipOnly: true, listOnly: true },
     { id: 'review', nav: 'Review', title: 'Take one last look', sub: 'Make sure it sounds like you, then send it to me.' }
   ];
 
@@ -524,8 +530,9 @@
     '  "name": "my full name",',
     '  "business": "my business name",',
     '  "skool": "my Skool profile link",',
-    '  "about": "2 or 3 sentences about me and what I do, in first person, 400 characters max",',
-    '  "social": "my Instagram or main social link",',
+    '  "about": "a few sentences about me and what I do, in first person, 1200 characters max",',
+    '  "website": "my website link",',
+    '  "socials": { "instagram": "", "facebook": "", "tiktok": "", "youtube": "", "linkedin": "", "pinterest": "" },',
     '  "offers": [',
     '    { "title": "offer name", "desc": "what it is and who it\'s for in one sentence, 150 characters max", "who": "who it\'s for, short", "price": "starting price, like $47 or Free", "link": "", "categories": ["up to 3 from the list below"], "formats": ["from the format list below"], "keywords": "up to 10 search words, separated by commas" }',
     '  ],',
@@ -617,17 +624,19 @@
   function aiFillVip(j) {
     var v = j.vip || j, n = 0;
     var set = function (k, x) { if (str(x)) { S.a[k] = str(x, F[k].max); n++; } };
-    set('vheadline', v.headline); set('vstory', v.story); set('vwho', v.who); set('vwebsite', v.website);
+    set('vheadline', v.headline); set('vstory', v.story); set('vwho', v.who); if (str(v.website) && !has('website')) set('website', v.website);
     var ins = arr(v.inside).map(function (x) { return str(x); }).filter(Boolean).slice(0, 8);
     if (ins.length) { S.a.vinside = ins.join('\n'); n++; }
     set('vaccess', v.access);
-    if (has('vwebsite')) normUrl('vwebsite');
+    if (has('website')) normUrl('website');
     return n;
   }
   function aiFill(j) {
     var n = 0, i;
     var set = function (k, v) { if (Array.isArray(v) ? v.length : str(v)) { S.a[k] = Array.isArray(v) ? v : str(v, F[k].max); n++; } };
-    set('name', j.name); set('business', j.business); set('skool', j.skool); set('about', j.about); set('social', j.social);
+    set('name', j.name); set('business', j.business); set('skool', j.skool); set('about', j.about); set('website', j.website);
+    var so = j.socials || {};
+    set('social', so.instagram || j.social || j.instagram); set('sfacebook', so.facebook); set('stiktok', so.tiktok); set('syoutube', so.youtube); set('slinkedin', so.linkedin); set('spinterest', so.pinterest);
     var offers = (Array.isArray(j.offers) ? j.offers : []).filter(function (o) { return o && (str(o.title) || str(o.desc)); }).slice(0, 3);
     if (offers.length) {
       for (i = 1; i <= 3; i++) OFFER_SFX.forEach(function (sx) { if (sx !== 'image') delete S.a['o' + i + sx]; });
@@ -663,11 +672,11 @@
     }
     var v = j.vip || {};
     if (str(v.headline) || str(v.story)) {
-      set('vheadline', v.headline); set('vstory', v.story); set('vwho', v.who); set('vwebsite', v.website);
+      set('vheadline', v.headline); set('vstory', v.story); set('vwho', v.who); if (str(v.website) && !has('website')) set('website', v.website);
       set('vinside', arr(v.inside).map(function (x) { return str(x); }).filter(Boolean).join('\n')); set('vaccess', v.access);
       if (!val('tier')) S.a.tier = 'VIP';
     }
-    ['skool', 'social', 'vwebsite', 'clink', 'c2link', 'o1link', 'o2link', 'o3link', 'r1link', 'r2link', 'r3link'].forEach(function (k) { if (has(k)) normUrl(k); });
+    ['skool', 'social', 'website', 'sfacebook', 'stiktok', 'syoutube', 'slinkedin', 'spinterest', 'clink', 'c2link', 'o1link', 'o2link', 'o3link', 'r1link', 'r2link', 'r3link'].forEach(function (k) { if (has(k)) normUrl(k); });
     return n;
   }
   function copyText(text, ok, fail) {
@@ -784,7 +793,7 @@
   function payload() {
     var A = {}, i, j = 1;
     var put = function (k, v) { A[k] = Array.isArray(v) ? v.join(/days$/.test(k) ? ', ' : '; ') : String(v == null ? '' : v).trim(); };
-    ['name', 'email', 'skool', 'tier', 'business', 'about', 'social'].forEach(function (k) { put(k, val(k)); });
+    ['name', 'email', 'skool', 'tier', 'business', 'about', 'social', 'website', 'sfacebook', 'stiktok', 'syoutube', 'slinkedin', 'spinterest'].forEach(function (k) { put(k, val(k)); });
     for (i = 1; i <= 3; i++) OFFER_SFX.forEach(function (s) { if (s !== 'image') put('o' + i + s, i <= S.offers ? val('o' + i + s) : ''); });
     ['cname', 'clink', 'cabout', 'ccat', 'cplatform', 'caccess'].forEach(function (k) { put(k, val(k)); });
     put('cdays', val('cpromo') === 'Yes' ? val('cdays') : '');
@@ -800,7 +809,8 @@
       put('r' + j + s, v);
       if (s === 'name') put('r' + j + 'own', val('r' + i + 'own') === 'Yes' ? 'Yes' : '');
     });
-    if (isVip()) ['vheadline', 'vstory', 'vwho', 'vwebsite', 'vvideo', 'vinside', 'vaccess'].forEach(function (k) { put(k, val(k)); });
+    if (isVip()) ['vheadline', 'vstory', 'vwho', 'vvideo', 'vinside', 'vaccess'].forEach(function (k) { put(k, val(k)); });
+    if (isVip()) put('vwebsite', val('website'));   /* one website, used on her listing and her VIP page */
     else ['vheadline', 'vstory', 'vwho', 'vwebsite', 'vvideo', 'vinside', 'vaccess'].forEach(function (k) { put(k, ''); });
     /* for reopening the form later */
     A.formState = JSON.stringify({ offers: S.offers, recs: S.recs, c2has: val('c2has'), cpromo: val('cpromo') });
@@ -868,7 +878,8 @@
   function unpack(ans, imgs) {
     var st = {}; try { st = JSON.parse(ans.formState || '{}'); } catch (e) { st = {}; }
     var a = {}, i, j = 1;
-    ['name', 'email', 'skool', 'tier', 'business', 'about', 'social', 'cname', 'clink', 'cabout', 'cplatform', 'caccess', 'vheadline', 'vstory', 'vwho', 'vwebsite', 'vvideo', 'vinside', 'vaccess'].forEach(function (k) { a[k] = ans[k] || ''; });
+    ['name', 'email', 'skool', 'tier', 'business', 'about', 'social', 'website', 'sfacebook', 'stiktok', 'syoutube', 'slinkedin', 'spinterest', 'cname', 'clink', 'cabout', 'cplatform', 'caccess', 'vheadline', 'vstory', 'vwho', 'vwebsite', 'vvideo', 'vinside', 'vaccess'].forEach(function (k) { a[k] = ans[k] || ''; });
+    if (!a.website && ans.vwebsite) a.website = ans.vwebsite;
     var list = function (v) { return String(v || '').split(/\s*[,;]\s*/).filter(Boolean); };
     /* match whole names, since some categories have a comma in them */
     var pick = function (v, opts) { var c = String(v || '').toLowerCase(); return opts.filter(function (o) { return c.indexOf(o.toLowerCase()) !== -1; }).sort(function (x, y) { return c.indexOf(x.toLowerCase()) - c.indexOf(y.toLowerCase()); }); };

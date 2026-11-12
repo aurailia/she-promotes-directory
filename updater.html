@@ -429,6 +429,9 @@
         return;
       }
       if (h === 'offer image') { map.offerImage = i; return; }
+      if (h === 'website' || h === 'your website') { map.website = i; return; }
+      var socM = h.match(/^(facebook|tiktok|youtube|linkedin|pinterest)$/);
+      if (socM) { map.socials = map.socials || {}; map.socials[socM[1]] = i; return; }
       var isDays = h.indexOf('promo day') !== -1 || /\bdays\b/.test(h);
       /* questions that only steer the form */
       if (/would you like to recommend|add another/.test(h)) return;
@@ -518,6 +521,8 @@
       about: g(map.about),
       photo: photoUrl(g(map.photo)),
       social: cleanUrl(g(map.social)),
+      website: cleanUrl(g(map.website)),
+      socials: (function () { var o = {}; Object.keys(map.socials || {}).forEach(function (k) { var u = cleanUrl(g(map.socials[k])); if (u) o[k] = u; }); return o; })(),
       categories: pickKnown(g(map.cat), CATEGORIES).slice(0, 4),
       formats: pickKnown(g(map.format), FORMATS),
       offerName: g(map.offerName),
@@ -566,7 +571,7 @@
       if (!v) { v = blankVip(); v.id = vipId(m.name); v.name = m.name; v.fromListing = true; vips.push(v); }
       var hand = !!v.edited;
       var set = function (k, val) { if (val && (!hand || !v[k])) v[k] = val; };
-      set('headline', x.headline); set('about', x.story); set('video', x.video); set('who', x.who); set('website', x.website); set('banner', x.cover);
+      set('headline', x.headline); set('about', x.story); set('video', x.video); set('who', x.who); set('website', x.website || m.website); set('banner', x.cover);
       if (m.community && (x.inside.length || x.access)) {
         var cs = v.communities || (v.communities = []), c = null;
         cs.forEach(function (q) { if (!c && ((normUrl(q.link) && normUrl(q.link) === normUrl(m.community.link)) || nameKey(q.name) === nameKey(m.community.name))) c = q; });
@@ -645,7 +650,7 @@
   };
 
   /* ---------- What changed ---------- */
-  var FIELDS = [['name', 'Name'], ['business', 'Business name'], ['about', 'About'], ['photo', 'Photo'], ['social', 'Social link'],
+  var FIELDS = [['name', 'Name'], ['business', 'Business name'], ['about', 'About'], ['photo', 'Photo'], ['social', 'Social link'], ['website', 'Website'], ['socials', 'Socials'],
     ['categories', 'Categories'], ['formats', 'Formats'], ['offerName', 'Offer name'], ['offer', 'Signature offer'], ['who', 'Who it\u2019s for'], ['price', 'Starting price'],
     ['offerLink', 'Offer link'], ['keywords', 'Offer keywords'], ['offers', 'More offers'], ['community', 'Community'], ['recommends', 'Recommended communities']];
   var show = function (k, v) {
@@ -1616,7 +1621,7 @@
       var o = {};
       /* keep any hand-added bonus recommendations from the live Directory */
       if (!m.extraRecommends) current.members.forEach(function (c) { if (c.id === m.id && c.extraRecommends) m.extraRecommends = c.extraRecommends; });
-      ['id', 'name', 'business', 'about', 'offerName', 'photo', 'extraRecommends', 'social', 'categories', 'formats', 'offer', 'who', 'price', 'offerLink', 'offerImage', 'keywords', 'offers', 'community', 'recommends']
+      ['id', 'name', 'business', 'about', 'offerName', 'photo', 'extraRecommends', 'social', 'website', 'socials', 'categories', 'formats', 'offer', 'who', 'price', 'offerLink', 'offerImage', 'keywords', 'offers', 'community', 'recommends']
         .forEach(function (k) { if (m[k] != null) o[k] = m[k]; });
       var lk = m._fromCurrent ? (m.locked || []) : lockedKeys(m.id);
       if (lk.length) o.locked = lk;
