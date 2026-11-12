@@ -867,12 +867,12 @@
         <ol class="steps">
           <li>Join She Promotes&trade; on Skool. It&rsquo;s free.</li>
           <li>Upgrade to premium or VIP inside the community.</li>
-          <li>Fill out the Directory form and I&rsquo;ll add you.</li>
+          <li>Fill out the Directory form inside the community and I&rsquo;ll add you.</li>
         </ol>
         <div class="actions">
           <a class="btn btn-primary" id="joinBtn" href="#" target="_blank" rel="noopener">Join She Promotes&trade; free</a>
           <a class="btn btn-ghost" id="plansBtn" href="#" target="_blank" rel="noopener">Already a member? Upgrade</a>
-          <a class="btn btn-ghost" id="formBtn" href="#" target="_blank" rel="noopener" hidden>Fill out the form</a>
+          <a class="btn btn-ghost" id="formBtn" href="#" target="_blank" rel="noopener" hidden>Members: fill out the form</a>
         </div>
       </section>
 
@@ -895,7 +895,7 @@
 <script>
 (function () {
   /* Settings */
-  var FORM_URL = 'https://aurailia.github.io/she-promotes-directory/directory-form.html';
+  var FORM_URL = 'https://www.skool.com/she-promotes-7924/classroom/5ed94b0d?md=5eba1d740a2e4ec8bf32e96f65c6d061';   /* The Skool lesson with the form, so only members can reach it */
   var PLANS_URL = 'https://www.skool.com/she-promotes-7924/plans';
   var JOIN_URL = 'https://www.skool.com/she-promotes-7924/about';
   var UPGRADE_URL = 'https://www.skool.com/she-promotes-7924/plans';   /* where women go to become a VIP */
@@ -2784,7 +2784,7 @@
     else setSection(chipSets[h] ? h : 'home', true);
     var vc = vipList().length; if ($('c-vip')) $('c-vip').textContent = vc ? vc : '';
     var ec = upcoming().length; if ($('c-events')) $('c-events').textContent = ec ? ec : '';
-    if (safeUrl(UPGRADE_URL)) $('evUpgrade').href = safeUrl(UPGRADE_URL); else $('evUpgrade').hidden = true;
+    if (safeUrl(FORM_URL || UPGRADE_URL)) $('evUpgrade').href = safeUrl(FORM_URL || UPGRADE_URL); else $('evUpgrade').hidden = true;
     $('vipNavLbl').textContent = VIP_NAME;
     if (safeUrl(UPGRADE_URL)) $('vipUpgrade').href = safeUrl(UPGRADE_URL); else $('vipUpgrade').hidden = true;
     setTimeout(function () {

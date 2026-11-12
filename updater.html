@@ -223,9 +223,10 @@
   <section class="panel" id="eventsPanel">
     <div class="step">Anytime</div>
     <h2>&#127915; Upcoming Events</h2>
-    <p class="help">Add workshops, webinars and in-person events from Premium and VIP members, or your own. Past events drop off the Directory on their own.</p>
+    <p class="help">Members share events through the Directory form. They land in the <b>Events</b> tab of your responses Sheet. Check the Approved box on the ones you want, then download that tab as a CSV and choose it here. You can also add an event by hand. Past events drop off the Directory on their own.</p>
     <div class="row">
-      <button class="btn btn-primary" type="button" id="evAdd">Add an event</button>
+      <label class="file"><input type="file" id="evCsv" accept=".csv,text/csv"><span class="btn btn-primary">Choose Events CSV</span></label>
+      <button class="btn btn-ghost" type="button" id="evAdd">Add an event by hand</button>
     </div>
     <div class="status" id="evStatus" aria-live="polite"></div>
     <div class="item" id="evEditor" hidden style="margin-top:14px;"></div>
@@ -581,6 +582,10 @@
     var report = $('csvReport');
     report.innerHTML = '';
     var rows = parseCSV(text);
+    if (rows.length && rows[0].some(function (h) { return /^\s*event title\s*$/i.test(h); })) {
+      report.appendChild(el('div', 'note', 'That\u2019s your Events tab, so I sent it to Upcoming Events.'));
+      handleEventsCSV(rows); return;
+    }
     if (rows.length < 2) { report.appendChild(el('div', 'note warn', 'That file looks empty. Try downloading the CSV again from your responses sheet.')); return; }
     var map = mapColumns(rows[0]);
     var missing = [];
@@ -1397,6 +1402,49 @@
     } catch (x) { return new Date(e.startUtc).toString(); }
   };
   var blankEvent = function () { return { id: '', title: '', host: '', hostBusiness: '', desc: '', image: '', date: '', start: '', end: '', tz: 'America/Los_Angeles', cost: 'free', price: '', mode: 'online', venue: '', address: '', city: '', region: '', country: '', where: 'skool', community: '', joinCost: '', link: '', categories: [] }; };
+  /* Approved events from the Events tab of your responses Sheet */
+  var handleEventsCSV = function (rows) {
+    var st = $('evStatus');
+    if (rows.length < 2) { st.textContent = 'That Events CSV looks empty.'; return; }
+    var H = rows[0].map(function (h) { return String(h).trim().toLowerCase(); });
+    var col = function (r, name) { var i = H.indexOf(name.toLowerCase()); return i === -1 ? '' : String(r[i] == null ? '' : r[i]).trim(); };
+    var added = 0, updated = 0, waiting = 0, past = 0, skipped = 0;
+    rows.slice(1).forEach(function (r) {
+      if (!col(r, 'Event title')) return;
+      if (!truthy(col(r, 'Approved'))) { waiting++; return; }
+      var tz = col(r, 'Time zone') || 'America/Los_Angeles';
+      var date = col(r, 'Event date'), start = col(r, 'Start time'), end = col(r, 'End time');
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !/^\d{1,2}:\d{2}/.test(start)) { skipped++; return; }
+      var whereTxt = col(r, 'Where people sign up').toLowerCase();
+      var ne = {
+        id: col(r, 'Event ID') || ('ev-' + hashId(col(r, 'Event title') + date + col(r, 'Host name'))),
+        title: col(r, 'Event title'), host: col(r, 'Host name'), hostBusiness: col(r, 'Host business'), desc: col(r, 'Event description'),
+        image: photoUrl(col(r, 'Event image'), 1200), date: date, start: start.slice(0, 5), end: end.slice(0, 5), tz: tz,
+        cost: /paid/i.test(col(r, 'Free or paid')) ? 'paid' : 'free', price: /paid/i.test(col(r, 'Free or paid')) ? col(r, 'Ticket price') : '',
+        mode: /person/i.test(col(r, 'Online or in person')) ? 'inperson' : 'online',
+        where: whereTxt.indexOf('skool') !== -1 ? 'skool' : whereTxt.indexOf('page') !== -1 ? 'page' : 'other',
+        link: cleanUrl(col(r, 'Sign-up link')), categories: pickKnown(col(r, 'Event categories'), CATEGORIES).slice(0, 2), fromForm: true
+      };
+      if (ne.mode === 'inperson') { ne.venue = col(r, 'Venue'); ne.address = col(r, 'Address'); ne.city = col(r, 'City'); ne.region = col(r, 'State or region'); ne.country = col(r, 'Country'); }
+      if (ne.where === 'skool') { ne.community = col(r, 'Skool community'); ne.joinCost = col(r, 'Cost to join the community'); }
+      ne.startUtc = zoned(ne.date, ne.start, ne.tz);
+      if (ne.end) { ne.endUtc = zoned(ne.date, ne.end, ne.tz); if (ne.endUtc <= ne.startUtc) ne.endUtc += 86400000; }
+      else ne.endUtc = ne.startUtc + 2 * 3600000;
+      if (ne.endUtc < Date.now()) { past++; return; }
+      var i = -1; events.forEach(function (x, k) { if (x.id === ne.id) i = k; });
+      if (i === -1) { events.push(ne); added++; }
+      else if (events[i].fromForm && !events[i].editedByHand) { events[i] = ne; updated++; }
+    });
+    saveEvents(); renderEvents(); renderStats();
+    var bits = [];
+    bits.push(added + ' approved event' + (added === 1 ? '' : 's') + ' added');
+    if (updated) bits.push(updated + ' updated');
+    if (waiting) bits.push(waiting + ' still waiting for your approval');
+    if (past) bits.push(past + ' already over, so I left ' + (past === 1 ? 'it' : 'them') + ' out');
+    if (skipped) bits.push(skipped + ' missing a date or time');
+    st.textContent = bits.join('. ') + '. Download your directory.json when you\u2019re ready.';
+    $('eventsPanel').scrollIntoView({ block: 'start' });
+  };
   var renderEvents = function () {
     var list = $('evList');
     if (!list) return;
@@ -1547,6 +1595,7 @@
       if (ne.end) { ne.endUtc = zoned(ne.date, ne.end, ne.tz); if (ne.endUtc <= ne.startUtc) ne.endUtc += 86400000; }
       else ne.endUtc = ne.startUtc + 2 * 3600000;
       var i = -1; events.forEach(function (x, k) { if (x.id === ne.id) i = k; });
+      if (e.fromForm) { ne.fromForm = true; ne.editedByHand = true; }
       if (i === -1) events.push(ne); else events[i] = ne;
       saveEvents(); renderEvents(); renderStats();
       box.hidden = true; evEditing = null;
@@ -1673,6 +1722,17 @@
     var f = this.files[0]; if (!f) return;
     var r = new FileReader();
     r.onload = function () { handleCSV(String(r.result)); };
+    r.readAsText(f);
+    this.value = '';
+  });
+  $('evCsv').addEventListener('change', function () {
+    var f = this.files[0]; if (!f) return;
+    var r = new FileReader();
+    r.onload = function () {
+      var rows = parseCSV(String(r.result));
+      if (!rows.length || !rows[0].some(function (h) { return /^\s*event title\s*$/i.test(h); })) { $('evStatus').textContent = 'That doesn\u2019t look like your Events tab. In your responses Sheet, open the Events tab, then File, Download, CSV.'; return; }
+      handleEventsCSV(rows);
+    };
     r.readAsText(f);
     this.value = '';
   });
