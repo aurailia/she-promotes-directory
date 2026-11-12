@@ -463,7 +463,7 @@
     if (picking && !has('want')) h += '<p class="help" style="margin-top:4px">Pick one and tap Next.</p>';
     if (i === 0 && isEvent()) h += '<div class="ready"><b>Sharing an event is for She Promotes™ Premium and VIP members.</b> It takes about 3 minutes. Have your sign-up link and an event image handy. I\'ll check it and add it to the Upcoming Events page.</div>';
     if (i === 0 && !S.token && !has('name') && val('want') === WANT_LIST) h += '<div class="ready"><b>This form is for She Promotes™ Premium and VIP members.</b> It takes about 10 minutes, and your answers save on this device as you go. Have these handy:<ul><li>A photo of you or your logo</li><li>Your offer and community links</li><li>Any affiliate links for communities you love</li></ul>Not Premium yet? <a href="' + UPGRADE_URL + '" target="_blank" rel="noopener">Upgrade here</a>.</div>';
-    if (i === 0 && !S.token && val('want') === WANT_LIST) h += aiHtml();
+    if (i === 0 && (S.token || val('want') === WANT_LIST)) h += aiHtml();
     if (st.id === 'vip') h += aiHtml();
     if (st.group) h += groupHtml(st.group);
     else if (st.id === 'review') h += reviewHtml();
@@ -504,6 +504,15 @@
     S.step = has('name') && has('email') && has('skool') && has('tier') ? 1 : 0;
     saveDraft(); render(true);
   }
+  function renderExisting(res) {
+    var first = String(val('name')).trim().split(/\s+/)[0];
+    var h = '<div class="done"><h1 class="grad">You\'re already listed' + (first ? ', ' + esc(first) : '') + '</h1>';
+    h += '<p>Good news, you\'re already in the Directory, so I didn\'t make a second listing.</p>';
+    h += '<div class="edit-box">' + (res && res.emailed !== false ? 'I just emailed you your private link. Open it to update your listing with these changes. Check spam or promotions if you don\'t see it.' : 'Please email team@aurailia.com and I\'ll send you your private link.') + '</div>';
+    h += '<div class="done-actions"><a class="btn btn-primary" href="' + DIRECTORY_URL + '">Browse the Directory</a></div>';
+    h += '<p class="signoff">I believe in you. To living our dreams.<br>Aurailia &#10022;</p></div>';
+    app.innerHTML = h; window.scrollTo(0, 0);
+  }
   function renderDone(res) {
     var first = String(val('name')).trim().split(/\s+/)[0];
     var h = '<div class="done"><h1 class="grad">' + (S.token ? 'Your changes are in' : 'You\'re in' + (first ? ', ' + esc(first) : '')) + '</h1>';
@@ -522,7 +531,7 @@
   var AI_PROMPT = [
     'I\'m filling out the She Promotes™ Directory form so women can find my business. Please help me fill it in.',
     '',
-    'Use only what I give you below this message. That might be my Skool about page, my bio, my offer pages, my website, or me just talking about my business. Keep my own words where you can. If something isn\'t there, leave it as "". Never make up links, prices or details.',
+    'Start with what you already know about me from our past chats, your memory of me, or my project files. Add anything I paste below this message, like my Skool about page, my bio, my offer pages or my website. Keep my own words where you can. If something isn\'t there, leave it as "". Never make up links, prices or details.',
     '',
     'Reply with only this JSON in one code block, filled in:',
     '',
@@ -550,12 +559,14 @@
     'Categories to pick from: ' + CATEGORIES.join('; ') + '. For a community you can also use Promo & Networking.',
     'Formats to pick from: ' + FORMATS.join('; ') + '.',
     '',
-    'Here\'s what I have about my business:'
+    'Only ask me questions if you don\'t know enough. Then ask one short question at a time, just about what\'s missing, and send the JSON when you have enough.',
+    '',
+    'Anything extra I want you to use (this can be empty):'
   ].join('\n');
   var VIP_PROMPT = [
     'I\'m a VIP member of She Promotes™, so I get my own Featured Business page in the She Promotes Directory. Please help me write it.',
     '',
-    'Use only what I give you below this message. That might be my Skool about page, my bio, my website, or me just talking about my business and how I got here. Keep my own words where you can.',
+    'Start with what you already know about me from our past chats, your memory of me, or my project files. Add anything I paste below this message, like my Skool about page, my bio or my website. Keep my own words where you can.',
     'Write it the way I talk: simple, warm, first person, short sentences, like I\'m talking to a friend. No hype, no coach jargon and no dashes. Never make up facts, prices or links. If something isn\'t there, leave it as "".',
     '',
     'Reply with only this JSON in one code block, filled in:',
@@ -571,7 +582,9 @@
     '  }',
     '}',
     '',
-    'Here\'s what I have about me and my business:'
+    'Only ask me questions if you don\'t know enough. Then ask one short question at a time, just about what\'s missing (like how I got started, who I help or what\'s inside my community), and send the JSON when you have enough.',
+    '',
+    'Anything extra I want you to use (this can be empty):'
   ].join('\n');
   function aiKind() { var st = cur(); return st && st.id === 'vip' ? 'vip' : 'list'; }
   function aiHtml() {
@@ -579,7 +592,7 @@
     var h = '<div class="ai-box"><h2>' + (vipBox ? 'Want AI to write your page with you?' : 'Want AI to fill this in for you?') + '</h2>';
     h += vipBox ? '<p>Claude or ChatGPT can draft your headline, your story and what\'s inside your community. Then you read it over and make sure it sounds like you.</p>' : '<p>Save yourself the typing. Claude or ChatGPT can fill in most of this form for you, then you just check it and add your images.</p>';
     if (!S.aiOpen) return h + '<button type="button" class="btn btn-ghost ai-open" id="aiToggle">Show me how</button></div>';
-    h += '<ol><li>Tap <b>Copy the prompt</b>.</li><li>Open a new chat in Claude or ChatGPT and paste it in.</li><li>' + (vipBox ? 'Under it, paste your Skool about page or your bio, or just tell it your story. How did you start? Why do you do this work? Easier to talk? Tap the microphone on your keyboard.' : 'Under it, paste your Skool about page, your bio, your offer pages, or just talk about your business. Easier to talk? Tap the microphone on your keyboard.') + '</li><li>Copy the whole answer it gives you, paste it in the box below and tap <b>Fill in my form</b>.</li></ol>';
+    h += '<ol><li>Tap <b>Copy the prompt</b>.</li><li>Open a new chat in Claude or ChatGPT and paste it in.</li><li>' + (vipBox ? 'Under it, paste your Skool about page or your bio, or just tell it your story. If it already knows you from past chats, it uses that. If not, it asks you a few questions. Easier to talk? Tap the microphone on your keyboard.' : 'Under it, paste your Skool about page, your bio, your offer pages, or just talk about your business. If it already knows you from past chats, it uses that. If not, it asks you a few questions. Easier to talk? Tap the microphone on your keyboard.') + '</li><li>Copy the whole answer it gives you, paste it in the box below and tap <b>Fill in my form</b>.</li></ol>';
     h += '<div class="ai-row"><button type="button" class="btn btn-primary" id="aiCopy">' + (S.aiCopied ? 'Copied. Now open Claude or ChatGPT' : 'Copy the prompt') + '</button></div>';
     if (S.aiShowPrompt) h += '<textarea class="ai-prompt" id="aiPromptBox" readonly aria-label="The prompt to copy">' + esc(vipBox ? VIP_PROMPT : AI_PROMPT) + '</textarea>';
     h += '<div class="field" style="margin:16px 0 0"><label for="aiPaste">Paste the AI\'s answer here</label><textarea id="aiPaste" placeholder="Paste the whole answer, including the part in curly brackets">' + esc(S.aiText || '') + '</textarea></div>';
@@ -867,7 +880,7 @@
     if (!LIVE) { S.sending = false; window.__lastPayload = body; clearDraft(); renderDone({ editLink: 'preview', emailed: true }); return; }
     fetch(SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(body) })
       .then(function (r) { return r.json(); })
-      .then(function (res) { S.sending = false; if (!res || !res.ok) throw new Error((res && res.error) || 'failed'); clearDraft(); renderDone(res); })
+      .then(function (res) { S.sending = false; if (!res || !res.ok) throw new Error((res && res.error) || 'failed'); if (res.existing) { renderExisting(res); return; } clearDraft(); renderDone(res); })
       .catch(function () {
         S.sending = false;
         S.formError = 'That didn\'t go through, but your answers are still here. Please try again. If it keeps happening, email team@aurailia.com.';
