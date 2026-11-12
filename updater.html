@@ -439,7 +439,8 @@
         if (numM) curRec = numM[1];
         section = 'rec';
         var r = map.recs[curRec] = map.recs[curRec] || {};
-        if (h.indexOf('why') !== -1) r.why = i;
+        if (/image|banner|photo/.test(h)) r.image = i;
+        else if (h.indexOf('why') !== -1) r.why = i;
         else if (isOwnQ) r.own = i;
         else if (h.indexOf('affiliate') !== -1) r.affiliate = i;
         else if (isDays) r.days = i;
@@ -540,7 +541,7 @@
     Object.keys(map.recs).sort().forEach(function (n) {
       var r = map.recs[n];
       var rn = g(r.name), rl = cleanUrl(g(r.link));
-      if (rn && rl && m.recommends.length < 3 && !m.recommends.some(function (x) { return normUrl(x.link) === normUrl(rl) || x.name.toLowerCase() === rn.toLowerCase(); })) m.recommends.push({ name: rn, link: rl, category: pickRec(g(r.category)), about: g(r.about), access: g(r.access), why: g(r.why), affiliate: truthy(g(r.affiliate)), own: truthy(g(r.own)), promoDays: parseDays(g(r.days)) });
+      if (rn && rl && m.recommends.length < 3 && !m.recommends.some(function (x) { return normUrl(x.link) === normUrl(rl) || x.name.toLowerCase() === rn.toLowerCase(); })) m.recommends.push({ name: rn, link: rl, category: pickRec(g(r.category)), about: g(r.about), access: g(r.access), why: g(r.why), affiliate: truthy(g(r.affiliate)), own: truthy(g(r.own)), promoDays: parseDays(g(r.days)), image: photoUrl(g(r.image), 1200) });
     });
     /* review-only info, never saved to the Directory */
     m._skool = cleanUrl(/^@[\w.-]+$/.test(skool) ? 'https://www.skool.com/' + skool : skool);

@@ -109,6 +109,8 @@
   .form-error { background: rgba(255, 120, 120, 0.13); border: 1px solid rgba(255, 180, 180, 0.5); border-radius: 12px; padding: 12px 14px; font-size: 14.5px; margin-top: 20px; }
 
   .ready { background: var(--card); border: 1px solid var(--card-border); border-radius: 16px; padding: 18px 20px; margin-bottom: 26px; font-size: 14.5px; }
+  .field + .ready, .field + .ai-box, .help + .ready { margin-top: 24px; }
+  .ready + .field, .ai-box + .field { margin-top: 0; }
   .ready b { color: var(--gold-bright); }
   .ready ul { list-style: none; margin-top: 8px; }
   .ready li { padding-left: 20px; position: relative; margin-top: 4px; }
@@ -194,9 +196,10 @@
   /* ---------- the questions ---------- */
   var F = {
     name: { label: 'Your name', required: true, auto: 'name' },
-    email: { label: 'Your email', type: 'email', required: true, auto: 'email', help: 'Private. I\'ll send your edit link here.' },
+    email: { label: 'Your email', type: 'email', required: true, auto: 'email', help: 'Private. I\'ll only use it to email you about this.' },
     skool: { label: 'Your Skool profile link', type: 'url', required: true, help: 'So I can confirm your membership.', ph: 'https://www.skool.com/@your-name' },
     tier: { label: 'Are you a Premium or VIP member?', type: 'choice', required: true, options: ['Premium', 'VIP'], note: function () {
+      if (isEvent()) return '';
       if (val('tier') === 'VIP') return 'You fill out your offers and community once, and they carry over to your Featured Business page. You get one extra step at the end for your story and cover image.';
       if (val('tier') === 'Premium') return S.token ? '' : 'Already listed and upgrading to VIP? Use the private link in your email so you don\'t start over.';
       return '';
@@ -217,7 +220,7 @@
     cname: { label: 'Community name', gr: true },
     clink: { label: 'Link to join', type: 'url', gr: true, ph: 'https://www.skool.com/your-community/about' },
     cabout: { label: 'Your community in one sentence', type: 'textarea', short: true, max: 200, gr: true },
-    ccat: { label: 'Categories', type: 'multi', options: COMM_CATS, maxPick: 2, gr: true, help: 'Pick up to 2.' },
+    ccat: { label: 'Categories', type: 'multi', options: COMM_CATS, maxPick: 3, gr: true, help: 'Pick up to 3.' },
     cplatform: { label: 'Where is it?', type: 'choice', options: ['Skool', 'Facebook', 'Other'], optional: true },
     caccess: { label: 'Free or paid?', type: 'choice', options: ['Free', 'Paid', 'Free with a paid upgrade'], optional: true },
     cpromo: { label: 'Is it a promo community where people share their business?', type: 'choice', options: ['No', 'Yes'], optional: true },
@@ -227,7 +230,8 @@
     c2name: { label: 'Second community name', gr: true, showIf: function () { return val('c2has') === 'Yes'; } },
     c2link: { label: 'Link to join', type: 'url', gr: true, showIf: function () { return val('c2has') === 'Yes'; } },
     c2about: { label: 'In one sentence', type: 'textarea', short: true, max: 200, optional: true, showIf: function () { return val('c2has') === 'Yes'; } },
-    c2access: { label: 'Free or paid?', type: 'choice', options: ['Free', 'Paid', 'Free with a paid upgrade'], optional: true, showIf: function () { return val('c2has') === 'Yes'; } }
+    c2access: { label: 'Free or paid?', type: 'choice', options: ['Free', 'Paid', 'Free with a paid upgrade'], optional: true, showIf: function () { return val('c2has') === 'Yes'; } },
+    c2banner: { label: 'Community banner', type: 'image', optional: true, size: 1400, help: 'Your Skool community banner works great.', showIf: function () { return val('c2has') === 'Yes'; } }
   };
   var n;
   for (n = 1; n <= 3; n++) {
@@ -236,7 +240,7 @@
     F['o' + n + 'who'] = { label: 'Who it\'s for', optional: true, ph: 'Busy moms who want a calm evening' };
     F['o' + n + 'price'] = { label: 'Starting price', optional: true, ph: '$48, or Free' };
     F['o' + n + 'link'] = { label: 'Link to your offer', type: 'url', gr: true, ph: 'yourwebsite.com/offer' };
-    F['o' + n + 'cat'] = { label: 'Categories', type: 'multi', options: CATEGORIES, maxPick: 2, gr: true, help: 'Pick up to 2.' };
+    F['o' + n + 'cat'] = { label: 'Categories', type: 'multi', options: CATEGORIES, maxPick: 3, gr: true, help: 'Pick up to 3.' };
     F['o' + n + 'format'] = { label: 'What kind of offer is it?', type: 'multi', options: FORMATS, maxPick: 3, optional: true };
     F['o' + n + 'keys'] = { label: 'Search words', optional: true, help: 'Up to 10, separated by commas. Words someone would type to find you.', ph: 'money blocks, pricing, abundance' };
     F['o' + n + 'image'] = { label: 'Offer image', type: 'image', optional: true, size: 1400, help: 'A wide image of your offer looks great on its card.' };
@@ -248,6 +252,7 @@
     F['r' + n + 'days'] = { label: 'Which days can people promote there?', type: 'days', optional: true, showIf: (function (k) { return function () { return val(k) === 'Promo Group'; }; })('r' + n + 'cat') };
     F['r' + n + 'why'] = { label: 'Why you recommend it', type: 'textarea', short: true, max: 300, gr: true, ph: 'This is where I learned to price my candles so I actually get paid.' };
     F['r' + n + 'aff'] = { label: 'Is that an affiliate link?', type: 'choice', options: ['No', 'Yes'], gr: true, help: 'We always let people know when a link pays you a fee.' };
+    F['r' + n + 'image'] = { label: 'Community banner', type: 'image', optional: true, size: 1400, help: 'Their Skool banner works great. Save it from their about page.' };
   }
   var WANT_LIST = 'Get listed or update my listing', WANT_EVENT = 'Share an event';
   F.want = { label: 'What would you like to do?', type: 'choice', required: true, options: [WANT_LIST, WANT_EVENT] };
@@ -284,7 +289,7 @@
   F.elink = { label: 'Link for the button', type: 'url', required: true, ph: 'https://', help: 'Where people go to sign up or join.' };
   var EVENT_KEYS = ['etitle', 'edesc', 'eimage', 'ecat', 'ecost', 'eprice', 'edate', 'estart', 'eend', 'etz', 'emode', 'evenue', 'eaddress', 'ecity', 'eregion', 'ecountry', 'ewhere', 'ecomm', 'ejoin', 'elink'];
   var OFFER_SFX = ['title', 'desc', 'who', 'price', 'link', 'cat', 'format', 'keys', 'image'];
-  var REC_SFX = ['name', 'link', 'about', 'cat', 'access', 'days', 'why', 'aff'];
+  var REC_SFX = ['name', 'link', 'about', 'cat', 'access', 'days', 'why', 'aff', 'image'];
   var IMAGE_KEYS = ['photo', 'vcover', 'cbanner', 'o1image', 'o2image', 'o3image'];
 
   var STEPS = [
@@ -292,7 +297,7 @@
     { id: 'event', nav: 'Your event', title: 'Tell me about your event', sub: 'This is what people see on the Upcoming Events page.', keys: ['etitle', 'edesc', 'eimage', 'ecat', 'ecost', 'eprice'], eventOnly: true },
     { id: 'when', nav: 'When and where', title: 'When and where', sub: 'Set the time in your own time zone.', keys: ['edate', 'estart', 'eend', 'etz', 'emode', 'evenue', 'eaddress', 'ecity', 'eregion', 'ecountry', 'ewhere', 'ecomm', 'ejoin', 'elink'], eventOnly: true },
     { id: 'offers', nav: 'Your offers', title: 'Your offers', sub: 'Add up to 3. Put the one you\'d most want people to find first. No offer yet? You can skip this step.', group: 'o', listOnly: true },
-    { id: 'community', nav: 'Your community', title: 'Your community', sub: 'Run a Skool or Facebook community? Add it here. No community? You can skip this step.', keys: ['cname', 'clink', 'cabout', 'ccat', 'cplatform', 'caccess', 'cpromo', 'cdays', 'cbanner', 'c2has', 'c2name', 'c2link', 'c2about', 'c2access'], listOnly: true },
+    { id: 'community', nav: 'Your community', title: 'Your community', sub: 'Run a Skool or Facebook community? Add it here. No community? You can skip this step.', keys: ['cname', 'clink', 'cabout', 'ccat', 'cplatform', 'caccess', 'cpromo', 'cdays', 'cbanner', 'c2has', 'c2name', 'c2link', 'c2about', 'c2access', 'c2banner'], listOnly: true },
     { id: 'recs', nav: 'You recommend', title: 'Communities you love', sub: 'Recommend communities you\'re in and love. Use your affiliate link, and you can earn when someone joins. You can skip this step.', group: 'r', listOnly: true },
     { id: 'vip', nav: 'Your VIP page', title: 'Your Featured Business page', sub: 'As a VIP you get your own page in the Directory. These answers fill it in.', keys: ['vheadline', 'vstory', 'vwho', 'vwebsite', 'vinside', 'vaccess', 'vcover'], vipOnly: true, listOnly: true },
     { id: 'review', nav: 'Review', title: 'Take one last look', sub: 'Make sure it sounds like you, then send it to me.' }
@@ -455,7 +460,7 @@
     else if (st.id === 'review') h += reviewHtml();
     else if (!(picking && !has('want'))) keysOf(st).forEach(function (k) {
       if (k === 'want') return;
-      if (k === 'c2has' || (k === 'tier' && !S.token) || k === 'emode') h += '<div class="divider-space"></div>';
+      if (k === 'c2has' || k === 'emode') h += '<div class="divider-space"></div>';
       h += fieldHtml(k);
     });
     h += '<div class="hp" aria-hidden="true"><label>Leave this empty<input type="text" id="hpField" tabindex="-1" autocomplete="off"></label></div>';
@@ -519,9 +524,9 @@
     '  "about": "2 or 3 sentences about me and what I do, in first person, 400 characters max",',
     '  "social": "my Instagram or main social link",',
     '  "offers": [',
-    '    { "title": "offer name", "desc": "what it is and who it\'s for in one sentence, 150 characters max", "who": "who it\'s for, short", "price": "starting price, like $47 or Free", "link": "", "categories": ["up to 2 from the list below"], "formats": ["from the format list below"], "keywords": "up to 10 search words, separated by commas" }',
+    '    { "title": "offer name", "desc": "what it is and who it\'s for in one sentence, 150 characters max", "who": "who it\'s for, short", "price": "starting price, like $47 or Free", "link": "", "categories": ["up to 3 from the list below"], "formats": ["from the format list below"], "keywords": "up to 10 search words, separated by commas" }',
     '  ],',
-    '  "community": { "name": "", "link": "", "about": "one sentence", "categories": ["up to 2 from the list below"], "platform": "Skool, Facebook or Other", "access": "Free, Paid, or Free with a paid upgrade", "promoCommunity": "Yes if people can promote their business there, otherwise No", "promoDays": ["Mon", "Wed"] },',
+    '  "community": { "name": "", "link": "", "about": "one sentence", "categories": ["up to 3 from the list below"], "platform": "Skool, Facebook or Other", "access": "Free, Paid, or Free with a paid upgrade", "promoCommunity": "Yes if people can promote their business there, otherwise No", "promoDays": ["Mon", "Wed"] },',
     '  "secondCommunity": { "name": "", "link": "", "about": "", "access": "" },',
     '  "recommends": [',
     '    { "name": "", "link": "", "about": "one sentence", "type": "Promo Group, Business, Healing & Spiritual, or Other", "access": "Free, Paid, or Free with a paid upgrade", "promoDays": [], "why": "why I recommend it, in my words", "affiliate": "Yes or No" }',
@@ -593,14 +598,14 @@
       offers.forEach(function (o, x) {
         var p = 'o' + (x + 1);
         set(p + 'title', o.title); set(p + 'desc', o.desc); set(p + 'who', o.who); set(p + 'price', o.price); set(p + 'link', o.link);
-        set(p + 'cat', known(o.categories, CATEGORIES, 2)); set(p + 'format', known(o.formats, FORMATS, 3));
+        set(p + 'cat', known(o.categories, CATEGORIES, 3)); set(p + 'format', known(o.formats, FORMATS, 3));
         set(p + 'keys', Array.isArray(o.keywords) ? o.keywords.slice(0, 10).join(', ') : o.keywords);
       });
       S.offers = offers.length;
     }
     var c = j.community || {};
     if (str(c.name)) {
-      set('cname', c.name); set('clink', c.link); set('cabout', c.about); set('ccat', known(c.categories, COMM_CATS, 2));
+      set('cname', c.name); set('clink', c.link); set('cabout', c.about); set('ccat', known(c.categories, COMM_CATS, 3));
       set('cplatform', oneOf(c.platform, ['Skool', 'Facebook', 'Other'])); set('caccess', accessOf(c.access));
       var dd = daysOf(c.promoDays);
       if (yes(c.promoCommunity) || dd.length) { S.a.cpromo = 'Yes'; set('cdays', dd); } else if (str(c.promoCommunity)) S.a.cpromo = 'No';
@@ -800,6 +805,16 @@
       if (S.images[k] === null) images[k] = null;
       else if (S.images[k] && S.images[k].data) images[k] = { data: S.images[k].data, mime: S.images[k].mime };
     });
+    /* community banners for each recommendation spot. Her second community rides in spot 1. */
+    var srcs = [];
+    if (val('c2has') === 'Yes' && has('c2name')) srcs.push('c2banner');
+    for (var ri = 1; ri <= S.recs && srcs.length < 3; ri++) srcs.push('r' + ri + 'image');
+    for (var slot = 1; slot <= 3; slot++) {
+      var src = srcs[slot - 1], im = src ? S.images[src] : undefined;
+      if (im && im.data) images['r' + slot + 'image'] = { data: im.data, mime: im.mime };
+      else if (src && im !== null && S.existing[src]) images['r' + slot + 'image'] = { keep: S.existing[src] };
+      else if (S.token) images['r' + slot + 'image'] = null;
+    }
     var hp = document.getElementById('hpField');
     var body = { answers: payload(), images: images, consent: S.consent === true, token: S.token, hp: hp ? hp.value : '' };
     if (!LIVE) { S.sending = false; window.__lastPayload = body; clearDraft(); renderDone({ editLink: 'preview', emailed: true }); return; }
@@ -823,14 +838,16 @@
     a.ccat = pick(ans.ccat, COMM_CATS); a.cdays = list(ans.cdays); a.cpromo = st.cpromo || (a.cdays.length ? 'Yes' : '');
     for (i = 1; i <= 3; i++) OFFER_SFX.forEach(function (s) { if (s === 'image') return; a['o' + i + s] = s === 'cat' ? pick(ans['o' + i + s], CATEGORIES) : s === 'format' ? pick(ans['o' + i + s], FORMATS) : (ans['o' + i + s] || ''); });
     var offers = 0; for (i = 1; i <= 3; i++) if (a['o' + i + 'title'] || a['o' + i + 'desc']) offers = i;
-    if (ans.r1own === 'Yes') { a.c2has = 'Yes'; a.c2name = ans.r1name; a.c2link = ans.r1link; a.c2about = ans.r1about; a.c2access = ans.r1access; j = 2; }
+    S.existing = imgs || {};
+    if (ans.r1own === 'Yes') { a.c2has = 'Yes'; a.c2name = ans.r1name; a.c2link = ans.r1link; a.c2about = ans.r1about; a.c2access = ans.r1access; j = 2; if (S.existing.r1image) S.existing.c2banner = S.existing.r1image; }
     var recs = 0;
     for (i = 1; j <= 3; j++) {
       if (!ans['r' + j + 'name']) continue;
-      REC_SFX.forEach(function (s) { a['r' + i + s] = s === 'days' ? list(ans['r' + j + s]) : (ans['r' + j + s] || ''); });
+      REC_SFX.forEach(function (s) { if (s !== 'image') a['r' + i + s] = s === 'days' ? list(ans['r' + j + s]) : (ans['r' + j + s] || ''); });
+      if (S.existing['r' + j + 'image']) S.existing['r' + i + 'image'] = S.existing['r' + j + 'image']; else delete S.existing['r' + i + 'image'];
       recs = i; i++;
     }
-    S.a = a; S.offers = offers; S.recs = recs; S.existing = imgs || {};
+    S.a = a; S.offers = offers; S.recs = recs;
   }
 
   /* ---------- events ---------- */
