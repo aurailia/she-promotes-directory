@@ -531,7 +531,7 @@
   var AI_PROMPT = [
     'I\'m filling out the She Promotes™ Directory form so women can find my business. Please help me fill it in.',
     '',
-    'Start with what you already know about me from our past chats, your memory of me, or my project files. Add anything I paste below this message, like my Skool about page, my bio, my offer pages or my website. Keep my own words where you can. If something isn\'t there, leave it as "". Never make up links, prices or details.',
+    'Start with what you already know about me from our past chats, your memory of me, or my project files. Add anything I paste below this message, like my Skool about page, my bio, my offer pages or my website. Keep my own words where you can. If something isn\'t there, leave it as "". For my links (website, Instagram, Facebook, other socials, Skool profile, offer and community links), check my memory, our past chats and my project files. If you can search the web, look them up too. Show me every link you found so I can confirm it. Never make up links, prices or details.',
     '',
     'Here\'s the code you\'ll fill in at the end. Don\'t send it yet:',
     '',
@@ -572,7 +572,7 @@
     'I\'m a VIP member of She Promotes™, so I get my own Featured Business page in the She Promotes Directory. Please help me write it.',
     '',
     'Start with what you already know about me from our past chats, your memory of me, or my project files. Add anything I paste below this message, like my Skool about page, my bio or my website. Keep my own words where you can.',
-    'Write it the way I talk: simple, warm, first person, short sentences, like I\'m talking to a friend. No hype, no coach jargon and no dashes. Never make up facts, prices or links. If something isn\'t there, leave it as "".',
+    'Write it the way I talk: simple, warm, first person, short sentences, like I\'m talking to a friend. No hype, no coach jargon and no dashes. For my website and links, check my memory, our past chats and my project files, and search the web if you can. Show me what you found so I can confirm it. Never make up facts, prices or links. If something isn\'t there, leave it as "".',
     '',
     'Here\'s the code you\'ll fill in at the end. Don\'t send it yet:',
     '',
@@ -596,6 +596,24 @@
     '',
     'Anything extra I want you to use (this can be empty):'
   ].join('\n');
+  /* What she's already filled in goes into the prompt, so the AI keeps it and only fills the gaps */
+  function knownInfo() {
+    var L = [], add = function (label, k) { var v = val(k); v = Array.isArray(v) ? v.join(', ') : String(v).trim(); if (v) L.push(label + ': ' + v); };
+    add('Name', 'name'); add('Business', 'business'); add('Skool profile', 'skool'); add('Website', 'website');
+    add('Instagram', 'social'); add('Facebook', 'sfacebook'); add('TikTok', 'stiktok'); add('YouTube', 'syoutube'); add('LinkedIn', 'slinkedin'); add('Pinterest', 'spinterest');
+    add('About me', 'about');
+    for (var i = 1; i <= S.offers; i++) { if (has('o' + i + 'title')) L.push('Offer ' + i + ': ' + val('o' + i + 'title') + (has('o' + i + 'price') ? ' (' + val('o' + i + 'price') + ')' : '') + (has('o' + i + 'link') ? ' ' + val('o' + i + 'link') : '')); }
+    if (has('cname')) L.push('My community: ' + val('cname') + (has('clink') ? ' ' + val('clink') : ''));
+    if (val('c2has') === 'Yes' && has('c2name')) L.push('My other community: ' + val('c2name') + (has('c2link') ? ' ' + val('c2link') : ''));
+    for (var r = 1; r <= S.recs; r++) { if (has('r' + r + 'name')) L.push('I recommend: ' + val('r' + r + 'name') + (has('r' + r + 'link') ? ' ' + val('r' + r + 'link') : '')); }
+    if (aiKind() === 'vip') { add('Headline', 'vheadline'); add('Who I help', 'vwho'); add('Welcome video', 'vvideo'); }
+    return L.length ? '\n\nWHAT\'S ALREADY IN MY LISTING (keep these unless I tell you to change them, and fill in what\'s missing):\n' + L.join('\n') : '';
+  }
+  function promptText() {
+    var base = aiKind() === 'vip' ? VIP_PROMPT : AI_PROMPT;
+    var tail = 'Anything extra I want you to use (this can be empty):';
+    return base.replace(tail, knownInfo().replace(/^\n\n/, '') + (knownInfo() ? '\n\n' : '') + tail);
+  }
   function aiKind() { var st = cur(); return st && st.id === 'vip' ? 'vip' : 'list'; }
   function aiHtml() {
     var vipBox = aiKind() === 'vip';
@@ -604,7 +622,7 @@
     if (!S.aiOpen) return h + '<button type="button" class="btn btn-ghost ai-open" id="aiToggle">Show me how</button></div>';
     h += '<ol><li>Tap <b>Copy the prompt</b>.</li><li>Open a new chat in Claude or ChatGPT and paste it in.</li><li>' + (vipBox ? 'Under it, paste your Skool about page or your bio, or just tell it your story. If it already knows you from past chats, it uses that. If not, it asks you a few questions. Easier to talk? Tap the microphone on your keyboard.' : 'Under it, paste your Skool about page, your bio, your offer pages, or just talk about your business. If it already knows you from past chats, it uses that. If not, it asks you a few questions. Easier to talk? Tap the microphone on your keyboard.') + '</li><li>It shows you what it found first. Tell it what to change, or say <b>looks good</b>.</li><li>It then gives you a code box. Tap <b>Copy</b> on it, paste it in the box below and tap <b>Fill in my form</b>.</li></ol>';
     h += '<div class="ai-row"><button type="button" class="btn btn-primary" id="aiCopy">' + (S.aiCopied ? 'Copied. Now open Claude or ChatGPT' : 'Copy the prompt') + '</button></div>';
-    if (S.aiShowPrompt) h += '<textarea class="ai-prompt" id="aiPromptBox" readonly aria-label="The prompt to copy">' + esc(vipBox ? VIP_PROMPT : AI_PROMPT) + '</textarea>';
+    if (S.aiShowPrompt) h += '<textarea class="ai-prompt" id="aiPromptBox" readonly aria-label="The prompt to copy">' + esc(promptText()) + '</textarea>';
     h += '<div class="field" style="margin:16px 0 0"><label for="aiPaste">Paste the AI\'s answer here</label><textarea id="aiPaste" placeholder="Paste the whole answer, including the part in curly brackets">' + esc(S.aiText || '') + '</textarea></div>';
     h += '<div class="ai-row"><button type="button" class="btn btn-primary" id="aiFill">Fill in my form</button></div>';
     if (S.aiNote) h += '<div class="ai-note' + (S.aiBad ? ' bad' : '') + '" role="status">' + esc(S.aiNote) + '</div>';
@@ -948,7 +966,7 @@
     if (t.id === 'doneEvent' || t.id === 'doneAnother') { startEvent(); return; }
     if (t.id === 'aiToggle') { S.aiOpen = true; render(false); var bx = app.querySelector('.ai-box'); if (bx) bx.scrollIntoView({ block: 'start' }); return; }
     if (t.id === 'aiCopy') {
-      copyText(aiKind() === 'vip' ? VIP_PROMPT : AI_PROMPT, function () { S.aiCopied = true; S.aiShowPrompt = false; var y0 = window.pageYOffset; render(false); window.scrollTo(0, y0); },
+      copyText(promptText(), function () { S.aiCopied = true; S.aiShowPrompt = false; var y0 = window.pageYOffset; render(false); window.scrollTo(0, y0); },
         function () { S.aiShowPrompt = true; var y1 = window.pageYOffset; render(false); window.scrollTo(0, y1); var pb = document.getElementById('aiPromptBox'); if (pb) { pb.focus(); pb.select(); } S.aiNote = 'Copy the prompt from the box above.'; });
       return;
     }
