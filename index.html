@@ -35,13 +35,13 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background: radial-gradient(ellipse at top, var(--plum-soft) 0%, var(--plum) 40%, var(--plum-deep) 100%);
-    background-attachment: fixed;
     background-color: var(--plum-deep);
     color: var(--text);
     min-height: 100vh;
     line-height: 1.6;
   }
+  /* The page glow sits on its own layer, so the browser doesn't repaint it on every scroll */
+  body::before { content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none; background: radial-gradient(ellipse at top, var(--plum-soft) 0%, var(--plum) 40%, var(--plum-deep) 100%); transform: translateZ(0); }
   a { color: inherit; }
   .wrap { max-width: 1040px; margin: 0 auto; padding: 0 16px 72px; }
 
@@ -115,6 +115,7 @@
     box-shadow: 0 8px 22px rgba(0, 0, 0, 0.28);
     transition: transform 0.2s, box-shadow 0.25s, border-color 0.25s;
   }
+  .cat-tile { contain: paint; }
   .cat-tile::before {
     content: ""; position: absolute; inset: -20px; z-index: -1;
     background-image: var(--tile-bg, none); background-size: cover; background-position: center bottom;
@@ -129,7 +130,7 @@
   .cat-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .cat-info {
     display: flex; flex-direction: column; gap: 6px; padding: 12px 14px 14px;
-    background: rgba(60, 60, 120, 0.28); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    background: rgba(48, 40, 96, 0.55);
   }
   .cat-tile .cname { font-weight: 700; font-size: 17px; line-height: 1.2; letter-spacing: 0.005em; }
   .cat-tile .ccount { display: flex; align-items: center; gap: 6px; font-size: 13px; color: rgba(255, 255, 255, 0.85); }
@@ -286,7 +287,7 @@
     .scrim.open { display: block; }
     .topbar {
       display: flex; align-items: center; gap: 12px; position: sticky; top: 0; z-index: 10;
-      background: rgba(42, 16, 40, 0.94); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+      background: rgba(42, 16, 40, 0.98);
       border-bottom: 1px solid rgba(232, 196, 122, 0.18); padding: 10px 16px;
     }
     .menu-btn { font-family: inherit; font-size: 14px; font-weight: 600; color: var(--plum-deep); background: var(--gold); border: none; border-radius: 999px; padding: 8px 14px; cursor: pointer; }
@@ -606,7 +607,7 @@
   .door .door-line { font-size: 15px; line-height: 1.6; margin-top: 10px; }
   .door .btn { width: auto; align-self: center; margin-top: 20px; padding: 11px 26px; background: transparent; color: var(--gold-bright); border: 1px solid rgba(232, 196, 122, 0.6); letter-spacing: 0.04em; }
   .door .btn:hover { background: rgba(232, 196, 122, 0.12); }
-  .door .now { top: 18px; left: 18px; color: var(--gold-bright); background: rgba(42, 16, 40, 0.72); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); border: 1px solid rgba(232, 196, 122, 0.5); }
+  .door .now { top: 18px; left: 18px; color: var(--gold-bright); background: rgba(42, 16, 40, 0.88); border: 1px solid rgba(232, 196, 122, 0.5); }
   .lounge-foot { max-width: 640px; margin-top: 64px; padding: 40px 34px; border: 1px solid rgba(232, 196, 122, 0.4); background: radial-gradient(circle at 50% 0%, rgba(232, 196, 122, 0.12), transparent 70%), rgba(255, 255, 255, 0.03); position: relative; }
   .lounge-foot::after { content: ""; position: absolute; inset: 8px; border: 1px solid rgba(232, 196, 122, 0.18); border-radius: 16px; pointer-events: none; }
   .lounge-foot h3 { font-size: 34px; line-height: 1.15; color: var(--gold-bright); }
@@ -679,7 +680,7 @@
   .ev-art::before { content: "\2726"; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 64px; color: rgba(243, 216, 155, 0.35); }
   .ev-art .ev-pic { position: absolute; inset: 0; }
   .ev-art .ev-pic img { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .ev-tile { position: absolute; top: 20px; left: 20px; z-index: 1; width: 78px; text-align: center; border-radius: 16px; overflow: hidden; background: rgba(42, 16, 40, 0.82); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); border: 1px solid rgba(232, 196, 122, 0.55); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35); }
+  .ev-tile { position: absolute; top: 20px; left: 20px; z-index: 1; width: 78px; text-align: center; border-radius: 16px; overflow: hidden; background: rgba(42, 16, 40, 0.9); border: 1px solid rgba(232, 196, 122, 0.55); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35); }
   .ev-tile .m { display: block; font-size: 11px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--plum-deep); background: linear-gradient(135deg, var(--gold), var(--blush)); padding: 4px 0; }
   .ev-tile .d { display: block; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 38px; font-weight: 600; line-height: 1; color: var(--gold-bright); padding: 6px 0 2px; }
   .ev-tile .w { display: block; font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); padding-bottom: 7px; }
@@ -946,6 +947,7 @@
   var swapImage = function (holder, src) {
     var img = new Image();
     img.alt = '';
+    img.decoding = 'async';
     img.onload = function () { holder.textContent = ''; holder.appendChild(img); };
     img.src = src;
   };
@@ -1028,7 +1030,12 @@
   var showImg = function (im, src, place, retry) {
     if (seenImg[src]) { place(); im.src = src; return; }
     im.className = 'fade-in';
-    im.onload = function () { seenImg[src] = 1; place(); };
+    im.decoding = 'async';
+    im.onload = function () {
+      seenImg[src] = 1;
+      /* finish decoding off the main thread first, so scrolling doesn't hitch when it appears */
+      if (im.decode) im.decode().then(place, place); else place();
+    };
     im.onerror = retry;
     im.src = src;
   };
@@ -2397,7 +2404,8 @@
     var t = $('homeTitle');
     if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
-  window.addEventListener('scroll', updateCue, { passive: true });
+  var cueTick = false;
+  window.addEventListener('scroll', function () { if (cueTick) return; cueTick = true; window.requestAnimationFrame(function () { cueTick = false; updateCue(); }); }, { passive: true });
   window.addEventListener('resize', updateCue);
 
   /* Home search */
@@ -2559,6 +2567,7 @@
         var src = catImage(x);
         var im = new Image();
         im.alt = '';
+        im.decoding = 'async';
         im.onload = function () {
           pic.textContent = ''; pic.appendChild(im);
           b.style.setProperty('--tile-bg', 'url("' + src.replace(/"/g, '%22') + '")');
