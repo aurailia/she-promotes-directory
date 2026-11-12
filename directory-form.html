@@ -533,7 +533,7 @@
     '',
     'Start with what you already know about me from our past chats, your memory of me, or my project files. Add anything I paste below this message, like my Skool about page, my bio, my offer pages or my website. Keep my own words where you can. If something isn\'t there, leave it as "". Never make up links, prices or details.',
     '',
-    'Reply with only this JSON in one code block, filled in:',
+    'Here\'s the code you\'ll fill in at the end. Don\'t send it yet:',
     '',
     '{',
     '  "name": "my full name",',
@@ -559,7 +559,12 @@
     'Categories to pick from: ' + CATEGORIES.join('; ') + '. For a community you can also use Promo & Networking.',
     'Formats to pick from: ' + FORMATS.join('; ') + '.',
     '',
-    'Only ask me questions if you don\'t know enough. Then ask one short question at a time, just about what\'s missing, and send the JSON when you have enough.',
+    'HOW TO DO THIS',
+    '1. First, show me what you found in plain, easy-to-read words, section by section, like a little summary I can skim. No code yet. Point out anything you\'re not sure about or couldn\'t find.',
+    '2. Only ask me questions if you don\'t know enough. Ask one short question at a time, just about what\'s missing.',
+    '3. Then ask me: Does this look right? Tell me what to change, or say looks good.',
+    '4. When I say it looks good, send the filled-in code in one code block, nothing else in the block.',
+    '5. Right under the code block, tell me the next step in these words: Tap Copy on the code box above. Go back to the She Promotes form, paste it in the box that says Paste the AI\'s answer here, then tap Fill in my form. Check each step, add your images, and send it.',
     '',
     'Anything extra I want you to use (this can be empty):'
   ].join('\n');
@@ -569,7 +574,7 @@
     'Start with what you already know about me from our past chats, your memory of me, or my project files. Add anything I paste below this message, like my Skool about page, my bio or my website. Keep my own words where you can.',
     'Write it the way I talk: simple, warm, first person, short sentences, like I\'m talking to a friend. No hype, no coach jargon and no dashes. Never make up facts, prices or links. If something isn\'t there, leave it as "".',
     '',
-    'Reply with only this JSON in one code block, filled in:',
+    'Here\'s the code you\'ll fill in at the end. Don\'t send it yet:',
     '',
     '{',
     '  "vip": {',
@@ -582,7 +587,12 @@
     '  }',
     '}',
     '',
-    'Only ask me questions if you don\'t know enough. Then ask one short question at a time, just about what\'s missing (like how I got started, who I help or what\'s inside my community), and send the JSON when you have enough.',
+    'HOW TO DO THIS',
+    '1. First, show me what you found in plain, easy-to-read words, section by section, like a little summary I can skim. No code yet. Point out anything you\'re not sure about or couldn\'t find.',
+    '2. Only ask me questions if you don\'t know enough. Ask one short question at a time, just about what\'s missing (like how I got started, who I help or what\'s inside my community).',
+    '3. Then ask me: Does this look right? Tell me what to change, or say looks good.',
+    '4. When I say it looks good, send the filled-in code in one code block, nothing else in the block.',
+    '5. Right under the code block, tell me the next step in these words: Tap Copy on the code box above. Go back to the She Promotes form, paste it in the box that says Paste the AI\'s answer here, then tap Fill in my form. Check each step, add your images, and send it.',
     '',
     'Anything extra I want you to use (this can be empty):'
   ].join('\n');
@@ -592,7 +602,7 @@
     var h = '<div class="ai-box"><h2>' + (vipBox ? 'Want AI to write your page with you?' : 'Want AI to fill this in for you?') + '</h2>';
     h += vipBox ? '<p>Claude or ChatGPT can draft your headline, your story and what\'s inside your community. Then you read it over and make sure it sounds like you.</p>' : '<p>Save yourself the typing. Claude or ChatGPT can fill in most of this form for you, then you just check it and add your images.</p>';
     if (!S.aiOpen) return h + '<button type="button" class="btn btn-ghost ai-open" id="aiToggle">Show me how</button></div>';
-    h += '<ol><li>Tap <b>Copy the prompt</b>.</li><li>Open a new chat in Claude or ChatGPT and paste it in.</li><li>' + (vipBox ? 'Under it, paste your Skool about page or your bio, or just tell it your story. If it already knows you from past chats, it uses that. If not, it asks you a few questions. Easier to talk? Tap the microphone on your keyboard.' : 'Under it, paste your Skool about page, your bio, your offer pages, or just talk about your business. If it already knows you from past chats, it uses that. If not, it asks you a few questions. Easier to talk? Tap the microphone on your keyboard.') + '</li><li>Copy the whole answer it gives you, paste it in the box below and tap <b>Fill in my form</b>.</li></ol>';
+    h += '<ol><li>Tap <b>Copy the prompt</b>.</li><li>Open a new chat in Claude or ChatGPT and paste it in.</li><li>' + (vipBox ? 'Under it, paste your Skool about page or your bio, or just tell it your story. If it already knows you from past chats, it uses that. If not, it asks you a few questions. Easier to talk? Tap the microphone on your keyboard.' : 'Under it, paste your Skool about page, your bio, your offer pages, or just talk about your business. If it already knows you from past chats, it uses that. If not, it asks you a few questions. Easier to talk? Tap the microphone on your keyboard.') + '</li><li>It shows you what it found first. Tell it what to change, or say <b>looks good</b>.</li><li>It then gives you a code box. Tap <b>Copy</b> on it, paste it in the box below and tap <b>Fill in my form</b>.</li></ol>';
     h += '<div class="ai-row"><button type="button" class="btn btn-primary" id="aiCopy">' + (S.aiCopied ? 'Copied. Now open Claude or ChatGPT' : 'Copy the prompt') + '</button></div>';
     if (S.aiShowPrompt) h += '<textarea class="ai-prompt" id="aiPromptBox" readonly aria-label="The prompt to copy">' + esc(vipBox ? VIP_PROMPT : AI_PROMPT) + '</textarea>';
     h += '<div class="field" style="margin:16px 0 0"><label for="aiPaste">Paste the AI\'s answer here</label><textarea id="aiPaste" placeholder="Paste the whole answer, including the part in curly brackets">' + esc(S.aiText || '') + '</textarea></div>';
