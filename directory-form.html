@@ -456,6 +456,7 @@
     if (i === 0 && isEvent()) h += '<div class="ready"><b>Sharing an event is for She Promotes™ Premium and VIP members.</b> It takes about 3 minutes. Have your sign-up link and an event image handy. I\'ll check it and add it to the Upcoming Events page.</div>';
     if (i === 0 && !S.token && !has('name') && val('want') === WANT_LIST) h += '<div class="ready"><b>This form is for She Promotes™ Premium and VIP members.</b> It takes about 10 minutes, and your answers save on this device as you go. Have these handy:<ul><li>A photo of you or your logo</li><li>Your offer and community links</li><li>Any affiliate links for communities you love</li></ul>Not Premium yet? <a href="' + UPGRADE_URL + '" target="_blank" rel="noopener">Upgrade here</a>.</div>';
     if (i === 0 && !S.token && val('want') === WANT_LIST) h += aiHtml();
+    if (st.id === 'vip') h += aiHtml();
     if (st.group) h += groupHtml(st.group);
     else if (st.id === 'review') h += reviewHtml();
     else if (!(picking && !has('want'))) keysOf(st).forEach(function (k) {
@@ -542,13 +543,36 @@
     '',
     'Here\'s what I have about my business:'
   ].join('\n');
+  var VIP_PROMPT = [
+    'I\'m a VIP member of She Promotes™, so I get my own Featured Business page in the She Promotes Directory. Please help me write it.',
+    '',
+    'Use only what I give you below this message. That might be my Skool about page, my bio, my website, or me just talking about my business and how I got here. Keep my own words where you can.',
+    'Write it the way I talk: simple, warm, first person, short sentences, like I\'m talking to a friend. No hype, no coach jargon and no dashes. Never make up facts, prices or links. If something isn\'t there, leave it as "".',
+    '',
+    'Reply with only this JSON in one code block, filled in:',
+    '',
+    '{',
+    '  "vip": {',
+    '    "headline": "one sentence on what I do and who it\'s for, 150 characters max",',
+    '    "story": "2 or 3 short paragraphs in first person. How I started, what changed, and why I do this work. Put a blank line between paragraphs.",',
+    '    "who": "who I help, in one short line, 160 characters max",',
+    '    "website": "my website link",',
+    '    "inside": ["what\'s inside my community, one item each, up to 8"],',
+    '    "access": "who can join and what it costs, like Free to join. Premium is $9 a month."',
+    '  }',
+    '}',
+    '',
+    'Here\'s what I have about me and my business:'
+  ].join('\n');
+  function aiKind() { var st = cur(); return st && st.id === 'vip' ? 'vip' : 'list'; }
   function aiHtml() {
-    var h = '<div class="ai-box"><h2>Want AI to fill this in for you?</h2>';
-    h += '<p>Save yourself the typing. Claude or ChatGPT can fill in most of this form for you, then you just check it and add your images.</p>';
+    var vipBox = aiKind() === 'vip';
+    var h = '<div class="ai-box"><h2>' + (vipBox ? 'Want AI to write your page with you?' : 'Want AI to fill this in for you?') + '</h2>';
+    h += vipBox ? '<p>Claude or ChatGPT can draft your headline, your story and what\'s inside your community. Then you read it over and make sure it sounds like you.</p>' : '<p>Save yourself the typing. Claude or ChatGPT can fill in most of this form for you, then you just check it and add your images.</p>';
     if (!S.aiOpen) return h + '<button type="button" class="btn btn-ghost ai-open" id="aiToggle">Show me how</button></div>';
-    h += '<ol><li>Tap <b>Copy the prompt</b>.</li><li>Open a new chat in Claude or ChatGPT and paste it in.</li><li>Under it, paste your Skool about page, your bio, your offer pages, or just talk about your business. Easier to talk? Tap the microphone on your keyboard.</li><li>Copy the whole answer it gives you, paste it in the box below and tap <b>Fill in my form</b>.</li></ol>';
+    h += '<ol><li>Tap <b>Copy the prompt</b>.</li><li>Open a new chat in Claude or ChatGPT and paste it in.</li><li>' + (vipBox ? 'Under it, paste your Skool about page or your bio, or just tell it your story. How did you start? Why do you do this work? Easier to talk? Tap the microphone on your keyboard.' : 'Under it, paste your Skool about page, your bio, your offer pages, or just talk about your business. Easier to talk? Tap the microphone on your keyboard.') + '</li><li>Copy the whole answer it gives you, paste it in the box below and tap <b>Fill in my form</b>.</li></ol>';
     h += '<div class="ai-row"><button type="button" class="btn btn-primary" id="aiCopy">' + (S.aiCopied ? 'Copied. Now open Claude or ChatGPT' : 'Copy the prompt') + '</button></div>';
-    if (S.aiShowPrompt) h += '<textarea class="ai-prompt" id="aiPromptBox" readonly aria-label="The prompt to copy">' + esc(AI_PROMPT) + '</textarea>';
+    if (S.aiShowPrompt) h += '<textarea class="ai-prompt" id="aiPromptBox" readonly aria-label="The prompt to copy">' + esc(vipBox ? VIP_PROMPT : AI_PROMPT) + '</textarea>';
     h += '<div class="field" style="margin:16px 0 0"><label for="aiPaste">Paste the AI\'s answer here</label><textarea id="aiPaste" placeholder="Paste the whole answer, including the part in curly brackets">' + esc(S.aiText || '') + '</textarea></div>';
     h += '<div class="ai-row"><button type="button" class="btn btn-primary" id="aiFill">Fill in my form</button></div>';
     if (S.aiNote) h += '<div class="ai-note' + (S.aiBad ? ' bad' : '') + '" role="status">' + esc(S.aiNote) + '</div>';
@@ -588,6 +612,16 @@
     return out.sort(function (a, b) { return DAYS.indexOf(a) - DAYS.indexOf(b); });
   }
   function yes(v) { return /^(y|yes|true)/i.test(str(v)); }
+  function aiFillVip(j) {
+    var v = j.vip || j, n = 0;
+    var set = function (k, x) { if (str(x)) { S.a[k] = str(x, F[k].max); n++; } };
+    set('vheadline', v.headline); set('vstory', v.story); set('vwho', v.who); set('vwebsite', v.website);
+    var ins = arr(v.inside).map(function (x) { return str(x); }).filter(Boolean).slice(0, 8);
+    if (ins.length) { S.a.vinside = ins.join('\n'); n++; }
+    set('vaccess', v.access);
+    if (has('vwebsite')) normUrl('vwebsite');
+    return n;
+  }
   function aiFill(j) {
     var n = 0, i;
     var set = function (k, v) { if (Array.isArray(v) ? v.length : str(v)) { S.a[k] = Array.isArray(v) ? v : str(v, F[k].max); n++; } };
@@ -733,10 +767,10 @@
 
   /* ---------- adding and removing offers or communities ---------- */
   function removeGroup(kind, idx) {
-    var isO = kind === 'o', count = isO ? S.offers : S.recs, sfx = isO ? OFFER_SFX : REC_SFX;
+    var isO = kind === 'o', count = isO ? S.offers : S.recs, sfx = isO ? OFFER_SFX : REC_SFX.concat(['own']);
     for (var i = idx; i <= count; i++) sfx.forEach(function (s) {
       var from = kind + (i + 1) + s, to = kind + i + s;
-      if (F[to].type === 'image') {
+      if (F[to] && F[to].type === 'image') {
         if (i < count) { S.images[to] = S.images[from]; S.existing[to] = S.existing[from] || ''; if (S.images[to] === undefined) delete S.images[to]; }
         else if (S.existing[to]) { S.images[to] = null; S.existing[to] = ''; } else delete S.images[to];
       } else if (i < count) S.a[to] = S.a[from]; else delete S.a[to];
@@ -762,6 +796,7 @@
       var v = val('r' + i + s);
       if (s === 'days' && val('r' + i + 'cat') !== 'Promo Group') v = '';
       put('r' + j + s, v);
+      if (s === 'name') put('r' + j + 'own', val('r' + i + 'own') === 'Yes' ? 'Yes' : '');
     });
     if (isVip()) ['vheadline', 'vstory', 'vwho', 'vwebsite', 'vinside', 'vaccess'].forEach(function (k) { put(k, val(k)); });
     else ['vheadline', 'vstory', 'vwho', 'vwebsite', 'vinside', 'vaccess'].forEach(function (k) { put(k, ''); });
@@ -844,6 +879,7 @@
     for (i = 1; j <= 3; j++) {
       if (!ans['r' + j + 'name']) continue;
       REC_SFX.forEach(function (s) { if (s !== 'image') a['r' + i + s] = s === 'days' ? list(ans['r' + j + s]) : (ans['r' + j + s] || ''); });
+      a['r' + i + 'own'] = ans['r' + j + 'own'] === 'Yes' ? 'Yes' : '';   /* her other communities stay marked as hers */
       if (S.existing['r' + j + 'image']) S.existing['r' + i + 'image'] = S.existing['r' + j + 'image']; else delete S.existing['r' + i + 'image'];
       recs = i; i++;
     }
@@ -876,7 +912,7 @@
     if (t.id === 'doneEvent' || t.id === 'doneAnother') { startEvent(); return; }
     if (t.id === 'aiToggle') { S.aiOpen = true; render(false); var bx = app.querySelector('.ai-box'); if (bx) bx.scrollIntoView({ block: 'start' }); return; }
     if (t.id === 'aiCopy') {
-      copyText(AI_PROMPT, function () { S.aiCopied = true; S.aiShowPrompt = false; var y0 = window.pageYOffset; render(false); window.scrollTo(0, y0); },
+      copyText(aiKind() === 'vip' ? VIP_PROMPT : AI_PROMPT, function () { S.aiCopied = true; S.aiShowPrompt = false; var y0 = window.pageYOffset; render(false); window.scrollTo(0, y0); },
         function () { S.aiShowPrompt = true; var y1 = window.pageYOffset; render(false); window.scrollTo(0, y1); var pb = document.getElementById('aiPromptBox'); if (pb) { pb.focus(); pb.select(); } S.aiNote = 'Copy the prompt from the box above.'; });
       return;
     }
@@ -884,9 +920,9 @@
       var pj = pickJson(S.aiText);
       if (!pj) { S.aiBad = true; S.aiNote = 'I couldn\'t read that. Paste the whole answer, including the part in curly brackets.'; }
       else {
-        var got = aiFill(pj); saveDraft();
+        var got = aiKind() === 'vip' ? aiFillVip(pj) : aiFill(pj); saveDraft();
         S.aiBad = !got;
-        S.aiNote = got ? 'Done. I filled in ' + got + ' answers. Tap Next to check each step, add your images, and make sure it sounds like you.' : 'That answer was empty. Add more about your business in the chat and try again.';
+        S.aiNote = got ? (aiKind() === 'vip' ? 'Done. I filled in ' + got + ' answers below. Read them over and make sure it sounds like you, then add your cover image.' : 'Done. I filled in ' + got + ' answers. Tap Next to check each step, add your images, and make sure it sounds like you.') : 'That answer was empty. Add more about your business in the chat and try again.';
       }
       var y2 = window.pageYOffset; render(false); window.scrollTo(0, y2);
       return;
@@ -911,7 +947,7 @@
       var y = window.pageYOffset; render(false); window.scrollTo(0, y);
       return;
     }
-    if (t.id === 'backBtn') { S.errors = {}; S.formError = ''; S.step--; saveDraft(); render(true); return; }
+    if (t.id === 'backBtn') { S.aiOpen = false; S.aiNote = ''; S.aiText = ''; S.aiCopied = false; S.errors = {}; S.formError = ''; S.step--; saveDraft(); render(true); return; }
     var add = t.getAttribute('data-add');
     if (add) { if (add === 'o') S.offers++; else S.recs++; S.confirmRemove = ''; saveDraft(); render(false); return; }
     var rem = t.getAttribute('data-remove');
@@ -933,6 +969,7 @@
     if (Object.keys(errs).length) { showErrors(errs); return; }
     S.errors = {}; S.formError = '';
     if (S.step === steps().length - 1) { submit(); return; }
+    S.aiOpen = false; S.aiNote = ''; S.aiText = ''; S.aiCopied = false;
     S.step++; saveDraft(); render(true);
   });
 
