@@ -424,7 +424,7 @@
       /* Featured Business page answers from the She Promotes form */
       if (/^vip /.test(h)) {
         map.vip = map.vip || {};
-        var vk = h.indexOf('headline') !== -1 ? 'headline' : h.indexOf('story') !== -1 ? 'story' : h.indexOf('who you help') !== -1 ? 'who' : h.indexOf('website') !== -1 ? 'website' : h.indexOf('inside') !== -1 ? 'inside' : h.indexOf('who can join') !== -1 ? 'access' : /cover|banner|image/.test(h) ? 'cover' : '';
+        var vk = h.indexOf('video') !== -1 ? 'video' : h.indexOf('headline') !== -1 ? 'headline' : h.indexOf('story') !== -1 ? 'story' : h.indexOf('who you help') !== -1 ? 'who' : h.indexOf('website') !== -1 ? 'website' : h.indexOf('inside') !== -1 ? 'inside' : h.indexOf('who can join') !== -1 ? 'access' : /cover|banner|image/.test(h) ? 'cover' : '';
         if (vk) map.vip[vk] = i;
         return;
       }
@@ -550,7 +550,7 @@
     m._tier = map.tier == null ? '' : g(map.tier);
     if (map.vip && /vip/i.test(m._tier)) {
       var vg = function (k) { return g(map.vip[k]); };
-      m._vip = { headline: vg('headline'), story: vg('story'), who: vg('who'), website: cleanUrl(vg('website')), inside: vg('inside').split(/\n+/).map(function (x) { return x.replace(/^[\s\-*\u2022\u2726]+/, '').trim(); }).filter(Boolean), access: vg('access'), cover: photoUrl(vg('cover'), 1600) };
+      m._vip = { headline: vg('headline'), story: vg('story'), who: vg('who'), website: cleanUrl(vg('website')), inside: vg('inside').split(/\n+/).map(function (x) { return x.replace(/^[\s\-*\u2022\u2726]+/, '').trim(); }).filter(Boolean), access: vg('access'), cover: photoUrl(vg('cover'), 1600), video: cleanUrl(vg('video')) };
     }
     return m;
   };
@@ -566,7 +566,7 @@
       if (!v) { v = blankVip(); v.id = vipId(m.name); v.name = m.name; v.fromListing = true; vips.push(v); }
       var hand = !!v.edited;
       var set = function (k, val) { if (val && (!hand || !v[k])) v[k] = val; };
-      set('headline', x.headline); set('about', x.story); set('who', x.who); set('website', x.website); set('banner', x.cover);
+      set('headline', x.headline); set('about', x.story); set('video', x.video); set('who', x.who); set('website', x.website); set('banner', x.cover);
       if (m.community && (x.inside.length || x.access)) {
         var cs = v.communities || (v.communities = []), c = null;
         cs.forEach(function (q) { if (!c && ((normUrl(q.link) && normUrl(q.link) === normUrl(m.community.link)) || nameKey(q.name) === nameKey(m.community.name))) c = q; });
@@ -1039,7 +1039,7 @@
   var vipConfirm = '';    /* id waiting on a second tap to remove */
   var saveSpot = function () { saved.vipDraft = { vips: vips, spotlight: spotlight, savedAt: Date.now() }; persist(); };
   var vipId = function (name) { return 'vip-' + hashId(nameKey(name)).slice(1); };
-  var blankVip = function () { return { id: '', name: '', headline: '', about: '', photo: '', banner: '', website: '', social: '', communities: [], offers: [], edited: false }; };
+  var blankVip = function () { return { id: '', name: '', headline: '', about: '', photo: '', banner: '', website: '', social: '', video: '', communities: [], offers: [], edited: false }; };
   var vipOf = function (id) { var f = null; vips.forEach(function (v) { if (v.id === id) f = v; }); return f; };
   /* Older Directory files featured a member's community. Turn that into a VIP card so nothing is lost. */
   var vipFromMember = function (m, sp) {
@@ -1205,6 +1205,7 @@
     '  "who": "who she helps, in a short phrase",',
     '  "photo": "link to her photo, if I gave one",',
     '  "website": "",',
+    '  "video": "link to her welcome video on YouTube, Vimeo or Loom, if I gave one",',
     '  "skool": "her Skool profile link",',
     '  "instagram": "", "facebook": "", "tiktok": "", "youtube": "", "linkedin": "",',
     '  "communities": [',
@@ -1247,6 +1248,7 @@
     set('business', j.business); set('headline', j.headline); set('about', j.story || j.about); set('who', j.who);
     var ph = cleanUrl(str(j.photo)); if (ph) v.photo = ph;
     var ws = cleanUrl(str(j.website)); if (ws) v.website = ws;
+    var vv = cleanUrl(str(j.video)); if (vv) v.video = vv;
     var sk = cleanUrl(str(j.skool)); if (sk) v.social = sk;
     v.socials = v.socials || {};
     ['instagram', 'facebook', 'tiktok', 'youtube', 'linkedin'].forEach(function (k) { var u = cleanUrl(str(j[k])); if (u) v.socials[k] = u; });
@@ -1293,6 +1295,7 @@
     var fHead = field('Headline', v.headline, 'One sentence about what she does');
     var fAbout = field('About her', v.about, 'A few sentences in her words', true, true);
     var fWeb = field('Website', v.website, 'https://');
+    var fVid = field('Welcome video (YouTube, Vimeo or Loom link)', v.video || '', 'https://youtu.be/...');
     var fSoc = field('Instagram or main social', v.social, 'https://');
     var fPhoto = field('Photo link (optional)', /^data:/.test(v.photo) ? '' : v.photo, 'Leave blank to use her Directory photo', false, true);
     box.appendChild(grid);
@@ -1351,7 +1354,7 @@
       var nv = id === 'new' ? blankVip() : vipOf(id);
       if (id === 'new' && vips.some(function (x) { return nameKey(x.name) === nameKey(name); })) { st.textContent = 'She’s already in your VIP list. Use Edit on her card instead.'; return; }
       nv.name = name; nv.headline = fHead.value.trim(); nv.about = fAbout.value.trim();
-      nv.website = cleanUrl(fWeb.value); nv.social = cleanUrl(fSoc.value);
+      nv.website = cleanUrl(fWeb.value); nv.social = cleanUrl(fSoc.value); nv.video = cleanUrl(fVid.value);
       var ph = fPhoto.value.trim();
       if (ph) nv.photo = photoUrl(ph); else if (!/^data:/.test(nv.photo)) nv.photo = '';
       nv.banner = banner;

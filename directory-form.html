@@ -213,6 +213,7 @@
     vstory: { label: 'Your story', type: 'textarea', tall: true, required: true, help: 'How did you get started? Why do you do this work? Write it the way you\'d tell a friend. Easier to talk it out? Tap the microphone on your phone\'s keyboard.' },
     vwho: { label: 'Who you help', type: 'textarea', short: true, required: true, max: 160, ph: 'The woman who takes care of everyone and forgets to take care of herself.' },
     vwebsite: { label: 'Your website', type: 'url', optional: true, ph: 'yourwebsite.com' },
+    vvideo: { label: 'Welcome video', type: 'url', optional: true, ph: 'https://youtu.be/...', help: 'A short hello so people feel like they know you. Paste a YouTube, Vimeo or Loom link and it plays right on your page. Skool videos won\'t play outside Skool, so upload it to YouTube as Unlisted. That keeps it off your channel, but it still plays on your page.' },
     vinside: { label: 'What\'s inside your community?', type: 'textarea', optional: true, help: 'Put each thing on its own line.', ph: 'A live pour-along every month\nScent blending guides you can save' },
     vaccess: { label: 'Who can join, and what does it cost?', optional: true, ph: 'Free to join. Premium is $9 a month.' },
     vcover: { label: 'A wide cover image for your page', type: 'image', optional: true, size: 1800, help: 'Your brand photo or Skool banner works great.' },
@@ -299,7 +300,7 @@
     { id: 'offers', nav: 'Your offers', title: 'Your offers', sub: 'Add up to 3. Put the one you\'d most want people to find first. No offer yet? You can skip this step.', group: 'o', listOnly: true },
     { id: 'community', nav: 'Your community', title: 'Your community', sub: 'Run a Skool or Facebook community? Add it here. No community? You can skip this step.', keys: ['cname', 'clink', 'cabout', 'ccat', 'cplatform', 'caccess', 'cpromo', 'cdays', 'cbanner', 'c2has', 'c2name', 'c2link', 'c2about', 'c2access', 'c2banner'], listOnly: true },
     { id: 'recs', nav: 'You recommend', title: 'Communities you love', sub: 'Recommend communities you\'re in and love. Use your affiliate link, and you can earn when someone joins. You can skip this step.', group: 'r', listOnly: true },
-    { id: 'vip', nav: 'Your VIP page', title: 'Your Featured Business page', sub: 'As a VIP you get your own page in the Directory. These answers fill it in.', keys: ['vheadline', 'vstory', 'vwho', 'vwebsite', 'vinside', 'vaccess', 'vcover'], vipOnly: true, listOnly: true },
+    { id: 'vip', nav: 'Your VIP page', title: 'Your Featured Business page', sub: 'As a VIP you get your own page in the Directory. These answers fill it in.', keys: ['vheadline', 'vstory', 'vwho', 'vwebsite', 'vvideo', 'vinside', 'vaccess', 'vcover'], vipOnly: true, listOnly: true },
     { id: 'review', nav: 'Review', title: 'Take one last look', sub: 'Make sure it sounds like you, then send it to me.' }
   ];
 
@@ -419,6 +420,7 @@
     var rows = keys.map(function (k) { var v = shownVal(k); return v ? '<dt>' + esc(F[k].label) + '</dt><dd>' + v + '</dd>' : ''; }).join('');
     return '<div class="rev"><div class="rev-head"><h2>' + esc(title) + '</h2><button type="button" class="link-btn" data-goto="' + idx + '">Edit</button></div>' + (rows ? '<dl>' + rows + '</dl>' : '<p class="none">Nothing added.</p>') + '</div>';
   }
+  function stepKeys(id) { var k = []; STEPS.forEach(function (x) { if (x.id === id) k = x.keys; }); return k; }
   function reviewHtml() {
     if (isEvent()) {
       var eh = revCard('you', 'You', ['tier', 'name', 'email', 'skool', 'business']);
@@ -431,8 +433,8 @@
     var o = [], r = [], i;
     for (i = 1; i <= S.offers; i++) OFFER_SFX.forEach(function (s) { o.push('o' + i + s); });
     for (i = 1; i <= S.recs; i++) REC_SFX.forEach(function (s) { r.push('r' + i + s); });
-    h += revCard('offers', 'Your offers', o) + revCard('community', 'Your community', STEPS[2].keys) + revCard('recs', 'Communities you love', r);
-    if (isVip()) h += revCard('vip', 'Your Featured Business page', STEPS[4].keys);
+    h += revCard('offers', 'Your offers', o) + revCard('community', 'Your community', stepKeys('community')) + revCard('recs', 'Communities you love', r);
+    if (isVip()) h += revCard('vip', 'Your Featured Business page', stepKeys('vip'));
     var anyAff = false; for (i = 1; i <= S.recs; i++) if (val('r' + i + 'aff') === 'Yes') anyAff = true;
     h += '<div class="field' + (S.errors.consent ? ' invalid' : '') + '"><label class="consent"><input type="checkbox" id="consent"' + (S.consent ? ' checked' : '') + '><span>I\'m a ' + esc(val('tier') || 'Premium or VIP') + ' member of She Promotes™, I\'m okay with this showing in the public Directory, and I have the rights to the images I shared.</span></label>' + (S.errors.consent ? '<div class="err">' + esc(S.errors.consent) + '</div>' : '') + '</div>';
     if (anyAff) h += '<div class="field' + (S.errors.aff ? ' invalid' : '') + '"><label class="consent"><input type="checkbox" id="affConsent"' + (S.affConsent ? ' checked' : '') + '><span>I understand my affiliate links will be labeled as affiliate links.</span></label>' + (S.errors.aff ? '<div class="err">' + esc(S.errors.aff) + '</div>' : '') + '</div>';
@@ -798,8 +800,8 @@
       put('r' + j + s, v);
       if (s === 'name') put('r' + j + 'own', val('r' + i + 'own') === 'Yes' ? 'Yes' : '');
     });
-    if (isVip()) ['vheadline', 'vstory', 'vwho', 'vwebsite', 'vinside', 'vaccess'].forEach(function (k) { put(k, val(k)); });
-    else ['vheadline', 'vstory', 'vwho', 'vwebsite', 'vinside', 'vaccess'].forEach(function (k) { put(k, ''); });
+    if (isVip()) ['vheadline', 'vstory', 'vwho', 'vwebsite', 'vvideo', 'vinside', 'vaccess'].forEach(function (k) { put(k, val(k)); });
+    else ['vheadline', 'vstory', 'vwho', 'vwebsite', 'vvideo', 'vinside', 'vaccess'].forEach(function (k) { put(k, ''); });
     /* for reopening the form later */
     A.formState = JSON.stringify({ offers: S.offers, recs: S.recs, c2has: val('c2has'), cpromo: val('cpromo') });
     return A;
@@ -866,7 +868,7 @@
   function unpack(ans, imgs) {
     var st = {}; try { st = JSON.parse(ans.formState || '{}'); } catch (e) { st = {}; }
     var a = {}, i, j = 1;
-    ['name', 'email', 'skool', 'tier', 'business', 'about', 'social', 'cname', 'clink', 'cabout', 'cplatform', 'caccess', 'vheadline', 'vstory', 'vwho', 'vwebsite', 'vinside', 'vaccess'].forEach(function (k) { a[k] = ans[k] || ''; });
+    ['name', 'email', 'skool', 'tier', 'business', 'about', 'social', 'cname', 'clink', 'cabout', 'cplatform', 'caccess', 'vheadline', 'vstory', 'vwho', 'vwebsite', 'vvideo', 'vinside', 'vaccess'].forEach(function (k) { a[k] = ans[k] || ''; });
     var list = function (v) { return String(v || '').split(/\s*[,;]\s*/).filter(Boolean); };
     /* match whole names, since some categories have a comma in them */
     var pick = function (v, opts) { var c = String(v || '').toLowerCase(); return opts.filter(function (o) { return c.indexOf(o.toLowerCase()) !== -1; }).sort(function (x, y) { return c.indexOf(x.toLowerCase()) - c.indexOf(y.toLowerCase()); }); };

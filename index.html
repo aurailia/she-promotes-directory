@@ -653,6 +653,23 @@
   .room-end::before { content: "\2726"; position: absolute; top: -10px; left: 50%; transform: translateX(-50%); color: var(--gold); font-size: 16px; padding: 0 16px; }
   .room-end .room-cta .btn { min-width: 0; }
 
+  /* Welcome video */
+  .room-video { max-width: 860px; margin: 56px auto 0; text-align: center; }
+  .room-video .eyebrow { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 16px; }
+  .room-video .eyebrow::before, .room-video .eyebrow::after { content: ""; width: 40px; height: 1px; background: var(--gold); }
+  .rv-frame { position: relative; aspect-ratio: 16 / 9; border-radius: 24px; overflow: hidden; border: 1px solid rgba(232, 196, 122, 0.4); box-shadow: 0 24px 60px rgba(0, 0, 0, 0.4); background: #2a1028; }
+  .rv-frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+  .rv-poster { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; padding: 0; cursor: pointer; background: linear-gradient(135deg, #52264e, #2a1028); display: block; }
+  .rv-art { position: absolute; inset: 0; }
+  .rv-art img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .rv-poster::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(42, 16, 40, 0.15), rgba(42, 16, 40, 0.65)); }
+  .rv-play { position: absolute; z-index: 1; top: 50%; left: 50%; width: 84px; height: 84px; margin: -54px 0 0 -42px; border-radius: 50%; background: linear-gradient(135deg, var(--gold), var(--blush)); box-shadow: 0 0 0 8px rgba(243, 216, 155, 0.22), 0 16px 34px rgba(0, 0, 0, 0.45); transition: transform 0.2s ease; }
+  .rv-play::before { content: ""; position: absolute; top: 50%; left: 50%; margin: -14px 0 0 -8px; border-style: solid; border-width: 14px 0 14px 24px; border-color: transparent transparent transparent var(--plum-deep); }
+  .rv-poster:hover .rv-play, .rv-poster:focus-visible .rv-play { transform: scale(1.07); }
+  .rv-label { position: absolute; z-index: 1; left: 0; right: 0; bottom: 22px; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 24px; font-weight: 600; color: var(--gold-bright); }
+  .room-video-link { margin-top: 4px; }
+  @media (max-width: 760px) { .room-video { margin-top: 44px; } .rv-play { width: 68px; height: 68px; margin: -44px 0 0 -34px; } .rv-label { font-size: 20px; bottom: 14px; } }
+
   /* Upcoming Events */
   .ev-filters { justify-content: center; padding: 14px 18px; border: 1px solid rgba(232, 196, 122, 0.22); border-radius: 999px; background: rgba(255, 255, 255, 0.03); width: fit-content; max-width: 100%; margin: 0 auto 32px; }
   .ev-grid { grid-template-columns: 1fr; gap: 26px; }
@@ -2040,6 +2057,7 @@
       headline: v.headline || '',
       story: v.about || (mem && mem.about) || '',
       who: v.who || (mem && mem.who) || '',
+      video: v.video || '',
       communities: [], offers: [], links: [], loves: []
     };
     var seenC = {};
@@ -2121,6 +2139,43 @@
     if (o.price) { var b = el('div'); b.appendChild(el('b', '', /^free/i.test(o.price) ? 'Price' : 'Starts at')); b.appendChild(document.createTextNode(/^free/i.test(o.price) ? 'Free' : o.price)); f.appendChild(b); }
     return f;
   };
+  /* YouTube, Vimeo and Loom play right on her page. Anything else opens in a new tab. */
+  var videoInfo = function (u) {
+    u = safeUrl(u); if (!u) return null;
+    var m;
+    if ((m = u.match(/(?:youtube\.com\/(?:watch\?(?:.*&)?v=|shorts\/|embed\/|live\/)|youtu\.be\/)([\w-]{11})/i))) return { embed: 'https://www.youtube-nocookie.com/embed/' + m[1] + '?autoplay=1&rel=0&playsinline=1', thumb: 'https://i.ytimg.com/vi/' + m[1] + '/hqdefault.jpg', url: u };
+    if ((m = u.match(/vimeo\.com\/(?:video\/)?(\d{6,})(?:\/([\w]+))?/i))) return { embed: 'https://player.vimeo.com/video/' + m[1] + '?autoplay=1' + (m[2] ? '&h=' + m[2] : ''), thumb: '', url: u };
+    if ((m = u.match(/loom\.com\/(?:share|embed)\/([\w]{16,})/i))) return { embed: 'https://www.loom.com/embed/' + m[1] + '?autoplay=1', thumb: '', url: u };
+    return { embed: '', thumb: '', url: u };
+  };
+  var videoBlock = function (vid, R) {
+    var s = el('section', 'room-video');
+    s.appendChild(el('div', 'eyebrow', 'A little hello from ' + R.first));
+    if (!vid.embed) {
+      var lb = linkBtn('Watch my welcome video', vid.url, true);
+      if (lb) { lb.classList.add('room-video-link'); s.appendChild(lb); }
+      return s;
+    }
+    var frame = el('div', 'rv-frame');
+    var poster = el('button', 'rv-poster');
+    poster.type = 'button';
+    poster.setAttribute('aria-label', 'Play ' + R.first + '\u2019s welcome video');
+    var art = el('div', 'rv-art'); art.setAttribute('aria-hidden', 'true');
+    putImg(art, vid.thumb || R.banner || R.photo, [R.bannerFallback || '', R.photo || '']);
+    poster.appendChild(art);
+    var play = el('span', 'rv-play'); play.setAttribute('aria-hidden', 'true'); poster.appendChild(play);
+    poster.appendChild(el('span', 'rv-label', 'Watch my welcome video'));
+    poster.addEventListener('click', function () {
+      var f = document.createElement('iframe');
+      f.src = vid.embed; f.title = R.first + '\u2019s welcome video';
+      f.setAttribute('allow', 'autoplay; fullscreen; picture-in-picture; encrypted-media');
+      f.setAttribute('allowfullscreen', '');
+      frame.innerHTML = ''; frame.appendChild(f);
+    });
+    frame.appendChild(poster);
+    s.appendChild(frame);
+    return s;
+  };
   var openRoom = function (v, fromHash) {
     var R = roomData(v);
     $('vipLounge').hidden = true;
@@ -2158,6 +2213,10 @@
     }
     if (cta.childNodes.length) intro.appendChild(cta);
     box.appendChild(intro);
+
+    /* Her welcome video */
+    var vid = videoInfo(R.video);
+    if (vid) box.appendChild(videoBlock(vid, R));
 
     var sec = function (id, eyebrow, title) {
       var s = el('section', 'room-sec');
