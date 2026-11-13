@@ -275,6 +275,22 @@
   .nav-item[aria-current="true"] { color: var(--text); background: rgba(232, 196, 122, 0.14); border-color: rgba(232, 196, 122, 0.45); font-weight: 600; }
   .side-cta { margin-top: auto; font-size: 13px; color: var(--muted); border-top: 1px solid rgba(232, 196, 122, 0.18); padding-top: 16px; }
   .side-cta a { color: var(--gold-bright); font-weight: 600; }
+  .side-share { display: inline-block; margin-top: 8px; }
+  .shared-by { display: inline-block; margin: 0 0 14px; padding: 6px 14px; border-radius: 999px; font-size: 13.5px; font-weight: 600; color: var(--gold-bright); border: 1px solid rgba(232, 196, 122, 0.45); background: rgba(232, 196, 122, 0.08); }
+  .share-wrap { max-width: 720px; margin: 10px auto 0; text-align: center; }
+  .share-sub { margin: 10px auto 26px; }
+  .share-card { text-align: left; border: 1px solid rgba(232, 196, 122, 0.35); border-radius: 22px; padding: 26px 24px; background: rgba(255, 255, 255, 0.03); }
+  .share-steps { margin: 0 0 18px 20px; font-size: 15px; line-height: 1.6; }
+  .share-steps li { margin-bottom: 6px; }
+  .share-lbl { display: block; font-weight: 600; font-size: 14.5px; margin: 16px 0 6px; }
+  .share-lbl .opt { font-weight: 400; color: var(--muted); }
+  .share-in { width: 100%; font: inherit; font-size: 15px; color: var(--text); background: rgba(0, 0, 0, 0.25); border: 1px solid rgba(232, 196, 122, 0.3); border-radius: 12px; padding: 12px 14px; }
+  .share-help { font-size: 13.5px; color: var(--muted); margin: 6px 0 16px; }
+  .share-err { color: #ffb3c1; font-size: 14px; margin-top: 10px; }
+  .share-row { display: flex; gap: 8px; }
+  .share-row .share-in { flex: 1; min-width: 0; }
+  .share-post { min-height: 170px; resize: vertical; margin-bottom: 10px; line-height: 1.55; }
+  #shOut { margin-top: 8px; border-top: 1px solid rgba(232, 196, 122, 0.2); padding-top: 4px; }
   .main { flex: 1; min-width: 0; }
   .topbar { display: none; }
   .scrim { display: none; }
@@ -448,6 +464,12 @@
   .ev-card { display: flex; flex-direction: column; gap: 10px; }
   .ev-when { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
   .ev-date { font-size: 13px; font-weight: 600; letter-spacing: 0.04em; color: var(--gold-bright, #f3d89b); text-transform: uppercase; }
+  .ev-count { display: inline-flex; align-items: center; gap: 6px; }
+  .ev-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--plum-deep); opacity: 0.75; }
+  .ev-count.soon .ev-dot { animation: evPulse 1.6s ease-in-out infinite; }
+  @keyframes evPulse { 0%, 100% { opacity: 0.35; } 50% { opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .ev-count.soon .ev-dot { animation: none; } }
+  .ev-mini .ev-count { align-self: flex-start; margin: 6px 0 2px; }
   .ev-now { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--plum-deep); background: linear-gradient(135deg, var(--gold), var(--blush)); padding: 3px 9px; border-radius: 999px; }
   .ev-card h3 { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 26px; font-weight: 600; line-height: 1.12; margin: 0; }
   .ev-host { font-size: 14px; color: var(--muted); margin: 0; }
@@ -747,7 +769,7 @@
       <div class="nav-sep" role="separator" aria-hidden="true"></div>
       <button class="nav-item" type="button" data-sec="recommended"><span class="ico" aria-hidden="true">&#129309;</span><span class="lbl">Recommended Communities</span><span class="count" id="c-recommended"></span></button>
     </nav>
-    <div class="side-cta">Own a business? Get listed in the Directory. <a id="sideListed" href="#listed">Here&rsquo;s how</a></div>
+    <div class="side-cta">Own a business? Get listed in the Directory. <a id="sideListed" href="#listed">Here&rsquo;s how</a><br><span class="side-share" id="sideShare" hidden>Members: <a href="#share">share the Directory and earn</a></span></div>
   </aside>
   <div class="scrim" id="scrim"></div>
 
@@ -759,6 +781,7 @@
 
     <div class="wrap">
       <header class="hero" id="hero">
+        <p class="shared-by" id="sharedBy" hidden></p>
         <div class="eyebrow">She Promotes&trade;</div>
         <h1>The <span>Directory</span></h1>
         <p class="lede">A directory of women in business. Find the healer, coach or helper you&rsquo;ve been looking for.</p>
@@ -800,6 +823,35 @@
           <div class="jump-row" id="jumpRow"></div>
         </nav>
         <div id="catGrid"></div>
+        </div>
+      </section>
+
+      <section id="shareView" aria-labelledby="shareTitle" hidden>
+        <div class="share-wrap">
+          <div class="eyebrow orn">For She Promotes&trade; members</div>
+          <h2 class="section lounge-title" id="shareTitle">Share the Directory and earn</h2>
+          <p class="section-sub share-sub">Share the Directory with your people. When someone joins She Promotes&trade; or upgrades through your link, you earn through the She Promotes affiliate program on Skool. It&rsquo;s the same Directory everyone sees, just with your link on the join buttons.</p>
+          <div class="share-card">
+            <ol class="share-steps">
+              <li>In Skool, open She Promotes&trade; and copy your <b>affiliate link</b>. You&rsquo;ll find it in the community&rsquo;s settings under Affiliates.</li>
+              <li>Paste it below and tap <b>Make my link</b>.</li>
+              <li>Share your link anywhere: your classroom, other groups, your bio or your emails.</li>
+            </ol>
+            <label class="share-lbl" for="shAff">Your She Promotes affiliate link</label>
+            <input class="share-in" type="text" id="shAff" inputmode="url" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="https://www.skool.com/she-promotes-7924/about?ref=...">
+            <label class="share-lbl" for="shName">Your name <span class="opt">(optional)</span></label>
+            <input class="share-in" type="text" id="shName" maxlength="40" placeholder="Jeni Gee">
+            <p class="share-help">People who open your link see &ldquo;Shared with you by&rdquo; your name at the top.</p>
+            <button class="btn btn-primary" type="button" id="shMake">Make my link</button>
+            <p class="share-err" id="shErr" role="alert" hidden></p>
+            <div id="shOut" hidden>
+              <label class="share-lbl" for="shLink">Your Directory link</label>
+              <div class="share-row"><input class="share-in" type="text" id="shLink" readonly><button class="btn btn-ghost" type="button" id="shCopyLink">Copy</button></div>
+              <label class="share-lbl" for="shPost">A post you can share with it</label>
+              <textarea class="share-in share-post" id="shPost" readonly></textarea>
+              <button class="btn btn-ghost" type="button" id="shCopyPost">Copy the post</button>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -921,6 +973,29 @@
   var UPGRADE_URL = 'https://www.skool.com/she-promotes-7924/plans';   /* where women go to become a VIP */
   var DM_URL = 'https://www.skool.com/@aurailis-arnold-5599';   /* your Skool profile, where members can message you */
   var DATA_URL = 'directory.json';
+  var SHARE_ON = false;   /* true shows the "share the Directory and earn" link in the menu. The share page works either way. */
+
+  /* Members share the Directory with their She Promotes affiliate code: ?ref=CODE&from=Name
+     Her code rides on every She Promotes join and upgrade button, and is remembered for 60 days. */
+  var REF = '', REF_FROM = '';
+  try {
+    var qp = new URLSearchParams(location.search);
+    var qRef = String(qp.get('ref') || '').trim().toLowerCase();
+    if (/^[a-f0-9]{32}$/.test(qRef)) {
+      REF = qRef;
+      REF_FROM = String(qp.get('from') || '').replace(/[<>"&]/g, '').trim().slice(0, 40);
+      try { localStorage.setItem('shePromotesRef', JSON.stringify({ ref: REF, from: REF_FROM, t: Date.now() })); } catch (e) { /* fine */ }
+    } else {
+      var sv = null;
+      try { sv = JSON.parse(localStorage.getItem('shePromotesRef') || 'null'); } catch (e) { sv = null; }
+      if (sv && /^[a-f0-9]{32}$/.test(sv.ref) && Date.now() - sv.t < 60 * 86400000) { REF = sv.ref; REF_FROM = String(sv.from || '').slice(0, 40); }
+    }
+  } catch (e) { /* older browser, no sharing code */ }
+  var withRef = function (u) {
+    if (!REF || !/^https:\/\/www\.skool\.com\/she-promotes-7924(\/|\?|$)/.test(u)) return u;
+    return u.replace(/[?&]ref=[^&#]*/g, '') + (u.replace(/[?&]ref=[^&#]*/g, '').indexOf('?') === -1 ? '?' : '&') + 'ref=' + REF;
+  };
+  PLANS_URL = withRef(PLANS_URL); JOIN_URL = withRef(JOIN_URL); UPGRADE_URL = withRef(UPGRADE_URL);
 
   var CATEGORIES = [
     'Energy Healing', 'Hypnosis & Subconscious Work', 'Quantum Journeys Hypnosis', 'Faith & Spiritual Growth', 'Money Mindset & Wealth', 'Manifestation', 'Life & Purpose Coaching',
@@ -976,7 +1051,7 @@
   })();
   var linkKey = function (u) { return String(u || '').toLowerCase().replace(/^https?:\/\//, '').replace(/^www\./, '').split(/[?#]/)[0].replace(/\/+$/, '').replace(/\/about$/, ''); };
   var VIP_NAME = 'Featured Businesses';   /* the page that holds every VIP's page */
-  var TITLES = { events: 'Upcoming Events', vip: VIP_NAME, calendar: 'Where can I promote today?', home: 'Home', offers: 'Offers', communities: 'Communities', recommended: 'Recommended Communities', promo: 'Promo Communities' };
+  var TITLES = { share: 'Share and earn', events: 'Upcoming Events', vip: VIP_NAME, calendar: 'Where can I promote today?', home: 'Home', offers: 'Offers', communities: 'Communities', recommended: 'Recommended Communities', promo: 'Promo Communities' };
   var INTROS = {
     calendar: 'Every promo group in the Directory and the days you can post there. Tap a day, or All to see the full week.',
     promo: 'Have a business to share? These are the promo communities that inspired me to create She Promotes&trade;. More places to post your offer and meet amazing women.',
@@ -1647,6 +1722,7 @@
     home: [],
     vip: [],
     events: [],
+    share: [],
     calendar: [],
     promo: ['', 'Skool', 'Facebook Group', 'Other']
   };
@@ -1883,6 +1959,42 @@
     return w;
   };
   /* ---------- Upcoming Events ---------- */
+  /* A live countdown on events starting within 12 hours. Only the little label's text changes, nothing else redraws. */
+  var COUNT_WINDOW = 12 * 3600000;
+  var countdownText = function (e, now) {
+    var ms = e.startUtc - now;
+    if (ms <= 0) return (e.endUtc || e.startUtc + 7200000) > now ? 'Happening now' : '';
+    if (ms > COUNT_WINDOW) return '';
+    var mins = Math.ceil(ms / 60000);
+    if (mins < 60) return 'Starts in ' + mins + ' min';
+    var h = Math.floor(mins / 60), m = mins % 60;
+    return 'Starts in ' + h + 'h' + (m ? ' ' + m + 'm' : '');
+  };
+  var countdownEl = function (e) {
+    var t = countdownText(e, Date.now());
+    if (!t) return null;
+    var sp = el('span', 'ev-now ev-count' + (e.startUtc - Date.now() <= 3600000 ? ' soon' : ''), '');
+    sp.setAttribute('data-start', String(e.startUtc));
+    sp.setAttribute('data-end', String(e.endUtc || e.startUtc + 7200000));
+    var dot = el('span', 'ev-dot', ''); dot.setAttribute('aria-hidden', 'true');
+    sp.appendChild(dot); sp.appendChild(el('span', 'ev-count-t', t));
+    return sp;
+  };
+  var tickCountdowns = function () {
+    if (document.hidden) return;
+    var now = Date.now();
+    var els = document.querySelectorAll('.ev-count');
+    for (var i = 0; i < els.length; i++) {
+      var sp = els[i], st = +sp.getAttribute('data-start'), en = +sp.getAttribute('data-end');
+      var t = countdownText({ startUtc: st, endUtc: en }, now);
+      var tx = sp.querySelector('.ev-count-t');
+      if (!t) { sp.hidden = true; continue; }
+      if (tx && tx.textContent !== t) tx.textContent = t;
+      sp.classList.toggle('soon', st - now <= 3600000);
+    }
+  };
+  setInterval(tickCountdowns, 30000);
+  document.addEventListener('visibilitychange', tickCountdowns);
   var upcoming = function () {
     var now = Date.now();
     return (data.events || []).filter(function (e) { return e && e.title && e.startUtc && (e.endUtc || e.startUtc + 7200000) > now; })
@@ -1935,7 +2047,7 @@
 
     var m = el('div', 'ev-main');
     var meta = el('div', 'ev-meta');
-    if (e.startUtc <= Date.now()) meta.appendChild(el('span', 'ev-now', 'Happening now'));
+    var cd = countdownEl(e); if (cd) meta.appendChild(cd);
     meta.appendChild(el('span', 'ev-time', evWhen(e)));
     meta.appendChild(el('span', 'tag', e.mode === 'inperson' ? 'In person' : 'Online'));
     m.appendChild(meta);
@@ -2040,6 +2152,7 @@
       if (e.image) putImg(art, e.image, []);
       b.appendChild(art);
       b.appendChild(el('span', 'ev-date', evWhen(e)));
+      var cdm = countdownEl(e); if (cdm) b.appendChild(cdm);
       b.appendChild(el('span', 'fm-name', e.title));
       b.appendChild(el('span', 'fm-who', (e.mode === 'inperson' ? 'In person' + (e.city ? ' · ' + e.city : '') : 'Online') + ' · ' + (e.cost === 'paid' ? (e.price || 'Paid') : 'Free')));
       b.addEventListener('click', function () { setSection('events'); jumpTo(0); });
@@ -2662,13 +2775,48 @@
   var canUseHash = (function () {
     try { return /^https?:$/.test(location.protocol) && window.self === window.top; } catch (e) { return false; }
   })();
+  var SHARE_KEY = 'shePromotesShareLink';
+  var renderShare = function () {
+    var saved = null;
+    try { saved = JSON.parse(localStorage.getItem(SHARE_KEY) || 'null'); } catch (e) { saved = null; }
+    if (saved && saved.link && !$('shLink').value) showShare(saved.link);
+  };
+  var showShare = function (link) {
+    $('shLink').value = link;
+    $('shPost').value = 'Looking for women in business to support, hire or collaborate with? \uD83D\uDC9C\n\nThe She Promotes\u2122 Directory has coaches, healers, makers and community owners all in one place. Browse their offers and find communities and events you\u2019ll love.\n\nHave a business? You can get listed too.\n\n\uD83D\uDC49 ' + link;
+    $('shOut').hidden = false;
+  };
+  $('shMake').addEventListener('click', function () {
+    var raw = String($('shAff').value || '').trim();
+    var err = $('shErr');
+    var m = raw.match(/[?&]ref=([a-f0-9]{32})/i) || raw.match(/^([a-f0-9]{32})$/i);
+    if (/skool\.com\//i.test(raw) && !/skool\.com\/she-promotes-7924/i.test(raw)) { err.textContent = 'That looks like a link for a different community. Copy your affiliate link from inside She Promotes.'; err.hidden = false; return; }
+    if (!m) { err.textContent = 'I couldn\u2019t find your affiliate code in that link. It should end with ?ref= and a long code. Copy it again from She Promotes in Skool.'; err.hidden = false; return; }
+    err.hidden = true;
+    var nm = String($('shName').value || '').replace(/[<>"&]/g, '').trim().slice(0, 40);
+    var base = location.origin + location.pathname;
+    var link = base + '?ref=' + m[1].toLowerCase() + (nm ? '&from=' + encodeURIComponent(nm) : '');
+    try { localStorage.setItem(SHARE_KEY, JSON.stringify({ link: link })); } catch (e) { /* fine */ }
+    showShare(link);
+  });
+  var copyField = function (id, btn) {
+    var f = $(id), b = $(btn), done = function () { var t = b.textContent; b.textContent = 'Copied!'; setTimeout(function () { b.textContent = t; }, 1600); };
+    try { if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(f.value).then(done, function () { f.select(); }); return; } } catch (e) { /* fall through */ }
+    f.focus(); f.select();
+  };
+  $('shCopyLink').addEventListener('click', function () { copyField('shLink', 'shCopyLink'); });
+  $('shCopyPost').addEventListener('click', function () { copyField('shPost', 'shCopyPost'); });
+  if (SHARE_ON) $('sideShare').hidden = false;
+  if (REF && REF_FROM) { $('sharedBy').textContent = '\uD83D\uDC9C Shared with you by ' + REF_FROM; $('sharedBy').hidden = false; }
+
   var setSection = function (t, fromHash, quiet) {
     if (!chipSets[t]) t = 'home';
     $('homeView').hidden = t !== 'home';
     $('hero').hidden = t !== 'home';
-    $('panel').hidden = t === 'home' || t === 'vip' || t === 'events';
+    $('panel').hidden = t === 'home' || t === 'vip' || t === 'events' || t === 'share';
     $('vipView').hidden = t !== 'vip';
     $('eventsView').hidden = t !== 'events';
+    $('shareView').hidden = t !== 'share';
     $('catView').hidden = true;
     var wrapEl = document.querySelector('.wrap'); if (wrapEl) wrapEl.setAttribute('data-sec', t);
     state.tab = t; state.chip = ''; state.cat = ''; state.fmt = ''; state.day = '';
@@ -2682,6 +2830,7 @@
     floatCue.classList.remove('show');
     if (t === 'vip') { $('vipRoom').hidden = true; $('vipLounge').hidden = false; if (!quiet) renderLounge(); return; }
     if (t === 'events') { renderEvents(); return; }
+    if (t === 'share') { renderShare(); return; }
     renderControls();
     renderGrid();
   };
