@@ -109,6 +109,13 @@
   .seg button[aria-pressed="true"].pending { background: var(--warn); color: #321; }
   .seg button[aria-pressed="true"].hidden { background: var(--blush); color: var(--plum-deep); }
   .tier-seg { margin-left: 6px; }
+  .ev-wait { margin-top: 14px; }
+  .ev-wait h3 { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 24px; color: var(--gold-bright); margin-bottom: 4px; }
+  .ev-wait .item { margin-top: 12px; }
+  .ev-wait-top { display: flex; gap: 14px; align-items: flex-start; }
+  .ev-wait-img { width: 140px; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 10px; flex: none; }
+  .ev-wait-desc { margin: 10px 0; font-size: 14px; white-space: pre-line; }
+  @media (max-width: 560px) { .ev-wait-top { flex-direction: column; } .ev-wait-img { width: 100%; } }
   .seg button[aria-pressed="true"].prem { background: rgba(255,255,255,0.85); color: var(--plum-deep); }
   .seg button[aria-pressed="true"].vip { background: var(--gold); color: var(--plum-deep); }
   a.link { color: var(--gold-bright); }
@@ -142,7 +149,7 @@
   <section class="panel">
     <div class="step">Step 1</div>
     <h2>Bring in your form submissions</h2>
-    <p class="help">Open your <b>She Promotes Directory Form Responses</b> Sheet. On the first tab, choose File, Download, Comma Separated Values (.csv), and choose that file here. Download all of it every time. Duplicates are handled for you. Got approved events? Download the <b>Events</b> tab the same way and choose it with the second button.</p>
+    <p class="help">Open your <b>She Promotes Directory Form Responses</b> Sheet. On the first tab, choose File, Download, Comma Separated Values (.csv), and choose that file here. Download all of it every time. Duplicates are handled for you. Got new events? Download the <b>Events</b> tab the same way and choose it with the second button. You&rsquo;ll see each one here and can approve it with one tap.</p>
     <div class="row">
       <label class="file"><input type="file" id="csvFile" accept=".csv,text/csv"><span class="btn btn-primary">Choose form CSV</span></label>
       <label class="file"><input type="file" id="evCsvTop" accept=".csv,text/csv"><span class="btn btn-ghost">Choose Events CSV</span></label>
@@ -315,9 +322,10 @@
   var saved = { status: {}, featuredDraft: null, spotlightDraft: null, lockEdits: {}, cImg: {}, rImg: {} };
   try {
     var raw = localStorage.getItem(STORE);
-    if (raw) { var p = JSON.parse(raw); if (p && typeof p === 'object') { saved.status = p.status || {}; saved.featuredDraft = p.featuredDraft || null; saved.spotlightDraft = p.spotlightDraft || null; saved.lockEdits = p.lockEdits || {}; saved.cImg = p.cImg || {}; saved.rImg = p.rImg || {}; saved.vipDraft = p.vipDraft || null; saved.eventsDraft = p.eventsDraft || null; saved.tierSet = p.tierSet || {}; } }
+    if (raw) { var p = JSON.parse(raw); if (p && typeof p === 'object') { saved.status = p.status || {}; saved.featuredDraft = p.featuredDraft || null; saved.spotlightDraft = p.spotlightDraft || null; saved.lockEdits = p.lockEdits || {}; saved.cImg = p.cImg || {}; saved.rImg = p.rImg || {}; saved.vipDraft = p.vipDraft || null; saved.eventsDraft = p.eventsDraft || null; saved.tierSet = p.tierSet || {}; saved.evApproved = p.evApproved || {}; } }
   } catch (e) { /* storage unavailable */ }
   if (!saved.tierSet) saved.tierSet = {};
+  if (!saved.evApproved) saved.evApproved = {};
   var persist = function () { try { localStorage.setItem(STORE, JSON.stringify(saved)); } catch (e) { /* ignore */ } };
 
   var current = { featured: [], members: [] };   /* from directory.json */
@@ -1460,9 +1468,9 @@
     var H = rows[0].map(function (h) { return String(h).trim().toLowerCase(); });
     var col = function (r, name) { var i = H.indexOf(name.toLowerCase()); return i === -1 ? '' : String(r[i] == null ? '' : r[i]).trim(); };
     var added = 0, updated = 0, waiting = 0, past = 0, skipped = 0;
+    waitingEvents = [];
     rows.slice(1).forEach(function (r) {
       if (!col(r, 'Event title')) return;
-      if (!truthy(col(r, 'Approved'))) { waiting++; return; }
       var tz = col(r, 'Time zone') || 'America/Los_Angeles';
       var date = col(r, 'Event date'), start = col(r, 'Start time'), end = col(r, 'End time');
       if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !/^\d{1,2}:\d{2}/.test(start)) { skipped++; return; }
@@ -1482,6 +1490,13 @@
       if (ne.end) { ne.endUtc = zoned(ne.date, ne.end, ne.tz); if (ne.endUtc <= ne.startUtc) ne.endUtc += 86400000; }
       else ne.endUtc = ne.startUtc + 2 * 3600000;
       if (ne.endUtc < Date.now()) { past++; return; }
+      /* not approved yet: show it here so you can look and approve with one tap */
+      if (!truthy(col(r, 'Approved')) && !saved.evApproved[ne.id]) {
+        ne._email = col(r, 'Host email'); ne._skool = cleanUrl(col(r, 'Host Skool profile')); ne._tier = col(r, 'Premium or VIP');
+        var already = events.some(function (x) { return x.id === ne.id; });
+        if (!already) { waitingEvents.push(ne); waiting++; }
+        return;
+      }
       var i = -1; events.forEach(function (x, k) { if (x.id === ne.id) i = k; });
       if (i === -1) { events.push(ne); added++; }
       else if (events[i].fromForm && !events[i].editedByHand) { events[i] = ne; updated++; }
@@ -1495,6 +1510,54 @@
     if (skipped) bits.push(skipped + ' missing a date or time');
     st.textContent = bits.join('. ') + '. Download your directory.json when you\u2019re ready.';
     var rp = $('csvReport'); if (rp) { rp.innerHTML = ''; rp.appendChild(el('div', 'note ok', '\uD83C\uDF9F\uFE0F Events: ' + st.textContent)); }
+    renderWaiting();
+  };
+  var waitingEvents = [];
+  var whenText = function (e) {
+    try {
+      var d = new Date(e.startUtc);
+      return d.toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', timeZone: e.tz, timeZoneName: 'short' });
+    } catch (x) { return e.date + ' ' + e.start; }
+  };
+  var renderWaiting = function () {
+    var rp = $('csvReport'); if (!rp) return;
+    var old = $('evWaitBox'); if (old) old.remove();
+    if (!waitingEvents.length) return;
+    var box = el('div', 'ev-wait'); box.id = 'evWaitBox';
+    box.appendChild(el('h3', '', 'Waiting for your approval (' + waitingEvents.length + ')'));
+    box.appendChild(el('p', 'sub', 'Look it over, then tap Approve. It goes on the Upcoming Events page the next time you download your directory.json.'));
+    waitingEvents.forEach(function (e, idx) {
+      var it = el('div', 'item');
+      var top = el('div', 'ev-wait-top');
+      if (e.image) { var im = new Image(); im.alt = ''; im.className = 'ev-wait-img'; im.src = e.image; im.onerror = function () { im.remove(); }; top.appendChild(im); }
+      var txt = el('div', '');
+      txt.appendChild(el('div', 'name', e.title));
+      txt.appendChild(el('div', 'sub', whenText(e) + ' \u00b7 ' + (e.mode === 'inperson' ? 'In person' + (e.city ? ', ' + e.city : '') : 'Online') + ' \u00b7 ' + (e.cost === 'paid' ? (e.price || 'Paid') : 'Free')));
+      txt.appendChild(el('div', 'sub', 'Hosted by ' + (e.host || 'someone') + (e.hostBusiness ? ' \u00b7 ' + e.hostBusiness : '') + (e._tier ? ' \u00b7 says ' + e._tier : '')));
+      top.appendChild(txt);
+      it.appendChild(top);
+      if (e.desc) it.appendChild(el('p', 'ev-wait-desc', e.desc));
+      var links = el('div', 'row');
+      if (e._skool) { var a1 = el('a', 'btn btn-ghost btn-sm', 'Open her Skool profile'); a1.href = e._skool; a1.target = '_blank'; a1.rel = 'noopener'; links.appendChild(a1); }
+      if (e.link) { var a2 = el('a', 'btn btn-ghost btn-sm', 'Open the sign-up link'); a2.href = e.link; a2.target = '_blank'; a2.rel = 'noopener'; links.appendChild(a2); }
+      it.appendChild(links);
+      var acts = el('div', 'row');
+      var ok = el('button', 'btn btn-primary btn-sm', 'Approve'); ok.type = 'button';
+      ok.addEventListener('click', function () {
+        var ne = {}; Object.keys(e).forEach(function (k) { if (k.charAt(0) !== '_') ne[k] = e[k]; });
+        saved.evApproved[ne.id] = Date.now();
+        events.push(ne); waitingEvents.splice(idx, 1);
+        saveEvents(); persist(); renderEvents(); renderStats(); renderWaiting();
+        var n = el('div', 'note ok', '\u2713 ' + ne.title + ' approved and added to Upcoming Events. Download your directory.json to make it live.');
+        rp.insertBefore(n, rp.firstChild);
+      });
+      var no = el('button', 'btn btn-ghost btn-sm', 'Not now'); no.type = 'button';
+      no.addEventListener('click', function () { waitingEvents.splice(idx, 1); renderWaiting(); });
+      acts.appendChild(ok); acts.appendChild(no);
+      it.appendChild(acts);
+      box.appendChild(it);
+    });
+    rp.appendChild(box);
   };
   var renderEvents = function () {
     var list = $('evList');
