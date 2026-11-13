@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-11-12T20:30:43.705Z",
+  "updated": "2026-11-13T20:18:08.747Z",
   "featured": [
     {
       "name": "She Promotes™",
@@ -238,6 +238,29 @@
       "joinCost": "Free",
       "startUtc": 1794605400000,
       "endUtc": 1794610800000
+    },
+    {
+      "id": "ev-c35836b1",
+      "title": "Boundaries as Self-Love Workshop",
+      "host": "Angela",
+      "hostBusiness": "Sacred Fox Studio",
+      "desc": "Do you say yes before you’ve even checked how much energy you have?\n\nWhen your energy is unpredictable, every yes costs more. So you overcommit on a good day, crash on the next one, and then feel guilty for canceling. Or you push through and pay for it later.\n\nBoundaries aren’t about being harsh or shutting people out. They’re part of a self-love practice, a way of caring for yourself the way you care for everyone else.\n\nIn this free live workshop, you’ll build your Boundary Scripts: three ways to say no or “not right now,” one for each energy level, so you already know what to say before someone asks.\n\nYou don’t need to prepare anything. Camera optional, pajamas welcome. If you can’t make it live, sign up anyway and you’ll get the replay.",
+      "image": "https://lh3.googleusercontent.com/d/1n5QDBEnCQieXzXjkZUMLq5L7M4Bw89Vc=w1200",
+      "date": "2026-12-12",
+      "start": "14:00",
+      "end": "15:00",
+      "tz": "America/Chicago",
+      "cost": "free",
+      "price": "",
+      "mode": "online",
+      "where": "page",
+      "link": "https://www.sacredfoxstudio.org/boundaries-as-self-love",
+      "categories": [
+        "Life & Purpose Coaching"
+      ],
+      "fromForm": true,
+      "startUtc": 1797105600000,
+      "endUtc": 1797109200000
     }
   ],
   "members": [
