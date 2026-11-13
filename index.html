@@ -469,7 +469,7 @@
   .ev-count.soon .ev-dot { animation: evPulse 1.6s ease-in-out infinite; }
   @keyframes evPulse { 0%, 100% { opacity: 0.35; } 50% { opacity: 1; } }
   @media (prefers-reduced-motion: reduce) { .ev-count.soon .ev-dot { animation: none; } }
-  .ev-mini .ev-count { align-self: flex-start; margin: 6px 0 2px; }
+  .ev-mini .ev-count { align-self: flex-start; margin: 8px 14px 2px; }
   .ev-now { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--plum-deep); background: linear-gradient(135deg, var(--gold), var(--blush)); padding: 3px 9px; border-radius: 999px; }
   .ev-card h3 { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 26px; font-weight: 600; line-height: 1.12; margin: 0; }
   .ev-host { font-size: 14px; color: var(--muted); margin: 0; }
@@ -487,6 +487,8 @@
   .feat-row-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
   .feat-row-head h2.section { margin: 0; }
   .feat-row-head .back { margin: 0; white-space: nowrap; }
+  .ev-row { display: grid; grid-template-columns: repeat(var(--ev-cols, 4), minmax(0, 1fr)); gap: 14px; }
+  .ev-row .ev-mini { min-width: 0; }
   .feat-row { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(200px, 240px); gap: 14px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
   .feat-mini { scroll-snap-align: start; display: flex; flex-direction: column; align-items: center; text-align: center; background: var(--card); border: 1px solid var(--card-border); border-radius: 18px; overflow: hidden; padding: 0 0 14px; color: var(--text); font: inherit; cursor: pointer; }
   .feat-mini:hover { border-color: var(--gold); }
@@ -2130,22 +2132,30 @@
     list.forEach(function (e) { g.appendChild(eventCard(e)); });
   };
   $('evLoc').addEventListener('change', function () { evState.loc = this.value; saveEvState(); renderEvents(); });
+  var weekCols = function (box) {
+    var w = box.clientWidth || (box.parentNode && box.parentNode.clientWidth) || window.innerWidth;
+    var min = w < 520 ? 150 : 210, gap = 14;
+    return Math.max(1, Math.floor((w + gap) / (min + gap)));
+  };
+  var lastWeekCols = 0;
   var renderWeekRow = function () {
     var box = $('weekRow');
     box.innerHTML = '';
-    var weekEnd = Date.now() + 7 * 86400000;
-    var list = upcoming().filter(function (e) { return e.startUtc <= weekEnd; });
+    var list = upcoming();
     box.hidden = !list.length;
     if (box.hidden) return;
     var head = el('div', 'feat-row-head');
-    head.appendChild(el('h2', 'section', 'Coming up this week'));
+    head.appendChild(el('h2', 'section', 'Events coming up'));
     var all = el('button', 'back', 'All events →');
     all.type = 'button';
     all.addEventListener('click', function () { setSection('events'); jumpTo(0); });
     head.appendChild(all);
     box.appendChild(head);
-    var row = el('div', 'feat-row');
-    list.forEach(function (e) {
+    var cols = weekCols(box);
+    lastWeekCols = cols;
+    var row = el('div', 'ev-row');
+    row.style.setProperty('--ev-cols', String(cols));
+    list.slice(0, cols).forEach(function (e) {
       var b = el('button', 'ev-mini');
       b.type = 'button';
       var art = el('div', 'fm-art'); art.setAttribute('aria-hidden', 'true');
@@ -2160,6 +2170,14 @@
     });
     box.appendChild(row);
   };
+  var weekResizeT = 0;
+  window.addEventListener('resize', function () {
+    clearTimeout(weekResizeT);
+    weekResizeT = setTimeout(function () {
+      var box = $('weekRow');
+      if (box && !box.hidden && weekCols(box) !== lastWeekCols) renderWeekRow();
+    }, 200);
+  });
 
   /* ---------- VIP Lounge and VIP Rooms ---------- */
   var vipMember = function (v) {
@@ -2812,6 +2830,7 @@
   var setSection = function (t, fromHash, quiet) {
     if (!chipSets[t]) t = 'home';
     $('homeView').hidden = t !== 'home';
+    if (t === 'home') setTimeout(function () { var wb = $('weekRow'); if (wb && !wb.hidden && weekCols(wb) !== lastWeekCols) renderWeekRow(); }, 0);
     $('hero').hidden = t !== 'home';
     $('panel').hidden = t === 'home' || t === 'vip' || t === 'events' || t === 'share';
     $('vipView').hidden = t !== 'vip';
