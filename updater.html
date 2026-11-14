@@ -591,7 +591,8 @@
     Object.keys(map.recs).sort().forEach(function (n) {
       var r = map.recs[n];
       var rn = g(r.name), rl = cleanUrl(g(r.link));
-      if (rn && rl && m.recommends.length < 3 && !m.recommends.some(function (x) { return normUrl(x.link) === normUrl(rl) || x.name.toLowerCase() === rn.toLowerCase(); })) m.recommends.push({ name: rn, link: rl, category: pickRec(g(r.category)), about: g(r.about), access: g(r.access), why: g(r.why), affiliate: truthy(g(r.affiliate)), own: truthy(g(r.own)), promoDays: parseDays(g(r.days)), image: photoUrl(g(r.image), 1200) });
+      var ownC = truthy(g(r.own)) ? pickKnown(g(r.category), ALL_CATS).slice(0, 3) : [];
+      if (rn && rl && m.recommends.length < 3 && !m.recommends.some(function (x) { return normUrl(x.link) === normUrl(rl) || x.name.toLowerCase() === rn.toLowerCase(); })) m.recommends.push({ name: rn, link: rl, categories: ownC.length ? ownC : undefined, category: ownC.length ? (ownC.indexOf('Promo & Networking') !== -1 ? 'Promo Group' : pickRec(ownC[0])) : pickRec(g(r.category)), about: g(r.about), access: g(r.access), why: g(r.why), affiliate: truthy(g(r.affiliate)), own: truthy(g(r.own)), promoDays: parseDays(g(r.days)), image: photoUrl(g(r.image), 1200) });
     });
     /* review-only info, never saved to the Directory */
     m._skool = cleanUrl(/^@[\w.-]+$/.test(skool) ? 'https://www.skool.com/' + skool : skool);
