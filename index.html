@@ -273,9 +273,28 @@
   .nav-item .lbl { flex: 1; }
   .nav-item .count { font-size: 12px; opacity: 0.8; }
   .nav-item[aria-current="true"] { color: var(--text); background: rgba(232, 196, 122, 0.14); border-color: rgba(232, 196, 122, 0.45); font-weight: 600; }
+  .subnav { display: grid; gap: 2px; margin: 2px 0 8px 28px; padding-left: 10px; border-left: 1px solid rgba(232, 196, 122, 0.3); }
+  .subnav[hidden] { display: none; }
+  .subnav-item { display: flex; align-items: center; gap: 8px; width: 100%; text-align: left; font: inherit; font-size: 14px; color: var(--muted); background: transparent; border: none; border-radius: 10px; padding: 8px 10px; cursor: pointer; }
+  .subnav-item:hover { background: rgba(255, 255, 255, 0.05); color: var(--text); }
+  .subnav-item .lbl { flex: 1; }
+  .subnav-item .count { font-size: 12px; opacity: 0.75; }
+  .subnav-item[aria-current="true"] { color: var(--gold-bright); font-weight: 600; background: rgba(232, 196, 122, 0.1); }
   .side-cta { margin-top: auto; font-size: 13px; color: var(--muted); border-top: 1px solid rgba(232, 196, 122, 0.18); padding-top: 16px; }
   .side-cta a { color: var(--gold-bright); font-weight: 600; }
   .side-share { display: inline-block; margin-top: 8px; }
+  #sharerRow { margin: 6px 0 34px; padding: 26px; border-radius: 24px; border: 1px solid rgba(232, 196, 122, 0.4); background: linear-gradient(180deg, rgba(232, 196, 122, 0.08), rgba(196, 155, 255, 0.05)); }
+  .sharer-head { text-align: center; margin-bottom: 18px; }
+  .sharer-head .eyebrow { display: block; font-size: 12px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold); margin-bottom: 6px; }
+  #sharerRow .sharer-head h2.section { margin: 0 auto; }
+  #sharerRow .sharer-head .section-sub { margin: 4px auto 0; }
+  .sharer-head .section-sub { margin: 4px 0 0; }
+  #sharerRow .sharer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 360px)); justify-content: center; gap: 18px; }
+  @media (max-width: 520px) { #sharerRow { padding: 18px 14px; } #sharerRow .sharer-grid { grid-template-columns: 1fr; } }
+  .grid-sec { grid-column: 1 / -1; display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-top: 26px; padding-bottom: 10px; border-bottom: 1px solid rgba(232, 196, 122, 0.22); }
+  .grid-sec.first { margin-top: 0; }
+  .grid-sec .group-title { margin: 0; }
+  .grid-sec-n { font-size: 13px; color: var(--muted); }
   .shared-by { display: inline-block; margin: 0 0 14px; padding: 6px 14px; border-radius: 999px; font-size: 13.5px; font-weight: 600; color: var(--gold-bright); border: 1px solid rgba(232, 196, 122, 0.45); background: rgba(232, 196, 122, 0.08); }
   .share-wrap { max-width: 720px; margin: 10px auto 0; text-align: center; }
   .share-sub { margin: 10px auto 26px; }
@@ -289,6 +308,8 @@
   .share-err { color: #ffb3c1; font-size: 14px; margin-top: 10px; }
   .share-row { display: flex; gap: 8px; }
   .share-row .share-in { flex: 1; min-width: 0; }
+  select.share-in { -webkit-appearance: none; appearance: none; padding-right: 40px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23e8c47a' stroke-width='2.5' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; }
+  select.share-in option { color: #2a1028; background: #fff; }
   .share-post { min-height: 170px; resize: vertical; margin-bottom: 10px; line-height: 1.55; }
   #shOut { margin-top: 8px; border-top: 1px solid rgba(232, 196, 122, 0.2); padding-top: 4px; }
   .main { flex: 1; min-width: 0; }
@@ -778,7 +799,8 @@
       <button class="nav-item" type="button" data-sec="home"><span class="ico" aria-hidden="true">&#127969;</span><span class="lbl">Home</span><span class="count"></span></button>
       <button class="nav-item vip-nav" type="button" data-sec="vip"><span class="ico" aria-hidden="true">&#128081;</span><span class="lbl" id="vipNavLbl">Featured Businesses</span><span class="count" id="c-vip"></span></button>
       <button class="nav-item" type="button" data-sec="events"><span class="ico" aria-hidden="true">&#127903;</span><span class="lbl">Upcoming Events</span><span class="count" id="c-events"></span></button>
-      <button class="nav-item" type="button" data-sec="offers"><span class="ico" aria-hidden="true">&#128717;&#65039;</span><span class="lbl">Offers</span><span class="count" id="c-offers"></span></button>
+      <button class="nav-item" type="button" data-sec="offers"><span class="ico" aria-hidden="true">&#128717;&#65039;</span><span class="lbl">Offers &amp; Services</span><span class="count" id="c-offers"></span></button>
+      <div class="subnav" id="offersSub" hidden></div>
       <button class="nav-item" type="button" data-sec="communities"><span class="ico" aria-hidden="true">&#128150;</span><span class="lbl">Communities</span><span class="count" id="c-communities"></span></button>
       <button class="nav-item" type="button" data-sec="promo"><span class="ico" aria-hidden="true">&#11088;</span><span class="lbl">Promo Communities</span><span class="count" id="c-promo"></span></button>
       <button class="nav-item" type="button" data-sec="calendar"><span class="ico" aria-hidden="true">&#128197;</span><span class="lbl">Promo Calendar</span><span class="count" id="c-calendar"></span></button>
@@ -828,6 +850,7 @@
           </div>
           <div class="chips" id="hqChips" role="group" aria-label="Popular searches"></div>
         </div>
+        <div id="sharerRow" hidden></div>
         <div id="spotlight" hidden></div>
         <div id="featRow" hidden></div>
         <div id="weekRow" hidden></div>
@@ -849,12 +872,15 @@
           <p class="section-sub share-sub">Share the Directory with your people. When someone joins She Promotes&trade; or upgrades through your link, you earn through the She Promotes affiliate program on Skool. It&rsquo;s the same Directory everyone sees, just with your link on the join buttons.</p>
           <div class="share-card">
             <ol class="share-steps">
-              <li>In Skool, open She Promotes&trade; and copy your <b>affiliate link</b>. You&rsquo;ll find it in the community&rsquo;s settings under Affiliates.</li>
+              <li>In Skool, tap your profile picture, then <b>Settings</b>, then <b>Affiliates</b>. Copy your <b>affiliate link</b> for She Promotes&trade;.</li>
               <li>Paste it below and tap <b>Make my link</b>.</li>
               <li>Share your link anywhere: your classroom, other groups, your bio or your emails.</li>
             </ol>
             <label class="share-lbl" for="shAff">Your She Promotes affiliate link</label>
             <input class="share-in" type="text" id="shAff" inputmode="url" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="https://www.skool.com/she-promotes-7924/about?ref=...">
+            <label class="share-lbl" for="shMe">Are you listed in the Directory? <span class="opt">(optional)</span></label>
+            <select class="share-in" id="shMe"><option value="">I&rsquo;m not listed yet</option></select>
+            <p class="share-help">Pick your listing and it shows up first for everyone who opens your link.</p>
             <label class="share-lbl" for="shName">Your name <span class="opt">(optional)</span></label>
             <input class="share-in" type="text" id="shName" maxlength="40" placeholder="Jeni Gee">
             <p class="share-help">People who open your link see &ldquo;Shared with you by&rdquo; your name at the top.</p>
@@ -993,18 +1019,19 @@
 
   /* Members share the Directory with their She Promotes affiliate code: ?ref=CODE&from=Name
      Her code rides on every She Promotes join and upgrade button, and is remembered for 60 days. */
-  var REF = '', REF_FROM = '';
+  var REF = '', REF_FROM = '', REF_ME = '';
   try {
     var qp = new URLSearchParams(location.search);
     var qRef = String(qp.get('ref') || '').trim().toLowerCase();
     if (/^[a-f0-9]{32}$/.test(qRef)) {
       REF = qRef;
       REF_FROM = String(qp.get('from') || '').replace(/[<>"&]/g, '').trim().slice(0, 40);
-      try { localStorage.setItem('shePromotesRef', JSON.stringify({ ref: REF, from: REF_FROM, t: Date.now() })); } catch (e) { /* fine */ }
+      REF_ME = String(qp.get('me') || '').replace(/[^A-Za-z0-9_-]/g, '').slice(0, 80);
+      try { localStorage.setItem('shePromotesRef', JSON.stringify({ ref: REF, from: REF_FROM, me: REF_ME, t: Date.now() })); } catch (e) { /* fine */ }
     } else {
       var sv = null;
       try { sv = JSON.parse(localStorage.getItem('shePromotesRef') || 'null'); } catch (e) { sv = null; }
-      if (sv && /^[a-f0-9]{32}$/.test(sv.ref) && Date.now() - sv.t < 60 * 86400000) { REF = sv.ref; REF_FROM = String(sv.from || '').slice(0, 40); }
+      if (sv && /^[a-f0-9]{32}$/.test(sv.ref) && Date.now() - sv.t < 60 * 86400000) { REF = sv.ref; REF_FROM = String(sv.from || '').slice(0, 40); REF_ME = String(sv.me || '').replace(/[^A-Za-z0-9_-]/g, '').slice(0, 80); }
     }
   } catch (e) { /* older browser, no sharing code */ }
   var withRef = function (u) {
@@ -1067,7 +1094,7 @@
   })();
   var linkKey = function (u) { return String(u || '').toLowerCase().replace(/^https?:\/\//, '').replace(/^www\./, '').split(/[?#]/)[0].replace(/\/+$/, '').replace(/\/about$/, ''); };
   var VIP_NAME = 'Featured Businesses';   /* the page that holds every VIP's page */
-  var TITLES = { share: 'Share and earn', events: 'Upcoming Events', vip: VIP_NAME, calendar: 'Where can I promote today?', home: 'Home', offers: 'Offers', communities: 'Communities', recommended: 'Recommended Communities', promo: 'Promo Communities' };
+  var TITLES = { share: 'Share and earn', events: 'Upcoming Events', vip: VIP_NAME, calendar: 'Where can I promote today?', home: 'Home', offers: 'Offers & Services', communities: 'Communities', recommended: 'Recommended Communities', promo: 'Promo Communities' };
   var INTROS = {
     calendar: 'Every promo group in the Directory and the days you can post there. Tap a day, or All to see the full week.',
     promo: 'Have a business to share? These are the promo communities that inspired me to create She Promotes&trade;. More places to post your offer and meet amazing women.',
@@ -1283,6 +1310,13 @@
 
   /* Derived lists */
   var offers = [], communities = [], recs = [], promos = [];
+  /* The member who shared this link: her listing comes first for anyone she brings in */
+  var sharer = null;
+  var isSharer = function (m) { return !!(sharer && m && (m === sharer || m._base === sharer)); };
+  var sharerFirst = function (list) {
+    if (!sharer) return list;
+    return list.filter(isSharer).concat(list.filter(function (m) { return !isSharer(m); }));
+  };
   /* A recommendation she marked as her own community counts as her community */
   var ownComm = function (m, r) {
     var cats = r.categories && r.categories.length ? r.categories : /promo/i.test(r.category || '') ? [PROMO_CAT] : (m.community ? commCats(m.community) : (m.categories || []).slice(0, 2));
@@ -1310,6 +1344,8 @@
   };
   var build = function () {
     var members = daily(dedupeMembers(data.members || []), function (m) { return m.id || m.name; });
+    sharer = null;
+    if (REF_ME) members.forEach(function (m) { if (!sharer && String(m.id) === REF_ME) sharer = m; });
     /* her signature offer plus up to 2 more, each with its own card */
     var seenO = {}, perO = [];
     members.forEach(function (m) {
@@ -1327,7 +1363,7 @@
       });
       perO.push({ key: m.id || m.name, list: mine });
     });
-    offers = takeTurns(perO);
+    offers = sharerFirst(takeTurns(perO));
     var seenC = {}, perC = [];
     members.forEach(function (m) {
       var mine = [];
@@ -1339,7 +1375,7 @@
       });
       perC.push({ key: m.id || m.name, list: mine });
     });
-    communities = takeTurns(perC);
+    communities = sharerFirst(takeTurns(perC));
     recs = [];
     members.forEach(function (m) {
       var mine = {};
@@ -1788,6 +1824,29 @@
     });
     $('secTitle').textContent = TITLES[state.tab];
     $('secIntro').innerHTML = INTROS[state.tab];
+    renderOffersSub();
+  };
+  /* Offers & Services submenu: one item per category group. An offer shows up in every group it fits. */
+  var renderOffersSub = function () {
+    var box = $('offersSub');
+    box.innerHTML = '';
+    var on = state.tab === 'offers';
+    box.hidden = !on;
+    if (!on) return;
+    var inGroup = function (g) { return offers.filter(function (m) { return (m.categories || []).some(function (c) { var x = groupOf(c); return x && x.key === g.key; }); }).length; };
+    [{ key: '', name: 'All', n: offers.length }].concat(GROUPS.map(function (g) { return { key: g.key, name: g.name, n: inGroup(g) }; }).filter(function (g) { return g.n; })).forEach(function (g) {
+      var b = el('button', 'subnav-item');
+      b.type = 'button';
+      b.setAttribute('aria-current', state.chip === g.key ? 'true' : 'false');
+      b.appendChild(el('span', 'lbl', g.name));
+      b.appendChild(el('span', 'count', String(g.n)));
+      b.addEventListener('click', function () {
+        state.chip = g.key; state.cat = '';
+        renderControls(); renderGrid();
+        setMenu(false); jumpTo(0);
+      });
+      box.appendChild(b);
+    });
   };
 
   var emptyState = function (msg) {
@@ -1855,7 +1914,33 @@
       grid.appendChild(emptyState('Nothing matches that yet. Try another word, or browse by category on Home.'));
       return;
     }
-    items.forEach(function (it) { grid.appendChild(make(it)); });
+    /* No filter on: sort everything into category sections so it's easy to browse */
+    var filtered = state.chip || state.cat || state.fmt || (state.q && String(state.q).trim());
+    var secOf = null;
+    if (!filtered && state.tab === 'communities') secOf = function (m) {
+      var cs = commCats(m.community);
+      if (cs.indexOf(PROMO_CAT) !== -1) return 'Promo Groups';
+      var g = cs.map(groupOf).filter(Boolean)[0];
+      return g ? g.name : 'More communities';
+    };
+    if (!filtered && state.tab === 'recommended') secOf = function (it) {
+      var r = recCat(it.rec.category);
+      return r === 'Promo Group' ? 'Promo Groups' : r && r !== 'Other' ? r : 'More communities';
+    };
+    if (!secOf) { items.forEach(function (it) { grid.appendChild(make(it)); }); return; }
+    var order = GROUPS.map(function (g) { return g.name; }).concat(['Business', 'Healing & Spiritual', 'Promo Groups', 'More offers and services', 'More communities']);
+    var bySec = {};
+    items.forEach(function (it) { var k = secOf(it); (bySec[k] = bySec[k] || []).push(it); });
+    Object.keys(bySec).sort(function (a, b) {
+      var ia = order.indexOf(a), ib = order.indexOf(b);
+      return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
+    }).forEach(function (k, n) {
+      var hd = el('div', 'grid-sec' + (n ? '' : ' first'));
+      hd.appendChild(el('h3', 'group-title', k));
+      hd.appendChild(el('span', 'grid-sec-n', bySec[k].length + (bySec[k].length === 1 ? ' listing' : ' listings')));
+      grid.appendChild(hd);
+      bySec[k].forEach(function (it) { grid.appendChild(make(it)); });
+    });
   };
 
   /* Calendar */
@@ -2634,7 +2719,7 @@
       b.appendChild(g);
       res.appendChild(b);
     };
-    block('Offers', o, offerCard);
+    block('Offers & Services', o, offerCard);
     block('Communities', cs, communityCard);
     block('Recommended communities', rs, recCard);
     if (!n) res.appendChild(emptyState('Nothing in the Directory for \u201C' + q + '\u201D yet. Try another word, or browse by category below.'));
@@ -2698,7 +2783,23 @@
     });
     box.appendChild(row);
   };
+  var renderSharer = function () {
+    var box = $('sharerRow');
+    box.innerHTML = '';
+    var mine = offers.filter(isSharer).slice(0, 1).map(offerCard).concat(communities.filter(isSharer).slice(0, 1).map(communityCard));
+    box.hidden = !mine.length;
+    if (box.hidden) return;
+    var head = el('div', 'sharer-head');
+    head.appendChild(el('span', 'eyebrow', '\uD83D\uDC9C Shared with you by'));
+    head.appendChild(el('h2', 'section', sharer.name));
+    if (sharer.business) head.appendChild(el('p', 'section-sub', sharer.business));
+    box.appendChild(head);
+    var g = el('div', 'grid sharer-grid');
+    mine.forEach(function (c) { g.appendChild(c); });
+    box.appendChild(g);
+  };
   var renderHome = function () {
+    renderSharer();
     renderHomeSearch();
     renderJump();
     renderSpotlight();
@@ -2772,7 +2873,7 @@
       body.appendChild(sec);
     };
     add('Upcoming events', upcoming().filter(function (e) { return (e.categories || []).indexOf(x) !== -1; }), eventCard);
-    add('Offers', c.offers, offerCard);
+    add('Offers & Services', c.offers, offerCard);
     add('Communities', c.communities, communityCard);
     add('My picks', c.picks, promoCard);
     if (!body.childNodes.length) {
@@ -2836,7 +2937,8 @@
     err.hidden = true;
     var nm = String($('shName').value || '').replace(/[<>"&]/g, '').trim().slice(0, 40);
     var base = location.origin + location.pathname;
-    var link = base + '?ref=' + m[1].toLowerCase() + (nm ? '&from=' + encodeURIComponent(nm) : '');
+    var me = String($('shMe').value || '').replace(/[^A-Za-z0-9_-]/g, '');
+    var link = base + '?ref=' + m[1].toLowerCase() + (nm ? '&from=' + encodeURIComponent(nm) : '') + (me ? '&me=' + me : '');
     try { localStorage.setItem(SHARE_KEY, JSON.stringify({ link: link })); } catch (e) { /* fine */ }
     showShare(link);
   });
@@ -2862,6 +2964,7 @@
     $('catView').hidden = true;
     var wrapEl = document.querySelector('.wrap'); if (wrapEl) wrapEl.setAttribute('data-sec', t);
     state.tab = t; state.chip = ''; state.cat = ''; state.fmt = ''; state.day = '';
+    renderOffersSub();
     navItems.forEach(function (b) {
       b.setAttribute('aria-current', b.getAttribute('data-sec') === t ? 'true' : 'false');
     });
@@ -3043,6 +3146,16 @@
       if (!isNaN(d)) $('updated').textContent = 'Updated ' + d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
     }
     build();
+    try {
+      var shSel = $('shMe');
+      dedupeMembers(data.members || []).filter(function (m) { return m && m.id && m.name; })
+        .sort(function (a, b) { return String(a.name).localeCompare(String(b.name)); })
+        .forEach(function (m) { var o = document.createElement('option'); o.value = String(m.id); o.textContent = m.name + (m.business ? ' \u00B7 ' + m.business : ''); shSel.appendChild(o); });
+      shSel.addEventListener('change', function () {
+        var nmIn = $('shName'), pick = shSel.options[shSel.selectedIndex];
+        if (shSel.value && !nmIn.value.trim()) nmIn.value = pick.textContent.split(' \u00B7 ')[0];
+      });
+    } catch (e) { /* the list is optional */ }
     var h = (location.hash || '').replace('#', '').toLowerCase().replace(/^featured(\/|$)/, 'vip$1');
     var rv = /^vip\//.test(h) ? openRoomBySlug(h.slice(4)) : null;
     if (rv) { setSection('vip', true, true); openRoom(rv, true); }
