@@ -705,12 +705,15 @@
   /* Upcoming Events */
   .ev-filters { justify-content: center; padding: 14px 18px; border: 1px solid rgba(232, 196, 122, 0.22); border-radius: 999px; background: rgba(255, 255, 255, 0.03); width: fit-content; max-width: 100%; margin: 0 auto 32px; }
   .ev-grid { grid-template-columns: 1fr; gap: 26px; }
-  .ev2 { position: relative; display: grid; grid-template-columns: 340px minmax(0, 1fr) 270px; border-radius: 26px; overflow: hidden; border: 1px solid rgba(232, 196, 122, 0.3); background: linear-gradient(180deg, rgba(82, 38, 78, 0.5), rgba(42, 16, 40, 0.65)); box-shadow: 0 24px 60px rgba(0, 0, 0, 0.3); }
+  .ev2 { position: relative; display: grid; grid-template-columns: 420px minmax(0, 1fr) 270px; border-radius: 26px; overflow: hidden; border: 1px solid rgba(232, 196, 122, 0.3); background: linear-gradient(180deg, rgba(82, 38, 78, 0.5), rgba(42, 16, 40, 0.65)); box-shadow: 0 24px 60px rgba(0, 0, 0, 0.3); }
   .ev2::after { content: ""; position: absolute; inset: 9px; border: 1px solid rgba(232, 196, 122, 0.16); border-radius: 19px; pointer-events: none; }
-  .ev-art { position: relative; min-height: 100%; background: radial-gradient(circle at 30% 20%, rgba(232, 196, 122, 0.25), transparent 55%), linear-gradient(135deg, #52264e, #2a1028); }
+  .ev-art { position: relative; min-height: 100%; overflow: hidden; background: radial-gradient(circle at 30% 20%, rgba(232, 196, 122, 0.25), transparent 55%), linear-gradient(135deg, #52264e, #2a1028); }
   .ev-art::before { content: "\2726"; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 64px; color: rgba(243, 216, 155, 0.35); }
   .ev-art .ev-pic { position: absolute; inset: 0; }
-  .ev-art .ev-pic img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .ev-art .ev-pic img { width: 100%; height: 100%; object-fit: contain; display: block; }
+  .ev-art .ev-blur { position: absolute; inset: 0; overflow: hidden; }
+  .ev-art .ev-blur img { width: 100%; height: 100%; object-fit: cover; display: block; filter: blur(22px) brightness(0.6) saturate(1.1); transform: scale(1.25); }
+  .ev-art:has(.ev-blur)::before { display: none; }
   .ev-tile { position: absolute; top: 20px; left: 20px; z-index: 1; width: 78px; text-align: center; border-radius: 16px; overflow: hidden; background: rgba(42, 16, 40, 0.9); border: 1px solid rgba(232, 196, 122, 0.55); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35); }
   .ev-tile .m { display: block; font-size: 11px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--plum-deep); background: linear-gradient(135deg, var(--gold), var(--blush)); padding: 4px 0; }
   .ev-tile .d { display: block; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 38px; font-weight: 600; line-height: 1; color: var(--gold-bright); padding: 6px 0 2px; }
@@ -729,7 +732,7 @@
   .ev-fact .ev-price { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 34px; font-weight: 600; line-height: 1; color: var(--gold-bright); }
   .ev-side .btn { margin-top: auto; flex: 0 0 auto; width: 100%; padding: 13px 16px; text-align: center; }
   @media (max-width: 1180px) {
-    .ev2 { grid-template-columns: 300px minmax(0, 1fr); }
+    .ev2 { grid-template-columns: 340px minmax(0, 1fr); }
     .ev-side { grid-column: 2; border-left: 0; border-top: 1px solid rgba(232, 196, 122, 0.18); background: transparent; padding: 0 30px 30px; flex-direction: row; flex-wrap: wrap; align-items: flex-end; gap: 14px 28px; }
     .ev-side .btn { width: auto; margin-top: 0; margin-left: auto; padding: 13px 26px; }
     .ev-side { border-top: 0; }
@@ -2045,7 +2048,13 @@
     var c = el('article', 'ev2');
     var art = el('div', 'ev-art');
     var pic = el('div', 'ev-pic'); pic.setAttribute('aria-hidden', 'true');
-    if (e.image) putImg(pic, e.image, []);
+    if (e.image) {
+      /* a soft blurred copy fills the space, so the whole flyer shows with nothing cut off */
+      var blur = el('div', 'ev-blur'); blur.setAttribute('aria-hidden', 'true');
+      putImg(blur, e.image, []);
+      art.appendChild(blur);
+      putImg(pic, e.image, []);
+    }
     art.appendChild(pic);
     var P = evParts(e);
     var tile = el('div', 'ev-tile');
