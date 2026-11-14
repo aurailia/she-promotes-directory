@@ -839,7 +839,7 @@
     up.appendChild(el('span', 'btn btn-ghost btn-sm', 'Upload image'));
     fin.addEventListener('change', function () {
       var f = this.files[0]; if (!f) return;
-      shrink(f, function (d) { if (!d) return; set(d); persist(); renderReview(); renderStats(); });
+      shrink(f, function (d) { if (!d) return; set(d); persist(); renderReview(); renderStats(); }, folder === 'vip' ? 1800 : 1200);
       this.value = '';
     });
     ci.appendChild(up);
@@ -987,6 +987,12 @@
       }
 
       it.appendChild(imgRow('Profile photo', m.photo, 'members', m.name, saved.pImg[m.id], function (v) { saved.pImg[m.id] = v; }));
+      (function () {
+        var vk = nameKey(m.name), vr = null;
+        vips.forEach(function (q) { if (!vr && nameKey(q.name) === vk) vr = q; });
+        if (!vr) return;
+        it.appendChild(imgRow('\u2B50 VIP room banner (1800 x 600 px)', vr.banner, 'vip', m.name, /^data:/.test(vr.banner || '') ? vr.banner : null, function (x) { vr.banner = x; vr.edited = true; vr.editedAt = Date.now(); saveSpot(); renderSpotPicker(); }));
+      })();
       if (m.offer || m.offerName) it.appendChild(imgRow('Offer image: ' + shortT(m.offerName || m.offer), m.offerImage, 'offers', m.offerName || m.name, saved.oImg[oKey(m.id, null)], function (v) { saved.oImg[oKey(m.id, null)] = v; }));
       (m.offers || []).forEach(function (o) {
         if (!o || !(o.title || o.desc)) return;
@@ -1061,12 +1067,12 @@
   var editing = -1;
   /* Image upload: shrinks the photo in the browser and keeps it inside directory.json */
   var keepImg = function (v) { v = String(v || '').trim(); return /^(images\/|data:image\/)/.test(v) ? v : cleanUrl(v); };
-  var shrink = function (file, cb) {
+  var shrink = function (file, cb, maxW) {
     var r = new FileReader();
     r.onload = function () {
       var img = new Image();
       img.onload = function () {
-        var sc = Math.min(1, 720 / img.width);
+        var sc = Math.min(1, (maxW || 720) / img.width);
         var c = document.createElement('canvas');
         c.width = Math.round(img.width * sc); c.height = Math.round(img.height * sc);
         var x = c.getContext('2d');
@@ -1474,7 +1480,7 @@
     var up = document.createElement('label'); up.className = 'file';
     var fin = document.createElement('input'); fin.type = 'file'; fin.accept = 'image/*';
     up.appendChild(fin); up.appendChild(el('span', 'btn btn-ghost btn-sm', 'Upload banner'));
-    fin.addEventListener('change', function () { var f = this.files[0]; if (!f) return; shrink(f, function (d) { if (d) { banner = d; showB(); } }); this.value = ''; });
+    fin.addEventListener('change', function () { var f = this.files[0]; if (!f) return; shrink(f, function (d) { if (d) { banner = d; showB(); } }, 1800); this.value = ''; });
     bWrap.appendChild(up);
     var clr = el('button', 'btn btn-ghost btn-sm', 'Remove'); clr.type = 'button';
     clr.addEventListener('click', function () { banner = ''; showB(); });
