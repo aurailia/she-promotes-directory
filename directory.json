@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-11-13T20:18:08.747Z",
+  "updated": "2026-11-14T03:19:23.117Z",
   "featured": [
     {
       "name": "She Promotes™",
@@ -211,6 +211,22 @@
       "offers": [],
       "edited": false,
       "fromListing": true
+    },
+    {
+      "id": "vip-cce61p",
+      "name": "Lori Watson",
+      "headline": "Helping high-achieving women create greater clarity, confidence, and fulfillment through mindset and self-leadership coaching.",
+      "about": "I've always been fascinated by the power of words. As a wife, mom of ten, entrepreneur, and longtime teacher, I've seen how the language we use influences our relationships, decisions, confidence, and experiences. That fascination eventually became a passion for helping women recognize the stories shaping their lives.\n\nAs a certified mindset coach, I approach mindset a little differently. I define mindset as the story we tell ourselves. We don't have to fake positivity, ignore difficult feelings, or convince ourselves that everything is wonderful. Instead, we can get curious about the stories we're telling, explore where they come from, and learn to choose language that supports the life we actually want to create.\n\nI especially love working with high-achieving women who are capable, driven, and accustomed to carrying a lot. Sometimes the very qualities that help us accomplish great things also contribute to overwhelm, perfectionism, and frustration. Through deep coaching work and practical language tools, I help women develop greater clarity, confidence, and self-leadership. My goal isn't to make you less ambitious. It's to help you enjoy the life you're creating, even on the messy days. Because words matter—and changing your words can change your world.",
+      "photo": "",
+      "banner": "https://lh3.googleusercontent.com/d/1igHqd3pE1hoFBYhy2BVou2jBunJsvuso=w1600",
+      "website": "https://www.loriwatsoncoaching.com/",
+      "social": "",
+      "video": "",
+      "communities": [],
+      "offers": [],
+      "edited": false,
+      "fromListing": true,
+      "who": "High-achieving women, entrepreneurs, professionals, and leaders seeking greater clarity, confidence, fulfillment, and self-leadership."
     }
   ],
   "events": [
@@ -1045,6 +1061,133 @@
           "own": true,
           "promoDays": [],
           "image": "https://lh3.googleusercontent.com/d/1bOjkEE4Vjl7Do8fLr1KaRCINR_eucTQG=w1200"
+        }
+      ]
+    },
+    {
+      "id": "m1gsz26x",
+      "name": "Lori Watson",
+      "business": "Lori Watson Coaching",
+      "about": "I'm Lori Watson, a mindset and self-leadership coach, entrepreneur, wife, mom of ten, and self-proclaimed language geek! I help high-achieving women who are juggling full lives, big ambitions, and endless responsibilities find greater clarity, confidence, and fulfillment—without giving up the things that matter most to them. I believe mindset is the story we tell ourselves, and our words have tremendous power to shape our experiences. As a certified mindset coach, I help women get to the root of the stories fueling overwhelm, self-doubt, perfectionism, and frustration. This isn't about pretending everything is wonderful or forcing yourself to think positively. It's about recognizing the stories shaping your experience, questioning what isn't serving you, and learning to lead yourself with greater awareness, honesty, and intention. My goal? To help you love the life you're creating—even on the messy days. Change your words. Change your world.",
+      "offerName": "Private Mindset Coaching",
+      "photo": "https://lh3.googleusercontent.com/d/1uVLTbEpWjU3DOWhTUQsJ2Bx7TcMzdF6k=w600",
+      "social": "",
+      "website": "https://www.loriwatsoncoaching.com/",
+      "socials": {},
+      "categories": [
+        "Life & Purpose Coaching"
+      ],
+      "formats": [
+        "1:1 Sessions"
+      ],
+      "offer": "Personalized 1:1 coaching to help high-achieving women work through limiting stories and lead with greater clarity, confidence, and intention.",
+      "who": "High-achieving women seeking meaningful personal change",
+      "price": "$600/month",
+      "offerLink": "https://scheduler.zoom.us/lori-watson-v7xtd2/discovery-calls",
+      "offerImage": "https://lh3.googleusercontent.com/d/1U8tK53Rfe-bjswMU6DCfy1HJe-DiMXg1=w1200",
+      "keywords": [
+        "mindset",
+        "self-leadership",
+        "confidence",
+        "limiting beliefs",
+        "perfectionism",
+        "overwhelm",
+        "personal growth",
+        "self-trust",
+        "high-achieving women",
+        "intentional living"
+      ],
+      "offers": [
+        {
+          "title": "The Focused Outcome",
+          "desc": "Three focused Zoom coaching sessions to help women navigate one important goal, decision, conversation, or project with clarity and confidence.",
+          "link": "https://scheduler.zoom.us/lori-watson-v7xtd2/discovery-calls",
+          "price": "$600",
+          "who": "Women seeking focused support for a specific goal or challenge",
+          "categories": [
+            "Life & Purpose Coaching"
+          ],
+          "formats": [
+            "1:1 Sessions"
+          ],
+          "keywords": [
+            "goal setting",
+            "mindset coaching",
+            "decision making",
+            "clarity",
+            "confidence",
+            "overcoming obstacles",
+            "self-leadership",
+            "personal growth",
+            "difficult conversations",
+            "intentional action"
+          ],
+          "image": "https://lh3.googleusercontent.com/d/1_VuAB04FtMW4lo2IFMvMYe8SeikzbkKr=w1200"
+        },
+        {
+          "title": "Words Matter Workshops",
+          "desc": "Interactive workshops helping teams and communities strengthen communication, confidence, self-leadership, and culture through intentional language.",
+          "link": "https://www.loriwatsoncoaching.com/",
+          "price": "",
+          "who": "Business owners, leaders, teams, organizations, and women's groups",
+          "categories": [
+            "Business Coaching & Strategy",
+            "Life & Purpose Coaching"
+          ],
+          "formats": [
+            "Live Event or Workshop"
+          ],
+          "keywords": [
+            "Words Matter",
+            "communication",
+            "leadership",
+            "team culture",
+            "workplace relationships",
+            "self-leadership",
+            "intentional language",
+            "mindset",
+            "confidence",
+            "team workshops"
+          ],
+          "image": "https://lh3.googleusercontent.com/d/14ObHncLO5nRvu0NZlaH3IxJcPQFLvHrZ=w1200"
+        }
+      ],
+      "recommends": [
+        {
+          "name": "The Visibility Vault",
+          "link": "https://www.skool.com/the-visibility-vault-1934/about",
+          "category": "Promo Group",
+          "about": "A community where entrepreneurs can promote their businesses, build relationships, increase visibility, and discover collaboration opportunities.",
+          "access": "Free",
+          "why": "I love the opportunities to connect with other entrepreneurs, share what I'm doing, and support each other's businesses.",
+          "affiliate": false,
+          "own": false,
+          "promoDays": [],
+          "image": "https://lh3.googleusercontent.com/d/1fMu0aHBbtFfidR29WJoieU7r6lEoVRho=w1200"
+        },
+        {
+          "name": "Promote With Confidence™",
+          "link": "https://www.skool.com/promote-with-confidence-9625/about",
+          "category": "Promo Group",
+          "about": "A supportive community helping entrepreneurs build visibility, share their offers, and become more comfortable promoting their businesses.",
+          "access": "Free",
+          "why": "It's a great place to practice showing up, sharing your work, and promoting your business with greater confidence.",
+          "affiliate": false,
+          "own": false,
+          "promoDays": [],
+          "image": "https://lh3.googleusercontent.com/d/1MfyC0CrZqB0FMo7fiiy0QQ4fbOMlerCF=w1200"
+        },
+        {
+          "name": "Women's Business Community",
+          "link": "https://www.skool.com/women-supporting-women-vip/about",
+          "category": "Business",
+          "about": "A community for women entrepreneurs offering networking, encouragement, business resources, and opportunities to grow together.",
+          "access": "Paid",
+          "why": "I appreciate having a community of women who understand entrepreneurship and want to encourage and support one another.",
+          "affiliate": false,
+          "own": false,
+          "promoDays": [],
+          "image": "https://lh3.googleusercontent.com/d/1dAkx8zYRhCbmjYuHsE6SJ-Acgzsqxyyr=w1200"
         }
       ]
     }
