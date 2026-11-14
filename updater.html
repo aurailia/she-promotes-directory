@@ -346,10 +346,10 @@
   };
 
   /* Saved state: statuses by id, plus unsaved featured edits */
-  var saved = { status: {}, featuredDraft: null, spotlightDraft: null, lockEdits: {}, cImg: {}, rImg: {} };
+  var saved = { status: {}, featuredDraft: null, spotlightDraft: null, lockEdits: {}, cImg: {}, rImg: {}, pImg: {}, oImg: {} };
   try {
     var raw = localStorage.getItem(STORE);
-    if (raw) { var p = JSON.parse(raw); if (p && typeof p === 'object') { saved.status = p.status || {}; saved.featuredDraft = p.featuredDraft || null; saved.spotlightDraft = p.spotlightDraft || null; saved.lockEdits = p.lockEdits || {}; saved.cImg = p.cImg || {}; saved.rImg = p.rImg || {}; saved.vipDraft = p.vipDraft || null; saved.eventsDraft = p.eventsDraft || null; saved.tierSet = p.tierSet || {}; saved.evApproved = p.evApproved || {}; } }
+    if (raw) { var p = JSON.parse(raw); if (p && typeof p === 'object') { saved.status = p.status || {}; saved.featuredDraft = p.featuredDraft || null; saved.spotlightDraft = p.spotlightDraft || null; saved.lockEdits = p.lockEdits || {}; saved.cImg = p.cImg || {}; saved.rImg = p.rImg || {}; saved.pImg = p.pImg || {}; saved.oImg = p.oImg || {}; saved.vipDraft = p.vipDraft || null; saved.eventsDraft = p.eventsDraft || null; saved.tierSet = p.tierSet || {}; saved.evApproved = p.evApproved || {}; } }
   } catch (e) { /* storage unavailable */ }
   if (!saved.tierSet) saved.tierSet = {};
   if (!saved.evApproved) saved.evApproved = {};
@@ -735,6 +735,7 @@
   /* Community images you upload here win over the form, and stay put next time */
   var isHand = function (u) { return /^(data:image\/|images\/)/.test(u || ''); };
   var rKey = function (id, r) { return id + '|' + (normUrl(r.link) || String(r.name || '').toLowerCase()); };
+  var oKey = function (id, o) { return id + '|offer|' + (o ? (normUrl(o.link) || String(o.title || o.desc || '').toLowerCase()) : 'main'); };
   var withImg = function (m) {
     var old = oldOf(m.id), c = null;
     var copy = function () { if (!c) { c = JSON.parse(JSON.stringify(m)); if (m._raw) c._raw = m._raw; } return c; };
@@ -744,6 +745,16 @@
       else if (!m._fromCurrent && old && old.community && isHand(old.community.image) && !isHand(m.community.image)) keep = old.community.image;
       if (keep != null && keep !== m.community.image) copy().community.image = keep;
     }
+    /* Photo and offer images you uploaded here in the Updater */
+    var myP = saved.pImg[m.id];
+    if (myP != null && myP !== m.photo) copy().photo = myP;
+    else if (myP == null && old && !m._fromCurrent && isHand(old.photo) && !isHand(m.photo)) copy().photo = old.photo;
+    var myO = saved.oImg[oKey(m.id, null)];
+    if (myO != null && myO !== m.offerImage) copy().offerImage = myO;
+    (m.offers || []).forEach(function (o, i) {
+      var mo = saved.oImg[oKey(m.id, o)];
+      if (mo != null && mo !== o.image) copy().offers[i].image = mo;
+    });
     /* Offer images you added by hand stay put, even when her form answers come in again */
     if (old && !m._fromCurrent) {
       if (isHand(old.offerImage) && !m.offerImage) copy().offerImage = old.offerImage;
@@ -796,6 +807,7 @@
     return out;
   };
 
+  var shortT = function (t) { t = String(t || '').trim(); return t.length > 48 ? t.slice(0, 46).replace(/\s+\S*$/, '') + '\u2026' : t; };
   /* One image row: preview, where it came from, upload, remove */
   var imgRow = function (label, src, folder, name, mine, set) {
     var ci = el('div', 'cimg');
@@ -968,6 +980,13 @@
         it.appendChild(kd);
       }
 
+      it.appendChild(imgRow('Profile photo', m.photo, 'members', m.name, saved.pImg[m.id], function (v) { saved.pImg[m.id] = v; }));
+      if (m.offer || m.offerName) it.appendChild(imgRow('Offer image: ' + shortT(m.offerName || m.offer), m.offerImage, 'offers', m.offerName || m.name, saved.oImg[oKey(m.id, null)], function (v) { saved.oImg[oKey(m.id, null)] = v; }));
+      (m.offers || []).forEach(function (o) {
+        if (!o || !(o.title || o.desc)) return;
+        if (normUrl(o.link) && normUrl(o.link) === normUrl(m.offerLink)) return;
+        it.appendChild(imgRow('Offer image: ' + shortT(o.title || o.desc), o.image, 'offers', o.title || m.name, saved.oImg[oKey(m.id, o)], function (v) { saved.oImg[oKey(m.id, o)] = v; }));
+      });
       if (m.community) it.appendChild(imgRow('Community image: ' + m.community.name, m.community.image, 'communities', m.community.name, saved.cImg[m.id], function (v) { saved.cImg[m.id] = v; }));
       (m.recommends || []).concat(m.extraRecommends || []).forEach(function (r) {
         if (!r || !r.name) return;
@@ -1833,7 +1852,7 @@
     stats.forEach(function (s) { var d = el('div', 'stat'); d.appendChild(el('b', '', String(s[0]))); d.appendChild(el('span', '', s[1])); w.appendChild(d); });
   };
   var finished = function (msg) {
-    saved.featuredDraft = null; saved.spotlightDraft = null; saved.vipDraft = null; saved.eventsDraft = null; saved.cImg = {}; saved.rImg = {}; persist();
+    saved.featuredDraft = null; saved.spotlightDraft = null; saved.vipDraft = null; saved.eventsDraft = null; saved.cImg = {}; saved.rImg = {}; saved.pImg = {}; saved.oImg = {}; persist();
     $('dlStatus').textContent = msg;
   };
   $('downloadBtn').addEventListener('click', function () {
@@ -1936,7 +1955,7 @@
   $('freshBtn').addEventListener('click', function () { $('freshConfirm').hidden = false; });
   $('freshNo').addEventListener('click', function () { $('freshConfirm').hidden = true; });
   $('freshYes').addEventListener('click', function () {
-    saved = { status: {}, featuredDraft: null, spotlightDraft: null, lockEdits: {}, cImg: {}, rImg: {} }; persist();
+    saved = { status: {}, featuredDraft: null, spotlightDraft: null, lockEdits: {}, cImg: {}, rImg: {}, pImg: {}, oImg: {} }; persist();
     current = { featured: [], members: [] }; featured = []; csvMembers = []; spotlight = null; vips = []; events = []; saved.vipDraft = null; saved.eventsDraft = null; persist(); renderSpotPicker(); renderEvents();
     $('freshConfirm').hidden = true;
     $('csvReport').innerHTML = '';
