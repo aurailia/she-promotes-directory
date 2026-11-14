@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-11-14T10:47:30.132Z",
+  "updated": "2026-11-14T10:59:52.301Z",
   "featured": [
     {
       "name": "She Promotes™",
@@ -808,8 +808,8 @@
       "website": "https://www.aurailia.com",
       "socials": {},
       "categories": [
-        "Human Design & Astrology",
-        "Business Coaching & Strategy"
+        "Business Coaching & Strategy",
+        "Human Design & Astrology"
       ],
       "formats": [
         "1:1 Sessions",
@@ -868,8 +868,8 @@
         "category": "Money Mindset & Wealth",
         "categories": [
           "Money Mindset & Wealth",
-          "Human Design & Astrology",
-          "Hypnosis & Subconscious Work"
+          "Business Coaching & Strategy",
+          "Human Design & Astrology"
         ],
         "platform": "Skool",
         "about": "A community for women in business, with group hypnosis, Human Design, money mindset work and strategy to simplify your client journey so that you can bring in your soulmate clients and get paid.",
@@ -882,7 +882,12 @@
         {
           "name": "She Promotes™",
           "link": "https://www.skool.com/she-promotes-7924/about",
-          "category": "Other",
+          "categories": [
+            "Promo & Networking",
+            "Business Coaching & Strategy",
+            "Human Design & Astrology"
+          ],
+          "category": "Promo Group",
           "about": "Women in business, a space to promote your offer, connect, collaborate & get seen by women who want to support you. Learn to promote by design",
           "access": "Free with a paid upgrade",
           "why": "",
