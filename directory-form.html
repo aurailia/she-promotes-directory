@@ -86,6 +86,8 @@
   .pick-img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: contain; background: rgba(0, 0, 0, 0.25); }
   .pick.round { width: 164px; border-radius: 50%; aspect-ratio: 1; }
   .pick.round .pick-empty { height: 100%; justify-content: center; padding: 12px; }
+  .opt-groups { display: grid; gap: 14px; margin-top: 4px; }
+  .opt-group-t { font-size: 12px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold); margin-bottom: 7px; }
   .fresh-bar .btn-sm { padding: 8px 14px; font-size: 13px; min-height: 0; }
   .fresh-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
   .pick.banner .pick-img { aspect-ratio: 3 / 1; }
@@ -192,6 +194,16 @@
     'Relationship & Family Coaching', 'Business Coaching & Strategy', 'Human Design & Astrology', 'Intuitive Readings', 'Nutrition & Fitness', 'Perimenopause & Menopause', 'Beauty & Skincare',
     'Social Media & Content', 'Websites, Funnels & Tech', 'AI & Automation Support', 'Virtual Assistants & Admin', 'Branding, Design & Photography', 'Handmade & Gifts'];
   var COMM_CATS = CATEGORIES.concat(['Promo & Networking']);
+  /* Same groups the Directory uses, so the form and the Directory match */
+  var CAT_GROUPS = [
+    { name: 'Grow Your Business', cats: ['Business Coaching & Strategy', 'Social Media & Content', 'Websites, Funnels & Tech', 'AI & Automation Support', 'Virtual Assistants & Admin', 'Branding, Design & Photography'] },
+    { name: 'Mindset & Growth', cats: ['Life & Purpose Coaching', 'Money Mindset & Wealth', 'Manifestation', 'Hypnosis & Subconscious Work', 'Relationship & Family Coaching'] },
+    { name: 'Spiritual & Energy', cats: ['Energy Healing', 'Quantum Journeys Hypnosis', 'Human Design & Astrology', 'Intuitive Readings'] },
+    { name: 'Faith & Spirit', cats: ['Faith & Spiritual Growth'] },
+    { name: 'Wellness & Self Care', cats: ['Nutrition & Fitness', 'Perimenopause & Menopause', 'Beauty & Skincare'] },
+    { name: 'Shop', cats: ['Handmade & Gifts'] },
+    { name: 'Promo Groups', cats: ['Promo & Networking'] }
+  ];
   var FORMATS = ['1:1 Sessions', 'Group Program', 'Course', 'Membership or Skool Community', 'Physical Product', 'Digital Product', 'Live Event or Workshop'];
   var REC_CATS = ['Promo Group', 'Business', 'Healing & Spiritual', 'Other'];
   var DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -231,7 +243,7 @@
     cname: { label: 'Community name', gr: true },
     clink: { label: 'Link to join', type: 'url', gr: true, ph: 'https://www.skool.com/your-community/about' },
     cabout: { label: 'Your community in one sentence', type: 'textarea', short: true, max: 200, gr: true },
-    ccat: { label: 'Category', type: 'multi', options: COMM_CATS, maxPick: 1, gr: true, help: 'Pick the one that fits it best. This is where your community shows up in the Directory.' },
+    ccat: { label: 'Category', type: 'multi', grouped: true, options: COMM_CATS, maxPick: 1, gr: true, help: 'Pick the one that fits it best. This is where your community shows up in the Directory.' },
     cplatform: { label: 'Where is it?', type: 'choice', options: ['Skool', 'Facebook', 'Other'], optional: true },
     caccess: { label: 'Free or paid?', type: 'choice', options: ['Free', 'Paid', 'Free with a paid upgrade'], optional: true },
     cpromo: { label: 'Is it a promo community where people share their business?', type: 'choice', options: ['No', 'Yes'], optional: true },
@@ -241,7 +253,7 @@
     c2name: { label: 'Second community name', gr: true, showIf: function () { return val('c2has') === 'Yes'; } },
     c2link: { label: 'Link to join', type: 'url', gr: true, showIf: function () { return val('c2has') === 'Yes'; } },
     c2about: { label: 'In one sentence', type: 'textarea', short: true, max: 200, optional: true, showIf: function () { return val('c2has') === 'Yes'; } },
-    c2cat: { label: 'Category', type: 'multi', options: COMM_CATS, maxPick: 1, optional: true, help: 'Pick the one that fits it best. Running a promo group? Pick Promo & Networking.', showIf: function () { return val('c2has') === 'Yes'; } },
+    c2cat: { label: 'Category', type: 'multi', grouped: true, options: COMM_CATS, maxPick: 1, optional: true, help: 'Pick the one that fits it best. Running a promo group? Pick Promo & Networking.', showIf: function () { return val('c2has') === 'Yes'; } },
     c2access: { label: 'Free or paid?', type: 'choice', options: ['Free', 'Paid', 'Free with a paid upgrade'], optional: true, showIf: function () { return val('c2has') === 'Yes'; } },
     c2banner: { label: 'Community banner', type: 'image', optional: true, size: 1600, dims: '1600 x 900 px', help: 'Best size: 1600 x 900 px (wide, like a YouTube thumbnail). Keep words and faces toward the middle. Your Skool community banner works great too.', showIf: function () { return val('c2has') === 'Yes'; } }
   };
@@ -252,7 +264,7 @@
     F['o' + n + 'who'] = { label: 'Who it\'s for', optional: true, ph: 'Busy moms who want a calm evening' };
     F['o' + n + 'price'] = { label: 'Starting price', optional: true, ph: '$48, or Free' };
     F['o' + n + 'link'] = { label: 'Link to your offer', type: 'url', gr: true, ph: 'yourwebsite.com/offer' };
-    F['o' + n + 'cat'] = { label: 'Categories', type: 'multi', options: CATEGORIES, maxPick: 3, gr: true, help: 'Pick up to 3.' };
+    F['o' + n + 'cat'] = { label: 'Categories', type: 'multi', grouped: true, options: CATEGORIES, maxPick: 3, gr: true, help: 'Pick up to 3.' };
     F['o' + n + 'format'] = { label: 'What kind of offer is it?', type: 'multi', options: FORMATS, maxPick: 3, optional: true };
     F['o' + n + 'keys'] = { label: 'Search words', optional: true, help: 'Up to 10, separated by commas. Words someone would type to find you.', ph: 'money blocks, pricing, abundance' };
     F['o' + n + 'image'] = { label: 'Offer image', type: 'image', optional: true, size: 1600, dims: '1600 x 900 px', help: 'Best size: 1600 x 900 px (wide, like a YouTube thumbnail). Keep words and faces toward the middle.' };
@@ -282,7 +294,7 @@
   F.etitle = { label: 'Event name', required: true, max: 90, ph: 'Money Mindset Morning' };
   F.edesc = { label: 'What is it about?', type: 'textarea', required: true, max: 900, help: 'Tell people what happens and what they walk away with. Two or three short paragraphs is perfect.' };
   F.eimage = { label: 'Event image', type: 'image', optional: true, size: 1600, dims: '1600 x 900 px', help: 'Best size: 1600 x 900 px (wide, like a YouTube thumbnail). Keep words and faces toward the middle. Your event banner is perfect.' };
-  F.ecat = { label: 'Categories', type: 'multi', options: CATEGORIES, maxPick: 2, optional: true, help: 'Pick up to 2 so people can find it.' };
+  F.ecat = { label: 'Categories', type: 'multi', grouped: true, options: CATEGORIES, maxPick: 2, optional: true, help: 'Pick up to 2 so people can find it.' };
   F.ecost = { label: 'Is it free or paid?', type: 'choice', required: true, options: ['Free', 'Paid'] };
   F.eprice = { label: 'Ticket price', required: true, ph: '$27', showIf: function () { return val('ecost') === 'Paid'; } };
   F.edate = { label: 'Date', type: 'date', required: true };
@@ -382,11 +394,28 @@
       var opts = f.type === 'days' ? DAYS : f.options;
       var cur2 = f.type === 'choice' ? [val(k)] : (Array.isArray(val(k)) ? val(k) : []);
       h += '<div class="label" id="' + k + '-l">' + lab + '</div>' + help;
-      h += '<div class="opts' + (f.type === 'multi' && opts.length > 8 ? ' many' : '') + '" role="group" aria-labelledby="' + k + '-l">';
-      opts.forEach(function (o) {
+      var optBtn = function (o) {
         var on = cur2.indexOf(o) !== -1;
-        h += '<button type="button" class="opt-btn' + (on ? ' on' : '') + '" aria-pressed="' + on + '" data-pick="' + k + '" data-v="' + esc(o) + '">' + esc(o) + '</button>';
-      });
+        return '<button type="button" class="opt-btn' + (on ? ' on' : '') + '" aria-pressed="' + on + '" data-pick="' + k + '" data-v="' + esc(o) + '">' + esc(o) + '</button>';
+      };
+      if (f.grouped) {
+        h += '<div class="opt-groups" role="group" aria-labelledby="' + k + '-l">';
+        var seenOpt = {};
+        CAT_GROUPS.forEach(function (g) {
+          var mine = g.cats.filter(function (o) { return opts.indexOf(o) !== -1; });
+          if (!mine.length) return;
+          h += '<div class="opt-group"><div class="opt-group-t">' + esc(g.name) + '</div><div class="opts">';
+          mine.forEach(function (o) { seenOpt[o] = true; h += optBtn(o); });
+          h += '</div></div>';
+        });
+        var rest = opts.filter(function (o) { return !seenOpt[o]; });
+        if (rest.length) { h += '<div class="opt-group"><div class="opt-group-t">More</div><div class="opts">'; rest.forEach(function (o) { h += optBtn(o); }); h += '</div></div>'; }
+        h += '</div>';
+        var nt0 = f.note ? f.note() : '';
+        return h + (nt0 ? '<div class="help tier-note">' + esc(nt0) + '</div>' : '') + errH + '</div>';
+      }
+      h += '<div class="opts' + (f.type === 'multi' && opts.length > 8 ? ' many' : '') + '" role="group" aria-labelledby="' + k + '-l">';
+      opts.forEach(function (o) { h += optBtn(o); });
       var nt = f.note ? f.note() : '';
       return h + '</div>' + (nt ? '<div class="help tier-note">' + esc(nt) + '</div>' : '') + errH + '</div>';
     }
