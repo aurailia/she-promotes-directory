@@ -2857,9 +2857,7 @@
     b.addEventListener('click', function () {
       setSection(b.getAttribute('data-sec'));
       setMenu(false);
-      var top = $('panel').getBoundingClientRect().top + window.pageYOffset - 70;
-      if (b.getAttribute('data-sec') === 'home') jumpTo(0);
-      else if (window.pageYOffset > top) jumpTo(Math.max(0, top));
+      jumpTo(0);
     });
   });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && sidebar.classList.contains('open')) setMenu(false); });
