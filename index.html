@@ -1920,7 +1920,7 @@
     if (P.headline) wt.appendChild(el('p', 'vip-head', P.headline));
     who.appendChild(wt);
     w.appendChild(who);
-    if (P.note) w.appendChild(whyBox(['Why I chose her'], P.note));
+    if (P.note) w.appendChild(whyBox(['What I love about her work'], P.note));
     if (P.about) { w.appendChild(el('h3', 'sub', 'About her')); w.appendChild(el('p', 'vip-about open', P.about)); }
     var acts = el('div', 'actions');
     var wb = linkBtn('Visit her website', P.website, false);
@@ -2506,7 +2506,7 @@
       body.appendChild(el('h2', '', P.name));
       if (P.headline) body.appendChild(el('p', 'vip-head', P.headline));
     }
-    if (P.note) body.appendChild(whyBox(['Why I chose her'], P.note));
+    if (P.note) body.appendChild(whyBox(['What I love about her work'], P.note));
     var acts = el('div', 'actions');
     var cta = main ? linkBtn('Join her community', main.link, true) : linkBtn('Visit her website', P.website, true);
     if (cta) acts.appendChild(cta);
@@ -2885,7 +2885,7 @@
     row.querySelector('.name').id = 'dlgName';
     body.appendChild(row);
     if (vip.headline) body.appendChild(el('p', 'vip-head', vip.headline));
-    if (vip.note) body.appendChild(whyBox(['Why I chose her'], vip.note));
+    if (vip.note) body.appendChild(whyBox(['What I love about her work'], vip.note));
     if (vip.about && !m.about) m = Object.assign({}, m, { about: vip.about });
     if (m.about) {
       body.appendChild(el('h3', 'sub', 'About me'));

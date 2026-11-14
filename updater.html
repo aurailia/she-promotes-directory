@@ -109,6 +109,28 @@
   .seg button[aria-pressed="true"].pending { background: var(--warn); color: #321; }
   .seg button[aria-pressed="true"].hidden { background: var(--blush); color: var(--plum-deep); }
   .tier-seg { margin-left: 6px; }
+  #qvMember { flex: 1 1 200px; min-width: 0; max-width: 100%; }
+  .rv-tools { display: grid; gap: 10px; margin-top: 4px; }
+  input[type="search"] { width: 100%; font-family: inherit; font-size: 16px; color: var(--text); background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 999px; padding: 11px 16px 11px 40px; outline: none; -webkit-appearance: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%23e8c47a' stroke-width='2.2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='M20 20l-3.5-3.5'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: 14px center; }
+  input[type="search"]:focus { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(232,196,122,0.18); }
+  .rv-tier { justify-self: start; }
+  .rv-tier button[aria-pressed="true"] { background: var(--gold); color: var(--plum-deep); }
+  #reviewFilter .seg { flex-wrap: wrap; border-radius: 18px; }
+  .rv-count { margin: 10px 0 8px; }
+  .rv-head { display: flex; gap: 10px; align-items: center; width: 100%; background: none; border: none; color: var(--text); font: inherit; text-align: left; cursor: pointer; padding: 0; }
+  .rv-head .chev { flex: 0 0 auto; color: var(--gold); font-size: 14px; transition: transform .2s; }
+  .rv-head[aria-expanded="true"] .chev { transform: rotate(90deg); }
+  .rv-pills { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; flex: 0 1 auto; }
+  .pill { font-size: 11px; font-weight: 700; letter-spacing: 0.04em; padding: 3px 9px; border-radius: 999px; white-space: nowrap; background: rgba(255,255,255,0.08); color: var(--muted); }
+  .pill.live { background: rgba(159,224,181,0.18); color: var(--ok); }
+  .pill.pending { background: rgba(255,201,138,0.18); color: var(--warn); }
+  .pill.hidden { background: rgba(244,182,200,0.18); color: var(--blush); }
+  .pill.vip { background: var(--gold); color: var(--plum-deep); }
+  .pill.new { background: rgba(232,196,122,0.18); color: var(--gold-bright); }
+  .pill.upd { background: rgba(94,214,200,0.16); color: #8fe8dc; }
+  .rv-body { display: grid; gap: 8px; padding-top: 4px; }
+  .rv-body[hidden] { display: none; }
+  @media (max-width: 520px) { .rv-head { flex-wrap: wrap; } .rv-pills { width: 100%; justify-content: flex-start; padding-left: 54px; } }
   .ev-wait { margin-top: 14px; }
   .ev-wait h3 { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 24px; color: var(--gold-bright); margin-bottom: 4px; }
   .ev-wait .item { margin-top: 12px; }
@@ -162,7 +184,12 @@
     <div class="step">Step 2</div>
     <h2>Review and approve</h2>
     <p class="help">Open her Skool profile to check she&rsquo;s premium, then set her to Live. Pending and Hidden listings stay out of the Directory.</p>
+    <div class="rv-tools">
+      <input type="search" id="reviewSearch" placeholder="Search a name, business or community" aria-label="Search members" autocomplete="off">
+      <div class="seg rv-tier" id="reviewTier" role="group" aria-label="Show"></div>
+    </div>
     <div class="row" id="reviewFilter"></div>
+    <div class="rv-count sub" id="reviewCount"></div>
     <div class="list" id="reviewList"></div>
   </section>
 
@@ -262,7 +289,7 @@
       <textarea id="qvPrompt" readonly hidden style="margin-top:10px; min-height:110px;"></textarea>
     </div>
     <div class="list" id="vipList"></div>
-    <div class="full" id="spNoteWrap" hidden style="margin-top:12px;"><label class="f" for="sp-note" id="spNoteLabel">Why I chose her</label><textarea id="sp-note" placeholder="She shows up for every woman in here. Her community feels like coming home."></textarea></div>
+    <div class="full" id="spNoteWrap" hidden style="margin-top:12px;"><label class="f" for="sp-note" id="spNoteLabel">What I love about her work</label><textarea id="sp-note" placeholder="The way she helps women feel safe in their bodies again. You leave her sessions lighter and clearer."></textarea></div>
     <div class="item" id="vipEditor" hidden style="margin-top:14px;"></div>
   </section>
 
@@ -348,6 +375,9 @@
   var featured = [];
   var csvMembers = [];                              /* from the form CSV */
   var reviewFilter = 'all';
+  var reviewTier = 'all';
+  var reviewQuery = '';
+  var reviewOpen = {};
 
   /* ---------- Helpers ---------- */
   var hashId = function (str) {
@@ -822,19 +852,69 @@
     });
     fw.appendChild(seg);
 
+    var vipOf = function (m) { var k = nameKey(m.name); return vips.some(function (v) { return nameKey(v.name) === k; }); };
+    var tw = $('reviewTier');
+    tw.innerHTML = '';
+    var vipCount = list.filter(vipOf).length;
+    [['all', 'Everyone (' + list.length + ')'], ['vip', '\u2B50 VIP (' + vipCount + ')'], ['premium', 'Premium (' + (list.length - vipCount) + ')']].forEach(function (o) {
+      var b = el('button', '', o[1]);
+      b.type = 'button';
+      b.setAttribute('aria-pressed', reviewTier === o[0] ? 'true' : 'false');
+      b.addEventListener('click', function () { reviewTier = o[0]; renderReview(); });
+      tw.appendChild(b);
+    });
+
     var wrap = $('reviewList');
     wrap.innerHTML = '';
-    var shown = list.filter(function (m) { return reviewFilter === 'all' || isKind(m, reviewFilter); });
-    if (!shown.length) { wrap.appendChild(el('p', 'sub', 'Nobody here right now.')); return; }
+    var norm = function (x) { x = String(x || '').toLowerCase(); try { x = x.normalize('NFD').replace(/[\u0300-\u036f]/g, ''); } catch (e) {} return x.replace(/\s+/g, ' ').trim(); };
+    var q = norm(reviewQuery);
+    var matchQ = function (m) {
+      if (!q) return true;
+      var hay = [m.name, m.business, m.community && m.community.name].concat((m.recommends || []).filter(function (r) { return r && r.own; }).map(function (r) { return r.name; })).join(' ');
+      return norm(hay).indexOf(q) !== -1;
+    };
+    var shown = list.filter(function (m) {
+      if (reviewFilter !== 'all' && !isKind(m, reviewFilter)) return false;
+      if (reviewTier === 'vip' && !vipOf(m)) return false;
+      if (reviewTier === 'premium' && vipOf(m)) return false;
+      return matchQ(m);
+    });
+    shown.sort(function (a, b) { return String(a.name || '').localeCompare(String(b.name || ''), undefined, { sensitivity: 'base' }); });
+    $('reviewCount').textContent = shown.length === list.length ? 'Showing all ' + list.length + '. Tap a name to open her listing.' : 'Showing ' + shown.length + ' of ' + list.length + '.';
+    if (!shown.length) { wrap.appendChild(el('p', 'sub', q ? 'No one matches \u201C' + reviewQuery.trim() + '\u201D.' : 'Nobody here right now.')); return; }
+    var oneMatch = q && shown.length === 1;
     shown.forEach(function (m) {
       var it = el('div', 'item');
-      var top = el('div', 'item-top');
+      var chH = changesFor(m);
+      var isOpen = reviewOpen.hasOwnProperty(m.id) ? reviewOpen[m.id] : (oneMatch || chH === 'new' || !!(chH && chH.length));
+      var top = el('button', 'item-top rv-head');
+      top.type = 'button';
+      top.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      top.appendChild(el('span', 'chev', '\u25B6'));
       top.appendChild(thumb(m.photo, m.name));
       var t = el('div', 'grow');
       t.appendChild(el('div', 'nm', m.name));
       if (m.business) t.appendChild(el('div', 'sub', m.business));
       top.appendChild(t);
+      var pills = el('div', 'rv-pills');
+      if (vipOf(m)) pills.appendChild(el('span', 'pill vip', '\u2B50 VIP'));
+      if (chH === 'new') pills.appendChild(el('span', 'pill new', 'New'));
+      else if (chH && chH.length) pills.appendChild(el('span', 'pill upd', 'Updated'));
+      var st = statusOf(m.id);
+      pills.appendChild(el('span', 'pill ' + st, st === 'live' ? 'Live' : st === 'pending' ? 'Pending' : 'Hidden'));
+      top.appendChild(pills);
       it.appendChild(top);
+      var body = el('div', 'rv-body');
+      body.hidden = !isOpen;
+      top.addEventListener('click', function () {
+        var open = body.hidden;
+        body.hidden = !open;
+        reviewOpen[m.id] = open;
+        top.setAttribute('aria-expanded', open ? 'true' : 'false');
+      });
+      it.appendChild(body);
+      var itOuter = it;
+      it = body;
 
       var flags = el('div', 'flags');
       var ch = changesFor(m);
@@ -927,9 +1007,10 @@
       });
       row.appendChild(ts);
       it.appendChild(row);
-      wrap.appendChild(it);
+      wrap.appendChild(itOuter);
     });
   };
+  $('reviewSearch').addEventListener('input', function () { reviewQuery = this.value; renderReview(); });
   var tierConfirm = '';
   var setTier = function (m, tier) {
     var nk = nameKey(m.name);
@@ -1217,7 +1298,7 @@
     var noteWrap = $('spNoteWrap');
     noteWrap.hidden = !(spotlight && spotlight.vip);
     if (spotlight && spotlight.vip) {
-      $('spNoteLabel').textContent = 'Why I chose ' + vipOf(spotlight.vip).name.split(' ')[0];
+      $('spNoteLabel').textContent = 'What I love about ' + vipOf(spotlight.vip).name.split(' ')[0] + '\u2019s work';
       if (document.activeElement !== $('sp-note')) $('sp-note').value = spotlight.note || '';
     }
   };
