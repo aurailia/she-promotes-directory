@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-11-14T06:51:21.601Z",
+  "updated": "2026-11-14T10:47:30.132Z",
   "featured": [
     {
       "name": "She Promotes™",
@@ -805,7 +805,7 @@
         }
       ],
       "social": "https://instagram.com/aurailia",
-      "website": "",
+      "website": "https://www.aurailia.com",
       "socials": {},
       "categories": [
         "Human Design & Astrology",
@@ -833,10 +833,10 @@
       "offers": [
         {
           "title": "Embody Wealth VIP",
-          "desc": "A monthly 1:1 strategy call, daily Voxer support, your Business Alignment Blueprint, and a done-for-you Claude artifact every 2 months.",
+          "desc": "Grow you business & Skool community with monthly support & accountability. Monthly 1:1 strategy call, daily support & and interactive action plan",
           "link": "https://www.skool.com/embody-wealth",
           "price": "$147/month",
-          "who": "Women who want 1:1 support and accountability to grow their business",
+          "who": "Women who are tired of the hustle and want to grow their business and create cashflow",
           "categories": [
             "Business Coaching & Strategy",
             "Human Design & Astrology",
@@ -898,18 +898,6 @@
           "about": "Claude and AI marketing systems for healers, coaches and Skool owners who want to get paid for what they already know.",
           "access": "Paid",
           "why": "Amanda gets spiritual business owners. She blends real marketing strategy with AI tools, so you spend less time stuck and more time doing the work you love. You get done-for-you Claude tools, a Skool launch challenge, and help creating your first AI mini offer.",
-          "affiliate": true,
-          "own": false,
-          "promoDays": [],
-          "image": ""
-        },
-        {
-          "name": "Manifestation Mastery",
-          "link": "https://www.skool.com/manifestation/about?ref=3d4bd5bdcda847a3afcfd90d513f22bf",
-          "category": "Healing & Spiritual",
-          "about": "Hypnosis and practical Law of Attraction to rewire your beliefs and manifest more money, love and confidence.",
-          "access": "Paid",
-          "why": "Victoria is a hypnotherapist, and it shows. Her hypnosis and visualizations go straight to the subconscious, where the real blocks live. I love her hypnosis Believe App where I can plug into a hypnosis audio at any time.",
           "affiliate": true,
           "own": false,
           "promoDays": [],
