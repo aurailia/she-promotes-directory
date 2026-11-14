@@ -469,7 +469,7 @@
       /* Featured Business page answers from the She Promotes form */
       if (/^vip /.test(h)) {
         map.vip = map.vip || {};
-        var vk = h.indexOf('video') !== -1 ? 'video' : h.indexOf('headline') !== -1 ? 'headline' : h.indexOf('story') !== -1 ? 'story' : h.indexOf('who you help') !== -1 ? 'who' : h.indexOf('website') !== -1 ? 'website' : h.indexOf('inside') !== -1 ? 'inside' : h.indexOf('who can join') !== -1 ? 'access' : /cover|banner|image/.test(h) ? 'cover' : '';
+        var vk = h.indexOf('video') !== -1 ? 'video' : h.indexOf('headline') !== -1 ? 'headline' : h.indexOf('story') !== -1 ? 'story' : h.indexOf('who you help') !== -1 ? 'who' : h.indexOf('website') !== -1 ? 'website' : h.indexOf('inside') !== -1 ? 'inside' : h.indexOf('who can join') !== -1 ? 'access' : h.indexOf('thumbnail') !== -1 ? 'thumb' : /cover|banner|image/.test(h) ? 'cover' : '';
         if (vk) map.vip[vk] = i;
         return;
       }
@@ -600,7 +600,7 @@
     m._tier = map.tier == null ? '' : g(map.tier);
     if (map.vip && /vip/i.test(m._tier)) {
       var vg = function (k) { return g(map.vip[k]); };
-      m._vip = { headline: vg('headline'), story: vg('story'), who: vg('who'), website: cleanUrl(vg('website')), inside: vg('inside').split(/\n+/).map(function (x) { return x.replace(/^[\s\-*\u2022\u2726]+/, '').trim(); }).filter(Boolean), access: vg('access'), cover: photoUrl(vg('cover'), 1600), video: cleanUrl(vg('video')) };
+      m._vip = { headline: vg('headline'), story: vg('story'), who: vg('who'), website: cleanUrl(vg('website')), inside: vg('inside').split(/\n+/).map(function (x) { return x.replace(/^[\s\-*\u2022\u2726]+/, '').trim(); }).filter(Boolean), access: vg('access'), cover: photoUrl(vg('cover'), 1600), thumb: photoUrl(vg('thumb'), 1600), video: cleanUrl(vg('video')) };
     }
     return m;
   };
@@ -620,7 +620,7 @@
       if (v.edited && !v.editedAt) v.editedAt = Date.now();
       var hand = !!v.edited && !(m._date > (v.editedAt || 0));
       var set = function (k, val) { if (val && (!hand || !v[k])) v[k] = val; };
-      set('headline', x.headline); set('about', x.story); set('video', x.video); set('who', x.who); set('website', x.website || m.website); set('banner', x.cover);
+      set('headline', x.headline); set('about', x.story); set('video', x.video); set('who', x.who); set('website', x.website || m.website); set('banner', x.cover); set('thumb', x.thumb);
       if (m.community && (x.inside.length || x.access)) {
         var cs = v.communities || (v.communities = []), c = null;
         cs.forEach(function (q) { if (!c && ((normUrl(q.link) && normUrl(q.link) === normUrl(m.community.link)) || nameKey(q.name) === nameKey(m.community.name))) c = q; });
@@ -992,6 +992,7 @@
         vips.forEach(function (q) { if (!vr && nameKey(q.name) === vk) vr = q; });
         if (!vr) return;
         it.appendChild(imgRow('\u2B50 VIP room banner (1800 x 600 px)', vr.banner, 'vip', m.name, /^data:/.test(vr.banner || '') ? vr.banner : null, function (x) { vr.banner = x; vr.edited = true; vr.editedAt = Date.now(); saveSpot(); renderSpotPicker(); }));
+        it.appendChild(imgRow('\u2B50 Featured card thumbnail (1600 x 900 px)', vr.thumb, 'vip', m.name + '-card', /^data:/.test(vr.thumb || '') ? vr.thumb : null, function (x) { vr.thumb = x; vr.edited = true; vr.editedAt = Date.now(); saveSpot(); renderSpotPicker(); }));
       })();
       if (m.offer || m.offerName) it.appendChild(imgRow('Offer image: ' + shortT(m.offerName || m.offer), m.offerImage, 'offers', m.offerName || m.name, saved.oImg[oKey(m.id, null)], function (v) { saved.oImg[oKey(m.id, null)] = v; }));
       (m.offers || []).forEach(function (o) {
@@ -1525,7 +1526,13 @@
       var ph = fPhoto.value.trim();
       if (ph) nv.photo = photoUrl(ph); else if (!/^data:/.test(nv.photo)) nv.photo = '';
       nv.banner = banner;
-      nv.communities = cRows.map(function (r) { return { name: r.name.value.trim(), link: cleanUrl(r.link.value), about: r.about.value.trim() }; }).filter(function (c) { return c.name && c.link; });
+      var oldCs = nv.communities || [];
+      nv.communities = cRows.map(function (r) {
+        var c = { name: r.name.value.trim(), link: cleanUrl(r.link.value), about: r.about.value.trim() };
+        /* keep what's inside, who can join and the image she already had */
+        oldCs.forEach(function (o) { if (o && ((normUrl(o.link) && normUrl(o.link) === normUrl(c.link)) || nameKey(o.name) === nameKey(c.name))) { ['inside', 'access', 'image', 'platform'].forEach(function (k) { if (o[k] && !c[k]) c[k] = o[k]; }); } });
+        return c;
+      }).filter(function (c) { return c.name && c.link; });
       nv.offers = oRows.map(function (r) { return { title: r.title.value.trim(), desc: r.desc.value.trim(), link: cleanUrl(r.link.value), price: r.price.value.trim() }; }).filter(function (o) { return o.title || o.desc; });
       nv.edited = true; nv.editedAt = Date.now();
       if (id === 'new') { nv.id = vipId(name); vips.push(nv); }

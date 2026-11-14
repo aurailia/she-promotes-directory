@@ -226,6 +226,7 @@
     vinside: { label: 'What\'s inside your community?', type: 'textarea', optional: true, help: 'Put each thing on its own line.', ph: 'A live pour-along every month\nScent blending guides you can save' },
     vaccess: { label: 'Who can join, and what does it cost?', optional: true, ph: 'Free to join. Premium is $9 a month.' },
     vcover: { label: 'A banner for the top of your page', type: 'image', optional: true, size: 1800, shape: 'banner', dims: '1800 x 600 px', help: 'Best size: 1800 x 600 px (long and short, like a website header). Keep your words and face in the middle, and leave the bottom center clear, because your photo sits there. On phones the sides get trimmed a little.' },
+    vthumb: { label: 'A thumbnail for your Featured Business card', type: 'image', optional: true, size: 1600, dims: '1600 x 900 px', help: 'Best size: 1600 x 900 px (wide, like a YouTube thumbnail). This is the picture on your card in Featured Businesses. Keep your face and words toward the top and middle, because your round photo sits at the bottom center. Skip it and your community banner is used.' },
 
     cname: { label: 'Community name', gr: true },
     clink: { label: 'Link to join', type: 'url', gr: true, ph: 'https://www.skool.com/your-community/about' },
@@ -300,7 +301,7 @@
   var EVENT_KEYS = ['etitle', 'edesc', 'eimage', 'ecat', 'ecost', 'eprice', 'edate', 'estart', 'eend', 'etz', 'emode', 'evenue', 'eaddress', 'ecity', 'eregion', 'ecountry', 'ewhere', 'ecomm', 'ejoin', 'elink'];
   var OFFER_SFX = ['title', 'desc', 'who', 'price', 'link', 'cat', 'format', 'keys', 'image'];
   var REC_SFX = ['name', 'link', 'about', 'cat', 'access', 'days', 'why', 'aff', 'image'];
-  var IMAGE_KEYS = ['photo', 'vcover', 'cbanner', 'o1image', 'o2image', 'o3image'];
+  var IMAGE_KEYS = ['photo', 'vcover', 'vthumb', 'cbanner', 'o1image', 'o2image', 'o3image'];
 
   var STEPS = [
     { id: 'you', nav: 'You', title: 'Let\'s start with you', sub: 'This is how people meet you in the Directory.', keys: ['tier', 'name', 'email', 'skool', 'business', 'photo', 'about', 'website', 'social', 'sfacebook', 'stiktok', 'syoutube', 'slinkedin', 'spinterest'] },
@@ -309,7 +310,7 @@
     { id: 'offers', nav: 'Your offers', title: 'Your offers', sub: 'Add up to 3. Put the one you\'d most want people to find first. No offer yet? You can skip this step.', group: 'o', listOnly: true },
     { id: 'community', nav: 'Your community', title: 'Your community', sub: 'Run a Skool or Facebook community? Add it here. No community? You can skip this step.', keys: ['cname', 'clink', 'cabout', 'ccat', 'cplatform', 'caccess', 'cpromo', 'cdays', 'cbanner', 'c2has', 'c2name', 'c2link', 'c2about', 'c2access', 'c2banner'], listOnly: true },
     { id: 'recs', nav: 'You recommend', title: 'Communities you love', sub: 'Recommend communities you\'re in and love. Use your affiliate link, and you can earn when someone joins. You can skip this step.', group: 'r', listOnly: true },
-    { id: 'vip', nav: 'Your VIP page', title: 'Your Featured Business page', sub: 'As a VIP you get your own page in the Directory. These answers fill it in.', keys: ['vheadline', 'vstory', 'vwho', 'vvideo', 'vinside', 'vaccess', 'vcover'], vipOnly: true, listOnly: true },
+    { id: 'vip', nav: 'Your VIP page', title: 'Your Featured Business page', sub: 'As a VIP you get your own page in the Directory. These answers fill it in.', keys: ['vheadline', 'vstory', 'vwho', 'vvideo', 'vinside', 'vaccess', 'vcover', 'vthumb'], vipOnly: true, listOnly: true },
     { id: 'review', nav: 'Review', title: 'Take one last look', sub: 'Make sure it sounds like you, then send it to me.' }
   ];
 
@@ -894,7 +895,7 @@
     }
     var images = {};
     IMAGE_KEYS.forEach(function (k) {
-      if (k === 'vcover' && !isVip()) return;
+      if ((k === 'vcover' || k === 'vthumb') && !isVip()) return;
       if (/^o(\d)image$/.test(k) && +k.charAt(1) > S.offers) { if (S.token) images[k] = null; return; }
       if (S.images[k] === null) images[k] = null;
       else if (S.images[k] && S.images[k].data) images[k] = { data: S.images[k].data, mime: S.images[k].mime };
@@ -977,7 +978,7 @@
       if (!ans.website && v.website) ans.website = v.website;
       var vc = (v.communities || [])[0];
       if (vc) { if (vc.inside && vc.inside.length) ans.vinside = vc.inside.join('\n'); set('vaccess', vc.access); }
-      img('vcover', v.banner);
+      img('vcover', v.banner); img('vthumb', v.thumb);
     }
     return true;
   }

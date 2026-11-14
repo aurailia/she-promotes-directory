@@ -624,7 +624,7 @@
   .door { border-radius: 26px; background: linear-gradient(180deg, rgba(82, 38, 78, 0.55), rgba(42, 16, 40, 0.75)); border-color: rgba(232, 196, 122, 0.32); box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35); }
   .door::after { content: ""; position: absolute; inset: 9px; border: 1px solid rgba(232, 196, 122, 0.22); border-radius: 19px; pointer-events: none; }
   .door:hover { transform: translateY(-4px); box-shadow: 0 30px 70px rgba(0, 0, 0, 0.45); }
-  .door-art { aspect-ratio: 16 / 10; position: relative; }
+  .door-art { aspect-ratio: 16 / 9; position: relative; }
   .door-art::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 45%, rgba(42, 16, 40, 0.85)); }
   .door-body { padding: 0 28px 30px; }
   .door-pic { width: 112px; height: 112px; margin-top: -60px; padding: 3px; box-shadow: 0 0 0 5px rgba(42, 16, 40, 0.9), 0 16px 34px rgba(0, 0, 0, 0.45); position: relative; z-index: 1; }
@@ -2232,6 +2232,7 @@
     });
     var c0 = R.communities[0];
     R.banner = v.banner || (c0 && c0.image) || '';
+    R.thumb = v.thumb || (c0 && c0.image) || v.banner || '';
     R.bannerFallback = c0 ? 'images/communities/' + slug(c0.name) + '.jpg' : '';
     return R;
   };
@@ -2261,7 +2262,7 @@
       var d = el('article', 'door');
       if (v.id === spot) d.appendChild(el('span', 'now', '⭐ In the spotlight'));
       var art = el('div', 'door-art'); art.setAttribute('aria-hidden', 'true');
-      putImg(art, R.banner, [R.bannerFallback]);
+      putImg(art, R.thumb, [R.bannerFallback]);
       d.appendChild(art);
       var body = el('div', 'door-body');
       var pic = el('div', 'door-pic'); pic.appendChild(avatar(R.photo, R.name)); body.appendChild(pic);
