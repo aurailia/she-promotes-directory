@@ -643,7 +643,8 @@
   .room-hero { border-radius: 28px; box-shadow: 0 30px 70px rgba(0, 0, 0, 0.4); }
   .room-hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 55%, rgba(42, 16, 40, 0.7)); pointer-events: none; }
   .room-hero::before { content: ""; position: absolute; inset: 12px; border: 1px solid rgba(243, 216, 155, 0.45); border-radius: 18px; z-index: 1; pointer-events: none; }
-  .room-art { height: 380px; }
+  .room-hero { max-width: 1120px; margin-left: auto; margin-right: auto; }
+  .room-art { height: auto; aspect-ratio: 3 / 1; }
   .room-intro { margin-top: -92px; max-width: 980px; position: relative; z-index: 2; }
   .room-pic { width: 176px; height: 176px; box-shadow: 0 0 0 7px var(--plum-deep), 0 20px 50px rgba(0, 0, 0, 0.5); }
   .room-badge { margin-top: 22px; color: var(--gold-bright); background: transparent; border: 1px solid rgba(232, 196, 122, 0.6); padding: 6px 16px; }
@@ -742,7 +743,7 @@
     .ev-side .btn { width: 100%; margin-left: 0; }
     .ev-filters { border-radius: 22px; }
     .lounge-head .lounge-title { font-size: 40px; }
-    .room-art { height: 220px; }
+    .room-art { height: auto; aspect-ratio: 2 / 1; }
     .room-intro { margin-top: -70px; }
     .room-pic { width: 136px; height: 136px; }
     .room-intro h2 { font-size: 44px; }

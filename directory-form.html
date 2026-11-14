@@ -86,6 +86,9 @@
   .pick-img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: contain; background: rgba(0, 0, 0, 0.25); }
   .pick.round { width: 164px; border-radius: 50%; aspect-ratio: 1; }
   .pick.round .pick-empty { height: 100%; justify-content: center; padding: 12px; }
+  .fresh-bar .btn-sm { padding: 8px 14px; font-size: 13px; min-height: 0; }
+  .fresh-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .pick.banner .pick-img { aspect-ratio: 3 / 1; }
   .pick.round .pick-img { aspect-ratio: 1; height: 100%; object-fit: cover; }
   .pick-actions { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-top: 6px; }
   .link-btn { background: none; border: none; color: var(--gold-bright); font-size: 14px; font-weight: 600; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; min-height: 44px; padding: 0; }
@@ -222,7 +225,7 @@
     vvideo: { label: 'Welcome video', type: 'url', optional: true, ph: 'https://youtu.be/...', help: 'A short hello so people feel like they know you. Paste a YouTube, Vimeo or Loom link and it plays right on your page. Skool videos won\'t play outside Skool, so upload it to YouTube as Unlisted. That keeps it off your channel, but it still plays on your page.' },
     vinside: { label: 'What\'s inside your community?', type: 'textarea', optional: true, help: 'Put each thing on its own line.', ph: 'A live pour-along every month\nScent blending guides you can save' },
     vaccess: { label: 'Who can join, and what does it cost?', optional: true, ph: 'Free to join. Premium is $9 a month.' },
-    vcover: { label: 'A wide cover image for your page', type: 'image', optional: true, size: 1800, dims: '1600 x 900 px', help: 'Best size: 1600 x 900 px (wide, like a YouTube thumbnail). Keep words and faces toward the middle. Your brand photo or Skool banner works great.' },
+    vcover: { label: 'A banner for the top of your page', type: 'image', optional: true, size: 1800, shape: 'banner', dims: '1800 x 600 px', help: 'Best size: 1800 x 600 px (long and short, like a website header). Keep your words and face in the middle, and leave the bottom center clear, because your photo sits there. On phones the sides get trimmed a little.' },
 
     cname: { label: 'Community name', gr: true },
     clink: { label: 'Link to join', type: 'url', gr: true, ph: 'https://www.skool.com/your-community/about' },
@@ -349,6 +352,7 @@
   function loadDraft() {
     try {
       var d = JSON.parse(localStorage.getItem(DRAFT_KEY) || 'null');
+      if (d && d.a && Object.keys(d.a).some(function (k) { var x = d.a[k]; return Array.isArray(x) ? x.length : !!x; })) S.hadDraft = true;
       if (d && d.a) { S.a = d.a; S.offers = Math.min(Math.max(d.offers || 1, 1), 3); S.recs = Math.min(Math.max(d.recs || 0, 0), 3); S.step = Math.max(0, d.step || 0); }
     } catch (e) { /* fresh start */ }
   }
@@ -366,7 +370,7 @@
     if (f.type === 'image') {
       var src = imgSrc(k);
       h += '<div class="label">' + lab + '</div>' + help;
-      h += '<label class="pick' + (f.shape === 'round' ? ' round' : '') + '"><input type="file" accept="image/*" data-image="' + k + '" aria-label="' + esc(f.label) + '">';
+      h += '<label class="pick' + (f.shape === 'round' ? ' round' : f.shape === 'banner' ? ' banner' : '') + '"><input type="file" accept="image/*" data-image="' + k + '" aria-label="' + esc(f.label) + '">';
       h += src ? '<img class="pick-img" src="' + esc(src) + '" alt="">' : '<span class="pick-empty"><b>Choose an image</b><small>' + esc(f.dims ? f.dims + ', JPG or PNG' : 'JPG or PNG') + '</small></span>';
       h += '</label>';
       if (src) h += '<div class="pick-actions"><button type="button" class="link-btn" data-replace="' + k + '">Choose a different image</button>' + (f.optional ? '<button type="button" class="link-btn" data-clear="' + k + '">Remove</button>' : '') + '</div>';
@@ -459,6 +463,7 @@
     h += '<h1 class="step-title grad" tabindex="-1" id="stepTitle">' + esc(title) + '</h1>';
     h += '<p class="step-sub">' + esc(sub) + '</p><form class="form-body" id="form" novalidate>';
     var picking = st.id === 'you' && !S.token;
+    if (S.hadDraft && !S.token) h += '<div class="ready fresh-bar"><span>Picking up where you left off' + (has('name') ? ' with <b>' + esc(val('name')) + '</b>' : '') + '.</span> <button type="button" class="btn btn-ghost btn-sm" id="freshStart">' + (S.freshConfirm ? 'Tap again to clear it' : 'Start a new one') + '</button></div>';
     if (picking) h += fieldHtml('want');
     if (picking && !has('want')) h += '<p class="help" style="margin-top:4px">Pick one and tap Next.</p>';
     if (i === 0 && isEvent()) h += '<div class="ready"><b>Sharing an event is for She Promotes™ Premium and VIP members.</b> It takes about 3 minutes. Have your sign-up link and an event image handy. I\'ll check it and add it to the Upcoming Events page.</div>';
@@ -505,6 +510,7 @@
     saveDraft(); render(true);
   }
   function renderExisting(res) {
+    clearDraft(); S.hadDraft = false;
     var first = String(val('name')).trim().split(/\s+/)[0];
     var h = '<div class="done"><h1 class="grad">You\'re already listed' + (first ? ', ' + esc(first) : '') + '</h1>';
     h += '<p>Good news, you\'re already in the Directory, so I didn\'t make a second listing.</p>';
@@ -915,6 +921,66 @@
         render(false); var e = document.querySelector('.form-error'); if (e) e.scrollIntoView({ block: 'center' });
       });
   }
+  /* What's live in the Directory right now wins over the Sheet, so she sees your edits too */
+  function liveOverlay(ans, imgs, data) {
+    if (!data || !ans || !ans.name) return false;
+    var nk = function (x) { return String(x || '').toLowerCase().replace(/\s+/g, ' ').trim(); };
+    var key = nk(ans.name), m = null, v = null;
+    (data.members || []).forEach(function (x) { if (!m && x && nk(x.name) === key) m = x; });
+    (data.vips || []).forEach(function (x) { if (!v && x && nk(x.name) === key) v = x; });
+    if (!m && !v) return false;
+    var str = function (x) { return Array.isArray(x) ? x.join('; ') : String(x == null ? '' : x).trim(); };
+    var set = function (k, x) { x = str(x); if (x) ans[k] = x; };
+    var img = function (k, u) { u = String(u || '').trim(); if (u) imgs[k] = u; };
+    if (v) ans.tier = 'VIP';
+    if (m) {
+      set('business', m.business); set('about', m.about); set('website', m.website);
+      var so = m.socials || {};
+      set('social', so.instagram || m.social); set('sfacebook', so.facebook); set('stiktok', so.tiktok); set('syoutube', so.youtube); set('slinkedin', so.linkedin); set('spinterest', so.pinterest);
+      img('photo', m.photo);
+    }
+    /* offers */
+    var offers = [];
+    if (m && (m.offer || m.offerName)) offers.push({ title: m.offerName, desc: m.offer, who: m.who, price: m.price, link: m.offerLink, cat: m.categories, format: m.formats, keys: m.keywords, image: m.offerImage });
+    if (m) (m.offers || []).forEach(function (o) { if (o && (o.title || o.desc)) offers.push({ title: o.title, desc: o.desc, who: o.who, price: o.price, link: o.link, cat: o.categories, format: o.formats, keys: o.keywords, image: o.image }); });
+    if (!offers.length && v) (v.offers || []).forEach(function (o) { if (o && (o.title || o.desc)) offers.push({ title: o.title, desc: o.desc, who: o.who, price: o.price, link: o.link }); });
+    if (offers.length) {
+      for (var i = 1; i <= 3; i++) {
+        var o = offers[i - 1];
+        OFFER_SFX.forEach(function (sfx) { if (sfx !== 'image') ans['o' + i + sfx] = o ? str(o[sfx]) : ''; });
+        if (o && o.image) imgs['o' + i + 'image'] = o.image; else if (!o) delete imgs['o' + i + 'image'];
+      }
+    }
+    /* her community */
+    var c = m && m.community;
+    if (c && c.name) {
+      set('cname', c.name); set('clink', c.link); set('cabout', c.about); set('cplatform', c.platform);
+      set('caccess', c.access); set('ccat', c.categories && c.categories.length ? c.categories : c.category);
+      set('cdays', (c.promoDays || []).join(', ')); img('cbanner', c.image);
+    }
+    /* her other community first, then the ones she loves */
+    var recs = m ? (m.recommends || []).concat(m.extraRecommends || []).filter(function (r) { return r && r.name && r.link; }) : [];
+    if (recs.length) {
+      recs = recs.filter(function (r) { return r.own; }).concat(recs.filter(function (r) { return !r.own; })).slice(0, 3);
+      for (var j = 1; j <= 3; j++) {
+        var r = recs[j - 1];
+        ans['r' + j + 'name'] = r ? str(r.name) : ''; ans['r' + j + 'link'] = r ? str(r.link) : ''; ans['r' + j + 'about'] = r ? str(r.about) : '';
+        ans['r' + j + 'cat'] = r ? str(r.category) : ''; ans['r' + j + 'access'] = r ? str(r.access) : ''; ans['r' + j + 'why'] = r ? str(r.why) : '';
+        ans['r' + j + 'days'] = r ? str((r.promoDays || []).join(', ')) : '';
+        ans['r' + j + 'aff'] = r ? (r.affiliate ? 'Yes' : 'No') : ''; ans['r' + j + 'own'] = r && r.own ? 'Yes' : '';
+        if (r && r.image) imgs['r' + j + 'image'] = r.image; else delete imgs['r' + j + 'image'];
+      }
+    }
+    /* her Featured Business page */
+    if (v) {
+      set('vheadline', v.headline); set('vstory', v.about); set('vwho', v.who); set('vvideo', v.video); set('vwebsite', v.website);
+      if (!ans.website && v.website) ans.website = v.website;
+      var vc = (v.communities || [])[0];
+      if (vc) { if (vc.inside && vc.inside.length) ans.vinside = vc.inside.join('\n'); set('vaccess', vc.access); }
+      img('vcover', v.banner);
+    }
+    return true;
+  }
   /* bring saved answers back into the form */
   function unpack(ans, imgs) {
     var st = {}; try { st = JSON.parse(ans.formState || '{}'); } catch (e) { st = {}; }
@@ -1016,6 +1082,15 @@
     var cl = t.getAttribute('data-clear');
     if (cl) { if (S.existing[cl]) { S.images[cl] = null; S.existing[cl] = ''; } else delete S.images[cl]; render(false); }
   });
+  app.addEventListener('click', function (e) {
+    var b = e.target.closest ? e.target.closest('#freshStart') : null;
+    if (!b) return;
+    if (!S.freshConfirm) { S.freshConfirm = true; render(false); return; }
+    clearDraft();
+    S.a = {}; S.images = {}; S.existing = {}; S.offers = 1; S.recs = 0; S.step = 0; S.errors = {}; S.formError = '';
+    S.hadDraft = false; S.freshConfirm = false; S.consent = false;
+    render(true);
+  });
   app.addEventListener('submit', function (e) {
     e.preventDefault();
     if (S.sending || S.busy) return;
@@ -1024,7 +1099,7 @@
     S.errors = {}; S.formError = '';
     if (S.step === steps().length - 1) { submit(); return; }
     S.aiOpen = false; S.aiNote = ''; S.aiText = ''; S.aiCopied = false;
-    S.step++; saveDraft(); render(true);
+    S.step++; S.hadDraft = false; S.freshConfirm = false; saveDraft(); render(true);
   });
 
   /* ---------- start ---------- */
@@ -1035,7 +1110,16 @@
     app.innerHTML = '<div class="center-msg">Getting your answers...</div>';
     fetch(SCRIPT_URL + '?action=load&token=' + encodeURIComponent(token))
       .then(function (r) { return r.json(); })
-      .then(function (res) { if (!res || !res.ok) throw new Error('nf'); S.token = token; unpack(res.answers || {}, res.images || {}); render(true); })
+      .then(function (res) {
+        if (!res || !res.ok) throw new Error('nf');
+        S.token = token;
+        var ans = res.answers || {}, imgs = res.images || {};
+        var done = function () { unpack(ans, imgs); render(true); };
+        fetch(DIRECTORY_URL + 'directory.json?fresh=' + Date.now(), { cache: 'no-store' })
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (data) { try { liveOverlay(ans, imgs, data); } catch (e) { /* use the Sheet */ } done(); })
+          .catch(done);
+      })
       .catch(function () { app.innerHTML = '<div class="center-msg">I couldn\'t find your answers with that link. Please email team@aurailia.com and I\'ll help you.</div>'; });
   } else {
     loadDraft();
@@ -1045,7 +1129,7 @@
     if (val('want') === WANT_EVENT && !has('etz')) S.a.etz = myTz;
     render(false);
   }
-  window.__shePromotesForm = { unpack: unpack, payload: payload, eventPayload: eventPayload, S: S };
+  window.__shePromotesForm = { unpack: unpack, liveOverlay: liveOverlay, render: render, payload: payload, eventPayload: eventPayload, S: S };
 })();
 </script>
 </body>

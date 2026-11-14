@@ -464,7 +464,8 @@
       var h = key(raw);
       if (!h) return;
       /* columns from the She Promotes form that only the form uses */
-      if (/^(edit token|okay to show|form state)/.test(h)) return;
+      if (/^form state/.test(h)) { map.formState = i; return; }
+      if (/^(edit token|okay to show)/.test(h)) return;
       /* Featured Business page answers from the She Promotes form */
       if (/^vip /.test(h)) {
         map.vip = map.vip || {};
@@ -614,7 +615,10 @@
       var nk = nameKey(m.name), v = null;
       vips.forEach(function (q) { if (nameKey(q.name) === nk) v = q; });
       if (!v) { v = blankVip(); v.id = vipId(m.name); v.name = m.name; v.fromListing = true; vips.push(v); }
-      var hand = !!v.edited;
+      /* Newest wins: if she sent the form after your last hand edit, her answers win.
+         Older form answers only fill in what's still empty. */
+      if (v.edited && !v.editedAt) v.editedAt = Date.now();
+      var hand = !!v.edited && !(m._date > (v.editedAt || 0));
       var set = function (k, val) { if (val && (!hand || !v[k])) v[k] = val; };
       set('headline', x.headline); set('about', x.story); set('video', x.video); set('who', x.who); set('website', x.website || m.website); set('banner', x.cover);
       if (m.community && (x.inside.length || x.access)) {
@@ -646,6 +650,8 @@
     if (map.offerLink == null) missing.push('Link to your signature offer');
     var byId = {}, order = [], total = 0;
     rows.slice(1).forEach(function (r, idx) {
+      /* a starter row from a VIP email: she hasn't filled out the form yet */
+      if (map.formState != null && /"placeholder":\s*true/.test(String(r[map.formState] || ''))) return;
       var m = rowToMember(r, map);
       if (!m.name) return;
       total++;
@@ -1419,7 +1425,7 @@
       return { title: str(o.title), desc: str(o.desc), who: str(o.who), price: str(o.price), link: cleanUrl(str(o.link)) };
     }).filter(function (o) { return o.title || o.desc; }).slice(0, 3);
     if (os.length) v.offers = os;
-    v.edited = true;
+    v.edited = true; v.editedAt = Date.now();
     if (isNew) vips.push(v);
     saveSpot(); renderSpotPicker(); renderStats();
     $('qvPaste').value = '';
@@ -1462,8 +1468,8 @@
     showB();
     bWrap.appendChild(pv);
     var bt = el('div', 'grow');
-    bt.appendChild(el('div', 'lbl', 'Spotlight banner'));
-    bt.appendChild(el('div', 'sub2', 'Optional. Without one, her community image is used.'));
+    bt.appendChild(el('div', 'lbl', 'VIP room banner'));
+    bt.appendChild(el('div', 'sub2', 'Best size 1800 x 600 px. Optional. Without one, her community image is used.'));
     bWrap.appendChild(bt);
     var up = document.createElement('label'); up.className = 'file';
     var fin = document.createElement('input'); fin.type = 'file'; fin.accept = 'image/*';
@@ -1515,7 +1521,7 @@
       nv.banner = banner;
       nv.communities = cRows.map(function (r) { return { name: r.name.value.trim(), link: cleanUrl(r.link.value), about: r.about.value.trim() }; }).filter(function (c) { return c.name && c.link; });
       nv.offers = oRows.map(function (r) { return { title: r.title.value.trim(), desc: r.desc.value.trim(), link: cleanUrl(r.link.value), price: r.price.value.trim() }; }).filter(function (o) { return o.title || o.desc; });
-      nv.edited = true;
+      nv.edited = true; nv.editedAt = Date.now();
       if (id === 'new') { nv.id = vipId(name); vips.push(nv); }
       vipEditing = null; box.hidden = true; box.innerHTML = '';
       saveSpot(); renderSpotPicker(); renderStats();
