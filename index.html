@@ -730,16 +730,20 @@
   .ev-fact b { display: block; font-size: 11px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold); margin-bottom: 3px; }
   .ev-fact span { font-size: 15px; }
   .ev-fact .ev-price { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 34px; font-weight: 600; line-height: 1; color: var(--gold-bright); }
+  .ev-tags { margin-top: auto; gap: 6px; }
+  .ev-tags + .btn { margin-top: 0 !important; }
   .ev-side .btn { margin-top: auto; flex: 0 0 auto; width: 100%; padding: 13px 16px; text-align: center; }
   @media (max-width: 1180px) {
     .ev2 { grid-template-columns: 340px minmax(0, 1fr); }
     .ev-side { grid-column: 2; border-left: 0; border-top: 1px solid rgba(232, 196, 122, 0.18); background: transparent; padding: 0 30px 30px; flex-direction: row; flex-wrap: wrap; align-items: flex-end; gap: 14px 28px; }
     .ev-side .btn { width: auto; margin-top: 0; margin-left: auto; padding: 13px 26px; }
+    .ev-tags { margin-top: 0; }
+    .ev-art { grid-row: 1 / span 2; }
     .ev-side { border-top: 0; }
   }
   @media (max-width: 760px) {
     .ev2 { grid-template-columns: 1fr; }
-    .ev-art { aspect-ratio: 16 / 9; min-height: 0; }
+    .ev-art { aspect-ratio: 16 / 9; min-height: 0; grid-row: auto; }
     .ev-main { padding: 22px 22px 6px; }
     .ev-main h3 { font-size: 30px; }
     .ev-side { grid-column: auto; padding: 14px 22px 24px; flex-direction: column; align-items: stretch; }
@@ -2087,11 +2091,6 @@
         m.appendChild(more);
       }
     }
-    if ((e.categories || []).length) {
-      var tags = el('div', 'tags');
-      e.categories.forEach(function (x) { tags.appendChild(el('span', 'tag gold', x)); });
-      m.appendChild(tags);
-    }
     c.appendChild(m);
 
     var side = el('aside', 'ev-side');
@@ -2099,6 +2098,11 @@
     fact(e.cost === 'paid' ? 'Ticket' : 'Price', e.cost === 'paid' ? (e.price || 'Paid') : 'Free', 'ev-price');
     if (e.mode === 'inperson') fact('Where', [e.venue, e.address, evPlace(e)].filter(Boolean).join(', '));
     if (e.where === 'skool' && e.community) fact('Happening inside', e.community + ' on Skool' + (e.joinCost ? ' · ' + (/^free/i.test(e.joinCost) ? 'Free to join' : e.joinCost + ' to join') : ''));
+    if ((e.categories || []).length) {
+      var tags = el('div', 'tags ev-tags');
+      e.categories.forEach(function (x) { tags.appendChild(el('span', 'tag gold', x)); });
+      side.appendChild(tags);
+    }
     var label = e.where === 'skool' ? 'Join the community to attend' : e.where === 'page' ? 'Sign up' : 'Save my spot';
     var b = linkBtn(label, e.link, true);
     if (b) side.appendChild(b);
