@@ -479,7 +479,7 @@
   .ev-card .actions { margin-top: auto; }
   .ev-mini { scroll-snap-align: start; display: flex; flex-direction: column; text-align: left; background: var(--card); border: 1px solid var(--card-border); border-radius: 18px; overflow: hidden; color: var(--text); font: inherit; cursor: pointer; padding: 0 0 14px; }
   .ev-mini:hover { border-color: var(--gold); }
-  .ev-mini .fm-art { aspect-ratio: 16 / 8; }
+  .ev-mini .fm-art { aspect-ratio: 16 / 9; }
   .ev-mini .ev-date { margin: 12px 14px 0; font-size: 12px; }
   .ev-mini .fm-name { margin: 4px 14px 0; text-align: left; }
   .ev-mini .fm-who { margin: 2px 14px 0; }
@@ -492,7 +492,7 @@
   .feat-row { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(200px, 240px); gap: 14px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; }
   .feat-mini { scroll-snap-align: start; display: flex; flex-direction: column; align-items: center; text-align: center; background: var(--card); border: 1px solid var(--card-border); border-radius: 18px; overflow: hidden; padding: 0 0 14px; color: var(--text); font: inherit; cursor: pointer; }
   .feat-mini:hover { border-color: var(--gold); }
-  .fm-art { width: 100%; aspect-ratio: 16 / 8; background: linear-gradient(135deg, var(--plum-soft), #6d3a5f); overflow: hidden; }
+  .fm-art { width: 100%; aspect-ratio: 16 / 9; background: linear-gradient(135deg, var(--plum-soft), #6d3a5f); overflow: hidden; }
   .fm-art img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .fm-pic { width: 64px; height: 64px; margin-top: -32px; border-radius: 50%; padding: 3px; background: linear-gradient(135deg, #f3d89b, var(--blush)); }
   .fm-pic .avatar { width: 100% !important; height: 100% !important; border: 0 !important; }
@@ -1912,7 +1912,7 @@
     (v.offers || []).forEach(addO);
     if (mem && mem.offer) { var op = offerParts(mem); addO({ title: op.title, desc: op.desc, link: mem.offerLink, price: mem.price }); }
     if (mem) (mem.offers || []).slice(0, 2).forEach(addO);
-    P.banner = sp.image || v.banner || (P.communities[0] && (photoSources(P.communities[0].image)[0] || 'images/communities/' + slug(P.communities[0].name) + '.jpg')) || '';
+    P.banner = v.thumb || sp.image || v.banner || (P.communities[0] && (photoSources(P.communities[0].image)[0] || 'images/communities/' + slug(P.communities[0].name) + '.jpg')) || '';
     return P;
   };
   /* Everything about her lives in the pop-up. The card up top stays simple. */
@@ -2309,7 +2309,7 @@
     poster.type = 'button';
     poster.setAttribute('aria-label', 'Play ' + R.first + '\u2019s welcome video');
     var art = el('div', 'rv-art'); art.setAttribute('aria-hidden', 'true');
-    putImg(art, vid.thumb || R.banner || R.photo, [R.bannerFallback || '', R.photo || '']);
+    putImg(art, vid.thumb || R.thumb || R.photo, [R.bannerFallback || '', R.photo || '']);
     poster.appendChild(art);
     var play = el('span', 'rv-play'); play.setAttribute('aria-hidden', 'true'); poster.appendChild(play);
     poster.appendChild(el('span', 'rv-label', 'Watch my welcome video'));
@@ -2676,7 +2676,7 @@
       var R = roomData(v);
       var b = el('button', 'feat-mini');
       b.type = 'button';
-      var art = el('div', 'fm-art'); art.setAttribute('aria-hidden', 'true'); putImg(art, R.banner, [R.bannerFallback]); b.appendChild(art);
+      var art = el('div', 'fm-art'); art.setAttribute('aria-hidden', 'true'); putImg(art, R.thumb, [R.bannerFallback]); b.appendChild(art);
       var pic = el('div', 'fm-pic'); pic.appendChild(avatar(R.photo, R.name)); b.appendChild(pic);
       b.appendChild(el('span', 'fm-name', R.business || R.name));
       if (R.business) b.appendChild(el('span', 'fm-who', 'with ' + R.name));
