@@ -877,7 +877,7 @@
               <li>Share your link anywhere: your classroom, other groups, your bio or your emails.</li>
             </ol>
             <label class="share-lbl" for="shAff">Your She Promotes affiliate link</label>
-            <input class="share-in" type="text" id="shAff" inputmode="url" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="https://www.skool.com/she-promotes-7924/about?ref=...">
+            <input class="share-in" type="text" id="shAff" inputmode="url" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="https://www.skool.com/she-promotes/about?ref=...">
             <label class="share-lbl" for="shMe">Are you listed in the Directory? <span class="opt">(optional)</span></label>
             <select class="share-in" id="shMe"><option value="">I&rsquo;m not listed yet</option></select>
             <p class="share-help">Pick your listing and it shows up first for everyone who opens your link.</p>
@@ -1009,13 +1009,13 @@
 <script>
 (function () {
   /* Settings */
-  var FORM_URL = 'https://www.skool.com/she-promotes-7924/classroom/5ed94b0d?md=5eba1d740a2e4ec8bf32e96f65c6d061';   /* The Skool lesson with the form, so only members can reach it */
-  var PLANS_URL = 'https://www.skool.com/she-promotes-7924/plans';
-  var JOIN_URL = 'https://www.skool.com/she-promotes-7924/about';
-  var UPGRADE_URL = 'https://www.skool.com/she-promotes-7924/plans';   /* where women go to become a VIP */
+  var FORM_URL = 'https://www.skool.com/she-promotes/classroom/5ed94b0d?md=5eba1d740a2e4ec8bf32e96f65c6d061';   /* The Skool lesson with the form, so only members can reach it */
+  var PLANS_URL = 'https://www.skool.com/she-promotes/plans';
+  var JOIN_URL = 'https://www.skool.com/she-promotes/about';
+  var UPGRADE_URL = 'https://www.skool.com/she-promotes/plans';   /* where women go to become a VIP */
   var DM_URL = 'https://www.skool.com/@aurailis-arnold-5599';   /* your Skool profile, where members can message you */
   var DATA_URL = 'directory.json';
-  var SHARE_ON = false;   /* true shows the "share the Directory and earn" link in the menu. The share page works either way. */
+  var SHARE_ON = true;   /* true shows the "share the Directory and earn" link in the menu. The share page works either way. */
 
   /* Members share the Directory with their She Promotes affiliate code: ?ref=CODE&from=Name
      Her code rides on every She Promotes join and upgrade button, and is remembered for 60 days. */
@@ -1035,7 +1035,7 @@
     }
   } catch (e) { /* older browser, no sharing code */ }
   var withRef = function (u) {
-    if (!REF || !/^https:\/\/www\.skool\.com\/she-promotes-7924(\/|\?|$)/.test(u)) return u;
+    if (!REF || !/^https:\/\/www\.skool\.com\/she-promotes(-7924)?(\/|\?|$)/.test(u)) return u;
     return u.replace(/[?&]ref=[^&#]*/g, '') + (u.replace(/[?&]ref=[^&#]*/g, '').indexOf('?') === -1 ? '?' : '&') + 'ref=' + REF;
   };
   PLANS_URL = withRef(PLANS_URL); JOIN_URL = withRef(JOIN_URL); UPGRADE_URL = withRef(UPGRADE_URL);
@@ -2932,7 +2932,7 @@
     var raw = String($('shAff').value || '').trim();
     var err = $('shErr');
     var m = raw.match(/[?&]ref=([a-f0-9]{32})/i) || raw.match(/^([a-f0-9]{32})$/i);
-    if (/skool\.com\//i.test(raw) && !/skool\.com\/she-promotes-7924/i.test(raw)) { err.textContent = 'That looks like a link for a different community. Copy your affiliate link from inside She Promotes.'; err.hidden = false; return; }
+    if (/skool\.com\//i.test(raw) && !/skool\.com\/she-promotes(-7924)?(\/|\?|$)/i.test(raw)) { err.textContent = 'That looks like a link for a different community. Copy your affiliate link from inside She Promotes.'; err.hidden = false; return; }
     if (!m) { err.textContent = 'I couldn\u2019t find your affiliate code in that link. It should end with ?ref= and a long code. Copy it again from She Promotes in Skool.'; err.hidden = false; return; }
     err.hidden = true;
     var nm = String($('shName').value || '').replace(/[<>"&]/g, '').trim().slice(0, 40);
