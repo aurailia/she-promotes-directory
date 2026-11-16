@@ -274,7 +274,7 @@
   .nav-item.pillar .lbl { color: var(--text); }
   .nav-label { font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold); font-weight: 700; padding: 12px 12px 4px; }
   /* Home: four doorways */
-  .gdoors { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin: 8px 0 22px; }
+  .gdoors { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin: 8px 0 22px; }
   .grid-sec-link { font-size: 13px; margin-left: auto; }
   .gdoor { font: inherit; color: inherit; text-align: left; cursor: pointer; border: 1px solid rgba(232, 196, 122, 0.35); border-radius: 20px; overflow: hidden; background: rgba(255, 255, 255, 0.04); display: flex; flex-direction: column; padding: 0; transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s; }
   .gdoor:hover { border-color: rgba(232, 196, 122, 0.7); box-shadow: 0 0 18px rgba(232, 196, 122, 0.18); transform: translateY(-2px); }
@@ -287,8 +287,7 @@
   .who-box .who-btns { display: flex; gap: 10px; justify-content: center; margin-top: 12px; flex-wrap: wrap; }
   .who-box .who-btns .btn { flex: 0 0 auto; width: auto; }
   .intro-link { color: var(--gold-bright); font-weight: 600; }
-  @media (max-width: 1280px) { .gdoors { grid-template-columns: repeat(3, 1fr); } }
-  @media (max-width: 1100px) { .gdoors { grid-template-columns: 1fr 1fr; } .gdoors .gdoor:last-child:nth-child(odd) { grid-column: 1 / -1; } }
+  @media (max-width: 1100px) { .gdoors { grid-template-columns: 1fr 1fr; } }
   @media (max-width: 640px) {
     .gdoors { gap: 12px; }
     .gdoor .door-img { height: 96px; }
@@ -848,8 +847,8 @@
       <button class="nav-item pillar" type="button" data-sec="skool"><span class="ico" aria-hidden="true">&#10022;</span><span class="lbl">Grow Your Skool Community</span><span class="count" id="c-skool"></span></button>
       <button class="nav-item pillar" type="button" data-sec="business"><span class="ico" aria-hidden="true">&#10022;</span><span class="lbl">Grow Your Business</span><span class="count" id="c-business"></span></button>
       <button class="nav-item pillar" type="button" data-sec="yourself"><span class="ico" aria-hidden="true">&#10022;</span><span class="lbl">Grow Yourself</span><span class="count" id="c-yourself"></span></button>
-      <button class="nav-item pillar" type="button" data-sec="training"><span class="ico" aria-hidden="true">&#10022;</span><span class="lbl">Trainings &amp; Certifications</span><span class="count" id="c-training"></span></button>
       <button class="nav-item pillar" type="button" data-sec="shop"><span class="ico" aria-hidden="true">&#10022;</span><span class="lbl">Women-Owned Shops</span><span class="count" id="c-shop"></span></button>
+      <button class="nav-item pillar" type="button" data-sec="training"><span class="ico" aria-hidden="true">&#10022;</span><span class="lbl">Trainings &amp; Certifications</span><span class="count" id="c-training"></span></button>
       <div class="nav-sep" role="separator" aria-hidden="true"></div>
       <button class="nav-item" type="button" data-sec="communities"><span class="ico" aria-hidden="true">&#128150;</span><span class="lbl">Communities</span><span class="count" id="c-communities"></span></button>
       <button class="nav-item" type="button" data-sec="promo"><span class="ico" aria-hidden="true">&#11088;</span><span class="lbl">Promo Communities</span><span class="count" id="c-promo"></span></button>
@@ -1148,6 +1147,7 @@
   };
   /* The doorways. An offer or community shows up in every one it fits. */
   var PILLAR_ORDER = PLACE_ORDER;
+  var DOOR_ORDER = ['skool', 'business', 'yourself', 'shop'];   /* the four on Home. Trainings lives in the menu. */
   var PILLARS = {
     skool: { name: 'Grow Your Skool Community', img: 'Promo & Networking', line: 'Tools, Skool support and promo groups to help your community grow.', cats: PLACE_CATS.skool, promos: true, tools: 'skool', fallback: 'Skool Community Growth' },
     business: { name: 'Grow Your Business', img: 'Business Coaching & Strategy', line: 'Coaching, marketing, websites, AI and support to get you seen and paid.', cats: PLACE_CATS.business, tools: 'business', fallback: 'Business Coaching & Strategy' },
@@ -3039,7 +3039,7 @@
   var renderDoors = function () {
     var box = $('doors');
     box.innerHTML = '';
-    PILLAR_ORDER.forEach(function (k) {
+    DOOR_ORDER.forEach(function (k) {
       var P = PILLARS[k];
       var b = el('button', 'gdoor');
       b.type = 'button';
