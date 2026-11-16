@@ -1800,7 +1800,6 @@
   var offerCard = function (m) {
     var c = el('article', 'card compact');
     if (m.offerImage) addThumb(c, m.offerImage, 'offers', '');
-    c.appendChild(personRow(m));
     var o = offerParts(m);
     if (o.title) c.appendChild(el('h3', 'offer-title', o.title));
     if (o.desc) c.appendChild(el('p', 'offer clamp2', o.desc));
@@ -1811,7 +1810,7 @@
       c.appendChild(bf);
     }
     var cats = m.categories || [];
-    addAll(c, [metaLine([m.price ? 'Starting at ' + m.price : '', cats[0] ? cats[0] + (cats.length > 1 ? ' +' + (cats.length - 1) : '') : ''])]);
+    addAll(c, [metaLine(['By ' + m.name, m.price ? 'Starting at ' + m.price : '', cats[0] ? cats[0] + (cats.length > 1 ? ' +' + (cats.length - 1) : '') : ''])]);
     var acts = el('div', 'actions');
     var lb = linkBtn('See her offer', m.offerLink, true);
     if (lb) acts.appendChild(lb);
