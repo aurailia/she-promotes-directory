@@ -100,6 +100,15 @@
   .chg .keep { justify-self: start; margin-top: 4px; font-family: inherit; font-size: 12px; font-weight: 600; color: var(--gold-bright); background: rgba(232,196,122,0.12); border: 1px solid rgba(232,196,122,0.4); border-radius: 999px; padding: 4px 10px; cursor: pointer; }
   .chg .keep:hover { background: rgba(232,196,122,0.22); }
   details.changes.kept summary { color: #d9c2ff; }
+  details.place-box summary { color: var(--gold-bright); }
+  .place-row { padding: 10px 0; border-top: 1px solid rgba(255,255,255,0.08); display: grid; gap: 6px; }
+  .place-row:first-of-type { border-top: none; }
+  .place-row .lbl { font-weight: 600; }
+  .place-row .sub2 { font-size: 12px; color: var(--muted); }
+  .place-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .pchip { font-family: inherit; font-size: 13px; font-weight: 600; border: 1px solid rgba(232,196,122,0.4); background: transparent; color: var(--muted); padding: 6px 12px; border-radius: 999px; cursor: pointer; min-height: 34px; }
+  .pchip[aria-pressed="true"] { background: var(--gold); border-color: var(--gold); color: var(--plum-deep); }
+  .linkbtn { font: inherit; background: none; border: none; padding: 0; color: var(--gold-bright); text-decoration: underline; cursor: pointer; }
   .chg .was { color: var(--muted); text-decoration: line-through; }
   .chg .was::before { content: "Was: "; text-decoration: none; display: inline-block; margin-right: 2px; }
   .chg .now::before { content: "Now: "; color: var(--muted); }
@@ -341,7 +350,42 @@
     if (/heal|spirit/i.test(v)) return 'Healing & Spiritual';
     return v.trim() ? 'Other' : '';
   };
-  var FORMATS = ['1:1 Sessions', 'Group Program', 'Course', 'Membership or Skool Community', 'Physical Product', 'Digital Product', 'Live Event or Workshop', 'Tool or App'];
+  var FORMATS = ['1:1 Sessions', 'Group Program', 'Course', 'Membership or Skool Community', 'Physical Product', 'Digital Product', 'Live Event or Workshop', 'Training or Certification', 'Tool or App'];
+  /* Where each offer and community shows. Your ticks in the Updater win. With no ticks, her categories and formats decide. */
+  var PLACE_ORDER = ['skool', 'business', 'yourself', 'training', 'shop'];
+  var PLACE_NAMES = { skool: 'Grow Your Skool Community', business: 'Grow Your Business', yourself: 'Grow Yourself', training: 'Trainings & Certifications', shop: 'Women-Owned Shops' };
+  var PLACE_SHORT = { skool: 'Skool', business: 'Business', yourself: 'Yourself', training: 'Trainings', shop: 'Shops' };
+  var PLACE_CATS = {
+    skool: ['Skool Tools & Apps', 'Skool Community Growth', 'Promo & Networking'],
+    business: ['Business Coaching & Strategy', 'Social Media & Content', 'Websites, Funnels & Tech', 'AI & Automation Support', 'Virtual Assistants & Admin', 'Branding, Design & Photography', 'Money Mindset & Wealth'],
+    yourself: ['Life & Purpose Coaching', 'Money Mindset & Wealth', 'Manifestation', 'Hypnosis & Subconscious Work', 'Quantum Journeys Hypnosis', 'Energy Healing', 'Human Design & Astrology', 'Intuitive Readings', 'Relationship & Family Coaching', 'Faith & Spiritual Growth', 'Nutrition & Fitness', 'Perimenopause & Menopause'],
+    shop: ['Handmade & Gifts', 'Beauty & Skincare']
+  };
+  var TRAIN_FMT = 'Training or Certification';
+  var PRODUCT_FMTS = ['Physical Product', 'Digital Product'];
+  var placeKey = function (id, kind, link, name) {
+    var l = String(link || '').trim().toLowerCase().replace(/^https?:\/\//, '').replace(/^www\./, '').split(/[?#]/)[0].replace(/\/+$/, '').replace(/\/about$/, '');
+    return String(id || '') + '|' + kind + '|' + (l || String(name || '').toLowerCase().replace(/\s+/g, ' ').trim());
+  };
+  var autoPlaces = function (cats, formats, isComm) {
+    cats = cats || []; formats = formats || [];
+    var has = function (k) { return cats.some(function (c) { return PLACE_CATS[k].indexOf(c) !== -1; }); };
+    var training = formats.indexOf(TRAIN_FMT) !== -1;
+    var productOnly = formats.length > 0 && formats.every(function (f) { return PRODUCT_FMTS.indexOf(f) !== -1; });
+    var out = [];
+    if (has('skool')) out.push('skool');
+    if (has('business')) out.push('business');
+    if (!training && has('yourself')) out.push('yourself');
+    if (training) out.push('training');
+    if (!training && (isComm ? has('shop') : (productOnly || (!formats.length && has('shop'))))) out.push('shop');
+    if (!out.length && has('shop')) out.push('shop');
+    return out;
+  };
+  var chosenPlaces = function (map, key) {
+    var v = map && map[key];
+    return Array.isArray(v) ? v.filter(function (p) { return PLACE_ORDER.indexOf(p) !== -1; }) : [];
+  };
+
 
   var $ = function (id) { return document.getElementById(id); };
   var el = function (tag, cls, text) {
@@ -352,16 +396,16 @@
   };
 
   /* Saved state: statuses by id, plus unsaved featured edits */
-  var saved = { status: {}, featuredDraft: null, spotlightDraft: null, lockEdits: {}, cImg: {}, rImg: {}, pImg: {}, oImg: {} };
+  var saved = { status: {}, featuredDraft: null, spotlightDraft: null, lockEdits: {}, cImg: {}, rImg: {}, pImg: {}, oImg: {}, place: {} };
   try {
     var raw = localStorage.getItem(STORE);
-    if (raw) { var p = JSON.parse(raw); if (p && typeof p === 'object') { saved.status = p.status || {}; saved.featuredDraft = p.featuredDraft || null; saved.spotlightDraft = p.spotlightDraft || null; saved.lockEdits = p.lockEdits || {}; saved.cImg = p.cImg || {}; saved.rImg = p.rImg || {}; saved.pImg = p.pImg || {}; saved.oImg = p.oImg || {}; saved.vipDraft = p.vipDraft || null; saved.eventsDraft = p.eventsDraft || null; saved.tierSet = p.tierSet || {}; saved.evApproved = p.evApproved || {}; } }
+    if (raw) { var p = JSON.parse(raw); if (p && typeof p === 'object') { saved.status = p.status || {}; saved.featuredDraft = p.featuredDraft || null; saved.spotlightDraft = p.spotlightDraft || null; saved.lockEdits = p.lockEdits || {}; saved.cImg = p.cImg || {}; saved.rImg = p.rImg || {}; saved.pImg = p.pImg || {}; saved.oImg = p.oImg || {}; saved.vipDraft = p.vipDraft || null; saved.eventsDraft = p.eventsDraft || null; saved.tierSet = p.tierSet || {}; saved.evApproved = p.evApproved || {}; saved.place = p.place || {}; } }
   } catch (e) { /* storage unavailable */ }
   if (!saved.tierSet) saved.tierSet = {};
   if (!saved.evApproved) saved.evApproved = {};
   var persist = function () { try { localStorage.setItem(STORE, JSON.stringify(saved)); } catch (e) { /* ignore */ } };
 
-  var current = { featured: [], members: [] };   /* from directory.json */
+  var current = { featured: [], members: [], placements: {} };   /* from directory.json */
   /* Someone added by hand (or with an older form) has a different id than her form row.
      If the name matches someone already in the Directory, treat them as the same woman. */
   var nameKey = function (n) { return String(n || '').toLowerCase().replace(/[^a-z0-9]/g, ''); };
@@ -1012,6 +1056,8 @@
         if (!r || !r.name) return;
         it.appendChild(imgRow('Recommended: ' + r.name, r.image, 'recommended', r.name, saved.rImg[rKey(m.id, r)], function (v) { saved.rImg[rKey(m.id, r)] = v; }));
       });
+      var pbx = placeBox(m);
+      if (pbx) it.appendChild(pbx);
       if (m.about) it.appendChild(el('p', 'sub', 'About: ' + m.about));
       if (m.offer) it.appendChild(el('p', '', m.offer));
       if (m.categories && m.categories.length) it.appendChild(el('p', 'sub', m.categories.join(' · ') + (m.formats && m.formats.length ? '  |  ' + m.formats.join(' · ') : '')));
@@ -1860,6 +1906,72 @@
   };
   $('evAdd').addEventListener('click', function () { openEvEditor('new'); });
 
+  /* Your Where it shows ticks: the ones in the Directory file, plus any you changed here */
+  var allPlacements = function () {
+    var out = {};
+    Object.keys(current.placements || {}).forEach(function (k) { var v = chosenPlaces(current.placements, k); if (v.length) out[k] = v; });
+    Object.keys(saved.place || {}).forEach(function (k) { var v = chosenPlaces(saved.place, k); if (v.length) out[k] = v; else delete out[k]; });
+    return out;
+  };
+  var setPlace = function (key, list) { saved.place[key] = list; persist(); renderReview(); };
+  var placeRow = function (label, key, cats, formats, isComm) {
+    var row = el('div', 'place-row');
+    row.appendChild(el('div', 'lbl', label));
+    var mine = chosenPlaces(allPlacements(), key);
+    var auto = autoPlaces(cats, formats, isComm);
+    var on = mine.length ? mine : auto;
+    var seg = el('div', 'place-chips');
+    seg.setAttribute('role', 'group'); seg.setAttribute('aria-label', 'Where it shows: ' + label);
+    PLACE_ORDER.forEach(function (p) {
+      var b = el('button', 'pchip', PLACE_SHORT[p]);
+      b.type = 'button';
+      b.title = PLACE_NAMES[p];
+      b.setAttribute('aria-pressed', on.indexOf(p) !== -1 ? 'true' : 'false');
+      b.addEventListener('click', function () {
+        var next = on.slice(), i = next.indexOf(p);
+        if (i === -1) next.push(p); else next.splice(i, 1);
+        next = PLACE_ORDER.filter(function (x) { return next.indexOf(x) !== -1; });
+        setPlace(key, next);
+      });
+      seg.appendChild(b);
+    });
+    row.appendChild(seg);
+    var note = el('div', 'sub2');
+    if (mine.length) {
+      note.appendChild(document.createTextNode('Your choice. '));
+      var back = el('button', 'linkbtn', 'Go back to automatic');
+      back.type = 'button';
+      back.addEventListener('click', function () { setPlace(key, []); });
+      note.appendChild(back);
+    } else note.textContent = auto.length ? 'Automatic, from her categories. Tap to choose yourself.' : 'Not showing in any section yet. Tap where it belongs.';
+    row.appendChild(note);
+    return row;
+  };
+  var placeBox = function (m) {
+    var box = document.createElement('details');
+    box.className = 'changes place-box';
+    var rows = [];
+    if (m.offer || m.offerName) rows.push(placeRow('Offer: ' + shortT(m.offerName || m.offer), placeKey(m.id, 'o', m.offerLink, m.offerName || m.offer), m.categories, m.formats, false));
+    (m.offers || []).filter(function (o) { return o && (o.title || o.desc); }).slice(0, 2).forEach(function (o) {
+      if (normUrl(o.link) && normUrl(o.link) === normUrl(m.offerLink)) return;
+      rows.push(placeRow('Offer: ' + shortT(o.title || o.desc), placeKey(m.id, 'o', o.link, o.title || o.desc), o.categories && o.categories.length ? o.categories : m.categories, o.formats || [], false));
+    });
+    var comms = [];
+    if (m.community && m.community.name) comms.push(m.community);
+    var seenPC = {};
+    if (comms[0]) seenPC[normUrl(comms[0].link) || String(comms[0].name).toLowerCase()] = true;
+    (m.recommends || []).concat(m.extraRecommends || []).forEach(function (r) { if (!r || !r.own || !r.name || !r.link) return; var k = normUrl(r.link) || String(r.name).toLowerCase(); if (seenPC[k]) return; seenPC[k] = true; comms.push(r); });
+    var mainCats = m.community ? ((m.community.categories && m.community.categories.length) ? m.community.categories : [m.community.category]).filter(Boolean) : [];
+    comms.forEach(function (c) {
+      var cats = c === m.community ? mainCats : (c.categories && c.categories.length ? c.categories : /promo/i.test(c.category || '') ? ['Promo & Networking'] : (m.community ? mainCats : (m.categories || []).slice(0, 2)));
+      rows.push(placeRow('Community: ' + c.name, placeKey(m.id, 'c', c.link, c.name), cats, [], true));
+    });
+    if (!rows.length) return null;
+    var picked = rows.filter(function (r) { return /Your choice/.test(r.textContent); }).length;
+    box.appendChild(el('summary', '', '\uD83D\uDCCD Where it shows' + (picked ? ' (' + picked + ' set by you)' : '')));
+    rows.forEach(function (r) { box.appendChild(r); });
+    return box;
+  };
   var buildOutput = function () {
     var members = allMembers().filter(function (m) { return statusOf(m.id) === 'live'; }).map(function (m) {
       var o = {};
@@ -1872,7 +1984,7 @@
       return o;
     });
     var sp = spotlight && spotlight.vip && vipOf(spotlight.vip) ? { vip: spotlight.vip, note: spotlight.note || '' } : null;
-    return { version: 1, updated: new Date().toISOString(), featured: featured, spotlight: sp, vips: vips, events: events, members: members };
+    return { version: 1, updated: new Date().toISOString(), featured: featured, spotlight: sp, vips: vips, events: events, placements: allPlacements(), members: members };
   };
   var renderStats = function () {
     var out = buildOutput();
@@ -1913,7 +2025,7 @@
 
   /* ---------- Loading ---------- */
   var useCurrent = function (json, source) {
-    current = { featured: Array.isArray(json.featured) ? json.featured : [], members: Array.isArray(json.members) ? json.members : [] };
+    current = { featured: Array.isArray(json.featured) ? json.featured : [], members: Array.isArray(json.members) ? json.members : [], placements: json.placements && typeof json.placements === 'object' ? json.placements : {} };
     /* If the Directory file has the same woman twice, keep one: the copy with your hand edits */
     (function () {
       var by = {}, order = [];
@@ -1994,8 +2106,8 @@
   $('freshBtn').addEventListener('click', function () { $('freshConfirm').hidden = false; });
   $('freshNo').addEventListener('click', function () { $('freshConfirm').hidden = true; });
   $('freshYes').addEventListener('click', function () {
-    saved = { status: {}, featuredDraft: null, spotlightDraft: null, lockEdits: {}, cImg: {}, rImg: {}, pImg: {}, oImg: {} }; persist();
-    current = { featured: [], members: [] }; featured = []; csvMembers = []; spotlight = null; vips = []; events = []; saved.vipDraft = null; saved.eventsDraft = null; persist(); renderSpotPicker(); renderEvents();
+    saved = { status: {}, featuredDraft: null, spotlightDraft: null, lockEdits: {}, cImg: {}, rImg: {}, pImg: {}, oImg: {}, place: {} }; persist();
+    current = { featured: [], members: [], placements: {} }; featured = []; csvMembers = []; spotlight = null; vips = []; events = []; saved.vipDraft = null; saved.eventsDraft = null; persist(); renderSpotPicker(); renderEvents();
     $('freshConfirm').hidden = true;
     $('csvReport').innerHTML = '';
     $('reviewPanel').hidden = true;

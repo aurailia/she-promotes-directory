@@ -309,6 +309,31 @@
       "endUtc": 1795496340000
     }
   ],
+  "placements": {
+    "m1hua3tb|o|aurailia.com/business-alignment-bundle": [
+      "skool",
+      "business"
+    ],
+    "m1hua3tb|o|skool.com/embody-wealth": [
+      "skool",
+      "business"
+    ],
+    "m1hua3tb|c|skool.com/embody-wealth": [
+      "skool",
+      "business",
+      "yourself"
+    ],
+    "m41kcu|c|skool.com/digitallashlegacy-7723": [
+      "business",
+      "training"
+    ],
+    "mlt066d|o|highpriestessts.com/hpts-option": [
+      "training"
+    ],
+    "mlt066d|c|highpriestessts.com/hpts-option": [
+      "training"
+    ]
+  },
   "members": [
     {
       "id": "bessie-estonactoc",

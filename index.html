@@ -274,7 +274,8 @@
   .nav-item.pillar .lbl { color: var(--text); }
   .nav-label { font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold); font-weight: 700; padding: 12px 12px 4px; }
   /* Home: four doorways */
-  .gdoors { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin: 8px 0 22px; }
+  .gdoors { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; margin: 8px 0 22px; }
+  .grid-sec-link { font-size: 13px; margin-left: auto; }
   .gdoor { font: inherit; color: inherit; text-align: left; cursor: pointer; border: 1px solid rgba(232, 196, 122, 0.35); border-radius: 20px; overflow: hidden; background: rgba(255, 255, 255, 0.04); display: flex; flex-direction: column; padding: 0; transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s; }
   .gdoor:hover { border-color: rgba(232, 196, 122, 0.7); box-shadow: 0 0 18px rgba(232, 196, 122, 0.18); transform: translateY(-2px); }
   .gdoor .door-img { height: 130px; background: rgba(0, 0, 0, 0.25) center / cover no-repeat; }
@@ -286,7 +287,8 @@
   .who-box .who-btns { display: flex; gap: 10px; justify-content: center; margin-top: 12px; flex-wrap: wrap; }
   .who-box .who-btns .btn { flex: 0 0 auto; width: auto; }
   .intro-link { color: var(--gold-bright); font-weight: 600; }
-  @media (max-width: 1100px) { .gdoors { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 1280px) { .gdoors { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 1100px) { .gdoors { grid-template-columns: 1fr 1fr; } .gdoors .gdoor:last-child:nth-child(odd) { grid-column: 1 / -1; } }
   @media (max-width: 640px) {
     .gdoors { gap: 12px; }
     .gdoor .door-img { height: 96px; }
@@ -846,6 +848,7 @@
       <button class="nav-item pillar" type="button" data-sec="skool"><span class="ico" aria-hidden="true">&#10022;</span><span class="lbl">Grow Your Skool Community</span><span class="count" id="c-skool"></span></button>
       <button class="nav-item pillar" type="button" data-sec="business"><span class="ico" aria-hidden="true">&#10022;</span><span class="lbl">Grow Your Business</span><span class="count" id="c-business"></span></button>
       <button class="nav-item pillar" type="button" data-sec="yourself"><span class="ico" aria-hidden="true">&#10022;</span><span class="lbl">Grow Yourself</span><span class="count" id="c-yourself"></span></button>
+      <button class="nav-item pillar" type="button" data-sec="training"><span class="ico" aria-hidden="true">&#10022;</span><span class="lbl">Trainings &amp; Certifications</span><span class="count" id="c-training"></span></button>
       <button class="nav-item pillar" type="button" data-sec="shop"><span class="ico" aria-hidden="true">&#10022;</span><span class="lbl">Women-Owned Shops</span><span class="count" id="c-shop"></span></button>
       <div class="nav-sep" role="separator" aria-hidden="true"></div>
       <button class="nav-item" type="button" data-sec="communities"><span class="ico" aria-hidden="true">&#128150;</span><span class="lbl">Communities</span><span class="count" id="c-communities"></span></button>
@@ -1109,14 +1112,56 @@
     { key: 'wellness', name: 'Wellness & Self Care', short: 'Wellness', cats: ['Nutrition & Fitness', 'Perimenopause & Menopause', 'Beauty & Skincare'] },
     { key: 'shop', name: 'Shop', short: 'Shop', cats: ['Handmade & Gifts'] }
   ];
-  /* The four doorways. An offer or community shows up in every pillar its categories fit. */
-  var PILLAR_ORDER = ['skool', 'business', 'yourself', 'shop'];
-  var PILLARS = {
-    skool: { name: 'Grow Your Skool Community', img: 'Promo & Networking', line: 'Tools, Skool support and promo groups to help your community grow.', cats: ['Skool Tools & Apps', 'Skool Community Growth', 'Promo & Networking'], promos: true, tools: 'skool' },
-    business: { name: 'Grow Your Business', img: 'Business Coaching & Strategy', line: 'Coaching, marketing, websites, AI and support to get you seen and paid.', cats: ['Business Coaching & Strategy', 'Social Media & Content', 'Websites, Funnels & Tech', 'AI & Automation Support', 'Virtual Assistants & Admin', 'Branding, Design & Photography', 'Money Mindset & Wealth'], tools: 'business' },
-    yourself: { name: 'Grow Yourself', img: 'Energy Healing', line: 'Mindset, healing, Human Design, readings and wellness for the woman behind the business.', cats: ['Life & Purpose Coaching', 'Money Mindset & Wealth', 'Manifestation', 'Hypnosis & Subconscious Work', 'Quantum Journeys Hypnosis', 'Energy Healing', 'Human Design & Astrology', 'Intuitive Readings', 'Relationship & Family Coaching', 'Faith & Spiritual Growth', 'Nutrition & Fitness', 'Perimenopause & Menopause'] },
-    shop: { name: 'Women-Owned Shops', img: 'Handmade & Gifts', line: 'Handmade gifts, beauty, digital downloads and products you\u2019ll love.', cats: ['Handmade & Gifts', 'Beauty & Skincare'], formats: ['Physical Product', 'Digital Product'], formatSec: 'Products' }
+  /* Where each offer and community shows. Your ticks in the Updater win. With no ticks, her categories and formats decide. */
+  var PLACE_ORDER = ['skool', 'business', 'yourself', 'training', 'shop'];
+  var PLACE_NAMES = { skool: 'Grow Your Skool Community', business: 'Grow Your Business', yourself: 'Grow Yourself', training: 'Trainings & Certifications', shop: 'Women-Owned Shops' };
+  var PLACE_SHORT = { skool: 'Skool', business: 'Business', yourself: 'Yourself', training: 'Trainings', shop: 'Shops' };
+  var PLACE_CATS = {
+    skool: ['Skool Tools & Apps', 'Skool Community Growth', 'Promo & Networking'],
+    business: ['Business Coaching & Strategy', 'Social Media & Content', 'Websites, Funnels & Tech', 'AI & Automation Support', 'Virtual Assistants & Admin', 'Branding, Design & Photography', 'Money Mindset & Wealth'],
+    yourself: ['Life & Purpose Coaching', 'Money Mindset & Wealth', 'Manifestation', 'Hypnosis & Subconscious Work', 'Quantum Journeys Hypnosis', 'Energy Healing', 'Human Design & Astrology', 'Intuitive Readings', 'Relationship & Family Coaching', 'Faith & Spiritual Growth', 'Nutrition & Fitness', 'Perimenopause & Menopause'],
+    shop: ['Handmade & Gifts', 'Beauty & Skincare']
   };
+  var TRAIN_FMT = 'Training or Certification';
+  var PRODUCT_FMTS = ['Physical Product', 'Digital Product'];
+  var placeKey = function (id, kind, link, name) {
+    var l = String(link || '').trim().toLowerCase().replace(/^https?:\/\//, '').replace(/^www\./, '').split(/[?#]/)[0].replace(/\/+$/, '').replace(/\/about$/, '');
+    return String(id || '') + '|' + kind + '|' + (l || String(name || '').toLowerCase().replace(/\s+/g, ' ').trim());
+  };
+  var autoPlaces = function (cats, formats, isComm) {
+    cats = cats || []; formats = formats || [];
+    var has = function (k) { return cats.some(function (c) { return PLACE_CATS[k].indexOf(c) !== -1; }); };
+    var training = formats.indexOf(TRAIN_FMT) !== -1;
+    var productOnly = formats.length > 0 && formats.every(function (f) { return PRODUCT_FMTS.indexOf(f) !== -1; });
+    var out = [];
+    if (has('skool')) out.push('skool');
+    if (has('business')) out.push('business');
+    if (!training && has('yourself')) out.push('yourself');
+    if (training) out.push('training');
+    if (!training && (isComm ? has('shop') : (productOnly || (!formats.length && has('shop'))))) out.push('shop');
+    if (!out.length && has('shop')) out.push('shop');
+    return out;
+  };
+  var chosenPlaces = function (map, key) {
+    var v = map && map[key];
+    return Array.isArray(v) ? v.filter(function (p) { return PLACE_ORDER.indexOf(p) !== -1; }) : [];
+  };
+  /* The doorways. An offer or community shows up in every one it fits. */
+  var PILLAR_ORDER = PLACE_ORDER;
+  var PILLARS = {
+    skool: { name: 'Grow Your Skool Community', img: 'Promo & Networking', line: 'Tools, Skool support and promo groups to help your community grow.', cats: PLACE_CATS.skool, promos: true, tools: 'skool', fallback: 'Skool Community Growth' },
+    business: { name: 'Grow Your Business', img: 'Business Coaching & Strategy', line: 'Coaching, marketing, websites, AI and support to get you seen and paid.', cats: PLACE_CATS.business, tools: 'business', fallback: 'Business Coaching & Strategy' },
+    yourself: { name: 'Grow Yourself', img: 'Energy Healing', line: 'Mindset, healing, Human Design, readings and wellness for the woman behind the business.', cats: PLACE_CATS.yourself, fallback: 'More for you' },
+    training: { name: 'Trainings & Certifications', img: 'Trainings & Certifications', line: 'Learn a skill you can use in your business or offer to your own clients.', cats: [], fallback: 'More trainings' },
+    shop: { name: 'Women-Owned Shops', img: 'Handmade & Gifts', line: 'Handmade gifts, beauty, digital downloads and products you\u2019ll love.', cats: PLACE_CATS.shop, fallback: 'Products' }
+  };
+  /* Inside Trainings & Certifications, sorted by what she'll learn */
+  var TRAIN_SECS = [
+    ['Skool & community', PLACE_CATS.skool],
+    ['Business & marketing', ['Business Coaching & Strategy', 'Social Media & Content', 'Websites, Funnels & Tech', 'AI & Automation Support', 'Virtual Assistants & Admin', 'Branding, Design & Photography']],
+    ['Healing & spiritual', ['Energy Healing', 'Hypnosis & Subconscious Work', 'Quantum Journeys Hypnosis', 'Human Design & Astrology', 'Intuitive Readings', 'Manifestation', 'Faith & Spiritual Growth']],
+    ['Coaching & wellness', ['Life & Purpose Coaching', 'Money Mindset & Wealth', 'Relationship & Family Coaching', 'Nutrition & Fitness', 'Perimenopause & Menopause', 'Beauty & Skincare', 'Handmade & Gifts']]
+  ];
   var groupOf = function (cat) {
     for (var i = 0; i < GROUPS.length; i++) if (GROUPS[i].cats.indexOf(cat) !== -1) return GROUPS[i];
     return null;
@@ -1133,8 +1178,8 @@
     img.onload = function () { holder.textContent = ''; holder.appendChild(img); };
     img.src = src;
   };
-  var FORMATS = ['1:1 Sessions', 'Group Program', 'Course', 'Membership or Skool Community', 'Physical Product', 'Digital Product', 'Live Event or Workshop', 'Tool or App'];
-  var FILTER_FORMATS = ['Membership or Skool Community', 'Physical Product', 'Digital Product', 'Live Event or Workshop', 'Tool or App'];
+  var FORMATS = ['1:1 Sessions', 'Group Program', 'Course', 'Membership or Skool Community', 'Physical Product', 'Digital Product', 'Live Event or Workshop', 'Training or Certification', 'Tool or App'];
+  var FILTER_FORMATS = ['Membership or Skool Community', 'Physical Product', 'Digital Product', 'Live Event or Workshop', 'Training or Certification', 'Tool or App'];
   var EMOJI = {
     'Promo & Networking': '\uD83D\uDCE3',
     'Perimenopause & Menopause': '\uD83C\uDF3A',
@@ -1157,7 +1202,7 @@
   })();
   var linkKey = function (u) { return String(u || '').toLowerCase().replace(/^https?:\/\//, '').replace(/^www\./, '').split(/[?#]/)[0].replace(/\/+$/, '').replace(/\/about$/, ''); };
   var VIP_NAME = 'Featured Businesses';   /* the page that holds every VIP's page */
-  var TITLES = { skool: 'Grow Your Skool Community', business: 'Grow Your Business', yourself: 'Grow Yourself', shop: 'Women-Owned Shops', share: 'Directory Referral Program', events: 'Upcoming Events', vip: VIP_NAME, calendar: 'Where can I promote today?', home: 'Home', offers: 'Offers & Services', communities: 'Communities', recommended: 'Recommended Communities', promo: 'Promo Communities' };
+  var TITLES = { skool: 'Grow Your Skool Community', business: 'Grow Your Business', yourself: 'Grow Yourself', shop: 'Women-Owned Shops', training: 'Trainings & Certifications', share: 'Directory Referral Program', events: 'Upcoming Events', vip: VIP_NAME, calendar: 'Where can I promote today?', home: 'Home', offers: 'Offers & Services', communities: 'Communities', recommended: 'Recommended Communities', promo: 'Promo Communities' };
   var INTROS = {
     calendar: 'Every promo group in the Directory and the days you can post there. Tap a day, or All to see the full week.',
     promo: 'Have a business to share? These are the promo communities that inspired me to create She Promotes&trade;. More places to post your offer and meet amazing women.',
@@ -1167,7 +1212,8 @@
     skool: 'Tools, Skool support and promo communities to help your community grow. <a class="intro-link" href="#calendar">See where you can promote today &rarr;</a>',
     business: 'Coaching, marketing, websites, AI and support from women who get it. Offers and communities, all in one place.',
     yourself: 'Mindset, healing, Human Design, readings and wellness for the woman behind the business.',
-    shop: 'Handmade gifts, beauty, digital downloads and products made by women in business.'
+    shop: 'Handmade gifts, beauty, digital downloads and products made by women in business.',
+    training: 'Courses, certifications and trainings from the women in this Directory. Learn a skill you can use in your own business, or one you can offer your clients.'
   };
 
   var data = { featured: [], members: [] };
@@ -1867,26 +1913,48 @@
     share: [],
     calendar: [],
     promo: ['', 'Skool', 'Facebook Group', 'Other'],
-    skool: [], business: [], yourself: [], shop: []
+    skool: [], business: [], yourself: [], training: [], shop: []
   };
   /* Everything in one pillar: offers, communities, tools, and for Skool the promo communities too */
   var SEC_NAMES = { 'Skool Tools & Apps': 'Tools', 'Promo & Networking': 'Promo Communities' };
+  var placesFor = function (key, cats, formats, isComm) {
+    var mine = chosenPlaces(data && data.placements, key);
+    return mine.length ? mine : autoPlaces(cats, formats, isComm);
+  };
+  var offerPlaces = function (m) { return placesFor(placeKey(m.id, 'o', m.offerLink, m.offerName || m.offer), m.categories, m.formats, false); };
+  var commPlaces = function (m) { var cm = m.community; return placesFor(placeKey(m.id, 'c', cm.link, cm.name), commCats(cm), [], true); };
+  var pillarSec = function (key, cats, isTrain, isOffer) {
+    var P = PILLARS[key];
+    if (key === 'training') {
+      for (var t = 0; t < TRAIN_SECS.length; t++) if (cats.some(function (c) { return TRAIN_SECS[t][1].indexOf(c) !== -1; })) return TRAIN_SECS[t][0];
+      return P.fallback;
+    }
+    if (isTrain && (key === 'business' || key === 'skool')) return 'Trainings';
+    for (var i = 0; i < P.cats.length; i++) if (cats.indexOf(P.cats[i]) !== -1) {
+      var c = P.cats[i];
+      if (c === PROMO_CAT && isOffer) return 'Offers for promo and networking';
+      return SEC_NAMES[c] || c;
+    }
+    return P.fallback;
+  };
   var pillarItems = function (key) {
     var P = PILLARS[key], list = [], seenC = {};
     if (!P) return list;
-    var firstCat = function (cs) { for (var i = 0; i < P.cats.length; i++) if (cs.indexOf(P.cats[i]) !== -1) return P.cats[i]; return ''; };
-    var nice = function (c) { return SEC_NAMES[c] || c; };
     if (P.tools) tools.forEach(function (t) { if (t.helps === P.tools || t.helps === 'both') list.push({ k: 't', t: t, sec: 'Tools' }); });
+    var offerSeen = {};
     offers.forEach(function (m) {
-      var c = firstCat(m.categories || []);
-      if (!c && P.formats && (m.formats || []).some(function (f) { return P.formats.indexOf(f) !== -1; })) c = P.formatSec;
-      if (c) list.push({ k: 'o', m: m, sec: c === 'Promo & Networking' ? 'Offers for promo and networking' : nice(c) });
+      var ps = offerPlaces(m);
+      if (ps.indexOf(key) === -1) return;
+      offerSeen[(linkKey(m.offerLink) || '') + '|' + norm(m.offerName || m.offer)] = true;
+      list.push({ k: 'o', m: m, sec: pillarSec(key, m.categories || [], ps.indexOf('training') !== -1, true) });
     });
     communities.forEach(function (m) {
-      var c = firstCat(commCats(m.community));
-      if (!c) return;
+      var ps = commPlaces(m);
+      if (ps.indexOf(key) === -1) return;
+      /* same name and link as one of her offers here: show it once */
+      if (offerSeen[(linkKey(m.community.link) || '') + '|' + norm(m.community.name)]) return;
       seenC[linkKey(m.community.link) || norm(m.community.name)] = true;
-      list.push({ k: 'c', m: m, sec: nice(c) });
+      list.push({ k: 'c', m: m, sec: pillarSec(key, commCats(m.community), ps.indexOf('training') !== -1, false) });
     });
     if (P.promos) promos.forEach(function (f) {
       var lk = linkKey(f.link) || norm(f.name);
@@ -1898,7 +1966,8 @@
   };
   var pillarSecs = function (key) {
     var P = PILLARS[key];
-    return (P.tools ? ['Tools'] : []).concat(P.cats.map(function (c) { return SEC_NAMES[c] || c; }), ['Offers for promo and networking', 'Promo Communities', P.formatSec || '']).filter(function (x, i, arr) { return x && arr.indexOf(x) === i; });
+    if (key === 'training') return TRAIN_SECS.map(function (x) { return x[0]; }).concat([P.fallback]);
+    return (P.tools ? ['Tools'] : []).concat(P.cats.map(function (c) { return SEC_NAMES[c] || c; }), ['Offers for promo and networking', 'Promo Communities', P.fallback, (key === 'business' || key === 'skool') ? 'Trainings' : '']).filter(function (x, i, arr) { return x && arr.indexOf(x) === i; });
   };
   var updatePillarCounts = function () {
     PILLAR_ORDER.forEach(function (k) { var n = pillarItems(k).length, c = $('c-' + k); if (c) c.textContent = n ? '(' + n + ')' : ''; });
@@ -2065,6 +2134,7 @@
         var hd = el('div', 'grid-sec' + (n ? '' : ' first'));
         hd.appendChild(el('h3', 'group-title', k));
         hd.appendChild(el('span', 'grid-sec-n', pSec[k].length + (pSec[k].length === 1 ? ' listing' : ' listings')));
+        if (k === 'Trainings') { var ta = el('a', 'intro-link grid-sec-link', 'See all trainings \u2192'); ta.href = '#training'; hd.appendChild(ta); }
         grid.appendChild(hd);
         pSec[k].forEach(function (it) { grid.appendChild(make(it)); });
       });
