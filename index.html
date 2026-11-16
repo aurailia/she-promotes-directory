@@ -270,6 +270,29 @@
   .nav-sep { height: 1px; margin: 8px 12px; background: linear-gradient(90deg, transparent, var(--gold) 20%, var(--gold) 80%, transparent); opacity: 0.7; }
   .nav-item .ico { width: 32px; height: 32px; flex: 0 0 32px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
   .nav-item .ico img { width: 32px; height: 32px; object-fit: contain; display: block; }
+  .nav-item.pillar .ico img { border-radius: 50%; object-fit: cover; box-shadow: 0 0 0 2px rgba(232, 196, 122, 0.6); }
+  .nav-item.pillar .lbl { color: var(--text); }
+  .nav-label { font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold); font-weight: 700; padding: 12px 12px 4px; }
+  /* Home: four doorways */
+  .gdoors { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin: 8px 0 22px; }
+  .gdoor { font: inherit; color: inherit; text-align: left; cursor: pointer; border: 1px solid rgba(232, 196, 122, 0.35); border-radius: 20px; overflow: hidden; background: rgba(255, 255, 255, 0.04); display: flex; flex-direction: column; padding: 0; transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s; }
+  .gdoor:hover { border-color: rgba(232, 196, 122, 0.7); box-shadow: 0 0 18px rgba(232, 196, 122, 0.18); transform: translateY(-2px); }
+  .gdoor .door-img { height: 130px; background: rgba(0, 0, 0, 0.25) center / cover no-repeat; }
+  .gdoor .door-in { padding: 14px 16px 16px; display: grid; gap: 6px; flex: 1; align-content: start; }
+  .gdoor h3 { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 24px; line-height: 1.1; margin: 0; background: var(--title-grad); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; width: fit-content; }
+  .gdoor p { font-size: 14px; color: var(--muted); line-height: 1.5; margin: 0; }
+  .gdoor .go { margin-top: auto; padding-top: 6px; font-size: 14px; font-weight: 600; color: var(--gold-bright); }
+  .who-box { text-align: center; border: 1px solid rgba(232, 196, 122, 0.3); border-radius: 18px; padding: 16px 20px; margin-bottom: 26px; background: linear-gradient(135deg, rgba(232, 196, 122, 0.08), rgba(196, 155, 255, 0.06)); font-size: 15px; line-height: 1.6; }
+  .who-box .who-btns { display: flex; gap: 10px; justify-content: center; margin-top: 12px; flex-wrap: wrap; }
+  .who-box .who-btns .btn { flex: 0 0 auto; width: auto; }
+  .intro-link { color: var(--gold-bright); font-weight: 600; }
+  @media (max-width: 1100px) { .gdoors { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 640px) {
+    .gdoors { gap: 12px; }
+    .gdoor .door-img { height: 96px; }
+    .gdoor h3 { font-size: 20px; }
+    .gdoor p { display: none; }
+  }
   .nav-item .lbl { flex: 1; }
   .nav-item .count { font-size: 12px; opacity: 0.8; }
   .nav-item[aria-current="true"] { color: var(--text); background: rgba(232, 196, 122, 0.14); border-color: rgba(232, 196, 122, 0.45); font-weight: 600; }
@@ -291,6 +314,16 @@
   .sharer-head .section-sub { margin: 4px 0 0; }
   #sharerRow .sharer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 360px)); justify-content: center; gap: 18px; }
   @media (max-width: 520px) { #sharerRow { padding: 18px 14px; } #sharerRow .sharer-grid { grid-template-columns: 1fr; } }
+  /* Shared with you by: her intro on the left, all her offers and communities on the right */
+  .sharer-body { display: grid; gap: 18px; }
+  .sharer-about { border: 1px solid rgba(232, 196, 122, 0.3); border-radius: 18px; padding: 18px; background: rgba(0, 0, 0, 0.18); display: grid; gap: 12px; align-content: start; }
+  .sharer-about .who-row { margin: 0; }
+  .sharer-about .offer { white-space: pre-line; font-size: 15px; line-height: 1.6; }
+  .sharer-about .actions { margin-top: 2px; }
+  #sharerRow .sharer-body .sharer-grid { grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); justify-content: stretch; }
+  @media (min-width: 900px) {
+    .sharer-body.has-about { grid-template-columns: minmax(260px, 340px) 1fr; align-items: start; }
+  }
   .grid-sec { grid-column: 1 / -1; display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-top: 26px; padding-bottom: 10px; border-bottom: 1px solid rgba(232, 196, 122, 0.22); }
   .grid-sec.first { margin-top: 0; }
   .grid-sec .group-title { margin: 0; }
@@ -463,6 +496,16 @@
   @media (min-width: 640px) {
     .overlay { align-items: center; }
     .dialog { border-radius: 24px; border-bottom: 1px solid var(--card-border); padding: 26px 24px; }
+  }
+  /* Profile pop-up: one column on phones, two columns on desktop */
+  .pf-grid { display: flex; flex-direction: column; }
+  .pf-col { display: contents; }
+  .pf-sec-about { order: 1; } .pf-sec-links { order: 2; } .pf-sec-offers { order: 3; } .pf-sec-comms { order: 4; } .pf-sec-recs { order: 5; }
+  @media (min-width: 900px) {
+    .dialog.wide { max-width: 980px; padding: 30px 32px; }
+    .pf-grid.two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 28px; align-items: start; }
+    .pf-grid.two .pf-col { display: block; }
+    .pf-grid.two .pf-col > .pf-sec:first-child > h3.sub:first-child { margin-top: 12px; }
   }
   .close {
     position: absolute; top: 12px; right: 12px; z-index: 3; background: rgba(42, 16, 40, 0.85); width: 38px; height: 38px; border-radius: 50%;
@@ -799,15 +842,21 @@
       <button class="nav-item" type="button" data-sec="home"><span class="ico" aria-hidden="true">&#127969;</span><span class="lbl">Home</span><span class="count"></span></button>
       <button class="nav-item vip-nav" type="button" data-sec="vip"><span class="ico" aria-hidden="true">&#128081;</span><span class="lbl" id="vipNavLbl">Featured Businesses</span><span class="count" id="c-vip"></span></button>
       <button class="nav-item" type="button" data-sec="events"><span class="ico" aria-hidden="true">&#127903;</span><span class="lbl">Upcoming Events</span><span class="count" id="c-events"></span></button>
-      <button class="nav-item" type="button" data-sec="offers"><span class="ico" aria-hidden="true">&#128717;&#65039;</span><span class="lbl">Offers &amp; Services</span><span class="count" id="c-offers"></span></button>
-      <div class="subnav" id="offersSub" hidden></div>
+      <div class="nav-label">Find what you need</div>
+      <button class="nav-item pillar" type="button" data-sec="skool"><span class="ico" aria-hidden="true">&#10022;</span><span class="lbl">Grow Your Skool Community</span><span class="count" id="c-skool"></span></button>
+      <button class="nav-item pillar" type="button" data-sec="business"><span class="ico" aria-hidden="true">&#10022;</span><span class="lbl">Grow Your Business</span><span class="count" id="c-business"></span></button>
+      <button class="nav-item pillar" type="button" data-sec="yourself"><span class="ico" aria-hidden="true">&#10022;</span><span class="lbl">Grow Yourself</span><span class="count" id="c-yourself"></span></button>
+      <button class="nav-item pillar" type="button" data-sec="shop"><span class="ico" aria-hidden="true">&#10022;</span><span class="lbl">Women-Owned Shops</span><span class="count" id="c-shop"></span></button>
+      <div class="nav-sep" role="separator" aria-hidden="true"></div>
       <button class="nav-item" type="button" data-sec="communities"><span class="ico" aria-hidden="true">&#128150;</span><span class="lbl">Communities</span><span class="count" id="c-communities"></span></button>
       <button class="nav-item" type="button" data-sec="promo"><span class="ico" aria-hidden="true">&#11088;</span><span class="lbl">Promo Communities</span><span class="count" id="c-promo"></span></button>
-      <button class="nav-item" type="button" data-sec="calendar"><span class="ico" aria-hidden="true">&#128197;</span><span class="lbl">Promo Calendar</span><span class="count" id="c-calendar"></span></button>
-      <div class="nav-sep" role="separator" aria-hidden="true"></div>
       <button class="nav-item" type="button" data-sec="recommended"><span class="ico" aria-hidden="true">&#129309;</span><span class="lbl">Recommended Communities</span><span class="count" id="c-recommended"></span></button>
+      <!-- Still reachable from links (#offers, #calendar), just not in the menu -->
+      <button class="nav-item" type="button" data-sec="offers" hidden><span class="ico" aria-hidden="true">&#128717;&#65039;</span><span class="lbl">Offers &amp; Services</span><span class="count" id="c-offers"></span></button>
+      <div class="subnav" id="offersSub" hidden></div>
+      <button class="nav-item" type="button" data-sec="calendar" hidden><span class="ico" aria-hidden="true">&#128197;</span><span class="lbl">Promo Calendar</span><span class="count" id="c-calendar"></span></button>
     </nav>
-    <div class="side-cta">Own a business? Get listed in the Directory. <a id="sideListed" href="#listed">Here&rsquo;s how</a><br><span class="side-share" id="sideShare" hidden>Members: <a href="#share">share the Directory and earn</a></span></div>
+    <div class="side-cta">Own a business? Get listed in the Directory. <a id="sideListed" href="#listed">Here&rsquo;s how</a><br><span class="side-share" id="sideShare" hidden>Members: <a href="#share">Directory Referral Program</a></span></div>
   </aside>
   <div class="scrim" id="scrim"></div>
 
@@ -822,7 +871,7 @@
         <p class="shared-by" id="sharedBy" hidden></p>
         <div class="eyebrow">She Promotes&trade;</div>
         <h1>The <span>Directory</span></h1>
-        <p class="lede">A directory of women in business. Find the healer, coach or helper you&rsquo;ve been looking for.</p>
+        <p class="lede">Find women-run businesses, offers and communities that help you grow your business, your Skool community, and yourself.</p>
         <button class="what-btn" type="button" id="whatBtn" aria-expanded="false" aria-controls="whatBox">What is this? How to use it</button>
         <div class="what-box" id="whatBox" hidden>
           <p class="lede small">If you&rsquo;re looking for a healer, a coach, an Akashic Records reader, a Human Design guide or someone to build your website, you might find her here. Every woman listed is part of She Promotes&trade;, a Skool community where women in business support each other. Created by Aurailia Arnold.</p>
@@ -842,6 +891,11 @@
       </header>
 
       <section id="homeView" aria-labelledby="homeTitle" hidden>
+        <div class="gdoors" id="doors"></div>
+        <div class="who-box">Every business here is part of <b>She Promotes&trade;</b>, a community where women in business support, promote and buy from each other.
+          <div class="who-btns"><a class="btn btn-primary" id="whoJoin" href="#" target="_blank" rel="noopener">Join She Promotes&trade; free</a><a class="btn btn-ghost" href="#listed">Own a business? Get listed</a></div>
+        </div>
+        <div id="sharerRow" hidden></div>
         <div class="home-search" role="search">
           <div class="search">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
@@ -850,7 +904,6 @@
           </div>
           <div class="chips" id="hqChips" role="group" aria-label="Popular searches"></div>
         </div>
-        <div id="sharerRow" hidden></div>
         <div id="spotlight" hidden></div>
         <div id="featRow" hidden></div>
         <div id="weekRow" hidden></div>
@@ -868,7 +921,7 @@
       <section id="shareView" aria-labelledby="shareTitle" hidden>
         <div class="share-wrap">
           <div class="eyebrow orn">For She Promotes&trade; members</div>
-          <h2 class="section lounge-title" id="shareTitle">Share the Directory and earn</h2>
+          <h2 class="section lounge-title" id="shareTitle">Directory Referral Program</h2>
           <p class="section-sub share-sub">Share the Directory with your people. When someone joins She Promotes&trade; or upgrades through your link, you earn through the She Promotes affiliate program on Skool. It&rsquo;s the same Directory everyone sees, just with your link on the join buttons.</p>
           <div class="share-card">
             <ol class="share-steps">
@@ -1015,7 +1068,7 @@
   var UPGRADE_URL = 'https://www.skool.com/she-promotes/plans';   /* where women go to become a VIP */
   var DM_URL = 'https://www.skool.com/@aurailis-arnold-5599';   /* your Skool profile, where members can message you */
   var DATA_URL = 'directory.json';
-  var SHARE_ON = true;   /* true shows the "share the Directory and earn" link in the menu. The share page works either way. */
+  var SHARE_ON = true;   /* true shows the "Directory Referral Program" link in the menu. The share page works either way. */
 
   /* Members share the Directory with their She Promotes affiliate code: ?ref=CODE&from=Name
      Her code rides on every She Promotes join and upgrade button, and is remembered for 60 days. */
@@ -1045,16 +1098,25 @@
     'Relationship & Family Coaching', 'Business Coaching & Strategy', 'Human Design & Astrology',
     'Intuitive Readings', 'Nutrition & Fitness', 'Perimenopause & Menopause', 'Beauty & Skincare',
     'Social Media & Content', 'Websites, Funnels & Tech', 'AI & Automation Support',
-    'Virtual Assistants & Admin', 'Branding, Design & Photography', 'Handmade & Gifts'
+    'Virtual Assistants & Admin', 'Branding, Design & Photography', 'Handmade & Gifts',
+    'Skool Community Growth', 'Skool Tools & Apps'
   ];
   var GROUPS = [
-    { key: 'business', name: 'Grow Your Business', short: 'Business', cats: ['Business Coaching & Strategy', 'Social Media & Content', 'Websites, Funnels & Tech', 'AI & Automation Support', 'Virtual Assistants & Admin', 'Branding, Design & Photography', 'Promo & Networking'] },
+    { key: 'business', name: 'Grow Your Business', short: 'Business', cats: ['Business Coaching & Strategy', 'Social Media & Content', 'Websites, Funnels & Tech', 'AI & Automation Support', 'Virtual Assistants & Admin', 'Branding, Design & Photography', 'Skool Community Growth', 'Skool Tools & Apps', 'Promo & Networking'] },
     { key: 'mindset', name: 'Mindset & Growth', short: 'Mindset', cats: ['Life & Purpose Coaching', 'Money Mindset & Wealth', 'Manifestation', 'Hypnosis & Subconscious Work', 'Relationship & Family Coaching'] },
     { key: 'spiritual', name: 'Spiritual & Energy', short: 'Spiritual', cats: ['Energy Healing', 'Quantum Journeys Hypnosis', 'Human Design & Astrology', 'Intuitive Readings'] },
     { key: 'faith', name: 'Faith & Spirit', short: 'Faith', cats: ['Faith & Spiritual Growth'] },
     { key: 'wellness', name: 'Wellness & Self Care', short: 'Wellness', cats: ['Nutrition & Fitness', 'Perimenopause & Menopause', 'Beauty & Skincare'] },
     { key: 'shop', name: 'Shop', short: 'Shop', cats: ['Handmade & Gifts'] }
   ];
+  /* The four doorways. An offer or community shows up in every pillar its categories fit. */
+  var PILLAR_ORDER = ['skool', 'business', 'yourself', 'shop'];
+  var PILLARS = {
+    skool: { name: 'Grow Your Skool Community', img: 'Promo & Networking', line: 'Tools, Skool support and promo groups to help your community grow.', cats: ['Skool Tools & Apps', 'Skool Community Growth', 'Promo & Networking'], promos: true, tools: 'skool' },
+    business: { name: 'Grow Your Business', img: 'Business Coaching & Strategy', line: 'Coaching, marketing, websites, AI and support to get you seen and paid.', cats: ['Business Coaching & Strategy', 'Social Media & Content', 'Websites, Funnels & Tech', 'AI & Automation Support', 'Virtual Assistants & Admin', 'Branding, Design & Photography', 'Money Mindset & Wealth'], tools: 'business' },
+    yourself: { name: 'Grow Yourself', img: 'Energy Healing', line: 'Mindset, healing, Human Design, readings and wellness for the woman behind the business.', cats: ['Life & Purpose Coaching', 'Money Mindset & Wealth', 'Manifestation', 'Hypnosis & Subconscious Work', 'Quantum Journeys Hypnosis', 'Energy Healing', 'Human Design & Astrology', 'Intuitive Readings', 'Relationship & Family Coaching', 'Faith & Spiritual Growth', 'Nutrition & Fitness', 'Perimenopause & Menopause'] },
+    shop: { name: 'Women-Owned Shops', img: 'Handmade & Gifts', line: 'Handmade gifts, beauty, digital downloads and products you\u2019ll love.', cats: ['Handmade & Gifts', 'Beauty & Skincare'], formats: ['Physical Product', 'Digital Product'], formatSec: 'Products' }
+  };
   var groupOf = function (cat) {
     for (var i = 0; i < GROUPS.length; i++) if (GROUPS[i].cats.indexOf(cat) !== -1) return GROUPS[i];
     return null;
@@ -1071,8 +1133,8 @@
     img.onload = function () { holder.textContent = ''; holder.appendChild(img); };
     img.src = src;
   };
-  var FORMATS = ['1:1 Sessions', 'Group Program', 'Course', 'Membership or Skool Community', 'Physical Product', 'Digital Product', 'Live Event or Workshop'];
-  var FILTER_FORMATS = ['Membership or Skool Community', 'Physical Product', 'Digital Product', 'Live Event or Workshop'];
+  var FORMATS = ['1:1 Sessions', 'Group Program', 'Course', 'Membership or Skool Community', 'Physical Product', 'Digital Product', 'Live Event or Workshop', 'Tool or App'];
+  var FILTER_FORMATS = ['Membership or Skool Community', 'Physical Product', 'Digital Product', 'Live Event or Workshop', 'Tool or App'];
   var EMOJI = {
     'Promo & Networking': '\uD83D\uDCE3',
     'Perimenopause & Menopause': '\uD83C\uDF3A',
@@ -1080,7 +1142,8 @@
     'Relationship & Family Coaching': '\uD83D\uDC9E', 'Business Coaching & Strategy': '\uD83D\uDCC8', 'Human Design & Astrology': '\uD83C\uDF19',
     'Intuitive Readings': '\uD83D\uDD2E', 'Nutrition & Fitness': '\uD83C\uDF3F', 'Beauty & Skincare': '\uD83C\uDF38',
     'Social Media & Content': '\uD83D\uDCF1', 'Websites, Funnels & Tech': '\uD83D\uDCBB', 'AI & Automation Support': '\uD83E\uDD16',
-    'Virtual Assistants & Admin': '\uD83D\uDDC2\uFE0F', 'Branding, Design & Photography': '\uD83D\uDCF8', 'Handmade & Gifts': '\uD83C\uDF81'
+    'Virtual Assistants & Admin': '\uD83D\uDDC2\uFE0F', 'Branding, Design & Photography': '\uD83D\uDCF8', 'Handmade & Gifts': '\uD83C\uDF81',
+    'Skool Community Growth': '\uD83C\uDF31', 'Skool Tools & Apps': '\uD83E\uDDF0'
   };
   var PROMO_CAT = 'Promo & Networking';
   var DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -1094,13 +1157,17 @@
   })();
   var linkKey = function (u) { return String(u || '').toLowerCase().replace(/^https?:\/\//, '').replace(/^www\./, '').split(/[?#]/)[0].replace(/\/+$/, '').replace(/\/about$/, ''); };
   var VIP_NAME = 'Featured Businesses';   /* the page that holds every VIP's page */
-  var TITLES = { share: 'Share and earn', events: 'Upcoming Events', vip: VIP_NAME, calendar: 'Where can I promote today?', home: 'Home', offers: 'Offers & Services', communities: 'Communities', recommended: 'Recommended Communities', promo: 'Promo Communities' };
+  var TITLES = { skool: 'Grow Your Skool Community', business: 'Grow Your Business', yourself: 'Grow Yourself', shop: 'Women-Owned Shops', share: 'Directory Referral Program', events: 'Upcoming Events', vip: VIP_NAME, calendar: 'Where can I promote today?', home: 'Home', offers: 'Offers & Services', communities: 'Communities', recommended: 'Recommended Communities', promo: 'Promo Communities' };
   var INTROS = {
     calendar: 'Every promo group in the Directory and the days you can post there. Tap a day, or All to see the full week.',
     promo: 'Have a business to share? These are the promo communities that inspired me to create She Promotes&trade;. More places to post your offer and meet amazing women.',
     offers: 'Signature offers from the women in this Directory. Search for what you need, or browse by category.',
     communities: 'Communities run by the women in this Directory. Find your next favorite room. New to Skool? It&rsquo;s free to sign up. Tap Join the community and create your account.',
-    recommended: 'Communities the women in this Directory love, and why they recommend them.'
+    recommended: 'Communities the women in this Directory love, and why they recommend them.',
+    skool: 'Tools, Skool support and promo communities to help your community grow. <a class="intro-link" href="#calendar">See where you can promote today &rarr;</a>',
+    business: 'Coaching, marketing, websites, AI and support from women who get it. Offers and communities, all in one place.',
+    yourself: 'Mindset, healing, Human Design, readings and wellness for the woman behind the business.',
+    shop: 'Handmade gifts, beauty, digital downloads and products made by women in business.'
   };
 
   var data = { featured: [], members: [] };
@@ -1309,7 +1376,7 @@
   };
 
   /* Derived lists */
-  var offers = [], communities = [], recs = [], promos = [];
+  var offers = [], communities = [], recs = [], promos = [], tools = [];
   /* The member who shared this link: her listing comes first for anyone she brings in */
   var sharer = null;
   var isSharer = function (m) { return !!(sharer && m && (m === sharer || m._base === sharer)); };
@@ -1413,14 +1480,16 @@
     });
     $('c-recommended').textContent = recs.length ? '(' + recs.length + ')' : '';
     var seenP = {};
+    tools = (data.featured || []).filter(function (f) { return f && f.type === 'tool' && f.name && f.link; });
     promos = (data.featured || []).filter(function (f) {
-      if (!f.name || !f.link) return false;
+      if (!f.name || !f.link || f.type === 'tool') return false;
       var k = linkKey(f.link) || norm(f.name);
       if (seenP[k]) return false;
       seenP[k] = true;
       return true;
     });
     $('c-promo').textContent = promos.length ? '(' + promos.length + ')' : '';
+    updatePillarCounts();
     /* every group with promo days, for the calendar */
     calGroups = []; var seen = {};
     var addCal = function (o) {
@@ -1656,6 +1725,7 @@
     lastFocus = from || null;
     var body = $('dlgBody');
     body.innerHTML = '';
+    $('dialog').classList.remove('wide');
     full.classList.add('detail');
     body.appendChild(full);
     if (!full.querySelector('#dlgName')) { var h = full.querySelector('h3, .name'); if (h) h.id = 'dlgName'; }
@@ -1739,6 +1809,26 @@
     tapCard(c, recFull, item);
     return c;
   };
+  /* Tools Aurailia adds herself: what it does, the link, and an optional demo video */
+  var toolCard = function (t) {
+    var c = el('article', 'card compact');
+    addThumb(c, t.image, ['tools', 'promo'], t.name);
+    c.appendChild(el('h3', '', t.name));
+    if (t.about) c.appendChild(el('p', 'offer', t.about));
+    if (t.why) c.appendChild(whyBox(['Why I recommend it'], t.why));
+    var tg = el('div', 'tags');
+    tg.appendChild(el('span', 'tag gold', 'Tool'));
+    if (t.access) tg.appendChild(el('span', 'tag', t.access));
+    if (t.affiliate) tg.appendChild(el('span', 'tag gold', 'Affiliate link'));
+    c.appendChild(tg);
+    var acts = el('div', 'actions');
+    var lb = linkBtn('Check it out', t.link, true);
+    if (lb) acts.appendChild(lb);
+    var vb = linkBtn('Watch the demo', t.video, false);
+    if (vb) acts.appendChild(vb);
+    c.appendChild(acts);
+    return c;
+  };
   var promoCard = function (f) {
     var c = el('article', 'feat compact');
     var thumb = el('div', 'feat-thumb');
@@ -1776,7 +1866,42 @@
     events: [],
     share: [],
     calendar: [],
-    promo: ['', 'Skool', 'Facebook Group', 'Other']
+    promo: ['', 'Skool', 'Facebook Group', 'Other'],
+    skool: [], business: [], yourself: [], shop: []
+  };
+  /* Everything in one pillar: offers, communities, tools, and for Skool the promo communities too */
+  var SEC_NAMES = { 'Skool Tools & Apps': 'Tools', 'Promo & Networking': 'Promo Communities' };
+  var pillarItems = function (key) {
+    var P = PILLARS[key], list = [], seenC = {};
+    if (!P) return list;
+    var firstCat = function (cs) { for (var i = 0; i < P.cats.length; i++) if (cs.indexOf(P.cats[i]) !== -1) return P.cats[i]; return ''; };
+    var nice = function (c) { return SEC_NAMES[c] || c; };
+    if (P.tools) tools.forEach(function (t) { if (t.helps === P.tools || t.helps === 'both') list.push({ k: 't', t: t, sec: 'Tools' }); });
+    offers.forEach(function (m) {
+      var c = firstCat(m.categories || []);
+      if (!c && P.formats && (m.formats || []).some(function (f) { return P.formats.indexOf(f) !== -1; })) c = P.formatSec;
+      if (c) list.push({ k: 'o', m: m, sec: c === 'Promo & Networking' ? 'Offers for promo and networking' : nice(c) });
+    });
+    communities.forEach(function (m) {
+      var c = firstCat(commCats(m.community));
+      if (!c) return;
+      seenC[linkKey(m.community.link) || norm(m.community.name)] = true;
+      list.push({ k: 'c', m: m, sec: nice(c) });
+    });
+    if (P.promos) promos.forEach(function (f) {
+      var lk = linkKey(f.link) || norm(f.name);
+      if (seenC[lk]) return;
+      seenC[lk] = true;
+      list.push({ k: 'p', f: f, sec: 'Promo Communities' });
+    });
+    return list;
+  };
+  var pillarSecs = function (key) {
+    var P = PILLARS[key];
+    return (P.tools ? ['Tools'] : []).concat(P.cats.map(function (c) { return SEC_NAMES[c] || c; }), ['Offers for promo and networking', 'Promo Communities', P.formatSec || '']).filter(function (x, i, arr) { return x && arr.indexOf(x) === i; });
+  };
+  var updatePillarCounts = function () {
+    PILLAR_ORDER.forEach(function (k) { var n = pillarItems(k).length, c = $('c-' + k); if (c) c.textContent = n ? '(' + n + ')' : ''; });
   };
   var renderControls = function () {
     var cat = $('cat');
@@ -1812,6 +1937,12 @@
     var chips = $('chips');
     chips.innerHTML = '';
     var set = chipSets[state.tab];
+    if (PILLARS[state.tab]) {
+      var have = {};
+      pillarItems(state.tab).forEach(function (it) { have[secName(it)] = true; });
+      set = [''].concat(pillarSecs(state.tab).filter(function (x) { return have[x]; }));
+      if (set.length < 3) set = [];
+    }
     chips.hidden = !set.length;
     set.forEach(function (x) {
       var label = x || 'All';
@@ -1857,10 +1988,20 @@
     return d;
   };
 
+  var secName = function (it) { return it.sec; };
   var renderGrid = function () {
     grid.innerHTML = '';
     var items = [], make;
-    if (state.tab === 'offers') {
+    if (PILLARS[state.tab]) {
+      make = function (it) { return it.k === 'o' ? offerCard(it.m) : it.k === 'c' ? communityCard(it.m) : it.k === 't' ? toolCard(it.t) : promoCard(it.f); };
+      items = pillarItems(state.tab).filter(function (it) {
+        if (state.chip && secName(it) !== state.chip) return false;
+        if (it.k === 'o') { var m = it.m; return matches([(m.keywords || []).join(' '), m.name, m.business, m.about, m.offerName, m.offer, m.who, (m.categories || []).join(' '), (m.formats || []).join(' ')]); }
+        if (it.k === 'c') { var cm = it.m.community; return matches([(cm.keywords || []).join(' '), cm.name, cm.about, cm.platform, commCats(cm).join(' '), it.m.name, it.m.business]); }
+        if (it.k === 't') return matches([it.t.name, it.t.about, it.t.why, 'tool app']);
+        return matches([it.f.name, it.f.about, it.f.why, it.f.platform]);
+      });
+    } else if (state.tab === 'offers') {
       make = offerCard;
       items = offers.filter(function (m) {
         if (state.cat && (m.categories || []).indexOf(state.cat) === -1) return false;
@@ -1902,7 +2043,7 @@
     grid.hidden = isCal;
     $('resultCount').hidden = isCal;
     if (isCal) { $('disclosure').hidden = true; return; }
-    var total = { offers: offers.length, communities: communities.length, recommended: recs.length, promo: promos.length }[state.tab];
+    var total = PILLARS[state.tab] ? pillarItems(state.tab).length : { offers: offers.length, communities: communities.length, recommended: recs.length, promo: promos.length }[state.tab];
     $('disclosure').hidden = !(state.tab === 'promo' && promos.some(function (f) { return f.affiliate; }));
     if (!total) {
       $('resultCount').textContent = '';
@@ -1917,6 +2058,18 @@
     /* No filter on: sort everything into category sections so it's easy to browse */
     var filtered = state.chip || state.cat || state.fmt || (state.q && String(state.q).trim());
     var secOf = null;
+    if (!filtered && PILLARS[state.tab]) {
+      var pOrder = pillarSecs(state.tab), pSec = {};
+      items.forEach(function (it) { var k = secName(it); (pSec[k] = pSec[k] || []).push(it); });
+      Object.keys(pSec).sort(function (a, b) { var ia = pOrder.indexOf(a), ib = pOrder.indexOf(b); return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib); }).forEach(function (k, n) {
+        var hd = el('div', 'grid-sec' + (n ? '' : ' first'));
+        hd.appendChild(el('h3', 'group-title', k));
+        hd.appendChild(el('span', 'grid-sec-n', pSec[k].length + (pSec[k].length === 1 ? ' listing' : ' listings')));
+        grid.appendChild(hd);
+        pSec[k].forEach(function (it) { grid.appendChild(make(it)); });
+      });
+      return;
+    }
     if (!filtered && state.tab === 'communities') secOf = function (m) {
       var cs = commCats(m.community);
       if (cs.indexOf(PROMO_CAT) !== -1) return 'Promo Groups';
@@ -2786,7 +2939,7 @@
   var renderSharer = function () {
     var box = $('sharerRow');
     box.innerHTML = '';
-    var mine = offers.filter(isSharer).slice(0, 1).map(offerCard).concat(communities.filter(isSharer).slice(0, 1).map(communityCard));
+    var mine = offers.filter(isSharer).slice(0, 3).map(offerCard).concat(communities.filter(isSharer).slice(0, 2).map(communityCard));
     box.hidden = !mine.length;
     if (box.hidden) return;
     var head = el('div', 'sharer-head');
@@ -2794,11 +2947,51 @@
     head.appendChild(el('h2', 'section', sharer.name));
     if (sharer.business) head.appendChild(el('p', 'section-sub', sharer.business));
     box.appendChild(head);
+    var wrap = el('div', 'sharer-body');
+    if (sharer.about) {
+      wrap.classList.add('has-about');
+      var ab = el('div', 'sharer-about');
+      ab.appendChild(personRow(sharer));
+      ab.appendChild(el('p', 'offer', sharer.about));
+      var aa = el('div', 'actions');
+      var pb = el('button', 'btn btn-ghost', 'View her full profile');
+      pb.type = 'button';
+      pb.addEventListener('click', function () { openProfile(sharer, pb); });
+      aa.appendChild(pb);
+      ab.appendChild(aa);
+      wrap.appendChild(ab);
+    }
     var g = el('div', 'grid sharer-grid');
     mine.forEach(function (c) { g.appendChild(c); });
-    box.appendChild(g);
+    wrap.appendChild(g);
+    box.appendChild(wrap);
+  };
+  var renderDoors = function () {
+    var box = $('doors');
+    box.innerHTML = '';
+    PILLAR_ORDER.forEach(function (k) {
+      var P = PILLARS[k];
+      var b = el('button', 'gdoor');
+      b.type = 'button';
+      var pic = el('span', 'door-img');
+      pic.setAttribute('aria-hidden', 'true');
+      var src = catImage(P.img), im = new Image();
+      im.onload = function () { pic.style.backgroundImage = 'url("' + src.replace(/"/g, '%22') + '")'; };
+      im.src = src;
+      b.appendChild(pic);
+      var inn = el('span', 'door-in');
+      inn.appendChild(el('h3', '', P.name));
+      inn.appendChild(el('p', '', P.line));
+      inn.appendChild(el('span', 'go', 'Explore \u2192'));
+      b.appendChild(inn);
+      b.addEventListener('click', function () { setSection(k); jumpTo(0); });
+      box.appendChild(b);
+    });
+    $('whoJoin').href = JOIN_URL;
   };
   var renderHome = function () {
+    updatePillarCounts();
+    renderDoors();
     renderSharer();
     renderHomeSearch();
     renderJump();
@@ -2886,7 +3079,7 @@
 
   /* Menu */
   var navItems = Array.prototype.slice.call(document.querySelectorAll('.nav-item'));
-  navItems.forEach(function (b) { swapImage(b.querySelector('.ico'), navIcon(b.getAttribute('data-sec'))); });
+  navItems.forEach(function (b) { var sc = b.getAttribute('data-sec'); swapImage(b.querySelector('.ico'), PILLARS[sc] ? catImage(PILLARS[sc].img) : navIcon(sc)); });
   var sidebar = $('sidebar'), scrim = $('scrim'), menuBtn = $('menuBtn');
   var setMenu = function (open) {
     sidebar.classList.toggle('open', open);
@@ -3003,13 +3196,24 @@
     m = m._base || m;
     vip = vip || {};
     lastFocus = from || null;
-    var body = $('dlgBody');
-    body.innerHTML = '';
+    var top = $('dlgBody');
+    top.innerHTML = '';
+    $('dialog').classList.add('wide');
     var row = personRow(m);
     row.querySelector('.name').id = 'dlgName';
-    body.appendChild(row);
-    if (vip.headline) body.appendChild(el('p', 'vip-head', vip.headline));
-    if (vip.note) body.appendChild(whyBox(['What I love about her work'], vip.note));
+    top.appendChild(row);
+    if (vip.headline) top.appendChild(el('p', 'vip-head', vip.headline));
+    if (vip.note) top.appendChild(whyBox(['What I love about her work'], vip.note));
+    /* Left column: about, links, communities. Right column: offers. Phones get one column in reading order. */
+    var grid = el('div', 'pf-grid'), colA = el('div', 'pf-col'), colB = el('div', 'pf-col');
+    grid.appendChild(colA); grid.appendChild(colB); top.appendChild(grid);
+    var secs = {};
+    var secFor = function (key) {
+      if (!secs[key]) { secs[key] = el('div', 'pf-sec pf-sec-' + key); (key === 'offers' ? colB : colA).appendChild(secs[key]); }
+      return secs[key];
+    };
+    var body = { appendChild: function (n) { return secFor(curSec).appendChild(n); } };
+    var curSec = 'about';
     if (vip.about && !m.about) m = Object.assign({}, m, { about: vip.about });
     if (m.about) {
       body.appendChild(el('h3', 'sub', 'About me'));
@@ -3034,6 +3238,7 @@
       seenXO[k] = true;
       extraO.push(o);
     });
+    curSec = 'offers';
     if (m.offer || extraO.length) body.appendChild(el('h3', 'sub', (m.offer ? 1 : 0) + extraO.length > 1 ? 'My offers' : 'My offer'));
     if (m.offer) {
       var b = el('div', 'block' + (m.offerImage ? ' has-img' : ''));
@@ -3063,6 +3268,7 @@
     });
     var mc = myComms(m);
     (vip.communities || []).forEach(function (c) { if (c && c.name && c.link && !mc.some(function (x) { return linkKey(x.link) === linkKey(c.link); })) mc.push(c); });
+    curSec = 'comms';
     if (mc.length) {
       body.appendChild(el('h3', 'sub', mc.length > 1 ? 'My communities' : 'My community'));
       mc.forEach(function (cm) {
@@ -3084,6 +3290,7 @@
     }
     var seenR = {};
     var rlist = (m.recommends || []).slice(0, 3).concat(m.extraRecommends || []).filter(function (r) { if (!r || !r.name || !r.link || r.own) return false; var k = linkKey(r.link) || norm(r.name); if (seenR[k]) return false; seenR[k] = true; return true; });
+    curSec = 'recs';
     if (rlist.length) {
       body.appendChild(el('h3', 'sub', 'Communities I recommend'));
       rlist.forEach(function (r) {
@@ -3102,6 +3309,7 @@
         body.appendChild(rb);
       });
     }
+    curSec = 'links';
     if (social || site) {
       var sa = el('div', 'actions');
       sa.style.marginTop = '16px';
@@ -3109,6 +3317,10 @@
       socLinks.forEach(function (b3) { sa.appendChild(b3); });
       body.appendChild(sa);
     }
+    /* On desktop, keep her website and socials right under About me */
+    if (secs.links) colA.insertBefore(secs.links, secs.about ? secs.about.nextSibling : colA.firstChild);
+    /* Two columns only when both sides have something */
+    if (colA.childNodes.length && colB.childNodes.length) grid.classList.add('two');
     overlay.classList.add('open');
     document.body.style.overflow = 'hidden';
     $('dialog').scrollTop = 0;

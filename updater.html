@@ -230,19 +230,24 @@
   <!-- 2. FEATURED -->
   <section class="panel">
     <div class="step">Your picks</div>
-    <h2>&#11088; Featured promo communities</h2>
-    <p class="help">These show at the top of the Directory, in this order. Use your affiliate link where you have one.</p>
+    <h2>&#11088; Promo communities and tools</h2>
+    <p class="help">Promo communities show under Promo Communities and Grow Your Skool Community. Tools show in the Tools section of Grow Your Skool Community or Grow Your Business. They show in this order. Use your affiliate link where you have one.</p>
     <div class="list" id="featList"></div>
 
     <div id="featForm" class="item" style="margin-top:14px;">
-      <div class="nm" id="featFormTitle">Add a community</div>
+      <div class="nm" id="featFormTitle">Add a community or tool</div>
       <div class="grid2">
-        <div><label class="f" for="ff-name">Community name</label><input type="text" id="ff-name" placeholder="Promote Today"></div>
+        <div><label class="f" for="ff-type">What is it?</label>
+          <select id="ff-type"><option value="">Promo community</option><option value="tool">Tool or app</option></select></div>
+        <div class="tool-only"><label class="f" for="ff-helps">Where it shows</label>
+          <select id="ff-helps"><option value="skool">Grow Your Skool Community</option><option value="business">Grow Your Business</option><option value="both">Both</option></select></div>
+        <div><label class="f" for="ff-name">Name</label><input type="text" id="ff-name" placeholder="Promote Today"></div>
         <div><label class="f" for="ff-link">Link (your affiliate link)</label><input type="url" id="ff-link" placeholder="https://www.skool.com/..."></div>
         <div><label class="f" for="ff-platform">Platform</label>
           <select id="ff-platform"><option>Skool</option><option>Facebook Group</option><option>Other</option></select></div>
         <div><label class="f" for="ff-access">Free or paid</label>
           <select id="ff-access"><option value="">Not shown</option><option>Free</option><option>Paid</option><option>Free and paid options</option></select></div>
+        <div class="full tool-only"><label class="f" for="ff-video">Demo video link <span class="sub">(optional, YouTube, Loom or Vimeo)</span></label><input type="url" id="ff-video" placeholder="https://www.loom.com/share/..."></div>
         <div class="full"><label class="f" for="ff-about">What it is, in one sentence</label><input type="text" id="ff-about" maxlength="180" placeholder="A promo community where women share their offers every day."></div>
         <div class="full"><label class="f" for="ff-why">Why I love it</label><textarea id="ff-why" placeholder="The women in here show up for each other. I always leave with a new connection."></textarea></div>
         <div class="full imgpick"><span class="f" style="display:block;font-weight:600;font-size:13px;margin-bottom:5px;color:var(--blush-soft);">Thumbnail <span class="sub">(optional, a wide banner works best)</span></span><div class="imgrow"><div class="imgprev" id="ff-prev">No image</div><div class="imgbtns"><label class="file"><input type="file" id="ff-file" accept="image/*"><span class="btn btn-ghost btn-sm">Upload image</span></label><button type="button" class="btn btn-ghost btn-sm" id="ff-clear" hidden>Remove</button></div></div><input type="url" id="ff-imglink" placeholder="or paste an image link" style="margin-top:8px;"><input type="hidden" id="ff-image"></div>
@@ -319,7 +324,8 @@
     'Relationship & Family Coaching', 'Business Coaching & Strategy', 'Human Design & Astrology',
     'Intuitive Readings', 'Nutrition & Fitness', 'Perimenopause & Menopause', 'Beauty & Skincare',
     'Social Media & Content', 'Websites, Funnels & Tech', 'AI & Automation Support',
-    'Virtual Assistants & Admin', 'Branding, Design & Photography', 'Handmade & Gifts'
+    'Virtual Assistants & Admin', 'Branding, Design & Photography', 'Handmade & Gifts',
+    'Skool Community Growth', 'Skool Tools & Apps'
   ];
   var DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
   var ALL_CATS = CATEGORIES.concat(['Promo & Networking']);
@@ -335,7 +341,7 @@
     if (/heal|spirit/i.test(v)) return 'Healing & Spiritual';
     return v.trim() ? 'Other' : '';
   };
-  var FORMATS = ['1:1 Sessions', 'Group Program', 'Course', 'Membership or Skool Community', 'Physical Product', 'Digital Product', 'Live Event or Workshop'];
+  var FORMATS = ['1:1 Sessions', 'Group Program', 'Course', 'Membership or Skool Community', 'Physical Product', 'Digital Product', 'Live Event or Workshop', 'Tool or App'];
 
   var $ = function (id) { return document.getElementById(id); };
   var el = function (tag, cls, text) {
@@ -1112,7 +1118,17 @@
   };
   var ffShow = picker('ff', null, 'featStatus');
 
-  var FF = ['name', 'link', 'platform', 'access', 'about', 'why', 'image', 'schedule'];
+  var FF = ['type', 'helps', 'name', 'link', 'platform', 'access', 'about', 'why', 'image', 'schedule', 'video'];
+  /* Tool fields only show for tools; promo days only for promo communities */
+  var ffType = function () {
+    var isTool = $('ff-type').value === 'tool';
+    Array.prototype.forEach.call(document.querySelectorAll('#featForm .tool-only'), function (x) { x.hidden = !isTool; });
+    var dayBox = $('ff-days').parentNode; dayBox.hidden = isTool;
+    $('ff-schedule').parentNode.hidden = isTool;
+    $('ff-platform').parentNode.hidden = isTool;
+  };
+  $('ff-type').addEventListener('change', ffType);
+  ffType();
   (function () {
     var box = $('ff-days');
     DAYS.forEach(function (d) {
@@ -1129,8 +1145,9 @@
     $('ff-aff').checked = true;
     setDays([]);
     ffShow();
+    ffType();
     editing = -1;
-    $('featFormTitle').textContent = 'Add a community';
+    $('featFormTitle').textContent = 'Add a community or tool';
     $('featSave').textContent = 'Add to featured';
     $('featCancel').hidden = true;
   };
@@ -1145,7 +1162,7 @@
       top.appendChild(thumb(f.image, f.name));
       var t = el('div', 'grow');
       t.appendChild(el('div', 'nm', f.name));
-      t.appendChild(el('div', 'sub', [f.platform, f.access, f.affiliate ? 'Affiliate link' : '', (f.promoDays || []).length ? 'Promo ' + f.promoDays.join(', ') : ''].filter(Boolean).join(' · ')));
+      t.appendChild(el('div', 'sub', [f.type === 'tool' ? 'Tool \u00B7 ' + ({ skool: 'Grow Your Skool Community', business: 'Grow Your Business', both: 'Skool and Business' }[f.helps] || 'Grow Your Skool Community') : f.platform, f.access, f.video ? 'Demo video' : '', f.affiliate ? 'Affiliate link' : '', (f.promoDays || []).length ? 'Promo ' + f.promoDays.join(', ') : ''].filter(Boolean).join(' · ')));
       top.appendChild(t);
       it.appendChild(top);
       if (f.about) it.appendChild(el('p', '', f.about));
@@ -1168,8 +1185,9 @@
         mk('↓ Down', function () { var x = featured.splice(i, 1)[0]; featured.splice(i + 1, 0, x); saveDraft(); renderFeatured(); }, i === featured.length - 1);
         mk('Edit', function () {
           editing = i;
-          FF.forEach(function (k) { $('ff-' + k).value = f[k] || ''; });
+          FF.forEach(function (k) { $('ff-' + k).value = f[k] || ($('ff-' + k).tagName === 'SELECT' ? $('ff-' + k).options[0].value : ''); });
           $('ff-aff').checked = !!f.affiliate;
+          ffType();
           setDays(f.promoDays);
           ffShow();
           $('featFormTitle').textContent = 'Edit ' + f.name;
@@ -1187,7 +1205,8 @@
     var f = {};
     FF.forEach(function (k) { f[k] = $('ff-' + k).value.trim(); });
     f.affiliate = $('ff-aff').checked;
-    f.promoDays = getDays();
+    f.promoDays = f.type === 'tool' ? [] : getDays();
+    if (f.type !== 'tool') { delete f.type; delete f.helps; delete f.video; } else { f.video = cleanUrl(f.video); delete f.platform; delete f.schedule; }
     f.link = cleanUrl(f.link);
     f.image = keepImg(f.image);
     if (!f.name || !f.link) { $('featStatus').textContent = 'Add a name and a working link first.'; return; }
