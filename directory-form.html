@@ -155,6 +155,16 @@
   .divider-space { height: 22px; }
 
   .ai-box { position: relative; border: 1px solid rgba(232, 196, 122, 0.45); border-radius: 18px; padding: 20px 22px; margin-bottom: 26px; background: radial-gradient(circle at 100% 0%, rgba(196, 155, 255, 0.16), transparent 60%), var(--card); }
+  .ai-box.ai-first { border-width: 2px; border-color: rgba(232, 196, 122, 0.75); padding: 24px 22px 22px; box-shadow: 0 18px 40px -22px rgba(232, 196, 122, 0.55); }
+  .ai-badge { display: inline-block; font-size: 11.5px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--plum-deep, #2a1028); background: linear-gradient(90deg, var(--gold), var(--blush)); border-radius: 999px; padding: 5px 12px; margin-bottom: 10px; }
+  .ai-mode { display: grid; gap: 8px; margin-top: 14px; }
+  .ai-mode-q { font-weight: 600; color: var(--text); }
+  .ai-mode-btn { display: grid; gap: 2px; text-align: left; font: inherit; color: var(--text); background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.16); border-radius: 14px; padding: 12px 14px; cursor: pointer; }
+  .ai-mode-btn span { font-size: 13.5px; color: var(--muted); }
+  .ai-mode-btn.on { border-color: var(--gold); background: rgba(232, 196, 122, 0.12); }
+  .ai-mode-btn.on b { color: var(--gold-bright); }
+  .ai-or { display: flex; align-items: center; gap: 12px; margin: 4px 0 22px; color: var(--muted); font-size: 13px; text-transform: uppercase; letter-spacing: 0.12em; }
+  .ai-or::before, .ai-or::after { content: ""; flex: 1; height: 1px; background: rgba(232, 196, 122, 0.3); }
   .ai-box h2 { font-family: var(--serif); font-size: 26px; font-weight: 600; color: var(--gold-bright); line-height: 1.15; }
   .ai-box p { font-size: 14.5px; margin-top: 6px; }
   .ai-box ol { margin: 12px 0 0 20px; font-size: 14.5px; }
@@ -496,9 +506,10 @@
     if (S.hadDraft && !S.token) h += '<div class="ready fresh-bar"><span>Picking up where you left off' + (has('name') ? ' with <b>' + esc(val('name')) + '</b>' : '') + '.</span> <button type="button" class="btn btn-ghost btn-sm" id="freshStart">' + (S.freshConfirm ? 'Tap again to clear it' : 'Start a new one') + '</button></div>';
     if (picking) h += fieldHtml('want');
     if (picking && !has('want')) h += '<p class="help" style="margin-top:4px">Pick one and tap Next.</p>';
+    var aiFirst = i === 0 && (S.token || val('want') === WANT_LIST);
+    if (aiFirst) h += aiHtml();
     if (i === 0 && isEvent()) h += '<div class="ready"><b>Sharing an event is for She Promotes™ Premium and VIP members.</b> It takes about 3 minutes. Have your sign-up link and an event image handy. I\'ll check it and add it to the Upcoming Events page.</div>';
     if (i === 0 && !S.token && !has('name') && val('want') === WANT_LIST) h += '<div class="ready"><b>This form is for She Promotes™ Premium and VIP members.</b> It takes about 10 minutes, and your answers save on this device as you go. Have these handy:<ul><li>A photo of you or your logo</li><li>Your offer and community links</li><li>Any affiliate links for communities you love</li></ul>Not Premium yet? <a href="' + UPGRADE_URL + '" target="_blank" rel="noopener">Upgrade here</a>.</div>';
-    if (i === 0 && (S.token || val('want') === WANT_LIST)) h += aiHtml();
     if (st.id === 'vip') h += aiHtml();
     if (st.group) h += groupHtml(st.group);
     else if (st.id === 'review') h += reviewHtml();
@@ -565,9 +576,20 @@
 
   /* ---------- Let AI fill it in ---------- */
   var AI_PROMPT = [
-    'I\'m filling out the She Promotes™ Directory form so women can find my business. Please help me fill it in.',
+    'I\'m filling out the She Promotes™ Directory form so women can find my business, click on my offers and join my community. Please help me fill it in, and make it really good.',
     '',
-    'Start with what you already know about me from our past chats, your memory of me, or my project files. Add anything I paste below this message, like my Skool about page, my bio, my offer pages or my website. Keep my own words where you can. If something isn\'t there, leave it as "". For my links (website, Instagram, Facebook, other socials, Skool profile, offer and community links), check my memory, our past chats and my project files. If you can search the web, look them up too. Show me every link you found so I can confirm it. Never make up links, prices or details.',
+    'WHERE TO GET MY INFO',
+    'Use everything you already know about me: our past chats, your memory of me and my project files. Add anything I paste below this message, like my Skool about page, my bio, my sales pages or my website. If you can search the web, look up my website, my socials and my offer and community pages too.',
+    'Fill in every section you can. Don\'t leave something empty just because I didn\'t paste it, if you already know it from our chats.',
+    '',
+    'HOW TO WRITE IT',
+    'This is my shop window. A woman scrolling the Directory should read it and think "she\'s exactly who I need" and want to click. So don\'t keep it surface level.',
+    '- Be specific. Say exactly who I help, what they\'re struggling with or wanting, and what changes for them after working with me or buying from me.',
+    '- For each offer, make it clear what it is, who it\'s for and the result they get, so it\'s an easy yes.',
+    '- Use my real details: my method, my story, what makes me different, real numbers if I\'ve shared them.',
+    '- Write the way I talk: warm, simple, first person, short sentences, like I\'m talking to a friend.',
+    '- No hype, no coach jargon (like high vibe, aligned action, level up, 6 figures) and no dashes.',
+    '- Never make up facts, results, prices or links. If you don\'t know something, ask me.',
     '',
     'Here\'s the code you\'ll fill in at the end. Don\'t send it yet:',
     '',
@@ -575,30 +597,30 @@
     '  "name": "my full name",',
     '  "business": "my business name",',
     '  "skool": "my Skool profile link",',
-    '  "about": "a few sentences about me and what I do, in first person, 1200 characters max",',
+    '  "about": "about me in first person, 1200 characters max. Who I am, who I help, what I help them with, and why I do this. Make someone want to work with me.",',
     '  "website": "my website link",',
     '  "socials": { "instagram": "", "facebook": "", "tiktok": "", "youtube": "", "linkedin": "", "pinterest": "" },',
     '  "offers": [',
-    '    { "title": "offer name", "desc": "what it is and who it\'s for in one sentence, 150 characters max", "who": "who it\'s for, short", "price": "starting price, like $47 or Free", "link": "", "categories": ["up to 3 from the list below"], "formats": ["from the format list below"], "keywords": "up to 10 search words, separated by commas" }',
+    '    { "title": "offer name", "desc": "one strong sentence, 150 characters max: what it is and the result they get", "who": "who it\'s for, specific, like Purpose coaches who feel stuck charging under $100", "price": "the exact price, like $47, $47/month or Free", "link": "", "categories": ["up to 3 from the list below"], "formats": ["from the format list below"], "keywords": "up to 10 words someone might search to find this, separated by commas" }',
     '  ],',
-    '  "community": { "name": "", "link": "", "about": "one sentence", "categories": ["up to 3 from the list below"], "platform": "Skool, Facebook or Other", "access": "Free, Paid, or Free with a paid upgrade", "promoCommunity": "Yes if people can promote their business there, otherwise No", "promoDays": ["Mon", "Wed"] },',
-    '  "secondCommunity": { "name": "", "link": "", "about": "", "category": "the ONE category from the list below that fits best", "access": "" },',
+    '  "community": { "name": "", "link": "", "about": "one sentence on who it\'s for and what they get inside", "categories": ["up to 3 from the list below"], "platform": "Skool, Facebook or Other", "access": "Free, Paid, or Free with a paid upgrade", "promoCommunity": "Yes if people can promote their business there, otherwise No", "promoDays": ["Mon", "Wed"] },',
+    '  "secondCommunity": { "name": "", "link": "", "about": "", "categories": ["up to 3 from the list below"], "access": "" },',
     '  "recommends": [',
-    '    { "name": "", "link": "", "about": "one sentence", "type": "Promo Group, Business, Healing & Spiritual, or Other", "access": "Free, Paid, or Free with a paid upgrade", "promoDays": [], "why": "why I recommend it, in my words", "affiliate": "Yes or No" }',
+    '    { "name": "", "link": "", "about": "one sentence", "type": "Promo Group, Business, Healing & Spiritual, or Other", "access": "Free, Paid, or Free with a paid upgrade", "promoDays": [], "why": "why I love it, in my words, specific", "affiliate": "Yes or No" }',
     '  ],',
-    '  "vip": { "headline": "one sentence on what I do and who it\'s for", "story": "2 or 3 short paragraphs in first person, how I started and why I do this work", "who": "who I help, short", "website": "", "inside": ["what\'s inside my community, one item each"], "access": "who can join and what it costs" }',
+    '  "vip": { "headline": "one sentence on what I do and who it\'s for", "story": "2 or 3 short paragraphs in first person: how I started, what changed and why I do this work", "who": "who I help, short and specific", "website": "", "inside": ["what\'s inside my community, one item each"], "access": "who can join and what it costs" }',
     '}',
     '',
     'Up to 3 offers, my main one first. Up to 3 recommended communities, and my second community counts as one of the 3.',
-    'Leave "vip" empty unless I say I\'m a VIP member.',
+    'VIP_LINE',
     '',
     'Categories to pick from: ' + CATEGORIES.join('; ') + '. For a community you can also use Promo & Networking.',
     'Formats to pick from: ' + FORMATS.join('; ') + '.',
     '',
     'HOW TO DO THIS',
-    '1. First, show me what you found in plain, easy-to-read words, section by section, like a little summary I can skim. No code yet. Point out anything you\'re not sure about or couldn\'t find.',
-    '2. Only ask me questions if you don\'t know enough. Ask one short question at a time, just about what\'s missing.',
-    '3. Then ask me: Does this look right? Tell me what to change, or say looks good.',
+    '1. First, show me what you put together in plain, easy-to-read words, section by section, like a little preview of my listing. No code yet. Point out anything you\'re not sure about or couldn\'t find.',
+    '2. Then ask me about anything that\'s missing or thin, one short question at a time. Things like who exactly I help, the result they get, my prices or my links. Use my answers to make it stronger.',
+    '3. Show me the updated version and ask: Does this look right? Tell me what to change, or say looks good.',
     '4. When I say it looks good, send the filled-in code in one code block, nothing else in the block.',
     '5. Right under the code block, tell me the next step in these words: Tap Copy on the code box above. Go back to the She Promotes form, paste it in the box that says Paste the AI\'s answer here, then tap Fill in my form. Check each step, add your images, and send it.',
     '',
@@ -608,6 +630,7 @@
     'I\'m a VIP member of She Promotes™, so I get my own Featured Business page in the She Promotes Directory. Please help me write it.',
     '',
     'Start with what you already know about me from our past chats, your memory of me, or my project files. Add anything I paste below this message, like my Skool about page, my bio or my website. Keep my own words where you can.',
+    'This is my Featured Business page, so make it really show who I am. Be specific about who I help, what they\'re going through and what changes for them, so a woman reading it thinks "she\'s exactly who I need." Don\'t keep it surface level. If something is thin or missing, ask me about it, one short question at a time.',
     'Write it the way I talk: simple, warm, first person, short sentences, like I\'m talking to a friend. No hype, no coach jargon and no dashes. For my website and links, check my memory, our past chats and my project files, and search the web if you can. Show me what you found so I can confirm it. Never make up facts, prices or links. If something isn\'t there, leave it as "".',
     '',
     'Here\'s the code you\'ll fill in at the end. Don\'t send it yet:',
@@ -643,26 +666,43 @@
     if (val('c2has') === 'Yes' && has('c2name')) L.push('My other community: ' + val('c2name') + (has('c2link') ? ' ' + val('c2link') : ''));
     for (var r = 1; r <= S.recs; r++) { if (has('r' + r + 'name')) L.push('I recommend: ' + val('r' + r + 'name') + (has('r' + r + 'link') ? ' ' + val('r' + r + 'link') : '')); }
     if (aiKind() === 'vip') { add('Headline', 'vheadline'); add('Who I help', 'vwho'); add('Welcome video', 'vvideo'); }
-    return L.length ? '\n\nWHAT\'S ALREADY IN MY LISTING (keep these unless I tell you to change them, and fill in what\'s missing):\n' + L.join('\n') : '';
+    if (!L.length) return '';
+    if (S.aiMode === 'fresh') return '\n\nMY CURRENT LISTING (I want to start fresh. Use this only as background, and rewrite everything so it really shows who I am):\n' + L.join('\n');
+    return '\n\nWHAT\'S ALREADY IN MY LISTING (keep all of it, including every offer and community. Make the wording stronger where it\'s thin, and fill in everything that\'s missing):\n' + L.join('\n');
   }
   function promptText() {
-    var base = aiKind() === 'vip' ? VIP_PROMPT : AI_PROMPT;
+    var base = aiKind() === 'vip' ? VIP_PROMPT : AI_PROMPT.replace('VIP_LINE', val('tier') === 'VIP' ? 'I\'m a VIP member, so fill in "vip" too. That\'s my Featured Business page, so make it really show who I am.' : val('tier') === 'Premium' ? 'I\'m a Premium member, so leave "vip" empty.' : 'Ask me if I\'m a Premium or VIP member. Only fill in "vip" if I\'m VIP.');
     var tail = 'Anything extra I want you to use (this can be empty):';
     return base.replace(tail, knownInfo().replace(/^\n\n/, '') + (knownInfo() ? '\n\n' : '') + tail);
   }
   function aiKind() { var st = cur(); return st && st.id === 'vip' ? 'vip' : 'list'; }
+  function hasListing() {
+    return !!S.token || ['business', 'about', 'o1title', 'cname'].some(has);
+  }
   function aiHtml() {
     var vipBox = aiKind() === 'vip';
-    var h = '<div class="ai-box"><h2>' + (vipBox ? 'Want AI to write your page with you?' : 'Want AI to fill this in for you?') + '</h2>';
-    h += vipBox ? '<p>Claude or ChatGPT can draft your headline, your story and what\'s inside your community. Then you read it over and make sure it sounds like you.</p>' : '<p>Save yourself the typing. Claude or ChatGPT can fill in most of this form for you, then you just check it and add your images.</p>';
-    if (!S.aiOpen) return h + '<button type="button" class="btn btn-ghost ai-open" id="aiToggle">Show me how</button></div>';
-    h += '<ol><li>Tap <b>Copy the prompt</b>.</li><li>Open a new chat in Claude or ChatGPT and paste it in.</li><li>' + (vipBox ? 'Under it, paste your Skool about page or your bio, or just tell it your story. If it already knows you from past chats, it uses that. If not, it asks you a few questions. Easier to talk? Tap the microphone on your keyboard.' : 'Under it, paste your Skool about page, your bio, your offer pages, or just talk about your business. If it already knows you from past chats, it uses that. If not, it asks you a few questions. Easier to talk? Tap the microphone on your keyboard.') + '</li><li>It shows you what it found first. Tell it what to change, or say <b>looks good</b>.</li><li>It then gives you a code box. Tap <b>Copy</b> on it, paste it in the box below and tap <b>Fill in my form</b>.</li></ol>';
+    var h = '<div class="ai-box' + (vipBox ? '' : ' ai-first') + '">';
+    if (!vipBox) h += '<span class="ai-badge">Start here &middot; The easy way</span>';
+    h += '<h2>' + (vipBox ? 'Want AI to write your page with you?' : 'Let Claude or ChatGPT fill this in for you') + '</h2>';
+    h += vipBox ? '<p>Claude or ChatGPT can draft your headline, your story and what\'s inside your community. Then you read it over and make sure it sounds like you.</p>'
+      : '<p>This is the easiest way, and it makes your listing so much stronger. It uses what it already knows about you, asks you about anything that\'s missing, and writes it so women really want to click on your stuff. Then you just check it and add your images.</p>';
+    if (!vipBox && hasListing()) {
+      h += '<div class="ai-mode" role="group" aria-label="What should the AI do with your listing?"><p class="ai-mode-q">You already have a listing. What should the AI do?</p>';
+      [['add', 'Add to it and make it stronger', 'Keeps everything you have, fills in what\'s missing and makes the wording better.'], ['fresh', 'Start fresh', 'Rewrites your whole listing from scratch. Your images stay.']].forEach(function (o) {
+        var on = (S.aiMode || 'add') === o[0];
+        h += '<button type="button" class="ai-mode-btn' + (on ? ' on' : '') + '" aria-pressed="' + on + '" data-aimode="' + o[0] + '"><b>' + o[1] + '</b><span>' + o[2] + '</span></button>';
+      });
+      h += '</div>';
+    }
+    h += '<ol><li>Tap <b>Copy the prompt</b>.</li><li>Open a new chat in Claude or ChatGPT and paste it in.</li><li>' + (vipBox ? 'Under it, paste your Skool about page or your bio, or just tell it your story. If it already knows you from past chats, it uses that. Easier to talk? Tap the microphone on your keyboard.' : 'Under it, paste anything that helps, like your Skool about page, your bio or your sales page. Or just talk about your business. If it already knows you from past chats, it uses that. Easier to talk? Tap the microphone on your keyboard.') + '</li><li>It shows you a preview first and asks about anything missing. Answer its questions, tell it what to change, or say <b>looks good</b>.</li><li>It gives you a code box. Tap <b>Copy</b> on it, paste it in the box below and tap <b>Fill in my form</b>.</li></ol>';
     h += '<div class="ai-row"><button type="button" class="btn btn-primary" id="aiCopy">' + (S.aiCopied ? 'Copied. Now open Claude or ChatGPT' : 'Copy the prompt') + '</button></div>';
     if (S.aiShowPrompt) h += '<textarea class="ai-prompt" id="aiPromptBox" readonly aria-label="The prompt to copy">' + esc(promptText()) + '</textarea>';
     h += '<div class="field" style="margin:16px 0 0"><label for="aiPaste">Paste the AI\'s answer here</label><textarea id="aiPaste" placeholder="Paste the whole answer, including the part in curly brackets">' + esc(S.aiText || '') + '</textarea></div>';
     h += '<div class="ai-row"><button type="button" class="btn btn-primary" id="aiFill">Fill in my form</button></div>';
     if (S.aiNote) h += '<div class="ai-note' + (S.aiBad ? ' bad' : '') + '" role="status">' + esc(S.aiNote) + '</div>';
-    return h + '</div>';
+    h += '</div>';
+    if (!vipBox) h += '<div class="ai-or"><span>or fill it in yourself below</span></div>';
+    return h;
   }
   function pickJson(txt) {
     txt = String(txt || '').replace(/[“”]/g, '"').replace(/[‘’]/g, "'");
@@ -715,15 +755,29 @@
     var so = j.socials || {};
     set('social', so.instagram || j.social || j.instagram); set('sfacebook', so.facebook); set('stiktok', so.tiktok); set('syoutube', so.youtube); set('slinkedin', so.linkedin); set('spinterest', so.pinterest);
     var offers = (Array.isArray(j.offers) ? j.offers : []).filter(function (o) { return o && (str(o.title) || str(o.desc)); }).slice(0, 3);
+    var adding = S.aiMode !== 'fresh' && hasListing();
+    var same = function (a, b) { a = str(a).toLowerCase(); b = str(b).toLowerCase(); return !!a && !!b && a === b; };
+    var linkSame = function (a, b) { var f = function (x) { return str(x).toLowerCase().replace(/^https?:\/\//, '').replace(/^www\./, '').replace(/\/+$/, ''); }; return !!f(a) && f(a) === f(b); };
+    /* Adding: each AI offer goes in the slot of the matching offer she already has, or the next empty slot */
+    var slotFor = function (o, used) {
+      for (var q = 1; q <= S.offers; q++) if (!used[q] && (same(val('o' + q + 'title'), o.title) || linkSame(val('o' + q + 'link'), o.link))) return q;
+      for (q = 1; q <= 3; q++) if (!used[q] && !has('o' + q + 'title') && !has('o' + q + 'desc')) return q;
+      return 0;
+    };
     if (offers.length) {
-      for (i = 1; i <= 3; i++) OFFER_SFX.forEach(function (sx) { if (sx !== 'image') delete S.a['o' + i + sx]; });
+      var usedO = {};
+      if (!adding) for (i = 1; i <= 3; i++) OFFER_SFX.forEach(function (sx) { if (sx !== 'image') delete S.a['o' + i + sx]; });
       offers.forEach(function (o, x) {
-        var p = 'o' + (x + 1);
+        var slot = adding ? slotFor(o, usedO) : x + 1;
+        if (!slot) return;
+        usedO[slot] = true;
+        var p = 'o' + slot;
         set(p + 'title', o.title); set(p + 'desc', o.desc); set(p + 'who', o.who); set(p + 'price', o.price); set(p + 'link', o.link);
         set(p + 'cat', known(o.categories, CATEGORIES, 3)); set(p + 'format', known(o.formats, FORMATS, 3));
         set(p + 'keys', Array.isArray(o.keywords) ? o.keywords.slice(0, 10).join(', ') : o.keywords);
       });
-      S.offers = offers.length;
+      if (adding) { var top = S.offers; for (i = 1; i <= 3; i++) if (usedO[i] && i > top) top = i; S.offers = top; }
+      else S.offers = offers.length;
     }
     var c = j.community || {};
     if (str(c.name)) {
@@ -736,16 +790,25 @@
     if (str(c2.name)) { S.a.c2has = 'Yes'; set('c2name', c2.name); set('c2link', c2.link); set('c2about', c2.about); set('c2access', accessOf(c2.access)); set('c2cat', known((c2.categories && c2.categories.length ? c2.categories : [c2.category]), COMM_CATS, 3)); }
     var recs = (Array.isArray(j.recommends) ? j.recommends : []).filter(function (r) { return r && str(r.name); }).slice(0, maxRecs());
     if (recs.length) {
-      for (i = 1; i <= 3; i++) REC_SFX.forEach(function (sx) { delete S.a['r' + i + sx]; });
+      var usedR = {}, recSlot = function (r) {
+        for (var q = 1; q <= S.recs; q++) if (!usedR[q] && (same(val('r' + q + 'name'), r.name) || linkSame(val('r' + q + 'link'), r.link))) return q;
+        for (q = 1; q <= maxRecs(); q++) if (!usedR[q] && !has('r' + q + 'name')) return q;
+        return 0;
+      };
+      if (!adding) for (i = 1; i <= 3; i++) REC_SFX.forEach(function (sx) { delete S.a['r' + i + sx]; });
       recs.forEach(function (r, x) {
-        var p = 'r' + (x + 1);
+        var rs = adding ? recSlot(r) : x + 1;
+        if (!rs) return;
+        usedR[rs] = true;
+        var p = 'r' + rs;
         set(p + 'name', r.name); set(p + 'link', r.link); set(p + 'about', r.about);
         var ty = oneOf(r.type, REC_CATS) || (/promo/i.test(str(r.type)) ? 'Promo Group' : 'Other');
         S.a[p + 'cat'] = ty; set(p + 'access', accessOf(r.access));
         if (ty === 'Promo Group') set(p + 'days', daysOf(r.promoDays));
         set(p + 'why', r.why); S.a[p + 'aff'] = yes(r.affiliate) ? 'Yes' : 'No';
       });
-      S.recs = recs.length;
+      if (adding) { var topR = S.recs; for (i = 1; i <= 3; i++) if (usedR[i] && i > topR) topR = i; S.recs = topR; }
+      else S.recs = recs.length;
     }
     var v = j.vip || {};
     if (str(v.headline) || str(v.story)) {
@@ -1060,6 +1123,7 @@
     var t = e.target.closest ? e.target.closest('button') : null;
     if (!t) return;
     if (t.id === 'doneEvent' || t.id === 'doneAnother') { startEvent(); return; }
+    if (t.getAttribute('data-aimode')) { S.aiMode = t.getAttribute('data-aimode'); S.aiCopied = false; var ym = window.pageYOffset; render(false); window.scrollTo(0, ym); return; }
     if (t.id === 'aiToggle') { S.aiOpen = true; render(false); var bx = app.querySelector('.ai-box'); if (bx) bx.scrollIntoView({ block: 'start' }); return; }
     if (t.id === 'aiCopy') {
       copyText(promptText(), function () { S.aiCopied = true; S.aiShowPrompt = false; var y0 = window.pageYOffset; render(false); window.scrollTo(0, y0); },
