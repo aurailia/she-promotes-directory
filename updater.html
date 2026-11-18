@@ -550,6 +550,21 @@
       /* columns from the She Promotes form that only the form uses */
       if (/^form state/.test(h)) { map.formState = i; return; }
       if (/^(edit token|okay to show)/.test(h)) return;
+      /* her other communities (2 to 4) and membership levels, from the She Promotes form */
+      var owM = h.match(/^own community ([2-9]) (.+)$/);
+      if (owM) {
+        map.own = map.own || {};
+        var oc = map.own[owM[1]] = map.own[owM[1]] || {}, ot = owM[2];
+        if (/banner|image/.test(ot)) oc.image = i;
+        else if (/levels/.test(ot)) oc.levels = i;
+        else if (/categor/.test(ot)) oc.cat = i;
+        else if (/free or paid|access/.test(ot)) oc.access = i;
+        else if (/what it is|about/.test(ot)) oc.about = i;
+        else if (/link/.test(ot)) oc.link = i;
+        else if (/name/.test(ot)) oc.name = i;
+        return;
+      }
+      if (/^community membership levels/.test(h)) { map.cLevels = i; return; }
       /* Featured Business page answers from the She Promotes form */
       if (/^vip /.test(h)) {
         map.vip = map.vip || {};
@@ -631,6 +646,12 @@
   };
 
   /* Up to 10 keywords, separated by commas */
+  /* "Free | $0; Premium | $5/month" into [{ name, price }] */
+  var parseLevels = function (t) {
+    return String(t || '').split(/\s*[;\n]+\s*/).map(function (x) {
+      var p = x.split('|'); return { name: String(p[0] || '').trim().slice(0, 40), price: String(p.slice(1).join('|') || '').trim().slice(0, 40) };
+    }).filter(function (l) { return l.name || l.price; }).slice(0, 4);
+  };
   var keyList = function (t) {
     var seen = {}, out = [];
     String(t || '').split(/[,;\n]+/).forEach(function (k) {
@@ -671,13 +692,26 @@
     if (g(map.cName) && cleanUrl(g(map.cLink))) {
       var ccats = pickKnown(g(map.cCat), ALL_CATS).slice(0, 4);
       m.community = { name: g(map.cName), link: cleanUrl(g(map.cLink)), category: ccats[0] || '', categories: ccats, platform: g(map.cPlatform), about: g(map.cAbout), access: g(map.cAccess), promoDays: parseDays(g(map.cDays)), image: photoUrl(g(map.cImage), 1200), keywords: keyList(g(map.cKeys)) };
+      var clv = parseLevels(g(map.cLevels)); if (clv.length) m.community.levels = clv;
     }
     Object.keys(map.recs).sort().forEach(function (n) {
       var r = map.recs[n];
       var rn = g(r.name), rl = cleanUrl(g(r.link));
       var ownC = truthy(g(r.own)) ? pickKnown(g(r.category), ALL_CATS).slice(0, 4) : [];
-      if (rn && rl && m.recommends.length < 3 && !m.recommends.some(function (x) { return normUrl(x.link) === normUrl(rl) || x.name.toLowerCase() === rn.toLowerCase(); })) m.recommends.push({ name: rn, link: rl, categories: ownC.length ? ownC : undefined, category: ownC.length ? (ownC.indexOf('Promo & Networking') !== -1 ? 'Promo Group' : pickRec(ownC[0])) : pickRec(g(r.category)), about: g(r.about), access: g(r.access), why: g(r.why), affiliate: truthy(g(r.affiliate)), own: truthy(g(r.own)), promoDays: parseDays(g(r.days)), image: photoUrl(g(r.image), 1200) });
+      if (rn && rl && m.recommends.filter(function (x) { return !x.own; }).length < 3 && !m.recommends.some(function (x) { return normUrl(x.link) === normUrl(rl) || x.name.toLowerCase() === rn.toLowerCase(); })) m.recommends.push({ name: rn, link: rl, categories: ownC.length ? ownC : undefined, category: ownC.length ? (ownC.indexOf('Promo & Networking') !== -1 ? 'Promo Group' : pickRec(ownC[0])) : pickRec(g(r.category)), about: g(r.about), access: g(r.access), why: g(r.why), affiliate: truthy(g(r.affiliate)), own: truthy(g(r.own)), promoDays: parseDays(g(r.days)), image: photoUrl(g(r.image), 1200) });
     });
+    /* her own communities 2 to 4 go after the ones she recommends, marked as hers */
+    Object.keys(map.own || {}).sort().forEach(function (n) {
+      var o = map.own[n], on = g(o.name), ol = cleanUrl(g(o.link));
+      if (!on || !ol) return;
+      if ((m.community && normUrl(m.community.link) === normUrl(ol)) || m.recommends.some(function (x) { return normUrl(x.link) === normUrl(ol) || x.name.toLowerCase() === on.toLowerCase(); })) return;
+      var ocats = pickKnown(g(o.cat), ALL_CATS).slice(0, 4);
+      var own = { name: on, link: ol, categories: ocats.length ? ocats : undefined, category: ocats.length ? (ocats.indexOf('Promo & Networking') !== -1 ? 'Promo Group' : pickRec(ocats[0])) : 'Other', about: g(o.about), access: g(o.access), why: '', affiliate: false, own: true, promoDays: [], image: photoUrl(g(o.image), 1200) };
+      var olv = parseLevels(g(o.levels)); if (olv.length) own.levels = olv;
+      m.recommends.push(own);
+    });
+    /* recommendations she marked as hers go last, so they never push out the ones she loves */
+    m.recommends = m.recommends.filter(function (x) { return !x.own; }).concat(m.recommends.filter(function (x) { return x.own; }));
     /* review-only info, never saved to the Directory */
     m._skool = cleanUrl(/^@[\w.-]+$/.test(skool) ? 'https://www.skool.com/' + skool : skool);
     m._premium = map.premium == null ? null : truthy(g(map.premium));
@@ -1100,7 +1134,7 @@
       if (m.community) it.appendChild(imgRow('Community image: ' + m.community.name, m.community.image, 'communities', m.community.name, saved.cImg[m.id], function (v) { saved.cImg[m.id] = v; }));
       (m.recommends || []).forEach(function (r) {
         if (!r || !r.name) return;
-        it.appendChild(imgRow('Recommended: ' + r.name, r.image, 'recommended', r.name, saved.rImg[rKey(m.id, r)], function (v) { saved.rImg[rKey(m.id, r)] = v; }));
+        it.appendChild(imgRow((r.own ? 'Her community: ' : 'Recommended: ') + r.name, r.image, 'recommended', r.name, saved.rImg[rKey(m.id, r)], function (v) { saved.rImg[rKey(m.id, r)] = v; }));
       });
       cleanExtras(m).forEach(function (r) {
         var row = imgRow('Extra recommended: ' + r.name, r.image, 'recommended', r.name, saved.rImg[rKey(m.id, r)], function (v) { saved.rImg[rKey(m.id, r)] = v; });
@@ -2054,7 +2088,7 @@
       [out.vips.length, 'VIPs'],
       [out.events.filter(function (e) { return (e.endUtc || e.startUtc) > Date.now(); }).length, 'Upcoming events'],
       [out.members.filter(function (m) { return m.community; }).length, 'Communities'],
-      [out.members.reduce(function (n, m) { return n + (m.recommends || []).length; }, 0), 'Recommended']
+      [out.members.reduce(function (n, m) { return n + (m.recommends || []).filter(function (r) { return r && !r.own; }).length; }, 0), 'Recommended']
     ];
     var w = $('stats');
     w.innerHTML = '';

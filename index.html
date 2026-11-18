@@ -488,6 +488,12 @@
   .price-tag.long { font-size: 17px; line-height: 1.25; }
   .price-tag.long .pt { -webkit-line-clamp: 3; }
   .price-tag.in-block { margin: 8px 0 12px; font-size: 19px; }
+  .price-tag.levels .lvs { display: flex; flex-direction: column; gap: 3px; font-size: 17px; line-height: 1.25; }
+  .price-tag.levels .lv { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+  .price-tag.levels .lv-n { font-family: 'Inter', system-ui, sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 0.02em; color: var(--blush, #f2c6d0); }
+  .price-tag.levels.in-block .lvs { flex-direction: row; flex-wrap: wrap; gap: 4px 0; font-size: 18px; }
+  .price-tag.levels.in-block .lv { display: inline-flex; justify-content: flex-start; gap: 6px; white-space: nowrap; }
+  .price-tag.levels.in-block .lv + .lv::before { content: '\00b7'; margin: 0 8px 0 14px; color: rgba(232, 196, 122, 0.6); }
   .card > .price-tag, .feat > .price-tag { margin-top: auto; }
   .feat > .price-tag + .actions { margin-top: 0; padding-top: 10px; }
   .card > .meta + .price-tag, .card > p + .price-tag { margin-top: auto; }
@@ -1517,7 +1523,7 @@
   /* A recommendation she marked as her own community counts as her community */
   var ownComm = function (m, r) {
     var cats = r.categories && r.categories.length ? r.categories : /promo/i.test(r.category || '') ? [PROMO_CAT] : (m.community ? commCats(m.community) : (m.categories || []).slice(0, 2));
-    return { name: r.name, link: r.link, about: r.about || r.why || '', category: cats[0] || '', categories: cats, platform: r.platform || '', access: r.access || '', promoDays: r.promoDays || [], image: r.image || 'images/recommended/' + slug(r.name) + '.jpg', schedule: r.schedule || '', keywords: r.keywords || [], own: true };
+    return { name: r.name, link: r.link, about: r.about || r.why || '', category: cats[0] || '', categories: cats, platform: r.platform || '', access: r.access || '', promoDays: r.promoDays || [], image: r.image || 'images/recommended/' + slug(r.name) + '.jpg', schedule: r.schedule || '', keywords: r.keywords || [], levels: r.levels || [], own: true };
   };
   var myComms = function (m) {
     var list = [], seen = {};
@@ -1784,6 +1790,7 @@
     if (cm.platform) tags.appendChild(el('span', 'tag', cm.platform));
     if (cm.access) tags.appendChild(el('span', 'tag', cm.access.replace(/;/g, ' and ')));
     if (tags.childNodes.length) c.appendChild(tags);
+    if (levelsOf(cm).length) c.appendChild(levelsTag(levelsOf(cm), 'in-block'));
     var by = el('p', 'by', 'Hosted by ');
     var nb = el('button', '', m.name);
     nb.type = 'button';
@@ -1892,6 +1899,20 @@
     if (/free\s+and\s+paid|free.*upgrade|paid.*free/i.test(a)) return 'Free with a paid upgrade';
     return a;
   };
+  /* her membership levels, like Free, Premium $5, VIP $9. Only there when she chose to show them. */
+  var levelsOf = function (cm) { return (cm && Array.isArray(cm.levels) ? cm.levels : []).filter(function (l) { return l && (String(l.name || '').trim() || String(l.price || '').trim()); }).slice(0, 4); };
+  var levelsTag = function (lv, cls) {
+    var t = el('div', 'price-tag levels' + (cls ? ' ' + cls : '')); t.setAttribute('data-label', 'Membership levels');
+    var w = el('span', 'lvs');
+    lv.forEach(function (l) {
+      var s = el('span', 'lv'), n = String(l.name || '').trim(), pr = priceText(l.price);
+      if (n) s.appendChild(el('span', 'lv-n', n));
+      if (pr && norm(pr) !== norm(n)) s.appendChild(el('span', 'lv-p', pr));
+      w.appendChild(s);
+    });
+    t.appendChild(w); return t;
+  };
+  var memberTag = function (cm, cls) { var lv = levelsOf(cm); return lv.length ? levelsTag(lv, cls) : priceTag(accessText(cm.access), cls || '', 'Membership'); };
   var priceTag = function (p, cls, label) {
     p = priceText(p);
     if (!p) return null;
@@ -1935,7 +1956,7 @@
     c.appendChild(el('h3', '', cm.name));
     if (cm.about) c.appendChild(el('p', 'offer clamp2', cm.about));
     var cd = parseDays(cm.promoDays);
-    addAll(c, [metaLine(['Hosted by ' + m.name, cd.length ? daysShort(cd) : '']), priceTag(accessText(cm.access), '', 'Membership')]);
+    addAll(c, [metaLine(['Hosted by ' + m.name, cd.length ? daysShort(cd) : '']), memberTag(cm)]);
     var acts = el('div', 'actions');
     var lb = linkBtn('Join the community', cm.link, true);
     if (lb) acts.appendChild(lb);
@@ -3665,6 +3686,7 @@
         if (cm.platform) ct.appendChild(el('span', 'tag', cm.platform));
         if (cm.access) ct.appendChild(el('span', 'tag', cm.access.replace(/;/g, ' and ')));
         if (ct.childNodes.length) cb.appendChild(ct);
+        if (levelsOf(cm).length) cb.appendChild(levelsTag(levelsOf(cm), 'in-block'));
         var ca = el('div', 'actions');
         var cbn = linkBtn('Join my community', cm.link, true);
         if (cbn) ca.appendChild(cbn);
