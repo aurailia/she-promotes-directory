@@ -282,7 +282,8 @@
         <div class="tool-only"><label class="f" for="ff-helps">Where it shows</label>
           <select id="ff-helps"><option value="skool">Grow Your Skool Community</option><option value="business">Grow Your Business</option><option value="both">Both</option></select></div>
         <div><label class="f" for="ff-name">Name</label><input type="text" id="ff-name" placeholder="Promote Today"></div>
-        <div><label class="f" for="ff-link">Link (your affiliate link)</label><input type="url" id="ff-link" placeholder="https://www.skool.com/..."></div>
+        <div><label class="f" for="ff-by">Recommended by <span class="sub">(leave blank if it's your own pick)</span></label><input type="text" id="ff-by" placeholder="Monica"></div>
+        <div><label class="f" for="ff-link">Link (affiliate link if there is one)</label><input type="url" id="ff-link" placeholder="https://www.skool.com/..."></div>
         <div><label class="f" for="ff-platform">Platform</label>
           <select id="ff-platform"><option>Skool</option><option>Facebook Group</option><option>Other</option></select></div>
         <div><label class="f" for="ff-access">Free or paid</label>
@@ -294,7 +295,7 @@
         <div class="full"><span class="f" style="display:block;font-weight:600;font-size:13px;margin-bottom:5px;color:var(--blush-soft);">Promo days</span>
           <div class="daybox" id="ff-days"></div></div>
         <div class="full"><label class="f" for="ff-schedule">Schedule note <span class="sub">(optional)</span></label><input type="text" id="ff-schedule" maxlength="120" placeholder="Free members Mon and Wed, paid members daily. Thread opens 6am Eastern."></div>
-        <label class="checkrow full"><input type="checkbox" id="ff-aff" checked> This is my affiliate link</label>
+        <label class="checkrow full"><input type="checkbox" id="ff-aff" checked> This is an affiliate link</label>
       </div>
       <div class="row">
         <button class="btn btn-primary" type="button" id="featSave">Add to featured</button>
@@ -1219,7 +1220,7 @@
   };
   var ffShow = picker('ff', null, 'featStatus');
 
-  var FF = ['type', 'helps', 'name', 'link', 'platform', 'access', 'about', 'why', 'image', 'schedule', 'video'];
+  var FF = ['type', 'helps', 'name', 'by', 'link', 'platform', 'access', 'about', 'why', 'image', 'schedule', 'video'];
   /* Tool fields only show for tools; promo days only for promo communities */
   var ffType = function () {
     var isTool = $('ff-type').value === 'tool';
@@ -1263,7 +1264,7 @@
       top.appendChild(thumb(f.image, f.name));
       var t = el('div', 'grow');
       t.appendChild(el('div', 'nm', f.name));
-      t.appendChild(el('div', 'sub', [f.type === 'tool' ? 'Tool \u00B7 ' + ({ skool: 'Grow Your Skool Community', business: 'Grow Your Business', both: 'Skool and Business' }[f.helps] || 'Grow Your Skool Community') : f.platform, f.access, f.video ? 'Demo video' : '', f.affiliate ? 'Affiliate link' : '', (f.promoDays || []).length ? 'Promo ' + f.promoDays.join(', ') : ''].filter(Boolean).join(' · ')));
+      t.appendChild(el('div', 'sub', [f.by ? 'Recommended by ' + f.by : '', f.type === 'tool' ? 'Tool \u00B7 ' + ({ skool: 'Grow Your Skool Community', business: 'Grow Your Business', both: 'Skool and Business' }[f.helps] || 'Grow Your Skool Community') : f.platform, f.access, f.video ? 'Demo video' : '', f.affiliate ? 'Affiliate link' : '', (f.promoDays || []).length ? 'Promo ' + f.promoDays.join(', ') : ''].filter(Boolean).join(' · ')));
       top.appendChild(t);
       it.appendChild(top);
       if (f.about) it.appendChild(el('p', '', f.about));
@@ -1310,6 +1311,7 @@
     if (f.type !== 'tool') { delete f.type; delete f.helps; delete f.video; } else { f.video = cleanUrl(f.video); delete f.platform; delete f.schedule; }
     f.link = cleanUrl(f.link);
     f.image = keepImg(f.image);
+    if (!f.by) delete f.by;
     if (!f.name || !f.link) { $('featStatus').textContent = 'Add a name and a working link first.'; return; }
     if (editing >= 0) featured[editing] = f; else featured.push(f);
     $('featStatus').textContent = editing >= 0 ? 'Saved.' : f.name + ' added.';

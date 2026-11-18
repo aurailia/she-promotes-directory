@@ -1578,6 +1578,11 @@
         recs.push({ rec: r, member: m });
       });
     });
+    /* Recommendations you added for women who aren't listed yet (Updater: "Recommended by") */
+    (data.featured || []).forEach(function (f) {
+      if (!f || !f.by || !f.name || !f.link) return;
+      recs.push({ rec: { name: f.name, link: f.link, about: f.about, why: f.why, image: f.image, affiliate: !!f.affiliate, access: f.access, platform: f.platform, promoDays: f.promoDays || [], category: f.type === 'tool' ? 'Other' : 'Promo Group' }, member: { id: 'by-' + norm(f.by), name: f.by } });
+    });
     $('c-offers').textContent = offers.length ? '(' + offers.length + ')' : '';
     $('c-communities').textContent = communities.length ? '(' + communities.length + ')' : '';
     /* Same community recommended by more than one woman: one card, everyone's reasons inside.
@@ -1603,15 +1608,16 @@
     });
     $('c-recommended').textContent = recs.length ? '(' + recs.length + ')' : '';
     var seenP = {};
-    tools = (data.featured || []).filter(function (f) { return f && f.type === 'tool' && f.name && f.link; });
+    tools = (data.featured || []).filter(function (f) { return f && f.type === 'tool' && !f.by && f.name && f.link; });
     promos = (data.featured || []).filter(function (f) {
-      if (!f.name || !f.link || f.type === 'tool') return false;
+      if (!f.name || !f.link || f.type === 'tool' || f.by) return false;
       var k = linkKey(f.link) || norm(f.name);
       if (seenP[k]) return false;
       seenP[k] = true;
       return true;
     });
-    $('c-promo').textContent = promos.length ? '(' + promos.length + ')' : '';
+    var promoN = allPromoItems().length;
+    $('c-promo').textContent = promoN ? '(' + promoN + ')' : '';
     updatePillarCounts();
     /* every group with promo days, for the calendar */
     calGroups = []; var seen = {};
@@ -1822,9 +1828,9 @@
     if (all.length > 1) c.appendChild(el('p', 'by', 'Recommended by ' + whoNames(item) + '. Each button below uses her own link, so she gets the credit.'));
     all.forEach(function (o) {
       var om = o.member, or = o.rec;
-      var nb = el('button', '', om.name.split(' ')[0]);
-      nb.type = 'button';
-      nb.addEventListener('click', function () { openProfile(om, nb); });
+      var notListed = String(om.id || '').indexOf('by-') === 0;
+      var nb = el(notListed ? 'b' : 'button', '', om.name.split(' ')[0]);
+      if (!notListed) { nb.type = 'button'; nb.addEventListener('click', function () { openProfile(om, nb); }); }
       if (or.why) c.appendChild(whyBox(['Why ', nb, ' recommends it'], or.why));
       else { var by = el('p', 'by', 'Recommended by '); by.appendChild(nb); c.appendChild(by); }
       if (all.length > 1) {
@@ -2045,6 +2051,22 @@
     if (!out.length) add(P.fallback);
     return out;
   };
+  /* Every promo group in one list: members' communities tagged Promo & Networking first, then the ones you added */
+  var allPromoItems = function () {
+    var out = [], seen = {};
+    communities.forEach(function (m) {
+      if (commCats(m.community).indexOf(PROMO_CAT) === -1) return;
+      var k = linkKey(m.community.link) || norm(m.community.name);
+      if (seen[k]) return; seen[k] = true;
+      out.push({ m: m });
+    });
+    promos.forEach(function (f) {
+      var k = linkKey(f.link) || norm(f.name);
+      if (seen[k]) return; seen[k] = true;
+      out.push({ f: f });
+    });
+    return out;
+  };
   var pillarItems = function (key) {
     var P = PILLARS[key], list = [], seenC = {};
     if (!P) return list;
@@ -2059,7 +2081,8 @@
     });
     communities.forEach(function (m) {
       var ps = commPlaces(m);
-      if (ps.indexOf(key) === -1) return;
+      /* promo groups always show in Grow Your Skool Community, wherever else they're placed */
+      if (ps.indexOf(key) === -1 && !(key === 'skool' && commCats(m.community).indexOf(PROMO_CAT) !== -1)) return;
       /* same name and link as one of her offers here: show it once */
       if (offerSeen[(linkKey(m.community.link) || '') + '|' + norm(m.community.name)]) return;
       seenC[linkKey(m.community.link) || norm(m.community.name)] = true;
@@ -2204,11 +2227,12 @@
         return matches([(cm.keywords || []).join(' '), cm.name, cm.about, cm.platform, commCats(cm).join(' '), m.name, m.business]);
       });
     } else if (state.tab === 'promo') {
-      make = promoCard;
-      items = promos.filter(function (f) {
-        if (state.chip === 'Other') { if (/skool|facebook/i.test(f.platform || '')) return false; }
-        else if (state.chip && norm(f.platform).indexOf(norm(state.chip).split(' ')[0]) === -1) return false;
-        return matches([f.name, f.about, f.why, f.platform]);
+      make = function (it) { return it.m ? communityCard(it.m) : promoCard(it.f); };
+      items = allPromoItems().filter(function (it) {
+        var plat = it.m ? it.m.community.platform : it.f.platform;
+        if (state.chip === 'Other') { if (/skool|facebook/i.test(plat || '')) return false; }
+        else if (state.chip && norm(plat).indexOf(norm(state.chip).split(' ')[0]) === -1) return false;
+        return it.m ? matches([it.m.community.name, it.m.community.about, plat, it.m.name, it.m.business]) : matches([it.f.name, it.f.about, it.f.why, plat]);
       });
     } else {
       make = recCard;
@@ -2224,7 +2248,7 @@
     grid.hidden = isCal;
     $('resultCount').hidden = isCal;
     if (isCal) { $('disclosure').hidden = true; return; }
-    var total = PILLARS[state.tab] ? pillarItems(state.tab).length : { offers: offers.length, communities: communities.length, recommended: recs.length, promo: promos.length }[state.tab];
+    var total = PILLARS[state.tab] ? pillarItems(state.tab).length : { offers: offers.length, communities: communities.length, recommended: recs.length, promo: allPromoItems().length }[state.tab];
     $('disclosure').hidden = !(state.tab === 'promo' && promos.some(function (f) { return f.affiliate; }));
     if (!total) {
       $('resultCount').textContent = '';
