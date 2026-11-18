@@ -636,6 +636,7 @@
   .room-list li { position: relative; padding-left: 22px; }
   .room-list li::before { content: "\2726"; position: absolute; left: 0; color: var(--gold); font-size: 12px; top: 3px; }
   .room-comm .access { color: var(--muted); font-size: 14px; }
+  .room-events { display: grid; gap: 18px; }
   .room-offers { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
   .room-offer { display: flex; flex-direction: column; background: var(--card); border: 1px solid var(--card-border); border-radius: 18px; overflow: hidden; }
   .room-offer .ro-art { aspect-ratio: 16 / 9; overflow: hidden; background: rgba(0,0,0,0.25); }
@@ -2853,6 +2854,20 @@
       os.appendChild(grid);
     }
 
+    /* Her upcoming events */
+    var evMine = upcoming().filter(function (e) {
+      var first = function (x) { return norm(x).split(' ')[0] || ''; };
+      if (e.host && norm(e.host) === norm(R.name)) return true;
+      if (e.hostBusiness && R.business && norm(e.hostBusiness) === norm(R.business)) return true;
+      return !!e.host && first(e.host) === first(R.name) && (!e.hostBusiness || !R.business || norm(e.hostBusiness) === norm(R.business));
+    });
+    if (evMine.length) {
+      var es = sec('roomEvents', evMine.length > 1 ? 'My upcoming events' : 'My upcoming event', 'Come join me');
+      var eg = el('div', 'room-events');
+      evMine.forEach(function (e) { eg.appendChild(eventCard(e)); });
+      es.appendChild(eg);
+    }
+
     /* Find her everywhere */
     if (R.links.length) {
       var ls = sec('', 'Stay in touch', 'Find me everywhere');
@@ -3230,16 +3245,16 @@
     var body = $('catBody');
     body.innerHTML = '';
     var c = inCategory(x);
-    var add = function (title, list, make) {
+    var add = function (title, list, make, cls) {
       if (!list.length) return;
       var sec = el('div', 'cat-section');
       sec.appendChild(el('h3', 'group-title', title));
-      var gr = el('div', 'grid');
+      var gr = el('div', cls || 'grid');
       list.forEach(function (it) { gr.appendChild(make(it)); });
       sec.appendChild(gr);
       body.appendChild(sec);
     };
-    add('Upcoming events', upcoming().filter(function (e) { return (e.categories || []).indexOf(x) !== -1; }), eventCard);
+    add('Upcoming events', upcoming().filter(function (e) { return (e.categories || []).indexOf(x) !== -1; }), eventCard, 'room-events');
     add('Offers & Services', c.offers, offerCard);
     /* Promo groups you added and members' promo groups sit together as one list, so nobody's singled out */
     add('Communities', c.communities.map(function (m) { return { m: m }; }).concat(c.picks.map(function (f) { return { f: f }; })), function (it) { return it.m ? communityCard(it.m) : promoCard(it.f); });
