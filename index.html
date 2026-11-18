@@ -481,11 +481,15 @@
   .by { font-size: 13px; color: var(--muted); }
   .by button { font: inherit; color: var(--gold-bright); background: none; border: none; cursor: pointer; text-decoration: underline; padding: 0; }
   .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: auto; padding-top: 6px; }
-  .price-tag { align-self: flex-start; margin: 2px 0 4px; padding: 7px 14px; border-radius: 12px; font-family: 'Inter', system-ui, sans-serif; font-size: 18px; font-weight: 700; line-height: 1.35; color: var(--gold-bright, #f3d48f); background: rgba(232, 196, 122, 0.12); border: 1px solid rgba(232, 196, 122, 0.45); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; max-width: 100%; }
-  .price-tag.is-free { color: #9fe0b5; background: rgba(159, 224, 181, 0.1); border-color: rgba(159, 224, 181, 0.45); }
-  .price-tag.long { font-size: 15px; -webkit-line-clamp: 3; }
-  .price-tag.in-block { margin: 6px 0 10px; font-size: 17px; }
-  .card > .price-tag { margin-top: auto; }
+  .price-tag { align-self: stretch; margin: 4px 0 2px; padding: 10px 0 0; border-top: 1px solid rgba(232, 196, 122, 0.28); font-family: 'Cormorant Garamond', Georgia, serif; font-size: 20px; font-weight: 600; line-height: 1.2; letter-spacing: 0.01em; color: var(--gold-bright, #f3d48f); max-width: 100%; }
+  .price-tag::before { content: attr(data-label); display: block; font-family: 'Inter', system-ui, sans-serif; font-size: 9.5px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; font-style: normal; color: rgba(232, 196, 122, 0.75); margin-bottom: 3px; }
+  .price-tag .pt { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .price-tag.is-free { font-style: italic; }
+  .price-tag.long { font-size: 17px; line-height: 1.25; }
+  .price-tag.long .pt { -webkit-line-clamp: 3; }
+  .price-tag.in-block { margin: 8px 0 12px; font-size: 19px; }
+  .card > .price-tag, .feat > .price-tag { margin-top: auto; }
+  .feat > .price-tag + .actions { margin-top: 0; padding-top: 10px; }
   .card > .meta + .price-tag, .card > p + .price-tag { margin-top: auto; }
   .card > .price-tag + .actions { margin-top: 0; padding-top: 10px; }
   .btn {
@@ -1681,7 +1685,7 @@
     var tags = el('div', 'tags');
     var fd = parseDays(f.promoDays);
     if (fd.length) c.appendChild(el('p', 'days', 'Promo days: ' + (fd.length === 7 ? 'every day' : fd.join(', ')) + (f.schedule ? '. ' + f.schedule : '')));
-    if (f.access) tags.appendChild(el('span', 'tag', f.access));
+    if (f.access) tags.appendChild(el('span', 'tag', accessText(f.access)));
     if (f.affiliate) tags.appendChild(el('span', 'tag gold', 'Affiliate link'));
     if (tags.childNodes.length) c.appendChild(tags);
     var acts = el('div', 'actions');
@@ -1882,10 +1886,19 @@
     if (/^\d[\d,]*(\.\d{1,2})?$/.test(p)) p = '$' + p;
     return p;
   };
-  var priceTag = function (p, cls) {
+  /* Free / paid wording reads the same on every card */
+  var accessText = function (a) {
+    a = String(a || '').replace(/;/g, ' and ').trim();
+    if (/free\s+and\s+paid|free.*upgrade|paid.*free/i.test(a)) return 'Free with a paid upgrade';
+    return a;
+  };
+  var priceTag = function (p, cls, label) {
     p = priceText(p);
     if (!p) return null;
-    return el('p', 'price-tag' + (cls ? ' ' + cls : '') + (/^free\b/i.test(p) ? ' is-free' : '') + (p.length > 28 ? ' long' : ''), p);
+    var t = el('div', 'price-tag' + (cls ? ' ' + cls : '') + (/^free\b/i.test(p) ? ' is-free' : '') + (p.length > 28 ? ' long' : ''));
+    t.setAttribute('data-label', label || 'Price');
+    t.appendChild(el('span', 'pt', p));
+    return t;
   };
   var metaLine = function (parts) {
     parts = parts.filter(Boolean);
@@ -1922,7 +1935,7 @@
     c.appendChild(el('h3', '', cm.name));
     if (cm.about) c.appendChild(el('p', 'offer clamp2', cm.about));
     var cd = parseDays(cm.promoDays);
-    addAll(c, [metaLine(['Hosted by ' + m.name, cd.length ? daysShort(cd) : '']), priceTag((cm.access || '').replace(/;/g, ' and '))]);
+    addAll(c, [metaLine(['Hosted by ' + m.name, cd.length ? daysShort(cd) : '']), priceTag(accessText(cm.access), '', 'Membership')]);
     var acts = el('div', 'actions');
     var lb = linkBtn('Join the community', cm.link, true);
     if (lb) acts.appendChild(lb);
@@ -1941,7 +1954,7 @@
     addThumb(c, r.image, 'recommended', r.name);
     c.appendChild(el('h3', '', r.name));
     if (r.about) c.appendChild(el('p', 'offer clamp2', r.about));
-    addAll(c, [metaLine([recCat(r.category), 'Recommended by ' + whoNames(item), r.affiliate ? 'Affiliate link' : ''])]);
+    addAll(c, [metaLine([recCat(r.category), 'Recommended by ' + whoNames(item), r.affiliate ? 'Affiliate link' : '']), priceTag(accessText(r.access), '', 'Membership')]);
     var acts = el('div', 'actions');
     var lb = linkBtn('Visit community', r.link, true);
     if (lb) acts.appendChild(lb);
@@ -1987,7 +2000,7 @@
     c.appendChild(top);
     if (f.about) c.appendChild(el('p', 'offer clamp2', f.about));
     var fd = parseDays(f.promoDays);
-    addAll(c, [metaLine([fd.length ? daysShort(fd) : '', f.affiliate ? 'Affiliate link' : ''])]);
+    addAll(c, [metaLine([fd.length ? daysShort(fd) : '', f.affiliate ? 'Affiliate link' : '']), priceTag(accessText(f.access), '', 'Membership')]);
     var acts = el('div', 'actions');
     var lb = linkBtn('Visit community', f.link, true);
     if (lb) acts.appendChild(lb);
