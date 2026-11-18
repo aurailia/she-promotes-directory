@@ -432,7 +432,7 @@
   var saved = { status: {}, featuredDraft: null, spotlightDraft: null, lockEdits: {}, cImg: {}, rImg: {}, pImg: {}, oImg: {}, place: {} };
   try {
     var raw = localStorage.getItem(STORE);
-    if (raw) { var p = JSON.parse(raw); if (p && typeof p === 'object') { saved.status = p.status || {}; saved.featuredDraft = p.featuredDraft || null; saved.spotlightDraft = p.spotlightDraft || null; saved.lockEdits = p.lockEdits || {}; saved.cImg = p.cImg || {}; saved.rImg = p.rImg || {}; saved.pImg = p.pImg || {}; saved.oImg = p.oImg || {}; saved.vipDraft = p.vipDraft || null; saved.eventsDraft = p.eventsDraft || null; saved.tierSet = p.tierSet || {}; saved.evApproved = p.evApproved || {}; saved.place = p.place || {}; } }
+    if (raw) { var p = JSON.parse(raw); if (p && typeof p === 'object') { saved.status = p.status || {}; saved.featuredDraft = p.featuredDraft || null; saved.spotlightDraft = p.spotlightDraft || null; saved.lockEdits = p.lockEdits || {}; saved.cImg = p.cImg || {}; saved.rImg = p.rImg || {}; saved.pImg = p.pImg || {}; saved.oImg = p.oImg || {}; saved.vipDraft = p.vipDraft || null; saved.eventsDraft = p.eventsDraft || null; saved.tierSet = p.tierSet || {}; saved.evApproved = p.evApproved || {}; saved.place = p.place || {}; saved.dropExtra = p.dropExtra || {}; } }
   } catch (e) { /* storage unavailable */ }
   if (!saved.tierSet) saved.tierSet = {};
   if (!saved.evApproved) saved.evApproved = {};
@@ -674,7 +674,7 @@
     Object.keys(map.recs).sort().forEach(function (n) {
       var r = map.recs[n];
       var rn = g(r.name), rl = cleanUrl(g(r.link));
-      var ownC = truthy(g(r.own)) ? pickKnown(g(r.category), ALL_CATS).slice(0, 3) : [];
+      var ownC = truthy(g(r.own)) ? pickKnown(g(r.category), ALL_CATS).slice(0, 4) : [];
       if (rn && rl && m.recommends.length < 3 && !m.recommends.some(function (x) { return normUrl(x.link) === normUrl(rl) || x.name.toLowerCase() === rn.toLowerCase(); })) m.recommends.push({ name: rn, link: rl, categories: ownC.length ? ownC : undefined, category: ownC.length ? (ownC.indexOf('Promo & Networking') !== -1 ? 'Promo Group' : pickRec(ownC[0])) : pickRec(g(r.category)), about: g(r.about), access: g(r.access), why: g(r.why), affiliate: truthy(g(r.affiliate)), own: truthy(g(r.own)), promoDays: parseDays(g(r.days)), image: photoUrl(g(r.image), 1200) });
     });
     /* review-only info, never saved to the Directory */
@@ -825,6 +825,18 @@
   /* Community images you upload here win over the form, and stay put next time */
   var isHand = function (u) { return /^(data:image\/|images\/)/.test(u || ''); };
   var rKey = function (id, r) { return id + '|' + (normUrl(r.link) || String(r.name || '').toLowerCase()); };
+  /* Extra recommendations added by hand: drop any that repeat one she already has, or that you removed */
+  var cleanExtras = function (m) {
+    var seen = {};
+    (m.recommends || []).forEach(function (r) { if (r) seen[normUrl(r.link) || String(r.name || '').toLowerCase()] = true; });
+    return (m.extraRecommends || []).filter(function (r) {
+      if (!r || !r.name) return false;
+      var k = normUrl(r.link) || String(r.name).toLowerCase();
+      if (seen[k] || (saved.dropExtra || {})[rKey(m.id, r)]) return false;
+      seen[k] = true;
+      return true;
+    });
+  };
   var oKey = function (id, o) { return id + '|offer|' + (o ? (normUrl(o.link) || String(o.title || o.desc || '').toLowerCase()) : 'main'); };
   var withImg = function (m) {
     var old = oldOf(m.id), c = null;
@@ -1085,9 +1097,19 @@
         it.appendChild(imgRow('Offer image: ' + shortT(o.title || o.desc), o.image, 'offers', o.title || m.name, saved.oImg[oKey(m.id, o)], function (v) { saved.oImg[oKey(m.id, o)] = v; }));
       });
       if (m.community) it.appendChild(imgRow('Community image: ' + m.community.name, m.community.image, 'communities', m.community.name, saved.cImg[m.id], function (v) { saved.cImg[m.id] = v; }));
-      (m.recommends || []).concat(m.extraRecommends || []).forEach(function (r) {
+      (m.recommends || []).forEach(function (r) {
         if (!r || !r.name) return;
         it.appendChild(imgRow('Recommended: ' + r.name, r.image, 'recommended', r.name, saved.rImg[rKey(m.id, r)], function (v) { saved.rImg[rKey(m.id, r)] = v; }));
+      });
+      cleanExtras(m).forEach(function (r) {
+        var row = imgRow('Extra recommended: ' + r.name, r.image, 'recommended', r.name, saved.rImg[rKey(m.id, r)], function (v) { saved.rImg[rKey(m.id, r)] = v; });
+        var rm = el('button', 'btn btn-ghost btn-sm', 'Take off her listing'); rm.type = 'button';
+        rm.addEventListener('click', function () {
+          if (rm.getAttribute('data-sure') !== '1') { rm.setAttribute('data-sure', '1'); rm.textContent = 'Tap again to take it off'; return; }
+          saved.dropExtra = saved.dropExtra || {}; saved.dropExtra[rKey(m.id, r)] = true; persist(); renderReview(); renderStats();
+        });
+        var bx = row.querySelector('.imgbtns') || row; bx.appendChild(rm);
+        it.appendChild(row);
       });
       var pbx = placeBox(m);
       if (pbx) it.appendChild(pbx);
@@ -2010,6 +2032,7 @@
       var o = {};
       /* keep any hand-added bonus recommendations from the live Directory */
       if (!m.extraRecommends) current.members.forEach(function (c) { if (c.id === m.id && c.extraRecommends) m.extraRecommends = c.extraRecommends; });
+      if (m.extraRecommends) { m = Object.assign({}, m); m.extraRecommends = cleanExtras(m); if (!m.extraRecommends.length) delete m.extraRecommends; }
       ['id', 'name', 'business', 'about', 'offerName', 'photo', 'extraRecommends', 'social', 'website', 'socials', 'categories', 'formats', 'offer', 'who', 'price', 'offerLink', 'offerImage', 'keywords', 'offers', 'community', 'recommends']
         .forEach(function (k) { if (m[k] != null) o[k] = m[k]; });
       var lk = m._fromCurrent ? (m.locked || []) : lockedKeys(m.id);

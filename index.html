@@ -2001,45 +2001,53 @@
   };
   var offerPlaces = function (m) { return placesFor(placeKey(m.id, 'o', m.offerLink, m.offerName || m.offer), m.categories, m.formats, false); };
   var commPlaces = function (m) { var cm = m.community; return placesFor(placeKey(m.id, 'c', cm.link, cm.name), commCats(cm), [], true); };
-  /* Grow Your Business is big, so it's split by what the thing actually is.
-     Business Coaching & Strategy is the catch-all, so it only wins when nothing more specific fits. */
-  var BIZ_SECS = ['Business Coaching & Strategy', 'Social Media & Content', 'Websites, Funnels & Tech', 'AI & Automation Support', 'Virtual Assistants & Admin', 'Branding, Design & Photography', 'Money Mindset & Wealth', 'Digital Products & Templates', 'Workshops & Events', 'Communities & Memberships', 'Promo Communities', 'Offers for promo and networking'];
-  var businessSec = function (cats, formats, isOffer) {
-    var has = function (f) { return formats.indexOf(f) !== -1; };
-    if (cats.indexOf(PROMO_CAT) !== -1) return isOffer ? 'Offers for promo and networking' : 'Promo Communities';
-    if (!isOffer || has('Membership or Skool Community')) return 'Communities & Memberships';
-    var personal = has('1:1 Sessions') || has('Group Program');
-    if (!personal && (has('Digital Product') || has('Physical Product'))) return 'Digital Products & Templates';
-    if (!personal && has('Live Event or Workshop')) return 'Workshops & Events';
-    var specific = ['Social Media & Content', 'Websites, Funnels & Tech', 'AI & Automation Support', 'Virtual Assistants & Admin', 'Branding, Design & Photography', 'Money Mindset & Wealth'];
-    for (var i = 0; i < cats.length; i++) if (specific.indexOf(cats[i]) !== -1) return cats[i];
-    return 'Business Coaching & Strategy';
-  };
-  var pillarSec = function (key, cats, isTrain, isOffer, formats) {
-    var P = PILLARS[key];
+  /* Which sections a listing shows in, inside each Grow page. A listing shows in EVERY section that fits it,
+     so a community tagged Money Mindset shows under Money Mindset & Wealth and under Communities & Memberships. */
+  var BIZ_SECS = ['Business Coaching & Strategy', 'Money Mindset & Wealth', 'Social Media & Content', 'Websites, Funnels & Tech', 'AI & Automation Support', 'Virtual Assistants & Admin', 'Branding, Design & Photography', 'Digital Products & Templates', 'Workshops & Events', 'Communities & Memberships'];
+  var BIZ_CAT_SECS = ['Money Mindset & Wealth', 'Social Media & Content', 'Websites, Funnels & Tech', 'AI & Automation Support', 'Virtual Assistants & Admin', 'Branding, Design & Photography'];
+  var SKOOL_SECS = ['Tools', 'Skool Community Growth', 'Communities', 'Promo Communities'];
+  var pillarSecsOf = function (key, cats, isTrain, isOffer, formats) {
+    var P = PILLARS[key], out = [];
+    var add = function (x) { if (x && out.indexOf(x) === -1) out.push(x); };
+    var has = function (f) { return (formats || []).indexOf(f) !== -1; };
+    var promo = cats.indexOf(PROMO_CAT) !== -1;
     if (key === 'training') {
-      for (var t = 0; t < TRAIN_SECS.length; t++) if (cats.some(function (c) { return TRAIN_SECS[t][1].indexOf(c) !== -1; })) return TRAIN_SECS[t][0];
-      return P.fallback;
+      for (var t = 0; t < TRAIN_SECS.length; t++) if (cats.some(function (c) { return TRAIN_SECS[t][1].indexOf(c) !== -1; })) add(TRAIN_SECS[t][0]);
+      if (!out.length) add(P.fallback);
+      return out;
     }
-    if (isTrain && (key === 'business' || key === 'skool')) return 'Trainings';
-    if (key === 'business') return businessSec(cats, formats || [], isOffer);
-    for (var i = 0; i < P.cats.length; i++) if (cats.indexOf(P.cats[i]) !== -1) {
-      var c = P.cats[i];
-      if (c === PROMO_CAT && isOffer) return 'Offers for promo and networking';
-      return SEC_NAMES[c] || c;
+    if (isTrain && (key === 'business' || key === 'skool')) return ['Trainings'];
+    if (key === 'skool') {
+      if (!isOffer) { add(promo ? 'Promo Communities' : 'Communities'); return out; }
+      if (cats.indexOf('Skool Tools & Apps') !== -1 || has('Tool or App')) add('Tools');
+      if (!out.length || cats.indexOf('Skool Community Growth') !== -1) add('Skool Community Growth');
+      return out;
     }
-    return P.fallback;
+    if (key === 'business') {
+      var personal = has('1:1 Sessions') || has('Group Program');
+      if (!isOffer || has('Membership or Skool Community')) add('Communities & Memberships');
+      if (isOffer && !personal && (has('Digital Product') || has('Physical Product'))) add('Digital Products & Templates');
+      if (isOffer && !personal && has('Live Event or Workshop')) add('Workshops & Events');
+      cats.forEach(function (c) { if (BIZ_CAT_SECS.indexOf(c) !== -1) add(c); });
+      if (cats.indexOf('Business Coaching & Strategy') !== -1 && (personal || !out.length)) add('Business Coaching & Strategy');
+      if (!out.length) add(isOffer ? P.fallback : 'Communities & Memberships');
+      return out;
+    }
+    cats.forEach(function (c) { if (P.cats.indexOf(c) !== -1) add(SEC_NAMES[c] || c); });
+    if (!out.length) add(P.fallback);
+    return out;
   };
   var pillarItems = function (key) {
     var P = PILLARS[key], list = [], seenC = {};
     if (!P) return list;
-    if (P.tools) tools.forEach(function (t) { if (t.helps === P.tools || t.helps === 'both') list.push({ k: 't', t: t, sec: 'Tools' }); });
+    if (P.tools) tools.forEach(function (t) { if (t.helps === P.tools || t.helps === 'both') list.push({ k: 't', t: t, sec: 'Tools', secs: ['Tools'] }); });
     var offerSeen = {};
     offers.forEach(function (m) {
       var ps = offerPlaces(m);
       if (ps.indexOf(key) === -1) return;
       offerSeen[(linkKey(m.offerLink) || '') + '|' + norm(m.offerName || m.offer)] = true;
-      list.push({ k: 'o', m: m, sec: pillarSec(key, m.categories || [], ps.indexOf('training') !== -1, true, m.formats || []) });
+      var so = pillarSecsOf(key, m.categories || [], ps.indexOf('training') !== -1, true, m.formats || []);
+      list.push({ k: 'o', m: m, sec: so[0], secs: so });
     });
     communities.forEach(function (m) {
       var ps = commPlaces(m);
@@ -2047,19 +2055,21 @@
       /* same name and link as one of her offers here: show it once */
       if (offerSeen[(linkKey(m.community.link) || '') + '|' + norm(m.community.name)]) return;
       seenC[linkKey(m.community.link) || norm(m.community.name)] = true;
-      list.push({ k: 'c', m: m, sec: pillarSec(key, commCats(m.community), ps.indexOf('training') !== -1, false) });
+      var sc = pillarSecsOf(key, commCats(m.community), ps.indexOf('training') !== -1, false, []);
+      list.push({ k: 'c', m: m, sec: sc[0], secs: sc });
     });
     if (P.promos) promos.forEach(function (f) {
       var lk = linkKey(f.link) || norm(f.name);
       if (seenC[lk]) return;
       seenC[lk] = true;
-      list.push({ k: 'p', f: f, sec: 'Promo Communities' });
+      list.push({ k: 'p', f: f, sec: 'Promo Communities', secs: ['Promo Communities'] });
     });
     return list;
   };
   var pillarSecs = function (key) {
     var P = PILLARS[key];
     if (key === 'training') return TRAIN_SECS.map(function (x) { return x[0]; }).concat([P.fallback]);
+    if (key === 'skool') return SKOOL_SECS.concat(['Trainings']);
     return (P.tools ? ['Tools'] : []).concat(key === 'business' ? BIZ_SECS : P.cats.map(function (c) { return SEC_NAMES[c] || c; }), ['Offers for promo and networking', 'Promo Communities', P.fallback, (key === 'business' || key === 'skool') ? 'Trainings' : '']).filter(function (x, i, arr) { return x && arr.indexOf(x) === i; });
   };
   var updatePillarCounts = function () {
@@ -2101,7 +2111,7 @@
     var set = chipSets[state.tab];
     if (PILLARS[state.tab]) {
       var have = {};
-      pillarItems(state.tab).forEach(function (it) { have[secName(it)] = true; });
+      pillarItems(state.tab).forEach(function (it) { secsOf(it).forEach(function (x) { have[x] = true; }); });
       set = [''].concat(pillarSecs(state.tab).filter(function (x) { return have[x]; }));
       if (set.length < 3) set = [];
     }
@@ -2151,13 +2161,14 @@
   };
 
   var secName = function (it) { return it.sec; };
+  var secsOf = function (it) { return it.secs || [it.sec]; };
   var renderGrid = function () {
     grid.innerHTML = '';
     var items = [], make;
     if (PILLARS[state.tab]) {
       make = function (it) { return it.k === 'o' ? offerCard(it.m) : it.k === 'c' ? communityCard(it.m) : it.k === 't' ? toolCard(it.t) : promoCard(it.f); };
       items = pillarItems(state.tab).filter(function (it) {
-        if (state.chip && secName(it) !== state.chip) return false;
+        if (state.chip && secsOf(it).indexOf(state.chip) === -1) return false;
         if (it.k === 'o') { var m = it.m; return matches([(m.keywords || []).join(' '), m.name, m.business, m.about, m.offerName, m.offer, m.who, (m.categories || []).join(' '), (m.formats || []).join(' ')]); }
         if (it.k === 'c') { var cm = it.m.community; return matches([(cm.keywords || []).join(' '), cm.name, cm.about, cm.platform, commCats(cm).join(' '), it.m.name, it.m.business]); }
         if (it.k === 't') return matches([it.t.name, it.t.about, it.t.why, 'tool app']);
@@ -2222,7 +2233,7 @@
     var secOf = null;
     if (!filtered && PILLARS[state.tab]) {
       var pOrder = pillarSecs(state.tab), pSec = {};
-      items.forEach(function (it) { var k = secName(it); (pSec[k] = pSec[k] || []).push(it); });
+      items.forEach(function (it) { secsOf(it).forEach(function (k) { (pSec[k] = pSec[k] || []).push(it); }); });
       Object.keys(pSec).sort(function (a, b) { var ia = pOrder.indexOf(a), ib = pOrder.indexOf(b); return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib); }).forEach(function (k, n) {
         var hd = el('div', 'grid-sec' + (n ? '' : ' first'));
         hd.appendChild(el('h3', 'group-title', k));
@@ -3230,8 +3241,8 @@
     };
     add('Upcoming events', upcoming().filter(function (e) { return (e.categories || []).indexOf(x) !== -1; }), eventCard);
     add('Offers & Services', c.offers, offerCard);
-    add('Communities', c.communities, communityCard);
-    add('My picks', c.picks, promoCard);
+    /* Promo groups you added and members' promo groups sit together as one list, so nobody's singled out */
+    add('Communities', c.communities.map(function (m) { return { m: m }; }).concat(c.picks.map(function (f) { return { f: f }; })), function (it) { return it.m ? communityCard(it.m) : promoCard(it.f); });
     if (!body.childNodes.length) {
       var e = emptyState('Nobody is listed in ' + x + ' yet. Run a business in this space? This could be you. See how to get listed at the bottom of the page.');
       body.appendChild(e);
