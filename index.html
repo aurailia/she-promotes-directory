@@ -2241,7 +2241,8 @@
     var secOf = null;
     if (!filtered && PILLARS[state.tab]) {
       var pOrder = pillarSecs(state.tab), pSec = {};
-      items.forEach(function (it) { secsOf(it).forEach(function (k) { (pSec[k] = pSec[k] || []).push(it); }); });
+      /* Browsing everything: each listing shows once, in its main section. Pick a section chip and it shows in every section it fits. */
+      items.forEach(function (it) { var k = state.chip && secsOf(it).indexOf(state.chip) !== -1 ? state.chip : secsOf(it)[0]; (pSec[k] = pSec[k] || []).push(it); });
       Object.keys(pSec).sort(function (a, b) { var ia = pOrder.indexOf(a), ib = pOrder.indexOf(b); return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib); }).forEach(function (k, n) {
         var hd = el('div', 'grid-sec' + (n ? '' : ' first'));
         hd.appendChild(el('h3', 'group-title', k));
