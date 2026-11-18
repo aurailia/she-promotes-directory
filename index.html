@@ -88,6 +88,11 @@
   .how li { padding-left: 24px; position: relative; font-size: 15px; }
   .how li::before { content: "\2726"; position: absolute; left: 0; color: var(--gold); }
   .cat-group { margin-bottom: 30px; scroll-margin-top: 80px; }
+  .cat-group-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px 16px; flex-wrap: wrap; margin-bottom: 12px; }
+  .cat-group-head .group-title { margin-bottom: 0; }
+  .cat-subhead { font-size: 12.5px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); margin: 18px 0 10px; }
+  .cat-group-head + .cat-subhead { margin-top: 4px; }
+  .cat-all { background: none; border: none; padding: 0; font: inherit; font-size: 14.5px; font-weight: 600; cursor: pointer; }
   .jump { margin: 0 0 24px; }
   .jump-label { font-size: 13px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--gold); margin-bottom: 10px; }
   .jump-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 10px; }
@@ -131,7 +136,7 @@
   }
   .cat-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .cat-info {
-    display: flex; flex-direction: column; gap: 6px; padding: 12px 14px 14px;
+    flex: 1 1 auto; display: flex; flex-direction: column; gap: 6px; padding: 12px 14px 14px;
     background: rgba(48, 40, 96, 0.55);
   }
   .cat-tile .cname { font-weight: 700; font-size: 17px; line-height: 1.2; letter-spacing: 0.005em; }
@@ -871,7 +876,7 @@
       <div class="nav-label">Find what you need</div>
       <button class="nav-item pillar" type="button" data-sec="skool"><span class="ico" aria-hidden="true">&#10022;</span><span class="lbl">Grow Your Skool Community</span><span class="count" id="c-skool"></span></button>
       <button class="nav-item pillar" type="button" data-sec="business"><span class="ico" aria-hidden="true">&#10022;</span><span class="lbl">Grow Your Business</span><span class="count" id="c-business"></span></button>
-      <button class="nav-item pillar" type="button" data-sec="yourself"><span class="ico" aria-hidden="true">&#10022;</span><span class="lbl">Grow Yourself</span><span class="count" id="c-yourself"></span></button>
+      <button class="nav-item pillar" type="button" data-sec="yourself"><span class="ico" aria-hidden="true">&#10022;</span><span class="lbl">Mind, Body &amp; Soul</span><span class="count" id="c-yourself"></span></button>
       <button class="nav-item pillar" type="button" data-sec="shop"><span class="ico" aria-hidden="true">&#10022;</span><span class="lbl">Women-Owned Shops</span><span class="count" id="c-shop"></span></button>
       <button class="nav-item pillar" type="button" data-sec="training"><span class="ico" aria-hidden="true">&#10022;</span><span class="lbl">Trainings &amp; Certifications</span><span class="count" id="c-training"></span></button>
       <div class="nav-sep" role="separator" aria-hidden="true"></div>
@@ -1185,8 +1190,8 @@
   ];
   /* Where each offer and community shows. Your ticks in the Updater win. With no ticks, her categories and formats decide. */
   var PLACE_ORDER = ['skool', 'business', 'yourself', 'training', 'shop'];
-  var PLACE_NAMES = { skool: 'Grow Your Skool Community', business: 'Grow Your Business', yourself: 'Grow Yourself', training: 'Trainings & Certifications', shop: 'Women-Owned Shops' };
-  var PLACE_SHORT = { skool: 'Skool', business: 'Business', yourself: 'Yourself', training: 'Trainings', shop: 'Shops' };
+  var PLACE_NAMES = { skool: 'Grow Your Skool Community', business: 'Grow Your Business', yourself: 'Mind, Body & Soul', training: 'Trainings & Certifications', shop: 'Women-Owned Shops' };
+  var PLACE_SHORT = { skool: 'Skool', business: 'Business', yourself: 'Mind, Body & Soul', training: 'Trainings', shop: 'Shops' };
   var PLACE_CATS = {
     skool: ['Skool Tools & Apps', 'Skool Community Growth', 'Promo & Networking'],
     business: ['Business Coaching & Strategy', 'Social Media & Content', 'Websites, Funnels & Tech', 'AI & Automation Support', 'Virtual Assistants & Admin', 'Branding, Design & Photography', 'Money Mindset & Wealth'],
@@ -1223,7 +1228,7 @@
   var PILLARS = {
     skool: { name: 'Grow Your Skool Community', img: 'Promo & Networking', line: 'Tools, Skool support and promo groups to help your community grow.', cats: PLACE_CATS.skool, promos: true, tools: 'skool', fallback: 'Skool Community Growth' },
     business: { name: 'Grow Your Business', img: 'Business Coaching & Strategy', line: 'Coaching, marketing, websites, AI and support to get you seen and paid.', cats: PLACE_CATS.business, tools: 'business', fallback: 'Business Coaching & Strategy' },
-    yourself: { name: 'Grow Yourself', img: 'Energy Healing', line: 'Mindset, healing, Human Design, readings and wellness for the woman behind the business.', cats: PLACE_CATS.yourself, fallback: 'More for you' },
+    yourself: { name: 'Mind, Body & Soul', img: 'Energy Healing', line: 'Mindset, healing, Human Design, readings and wellness for the woman behind the business.', cats: PLACE_CATS.yourself, fallback: 'More for you' },
     training: { name: 'Trainings & Certifications', img: 'Trainings & Certifications', line: 'Learn a skill you can use in your business or offer to your own clients.', cats: [], fallback: 'More trainings' },
     shop: { name: 'Women-Owned Shops', img: 'Handmade & Gifts', line: 'Handmade gifts, beauty, digital downloads and products you\u2019ll love.', cats: PLACE_CATS.shop, fallback: 'Products' }
   };
@@ -1274,7 +1279,7 @@
   })();
   var linkKey = function (u) { return String(u || '').toLowerCase().replace(/^https?:\/\//, '').replace(/^www\./, '').split(/[?#]/)[0].replace(/\/+$/, '').replace(/\/about$/, ''); };
   var VIP_NAME = 'Featured Businesses';   /* the page that holds every VIP's page */
-  var TITLES = { skool: 'Grow Your Skool Community', business: 'Grow Your Business', yourself: 'Grow Yourself', shop: 'Women-Owned Shops', training: 'Trainings & Certifications', share: 'Directory Referral Program', events: 'Upcoming Events', vip: VIP_NAME, calendar: 'Where can I promote today?', home: 'Home', offers: 'Offers & Services', communities: 'Communities', recommended: 'Recommended Communities', promo: 'Promo Communities' };
+  var TITLES = { skool: 'Grow Your Skool Community', business: 'Grow Your Business', yourself: 'Mind, Body & Soul', shop: 'Women-Owned Shops', training: 'Trainings & Certifications', share: 'Directory Referral Program', events: 'Upcoming Events', vip: VIP_NAME, calendar: 'Where can I promote today?', home: 'Home', offers: 'Offers & Services', communities: 'Communities', recommended: 'Recommended Communities', promo: 'Promo Communities' };
   var INTROS = {
     calendar: 'Every promo group in the Directory and the days you can post there. Tap a day, or All to see the full week.',
     promo: 'Have a business to share? These are the promo communities that inspired me to create She Promotes&trade;. More places to post your offer and meet amazing women.',
@@ -3187,7 +3192,14 @@
       inn.appendChild(el('p', '', P.line));
       inn.appendChild(el('span', 'go', 'Explore \u2192'));
       b.appendChild(inn);
-      b.addEventListener('click', function () { setSection(k); jumpTo(0); });
+      /* Scroll down to this area's categories on Home. "See all" there opens the full page. */
+      b.addEventListener('click', function () {
+        var t = $('grp-' + k);
+        if (!t) { setSection(k); jumpTo(0); return; }
+        var tb = document.querySelector('.topbar');
+        var y = t.getBoundingClientRect().top + window.pageYOffset - ((tb && tb.offsetParent !== null && tb.offsetHeight) || 0) - 12;
+        try { window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' }); } catch (e) { window.scrollTo(0, Math.max(0, y)); }
+      });
       box.appendChild(b);
     });
     $('whoJoin').href = JOIN_URL;
@@ -3197,19 +3209,36 @@
     renderDoors();
     renderSharer();
     renderHomeSearch();
-    renderJump();
+    $('jumpRow').hidden = true;
     renderSpotlight();
     renderFeatRow();
     renderWeekRow();
     setTimeout(updateCue, 50);
     var wrap = $('catGrid');
     wrap.innerHTML = '';
-    GROUPS.forEach(function (g) {
+    /* Same four areas as the big cards at the top, so each card lands on its own categories */
+    /* Mind, Body & Soul keeps its own smaller groups so healers, faith and wellness each have a home */
+    var SOUL_GROUPS = [
+      ['Mindset & Growth', ['Life & Purpose Coaching', 'Money Mindset & Wealth', 'Manifestation', 'Hypnosis & Subconscious Work', 'Relationship & Family Coaching']],
+      ['Spiritual & Energy', ['Energy Healing', 'Quantum Journeys Hypnosis', 'Human Design & Astrology', 'Intuitive Readings']],
+      ['Faith & Spirit', ['Faith & Spiritual Growth']],
+      ['Wellness & Self Care', ['Nutrition & Fitness', 'Perimenopause & Menopause']]
+    ];
+    DOOR_ORDER.map(function (k) { return { key: k, name: PILLARS[k].name, cats: PLACE_CATS[k] || [] }; }).forEach(function (g) {
       var sec = el('div', 'cat-group');
       sec.id = 'grp-' + g.key;
-      sec.appendChild(el('h3', 'group-title', g.name));
+      var gh = el('div', 'cat-group-head');
+      gh.appendChild(el('h3', 'group-title', g.name));
+      var all = el('button', 'intro-link cat-all', 'See everything in ' + g.name + ' \u2192');
+      all.type = 'button';
+      all.addEventListener('click', function () { setSection(g.key); jumpTo(0); });
+      gh.appendChild(all);
+      sec.appendChild(gh);
+      var subs = g.key === 'yourself' ? SOUL_GROUPS : [['', g.cats]];
+      subs.forEach(function (sg) {
+      if (sg[0]) sec.appendChild(el('h4', 'cat-subhead', sg[0]));
       var grid2 = el('div', 'cat-grid');
-      g.cats.forEach(function (x) {
+      sg[1].forEach(function (x) {
         var c = inCategory(x);
         var n = c.offers.length + c.communities.length + c.picks.length;
         var b = el('button', 'cat-tile' + (n ? '' : ' zero'));
@@ -3237,6 +3266,7 @@
         grid2.appendChild(b);
       });
       sec.appendChild(grid2);
+      });
       wrap.appendChild(sec);
     });
   };
@@ -3349,7 +3379,7 @@
       '- Free members promote their business on Mondays and Wednesdays. Premium members can promote every day and get listed in the Directory.',
       '- There are weekly threads to ask for what you need, find collabs and guest spots, and get spotlighted.',
       '- The She Promotes Directory is free to browse. No sign up needed to look around.',
-      '- Inside the Directory: Grow Your Skool Community (tools, Skool support and promo groups), Grow Your Business (coaching, marketing, websites, AI and support), Grow Yourself (mindset, healing, Human Design, readings and wellness), Women-Owned Shops (handmade gifts, beauty and products), Trainings & Certifications, Featured Businesses, Upcoming Events, and a calendar that shows where you can promote your business today.',
+      '- Inside the Directory: Grow Your Skool Community (tools, Skool support and promo groups), Grow Your Business (coaching, marketing, websites, AI and support), Mind, Body & Soul (mindset, healing, Human Design, readings, faith and wellness), Women-Owned Shops (handmade gifts, beauty and products), Trainings & Certifications, Featured Businesses, Upcoming Events, and a calendar that shows where you can promote your business today.',
       '- Don\u2019t mention prices. If you want to say what it costs, just say it\u2019s free to join.'
     ].join('\n');
     var goal = kind === 'community'
