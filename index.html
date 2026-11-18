@@ -1143,7 +1143,11 @@
   try {
     var qp = new URLSearchParams(location.search);
     var qRef = String(qp.get('ref') || '').trim().toLowerCase();
-    if (/^[a-f0-9]{32}$/.test(qRef)) {
+    /* ?ref=clear forgets any saved referral and saved share link on this device (handy for testing) */
+    if (qRef === 'clear') {
+      try { localStorage.removeItem('shePromotesRef'); localStorage.removeItem('shePromotesShareLink'); } catch (e) { /* fine */ }
+      try { history.replaceState(null, '', location.pathname + location.hash); } catch (e) { /* fine */ }
+    } else if (/^[a-f0-9]{32}$/.test(qRef)) {
       REF = qRef;
       REF_FROM = String(qp.get('from') || '').replace(/[<>"&]/g, '').trim().slice(0, 40);
       REF_ME = String(qp.get('me') || '').replace(/[^A-Za-z0-9_-]/g, '').slice(0, 80);
