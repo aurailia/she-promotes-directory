@@ -809,6 +809,7 @@
   .ev-main { padding: 30px 30px 30px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
   .ev-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; }
   .ev-time { font-size: 13px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--gold-bright); }
+  .ev-main h3.long { font-size: 29px; line-height: 1.12; }
   .ev-main h3 { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 36px; font-weight: 600; line-height: 1.08; margin: 2px 0 0; width: fit-content; max-width: 100%; padding-bottom: 2px; }
   .ev-main .ev-host { font-size: 15px; }
   .ev-main .ev-host b { color: var(--text); font-weight: 600; }
@@ -834,6 +835,7 @@
     .ev-art { aspect-ratio: 16 / 9; min-height: 0; grid-row: auto; }
     .ev-main { padding: 22px 22px 6px; }
     .ev-main h3 { font-size: 30px; }
+    .ev-main h3.long { font-size: 25px; }
     .ev-side { grid-column: auto; padding: 14px 22px 24px; flex-direction: column; align-items: stretch; }
     .ev-side .btn { width: 100%; margin-left: 0; }
     .ev-filters { border-radius: 22px; }
@@ -2461,6 +2463,17 @@
     out.t = h + ':' + mi + (dp ? ' ' + dp : '') + (tz ? ' ' + tz : '');
     return out;
   };
+  /* ALL CAPS titles read as shouting in a big serif, so show them in title case */
+  var niceTitle = function (t) {
+    t = String(t || '').trim();
+    var letters = t.replace(/[^A-Za-z]/g, ''), caps = t.replace(/[^A-Z]/g, '');
+    if (letters.length < 6 || caps.length / letters.length < 0.7) return t;
+    var small = ['a', 'an', 'the', 'of', 'and', 'or', 'in', 'on', 'to', 'for', 'with', 'at', 'by'];
+    return t.toLowerCase().split(' ').map(function (w, i) {
+      if (i > 0 && small.indexOf(w) !== -1) return w;
+      return w.replace(/[a-z]/, function (c) { return c.toUpperCase(); });
+    }).join(' ').replace(/(^|[\s-])(\d+)-day/gi, function (x, a, n) { return a + n + '-Day'; });
+  };
   var eventCard = function (e) {
     var c = el('article', 'ev2');
     var art = el('div', 'ev-art');
@@ -2486,7 +2499,8 @@
     meta.appendChild(el('span', 'ev-time', evWhen(e)));
     meta.appendChild(el('span', 'tag', e.mode === 'inperson' ? 'In person' : 'Online'));
     m.appendChild(meta);
-    m.appendChild(el('h3', 'grad', e.title));
+    var evT = niceTitle(e.title);
+    m.appendChild(el('h3', 'grad' + (evT.length > 34 ? ' long' : ''), evT));
     if (e.host) {
       var hp = el('p', 'ev-host');
       hp.appendChild(document.createTextNode('Hosted by '));
