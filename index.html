@@ -399,6 +399,9 @@
     background: var(--input-bg); border: 1px solid var(--input-border);
     border-radius: 12px; padding: 12px 14px; outline: none; -webkit-appearance: none; appearance: none;
   }
+  .chips.as-select { display: flex; align-items: center; gap: 10px; flex-wrap: nowrap; overflow: visible; }
+  .chips.as-select .sec-lbl { font-size: 14px; font-weight: 600; color: var(--muted); white-space: nowrap; }
+  .chips.as-select select { flex: 0 1 420px; min-width: 0; }
   select {
     background-image: linear-gradient(45deg, transparent 50%, var(--gold) 50%), linear-gradient(135deg, var(--gold) 50%, transparent 50%);
     background-position: calc(100% - 20px) 52%, calc(100% - 14px) 52%;
@@ -2032,7 +2035,11 @@
     }
     if (isTrain && (key === 'business' || key === 'skool')) return ['Trainings'];
     if (key === 'skool') {
-      if (!isOffer) { add(promo ? 'Promo Communities' : 'Communities'); return out; }
+      if (!isOffer) {
+        if (cats.indexOf('Skool Community Growth') !== -1) add('Skool Community Growth');
+        add(promo ? 'Promo Communities' : 'Communities');
+        return out;
+      }
       if (cats.indexOf('Skool Tools & Apps') !== -1 || has('Tool or App')) add('Tools');
       if (!out.length || cats.indexOf('Skool Community Growth') !== -1) add('Skool Community Growth');
       return out;
@@ -2049,6 +2056,8 @@
     }
     cats.forEach(function (c) { if (P.cats.indexOf(c) !== -1) add(SEC_NAMES[c] || c); });
     if (!out.length) add(P.fallback);
+    /* Mind, Body & Soul: communities and memberships also get their own section */
+    if (key === 'yourself' && (!isOffer || has('Membership or Skool Community'))) add('Communities & Memberships');
     return out;
   };
   /* Every promo group in one list: members' communities tagged Promo & Networking first, then the ones you added */
@@ -2070,13 +2079,16 @@
   var pillarItems = function (key) {
     var P = PILLARS[key], list = [], seenC = {};
     if (!P) return list;
+    /* a listing's main section is the first one it fits, in the page's own section order */
+    var ord = pillarSecs(key);
+    var byOrd = function (a) { if (key !== 'business' && key !== 'skool') return a; return a.sort(function (x, y) { var i = ord.indexOf(x), j = ord.indexOf(y); return (i === -1 ? 99 : i) - (j === -1 ? 99 : j); }); };
     if (P.tools) tools.forEach(function (t) { if (t.helps === P.tools || t.helps === 'both') list.push({ k: 't', t: t, sec: 'Tools', secs: ['Tools'] }); });
     var offerSeen = {};
     offers.forEach(function (m) {
       var ps = offerPlaces(m);
       if (ps.indexOf(key) === -1) return;
       offerSeen[(linkKey(m.offerLink) || '') + '|' + norm(m.offerName || m.offer)] = true;
-      var so = pillarSecsOf(key, m.categories || [], ps.indexOf('training') !== -1, true, m.formats || []);
+      var so = byOrd(pillarSecsOf(key, m.categories || [], ps.indexOf('training') !== -1, true, m.formats || []));
       list.push({ k: 'o', m: m, sec: so[0], secs: so });
     });
     communities.forEach(function (m) {
@@ -2086,7 +2098,7 @@
       /* same name and link as one of her offers here: show it once */
       if (offerSeen[(linkKey(m.community.link) || '') + '|' + norm(m.community.name)]) return;
       seenC[linkKey(m.community.link) || norm(m.community.name)] = true;
-      var sc = pillarSecsOf(key, commCats(m.community), ps.indexOf('training') !== -1, false, []);
+      var sc = byOrd(pillarSecsOf(key, commCats(m.community), ps.indexOf('training') !== -1, false, []));
       list.push({ k: 'c', m: m, sec: sc[0], secs: sc });
     });
     if (P.promos) promos.forEach(function (f) {
@@ -2101,6 +2113,7 @@
     var P = PILLARS[key];
     if (key === 'training') return TRAIN_SECS.map(function (x) { return x[0]; }).concat([P.fallback]);
     if (key === 'skool') return SKOOL_SECS.concat(['Trainings']);
+    if (key === 'yourself') return P.cats.map(function (c) { return SEC_NAMES[c] || c; }).concat([P.fallback, 'Communities & Memberships']);
     return (P.tools ? ['Tools'] : []).concat(key === 'business' ? BIZ_SECS : P.cats.map(function (c) { return SEC_NAMES[c] || c; }), ['Offers for promo and networking', 'Promo Communities', P.fallback, (key === 'business' || key === 'skool') ? 'Trainings' : '']).filter(function (x, i, arr) { return x && arr.indexOf(x) === i; });
   };
   var updatePillarCounts = function () {
@@ -2139,7 +2152,32 @@
     }
     var chips = $('chips');
     chips.innerHTML = '';
+    chips.classList.remove('as-select');
     var set = chipSets[state.tab];
+    /* The Grow pages get a dropdown: every section that has something, with how many listings fit it */
+    if (PILLARS[state.tab]) {
+      var pItems = pillarItems(state.tab), cnt = {};
+      pItems.forEach(function (it) { secsOf(it).forEach(function (x) { cnt[x] = (cnt[x] || 0) + 1; }); });
+      var secList = pillarSecs(state.tab).filter(function (x) { return cnt[x]; });
+      chips.hidden = secList.length < 2;
+      if (!chips.hidden) {
+        chips.classList.add('as-select');
+        var lab = el('label', 'sec-lbl', 'Show');
+        lab.setAttribute('for', 'secSelect');
+        var sel = document.createElement('select');
+        sel.id = 'secSelect';
+        var oa = el('option', '', 'Everything (' + pItems.length + ')'); oa.value = ''; sel.appendChild(oa);
+        secList.forEach(function (x) { var o = el('option', '', x + ' (' + cnt[x] + ')'); o.value = x; sel.appendChild(o); });
+        if (state.chip && secList.indexOf(state.chip) === -1) state.chip = '';
+        sel.value = state.chip;
+        sel.addEventListener('change', function () { state.chip = sel.value; renderGrid(); });
+        chips.appendChild(lab); chips.appendChild(sel);
+      }
+      $('secTitle').textContent = TITLES[state.tab];
+      $('secIntro').innerHTML = INTROS[state.tab];
+      renderOffersSub();
+      return;
+    }
     if (PILLARS[state.tab]) {
       var have = {};
       pillarItems(state.tab).forEach(function (it) { secsOf(it).forEach(function (x) { have[x] = true; }); });
@@ -2266,7 +2304,15 @@
     if (!filtered && PILLARS[state.tab]) {
       var pOrder = pillarSecs(state.tab), pSec = {};
       /* Browsing everything: each listing shows once, in its main section. Pick a section chip and it shows in every section it fits. */
-      items.forEach(function (it) { var k = state.chip && secsOf(it).indexOf(state.chip) !== -1 ? state.chip : secsOf(it)[0]; (pSec[k] = pSec[k] || []).push(it); });
+      /* Community sections work like a second home: a community shows in its main category AND under Communities or Promo Communities */
+      var ALSO = ['Communities & Memberships', 'Promo Communities', 'Communities'];
+      items.forEach(function (it) {
+        var ss = secsOf(it), put = function (k) { (pSec[k] = pSec[k] || []).push(it); };
+        if (state.chip && ss.indexOf(state.chip) !== -1) { put(state.chip); return; }
+        var main = ss.filter(function (x) { return ALSO.indexOf(x) === -1; })[0] || ss[0];
+        put(main);
+        ss.forEach(function (x) { if (x !== main && ALSO.indexOf(x) !== -1) put(x); });
+      });
       Object.keys(pSec).sort(function (a, b) { var ia = pOrder.indexOf(a), ib = pOrder.indexOf(b); return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib); }).forEach(function (k, n) {
         var hd = el('div', 'grid-sec' + (n ? '' : ' first'));
         hd.appendChild(el('h3', 'group-title', k));
