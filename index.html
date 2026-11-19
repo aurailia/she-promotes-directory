@@ -900,6 +900,9 @@
     .room-comms.many .room-comm .rc-body { padding: 22px 18px; }
     .room-comms .room-comm .rc-art { min-height: 0; }
   }
+  .room-list li.own-mark { padding-left: 28px; }
+  .room-list li.own-mark::before { content: none; display: none; }
+  .room-list li.own-mark .om { position: absolute; left: 0; top: 0; font-size: 0.95em; line-height: inherit; }
 </style>
 </head>
 <body>
@@ -2997,7 +3000,8 @@
         inside = inside.map(function (x) { return String(x).trim(); }).filter(Boolean);
         if (inside.length) {
           cb.appendChild(el('div', 'lbl2', 'What’s inside'));
-          var ul = el('ul', 'room-list'); inside.forEach(function (x) { ul.appendChild(el('li', '', x)); }); cb.appendChild(ul);
+          /* if she starts a line with her own emoji, it takes the place of the gold star */
+          var ul = el('ul', 'room-list'); inside.forEach(function (x) { var em = x.match(/^((?:\p{Extended_Pictographic}|\p{Emoji_Presentation})[\uFE0F\u200D\p{Extended_Pictographic}]*)\s*/u); if (em) { var li = el('li', 'own-mark'); li.appendChild(el('span', 'om', em[1])); li.appendChild(document.createTextNode(x.slice(em[0].length))); ul.appendChild(li); } else ul.appendChild(el('li', '', x)); }); cb.appendChild(ul);
         }
         if (c.access) cb.appendChild(el('p', 'access', String(c.access).replace(/;/g, ' and ')));
         var j = linkBtn('Join ' + c.name, c.link, true); if (j) cb.appendChild(j);

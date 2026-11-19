@@ -1685,7 +1685,21 @@
       }
       return out;
     };
-    var cRows = rowsOf('Her communities', v.communities, 4, [['name', 'Community', 'Name'], ['link', 'Link', 'https://'], ['about', 'In one sentence', 'What it is', true], ['inside', 'What\u2019s inside (one per line)', 'A live call every month\nA private classroom', true, true, true], ['access', 'Who can join and what it costs', 'Free to join. Premium is $9 a month.', true, false, true]]);
+    /* start from the communities on her listing, so name and link are already there */
+    var listC = [];
+    if (id !== 'new') {
+      var lm = null; allMembers().forEach(function (q) { if (!lm && nameKey(q.name) === nameKey(v.name)) lm = eff(q); });
+      if (lm) {
+        var addL = function (c) { if (!c || !c.name || !c.link) return; if (listC.some(function (x) { return normUrl(x.link) === normUrl(c.link); })) return; listC.push({ name: c.name, link: c.link, about: c.about || '', access: c.access || '' }); };
+        addL(lm.community); (lm.recommends || []).forEach(function (r) { if (r && r.own) addL(r); });
+      }
+    }
+    var vcs = (v.communities || []).slice();
+    listC.forEach(function (c) {
+      var hit = vcs.filter(function (x) { return (normUrl(x.link) && normUrl(x.link) === normUrl(c.link)) || nameKey(x.name) === nameKey(c.name); })[0];
+      if (!hit) vcs.push(c); else ['name', 'link', 'about'].forEach(function (k) { if (!hit[k] && c[k]) hit[k] = c[k]; });
+    });
+    var cRows = rowsOf('Her communities', vcs, 4, [['name', 'Community', 'Name'], ['link', 'Link', 'https://'], ['about', 'In one sentence', 'What it is', true], ['inside', 'What\u2019s inside (one per line)', 'A live call every month\nA private classroom', true, true, true], ['access', 'Who can join and what it costs', 'Free to join. Premium is $9 a month.', true, false, true]]);
     var oRows = rowsOf('Her offers', v.offers, 3, [['title', 'Offer', 'Name'], ['link', 'Link', 'https://'], ['desc', 'In one sentence', 'What she gets', true], ['price', 'Starting price', 'Optional']]);
     var acts = el('div', 'row');
     var save = el('button', 'btn btn-primary', 'Save VIP'); save.type = 'button';
@@ -1705,6 +1719,8 @@
       if (ph) nv.photo = photoUrl(ph); else if (!/^data:/.test(nv.photo)) nv.photo = '';
       nv.banner = banner;
       var oldCs = nv.communities || [];
+      var lost = cRows.filter(function (r) { return (r.inside.value.trim() || r.access.value.trim() || r.about.value.trim()) && !(r.name.value.trim() && r.link.value.trim()); });
+      if (lost.length) { st.textContent = 'Add the community name and link so what you typed can be saved.'; return; }
       nv.communities = cRows.map(function (r) {
         var c = { name: r.name.value.trim(), link: cleanUrl(r.link.value), about: r.about.value.trim(),
           inside: r.inside.value.split(/\n+/).map(function (x) { return x.replace(/^[\s\-*\u2022\u2726]+/, '').trim(); }).filter(Boolean).slice(0, 12), access: r.access.value.trim() };
