@@ -872,6 +872,24 @@
     .room-comm h4 { font-size: 32px; }
     .room-cta .btn { min-width: 0; flex: 1 1 auto; }
   }
+  /* VIP room communities: the whole banner shows, nothing cropped */
+  .room-comms { display: grid; gap: 22px; }
+  .room-comms.many { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .room-comms .room-comm { display: flex; flex-direction: column; margin-bottom: 0; }
+  .room-comms .room-comm .rc-art { min-height: 0; aspect-ratio: 16 / 9; flex: 0 0 auto; }
+  .room-comms .room-comm .rc-art img { object-fit: contain; }
+  .room-comms .room-comm .rc-art:has(img) { aspect-ratio: auto; }
+  .room-comms .room-comm .rc-art:has(img) img { position: static; height: auto; }
+  .room-comms .room-comm .rc-art:has(img)::before { display: none; }
+  #roomComm, #roomOffers { scroll-margin-top: 70px; }
+  .room-comms .room-comm .rc-body { flex: 1 1 auto; }
+  .room-comms .room-comm .rc-body .btn { margin-top: auto; }
+  .room-comms .room-comm .rc-body .access { margin-bottom: 6px; }
+  .room-comms:not(.many) .room-comm { max-width: 980px; }
+  @media (max-width: 860px) {
+    .room-comms.many { grid-template-columns: minmax(0, 1fr); }
+    .room-comms .room-comm .rc-art { min-height: 0; }
+  }
 </style>
 </head>
 <body>
@@ -2845,7 +2863,7 @@
     if (!o.who && !o.price) return null;
     var f = el('div', 'room-facts');
     if (o.who) { var a = el('div'); a.appendChild(el('b', '', 'Best for')); a.appendChild(document.createTextNode(bestFor(o.who) || o.who)); f.appendChild(a); }
-    if (o.price) { var b = el('div'); b.appendChild(el('b', '', /^free/i.test(o.price) ? 'Price' : 'Starts at')); b.appendChild(document.createTextNode(/^free/i.test(o.price) ? 'Free' : o.price)); f.appendChild(b); }
+    if (o.price) { var b = el('div'); b.appendChild(el('b', '', 'Price')); b.appendChild(document.createTextNode(/^free/i.test(o.price) ? 'Free' : o.price)); f.appendChild(b); }
     return f;
   };
   /* YouTube, Vimeo and Loom play right on her page. Anything else opens in a new tab. */
@@ -2912,7 +2930,12 @@
     if (R.headline) intro.appendChild(el('p', 'room-headline', R.headline));
     var cta = el('div', 'room-cta');
     var mainC = R.communities[0];
-    var jb = mainC ? linkBtn('Join my community', mainC.link, true) : null;
+    var jb = null;
+    if (R.communities.length > 1) {
+      /* more than one community: take them to the section so they can see them all */
+      jb = el('button', 'btn btn-primary', 'See my communities'); jb.type = 'button';
+      jb.addEventListener('click', function () { var t = $('roomComm'); if (t) t.scrollIntoView({ block: 'start' }); });
+    } else if (mainC) jb = linkBtn('Join my community', mainC.link, true);
     if (jb) cta.appendChild(jb);
     if (R.offers.length) {
       var so = el('button', 'btn ' + (jb ? 'btn-ghost' : 'btn-primary'), R.offers.length > 1 ? 'See my offers' : 'See my offer');
@@ -2950,6 +2973,8 @@
     /* Her community */
     if (R.communities.length) {
       var cs = sec('roomComm', R.communities.length > 1 ? 'My communities' : 'My community', 'Come spend time with us');
+      var cwrap = el('div', 'room-comms' + (R.communities.length > 1 ? ' many' : ''));
+      cs.appendChild(cwrap);
       R.communities.forEach(function (c) {
         var cc = el('div', 'room-comm');
         var ca = el('div', 'rc-art'); ca.setAttribute('aria-hidden', 'true'); ca.setAttribute('data-mono', String(c.name || '').replace(/^[^A-Za-z0-9]+/, '').charAt(0).toUpperCase());
@@ -2967,7 +2992,7 @@
         if (c.access) cb.appendChild(el('p', 'access', String(c.access).replace(/;/g, ' and ')));
         var j = linkBtn('Join ' + c.name, c.link, true); if (j) cb.appendChild(j);
         cc.appendChild(cb);
-        cs.appendChild(cc);
+        cwrap.appendChild(cc);
       });
     }
 
@@ -3005,7 +3030,7 @@
 
     /* Find her everywhere */
     if (R.links.length) {
-      var ls = sec('', 'Stay in touch', 'Find me everywhere');
+      var ls = sec('', 'Stay in touch', 'How to connect with me');
       var lw = el('div', 'room-links');
       R.links.forEach(function (x) { var b = linkBtn(x[0], x[1], false); if (b) lw.appendChild(b); });
       ls.appendChild(lw);
