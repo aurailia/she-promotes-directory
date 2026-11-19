@@ -26,7 +26,7 @@
     --violet: #c49bff;
     --title-grad: linear-gradient(100deg, #c49bff 0%, #e3a6f0 45%, #f4b6c8 100%);
   }
-  .grad, .group-title, .spot h2, .cal h3, h1, h2.section, .card h3, .feat h3, .dialog h3.sub, .listed h2, .side-brand, .how-in h2 {
+  .grad, .group-title, .spot h2, .cal h3, h1, h2.section, .card h3, .feat h3, .dialog h3.sub, .sharer-profile h3.sub, .listed h2, .side-brand, .how-in h2 {
     background: var(--title-grad); -webkit-background-clip: text; background-clip: text;
     -webkit-text-fill-color: transparent; color: var(--blush);
     width: fit-content; max-width: 100%;
@@ -53,7 +53,7 @@
   h1 { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 52px; font-weight: 600; line-height: 1.05; }
   h1 span { font-style: italic; }
   .lede { color: var(--muted); margin: 12px auto 0; font-size: 16px; max-width: 560px; }
-  .dialog .offer { white-space: pre-line; }
+  .dialog .offer, .sharer-profile .offer { white-space: pre-line; }
   .lede.small { font-size: 14px; margin-top: 8px; }
   .hero-cta { margin-top: 14px; }
   .what-btn { margin-top: 10px; font-family: inherit; font-size: 13px; font-weight: 600; color: var(--gold-bright); background: none; border: none; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; padding: 4px; }
@@ -322,6 +322,8 @@
   @media (max-width: 520px) { #sharerRow { padding: 18px 14px; } #sharerRow .sharer-grid { grid-template-columns: 1fr; } }
   /* Shared with you by: her intro on the left, all her offers and communities on the right */
   .sharer-body { display: grid; gap: 18px; }
+  .sharer-profile { max-width: 1100px; margin: 0 auto; }
+  .sharer-profile .sharer-vip { justify-content: center; margin-top: 22px; }
   .sharer-about { border: 1px solid rgba(232, 196, 122, 0.3); border-radius: 18px; padding: 18px; background: rgba(0, 0, 0, 0.18); display: grid; gap: 12px; align-content: start; }
   .sharer-about .who-row { margin: 0; }
   .sharer-about .offer { white-space: pre-line; font-size: 15px; line-height: 1.6; }
@@ -524,10 +526,13 @@
   .signoff .sig { color: var(--gold); }
 
   /* Profile dialog */
-  .overlay { position: fixed; inset: 0; background: rgba(10, 2, 10, 0.9); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); z-index: 40; display: none; align-items: flex-end; justify-content: center; }
+  .overlay { position: fixed; inset: 0; background: rgba(10, 2, 10, 0.92); z-index: 40; display: none; align-items: flex-end; justify-content: center; }
   .overlay.open { display: flex; }
+  /* the page behind a pop-up doesn't need drawing while you scroll the pop-up */
+  body.dlg-open .main, body.dlg-open .sidebar { visibility: hidden; }
   .dialog {
     width: 100%; max-width: 560px; max-height: 88vh; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
+    transform: translateZ(0); contain: layout paint; scroll-behavior: auto;
     background: var(--plum-deep); border: 1px solid var(--card-border); border-bottom: none;
     border-radius: 24px 24px 0 0; padding: 22px 18px 30px; position: relative;
   }
@@ -554,7 +559,12 @@
     font-size: 20px; line-height: 1; cursor: pointer;
   }
   .dialog .avatar { flex-basis: 72px; width: 72px; height: 72px; font-size: 24px; }
-  .dialog h3.sub { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 22px; margin: 20px 0 8px; }
+  .dialog h3.sub, .sharer-profile h3.sub { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 22px; margin: 20px 0 8px; }
+  .sharer-profile h3.sub { font-size: 26px; }
+  .sharer-profile .block { background: rgba(255,255,255,0.05); border-radius: 16px; padding: 14px; margin-bottom: 10px; display: grid; gap: 8px; }
+  .sharer-profile .sharer-vip .btn { width: auto; flex: 0 0 auto; padding-left: 28px; padding-right: 28px; }
+  @media (min-width: 900px) { .sharer-profile .pf-grid.two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 28px; align-items: start; } .sharer-profile .pf-grid.two .pf-col { display: block; } }
+  .dialog .block { content-visibility: auto; contain-intrinsic-size: auto 320px; }
   .dialog .block { background: rgba(255,255,255,0.05); border-radius: 16px; padding: 14px; margin-bottom: 10px; display: grid; gap: 8px; }
   .block.has-img { overflow: hidden; }
 
@@ -967,11 +977,6 @@
       </header>
 
       <section id="homeView" aria-labelledby="homeTitle" hidden>
-        <div class="gdoors" id="doors"></div>
-        <div class="who-box">Every business here is part of <b>She Promotes&trade;</b>, a community where women in business support, promote and buy from each other.
-          <div class="who-btns"><a class="btn btn-primary" id="whoJoin" href="#" target="_blank" rel="noopener">Join She Promotes&trade; free</a><a class="btn btn-ghost" href="#listed">Own a business? Get listed</a></div>
-        </div>
-        <div id="sharerRow" hidden></div>
         <div class="home-search" role="search">
           <div class="search">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
@@ -980,10 +985,15 @@
           </div>
           <div class="chips" id="hqChips" role="group" aria-label="Popular searches"></div>
         </div>
+        <div id="hqResults" hidden></div>
+        <div class="gdoors" id="doors"></div>
+        <div class="who-box">Every business here is part of <b>She Promotes&trade;</b>, a community where women in business support, promote and buy from each other.
+          <div class="who-btns"><a class="btn btn-primary" id="whoJoin" href="#" target="_blank" rel="noopener">Join She Promotes&trade; free</a><a class="btn btn-ghost" href="#listed">Own a business? Get listed</a></div>
+        </div>
+        <div id="sharerRow" hidden></div>
         <div id="spotlight" hidden></div>
         <div id="featRow" hidden></div>
         <div id="weekRow" hidden></div>
-        <div id="hqResults" hidden></div>
         <div id="homeMain">
         <h2 class="section" id="homeTitle">Browse by category</h2>
         <p class="section-sub">Tap a category to see the offers and communities in it.</p>
@@ -1697,7 +1707,15 @@
       offers: offers.filter(function (m) { return (m.categories || []).indexOf(cat) !== -1; }),
       communities: cs,
       /* a promo group that already shows above as someone's community isn't repeated */
-      picks: cat === PROMO_CAT ? promos.filter(function (f) { return !shown[linkKey(f.link)]; }) : []
+      picks: cat === PROMO_CAT ? promos.filter(function (f) { return !shown[linkKey(f.link)]; }) : [],
+      /* Skool Community Growth also shows every promo community, in its own section */
+      promoComms: cat === 'Skool Community Growth' ? (function () {
+        var seen = {}, out = [];
+        cs.forEach(function (m) { seen[linkKey(m.community.link)] = true; });
+        communities.forEach(function (m) { var k = linkKey(m.community.link); if (!seen[k] && commCats(m.community).indexOf(PROMO_CAT) !== -1) { seen[k] = true; out.push({ m: m }); } });
+        promos.forEach(function (f) { var k = linkKey(f.link); if (!seen[k]) { seen[k] = true; out.push({ f: f }); } });
+        return out;
+      })() : []
     };
   };
 
@@ -1908,6 +1926,7 @@
     body.appendChild(full);
     if (!full.querySelector('#dlgName')) { var h = full.querySelector('h3, .name'); if (h) h.id = 'dlgName'; }
     overlay.classList.add('open');
+    document.body.classList.add('dlg-open');
     document.body.style.overflow = 'hidden';
     $('dialog').scrollTop = 0;
     $('closeBtn').focus();
@@ -3188,6 +3207,8 @@
     var res = $('hqResults');
     res.innerHTML = '';
     $('homeMain').hidden = !!q;
+    /* while she's searching, results sit right under the search bar and the rest steps aside */
+    $('doors').hidden = !!q; var wb = document.querySelector('#homeView .who-box'); if (wb) wb.hidden = !!q;
     if (q) $('spotlight').hidden = true; else if (spotlightProfile()) $('spotlight').hidden = false;
     res.hidden = !q;
     if (!q) { updateCue(); return; }
@@ -3253,7 +3274,7 @@
     row.innerHTML = '';
     GROUPS.forEach(function (g) {
       var n = 0;
-      g.cats.forEach(function (x) { var c = inCategory(x); n += c.offers.length + c.communities.length + c.picks.length; });
+      g.cats.forEach(function (x) { var c = inCategory(x); n += c.offers.length + c.communities.length + c.picks.length + c.promoComms.length; });
       var b = el('button', 'jump-btn');
       b.type = 'button';
       var pic = el('span', 'jimg', EMOJI[g.cats[0]] || '\u2726');
@@ -3314,23 +3335,16 @@
     head.appendChild(el('h2', 'section', sharer.name));
     if (sharer.business) head.appendChild(el('p', 'section-sub', sharer.business));
     box.appendChild(head);
-    var wrap = el('div', 'sharer-body');
-    if (sharer.about) {
-      wrap.classList.add('has-about');
-      var ab = el('div', 'sharer-about');
-      ab.appendChild(personRow(sharer));
-      ab.appendChild(el('p', 'offer', sharer.about));
-      var aa = el('div', 'actions');
-      var pb = el('button', 'btn btn-ghost', 'View her full profile');
-      pb.type = 'button';
-      pb.addEventListener('click', function () { openProfile(sharer, pb); });
-      aa.appendChild(pb);
-      ab.appendChild(aa);
-      wrap.appendChild(ab);
+    /* her whole profile, right here: no extra click */
+    var wrap = el('div', 'sharer-profile');
+    buildProfile(sharer, wrap, null, true);
+    /* a VIP's Featured page has her full story, so point there too */
+    var sv = null; vipList().forEach(function (x) { if (!sv && norm(x.name) === norm(sharer.name)) sv = x; });
+    if (sv) {
+      var fa = el('div', 'actions sharer-vip');
+      var fl = el('a', 'btn btn-primary', 'See her Featured Business page \u2192'); fl.href = '#featured/' + roomSlug(sv);
+      fa.appendChild(fl); wrap.appendChild(fa);
     }
-    var g = el('div', 'grid sharer-grid');
-    mine.forEach(function (c) { g.appendChild(c); });
-    wrap.appendChild(g);
     box.appendChild(wrap);
   };
   var renderDoors = function () {
@@ -3399,7 +3413,7 @@
       var grid2 = el('div', 'cat-grid');
       sg[1].forEach(function (x) {
         var c = inCategory(x);
-        var n = c.offers.length + c.communities.length + c.picks.length;
+        var n = c.offers.length + c.communities.length + c.picks.length + c.promoComms.length;
         var b = el('button', 'cat-tile' + (n ? '' : ' zero'));
         b.type = 'button';
         var pic = el('span', 'cat-img', EMOJI[x] || '\u2726');
@@ -3461,6 +3475,7 @@
     add('Offers & Services', c.offers, offerCard);
     /* Promo groups you added and members' promo groups sit together as one list, so nobody's singled out */
     add('Communities', c.communities.map(function (m) { return { m: m }; }).concat(c.picks.map(function (f) { return { f: f }; })), function (it) { return it.m ? communityCard(it.m) : promoCard(it.f); });
+    add('Promo Communities', c.promoComms, function (it) { return it.m ? communityCard(it.m) : promoCard(it.f); });
     if (!body.childNodes.length) {
       var e = emptyState('Nobody is listed in ' + x + ' yet. Run a business in this space? This could be you. See how to get listed at the bottom of the page.');
       body.appendChild(e);
@@ -3652,23 +3667,31 @@
   /* Profile dialog */
   var overlay = $('overlay'), lastFocus = null;
   var openProfile = function (m, from, vip) {
-    m = m._base || m;
-    vip = vip || {};
     lastFocus = from || null;
     var top = $('dlgBody');
     top.innerHTML = '';
     $('dialog').classList.add('wide');
-    var row = personRow(m);
-    row.querySelector('.name').id = 'dlgName';
-    top.appendChild(row);
+    buildProfile(m, top, vip);
+    var nm = top.querySelector('.who-row .name'); if (nm) nm.id = 'dlgName';
+    overlay.classList.add('open');
+    document.body.classList.add('dlg-open');
+    document.body.style.overflow = 'hidden';
+    $('dialog').scrollTop = 0;
+    $('closeBtn').focus();
+  };
+  /* Her full profile: about, links, offers, communities and the ones she recommends. Used in the dialog and in "Shared with you by". */
+  var buildProfile = function (m, top, vip, noHead) {
+    m = m._base || m;
+    vip = vip || {};
+    if (!noHead) top.appendChild(personRow(m));
     if (vip.headline) top.appendChild(el('p', 'vip-head', vip.headline));
     if (vip.note) top.appendChild(whyBox(['What I love about her work'], vip.note));
-    /* Left column: about, links, communities. Right column: offers. Phones get one column in reading order. */
+    /* Left column: about, links, recommendations. Right column: offers and communities. Phones get one column in reading order. */
     var grid = el('div', 'pf-grid'), colA = el('div', 'pf-col'), colB = el('div', 'pf-col');
     grid.appendChild(colA); grid.appendChild(colB); top.appendChild(grid);
     var secs = {};
     var secFor = function (key) {
-      if (!secs[key]) { secs[key] = el('div', 'pf-sec pf-sec-' + key); (key === 'offers' ? colB : colA).appendChild(secs[key]); }
+      if (!secs[key]) { secs[key] = el('div', 'pf-sec pf-sec-' + key); (key === 'offers' || key === 'comms' ? colB : colA).appendChild(secs[key]); }
       return secs[key];
     };
     var body = { appendChild: function (n) { return secFor(curSec).appendChild(n); } };
@@ -3749,7 +3772,7 @@
       });
     }
     var seenR = {};
-    var rlist = (m.recommends || []).slice(0, 3).concat(m.extraRecommends || []).filter(function (r) { if (!r || !r.name || !r.link || r.own) return false; var k = linkKey(r.link) || norm(r.name); if (seenR[k]) return false; seenR[k] = true; return true; });
+    var rlist = (m.recommends || []).slice(0, 3).concat(m.extraRecommends || []).filter(function (r) { if (!r || !r.name || !r.link || r.own) return false; var k = linkKey(r.link) || norm(r.name), kn = 'n:' + norm(r.name); if (seenR[k] || seenR[kn]) return false; seenR[k] = true; seenR[kn] = true; return true; });
     curSec = 'recs';
     if (rlist.length) {
       body.appendChild(el('h3', 'sub', 'Communities I recommend'));
@@ -3779,15 +3802,14 @@
     }
     /* On desktop, keep her website and socials right under About me */
     if (secs.links) colA.insertBefore(secs.links, secs.about ? secs.about.nextSibling : colA.firstChild);
+    /* Nothing on the right? Her recommendations go there, so both sides are used */
+    if (!colB.childNodes.length && secs.recs) colB.appendChild(secs.recs);
     /* Two columns only when both sides have something */
     if (colA.childNodes.length && colB.childNodes.length) grid.classList.add('two');
-    overlay.classList.add('open');
-    document.body.style.overflow = 'hidden';
-    $('dialog').scrollTop = 0;
-    $('closeBtn').focus();
   };
   var closeProfile = function () {
     overlay.classList.remove('open');
+    document.body.classList.remove('dlg-open');
     document.body.style.overflow = '';
     if (lastFocus && document.body.contains(lastFocus)) lastFocus.focus();
   };
