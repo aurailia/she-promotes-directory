@@ -1625,7 +1625,11 @@
     /* Recommendations you added for women who aren't listed yet (Updater: "Recommended by") */
     (data.featured || []).forEach(function (f) {
       if (!f || !f.by || !f.name || !f.link) return;
-      recs.push({ rec: { name: f.name, link: f.link, about: f.about, why: f.why, image: f.image, affiliate: !!f.affiliate, access: f.access, platform: f.platform, promoDays: f.promoDays || [], category: f.type === 'tool' ? 'Other' : 'Promo Group' }, member: { id: 'by-' + norm(f.by), name: f.by } });
+      /* when she's already listed, her name links to her profile */
+      var byM = null; (data.members || []).forEach(function (q) { if (!byM && norm(q.name) === norm(f.by)) byM = q; });
+      var rc = { name: f.name, link: f.link, about: f.about, why: f.why, image: f.image, affiliate: !!f.affiliate, access: f.access, platform: f.platform, promoDays: f.promoDays || [], category: f.type === 'tool' ? 'Other' : 'Promo Group' };
+      if (f.type === 'rec') { rc.category = f.category || 'Other'; rc.categories = f.category ? [f.category] : []; }
+      recs.push({ rec: rc, member: byM || { id: 'by-' + norm(f.by), name: f.by } });
     });
     $('c-offers').textContent = offers.length ? '(' + offers.length + ')' : '';
     $('c-communities').textContent = communities.length ? '(' + communities.length + ')' : '';
@@ -1682,7 +1686,7 @@
     c = String(c || '');
     if (/promo/i.test(c)) return 'Promo Group';
     if (/business/i.test(c)) return 'Business';
-    if (/heal|spirit/i.test(c)) return 'Healing & Spiritual';
+    if (/heal|spirit|hypno|subconscious|energy|manifest|tarot|oracle|intuitive|human design|astrolog|quantum|faith/i.test(c)) return 'Healing & Spiritual';
     return c ? 'Other' : '';
   };
   var inCategory = function (cat) {

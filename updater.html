@@ -270,7 +270,7 @@
   <!-- 2. FEATURED -->
   <section class="panel" data-sec="picks">
     <div class="step">Your picks</div>
-    <h2>&#11088; Promo communities and tools</h2>
+    <h2>&#11088; Promo communities, tools and recommendations</h2>
     <p class="help">Promo communities show under Promo Communities and Grow Your Skool Community. Tools show in the Tools section of Grow Your Skool Community or Grow Your Business. They show in this order. Use your affiliate link where you have one.</p>
     <div class="list" id="featList"></div>
 
@@ -278,7 +278,8 @@
       <div class="nm" id="featFormTitle">Add a community or tool</div>
       <div class="grid2">
         <div><label class="f" for="ff-type">What is it?</label>
-          <select id="ff-type"><option value="">Promo community</option><option value="tool">Tool or app</option></select></div>
+          <select id="ff-type"><option value="">Promo community</option><option value="tool">Tool or app</option><option value="rec">A community someone recommends</option></select></div>
+        <div class="rec-only"><label class="f" for="ff-category">Category</label><select id="ff-category"></select></div>
         <div class="tool-only"><label class="f" for="ff-helps">Where it shows</label>
           <select id="ff-helps"><option value="skool">Grow Your Skool Community</option><option value="business">Grow Your Business</option><option value="both">Both</option></select></div>
         <div><label class="f" for="ff-name">Name</label><input type="text" id="ff-name" placeholder="Promote Today"></div>
@@ -1274,13 +1275,15 @@
   };
   var ffShow = picker('ff', null, 'featStatus');
 
-  var FF = ['type', 'helps', 'name', 'by', 'link', 'platform', 'access', 'about', 'why', 'image', 'schedule', 'video'];
+  var FF = ['type', 'helps', 'category', 'name', 'by', 'link', 'platform', 'access', 'about', 'why', 'image', 'schedule', 'video'];
+  (function () { var sel = $('ff-category'); ALL_CATS.forEach(function (c) { var o = document.createElement('option'); o.value = c; o.textContent = c; sel.appendChild(o); }); })();
   /* Tool fields only show for tools; promo days only for promo communities */
   var ffType = function () {
-    var isTool = $('ff-type').value === 'tool';
+    var isTool = $('ff-type').value === 'tool', isRec = $('ff-type').value === 'rec';
     Array.prototype.forEach.call(document.querySelectorAll('#featForm .tool-only'), function (x) { x.hidden = !isTool; });
-    var dayBox = $('ff-days').parentNode; dayBox.hidden = isTool;
-    $('ff-schedule').parentNode.hidden = isTool;
+    Array.prototype.forEach.call(document.querySelectorAll('#featForm .rec-only'), function (x) { x.hidden = !isRec; });
+    var dayBox = $('ff-days').parentNode; dayBox.hidden = isTool || isRec;
+    $('ff-schedule').parentNode.hidden = isTool || isRec;
     $('ff-platform').parentNode.hidden = isTool;
   };
   $('ff-type').addEventListener('change', ffType);
@@ -1361,8 +1364,9 @@
     var f = {};
     FF.forEach(function (k) { f[k] = $('ff-' + k).value.trim(); });
     f.affiliate = $('ff-aff').checked;
-    f.promoDays = f.type === 'tool' ? [] : getDays();
-    if (f.type !== 'tool') { delete f.type; delete f.helps; delete f.video; } else { f.video = cleanUrl(f.video); delete f.platform; delete f.schedule; }
+    f.promoDays = f.type === 'tool' || f.type === 'rec' ? [] : getDays();
+    if (f.type === 'rec') { delete f.helps; delete f.video; delete f.schedule; if (!f.by) { $('featStatus').textContent = 'Add who recommends it, like your own name.'; return; } }
+    else { delete f.category; if (f.type !== 'tool') { delete f.type; delete f.helps; delete f.video; } else { f.video = cleanUrl(f.video); delete f.platform; delete f.schedule; } }
     f.link = cleanUrl(f.link);
     f.image = keepImg(f.image);
     if (!f.by) delete f.by;
