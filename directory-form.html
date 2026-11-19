@@ -342,7 +342,7 @@
   var IMAGE_KEYS = ['photo', 'vcover', 'vthumb', 'cbanner', 'o1image', 'o2image', 'o3image', 'c2banner', 'c3banner', 'c4banner'];
 
   /* her other communities, 2 to 4. Each one shows once she says yes to the one before it. */
-  var OWN_N = [2, 3, 4], OWN_SFX = ['name', 'link', 'about', 'cat', 'mbiz', 'access', 'lvshow', 'levels', 'banner'], OWN_KEYS = [];
+  var OWN_N = [2, 3, 4], OWN_SFX = ['name', 'link', 'about', 'inside', 'cat', 'mbiz', 'access', 'lvshow', 'levels', 'banner'], OWN_KEYS = [];
   var ORD = { 2: 'second', 3: 'third', 4: 'fourth' };
   function ownOn(n) { for (var q = 2; q <= n; q++) if (val('c' + q + 'has') !== 'Yes') return false; return true; }
   OWN_N.forEach(function (n) {
@@ -351,6 +351,7 @@
     F[P + 'name'] = { label: ORD[n].charAt(0).toUpperCase() + ORD[n].slice(1) + ' community name', gr: true, showIf: on };
     F[P + 'link'] = { label: 'Link to join', type: 'url', gr: true, showIf: on };
     F[P + 'about'] = { label: 'In one sentence', type: 'textarea', short: true, max: 200, optional: true, showIf: on };
+    F[P + 'inside'] = { label: 'What\'s inside this community?', type: 'textarea', optional: true, help: 'For your Featured Business page. Put each thing on its own line.', ph: 'A live pour-along every month\nScent blending guides you can save', showIf: function () { return on() && isVip(); } };
     F[P + 'cat'] = { label: 'Categories', type: 'multi', grouped: true, options: COMM_CATS, maxPick: 4, optional: true, help: F.ccat.help, showIf: on };
     F[P + 'mbiz'] = mainSpotField(P + 'cat', 'business', on);
     F[P + 'access'] = { label: 'Free or paid?', type: 'choice', options: ['Free', 'Paid', 'Free with a paid upgrade'], optional: true, showIf: on };
@@ -1024,6 +1025,7 @@
       var P = 'c' + n, on = ownOn(n) && has(P + 'name');
       ['name', 'link', 'about', 'cat', 'access'].forEach(function (x) { put(P + x, on ? val(P + x) : ''); });
       put(P + 'mbiz', on ? mainSpotVal(P + 'mbiz', P + 'cat', 'business') : '');
+      put(P + 'inside', on && isVip() ? val(P + 'inside') : '');
       put(P + 'levels', on && val(P + 'access') !== 'Free' && val(P + 'lvshow') === 'Yes' ? levelsStr(P + 'levels') : '');
     });
     for (i = 1; i <= 3; i++) ['name', 'link', 'about', 'cat', 'access', 'days', 'why', 'aff', 'own'].forEach(function (s) { put('r' + i + s, ''); });
@@ -1145,7 +1147,7 @@
       for (var on = 2; on <= 4; on++) {
         var oc = mine[on - 2], P = 'c' + on;
         ans[P + 'name'] = oc ? str(oc.name) : ''; ans[P + 'link'] = oc ? str(oc.link) : ''; ans[P + 'about'] = oc ? str(oc.about) : '';
-        ans[P + 'cat'] = oc ? str(oc.categories && oc.categories.length ? oc.categories : oc.category) : ''; ans[P + 'access'] = oc ? str(oc.access) : ''; ans[P + 'levels'] = oc ? lvText(oc.levels) : ''; ans[P + 'mbiz'] = oc ? str((oc.mainSpots || {}).business) : '';
+        ans[P + 'cat'] = oc ? str(oc.categories && oc.categories.length ? oc.categories : oc.category) : ''; ans[P + 'access'] = oc ? str(oc.access) : ''; ans[P + 'levels'] = oc ? lvText(oc.levels) : ''; ans[P + 'mbiz'] = oc ? str((oc.mainSpots || {}).business) : ''; ans[P + 'inside'] = oc && Array.isArray(oc.inside) ? oc.inside.join('\n') : (oc ? str(oc.inside) : '');
         if (oc && oc.image) imgs[P + 'banner'] = oc.image; else delete imgs[P + 'banner'];
       }
       for (var oj = 1; oj <= 3; oj++) if (ans['r' + oj + 'own'] === 'Yes') { ans['r' + oj + 'name'] = ''; ans['r' + oj + 'own'] = ''; }
@@ -1188,13 +1190,13 @@
     /* her other communities: their own columns, or the older way, where they sat in a recommendation spot */
     var owns = [], seenO = {}, nk = function (x) { return String(x || '').toLowerCase().replace(/\/+$/, '').trim(); };
     var addOwn = function (o) { var key = nk(o.link) || nk(o.name); if (!o.name || seenO[key] || key === nk(ans.clink)) return; seenO[key] = true; owns.push(o); };
-    OWN_N.forEach(function (n) { var P = 'c' + n; if (ans[P + 'name']) addOwn({ name: ans[P + 'name'], link: ans[P + 'link'], about: ans[P + 'about'], cat: ans[P + 'cat'], mbiz: ans[P + 'mbiz'] || '', access: ans[P + 'access'], levels: ans[P + 'levels'], image: S.existing[P + 'banner'] }); });
+    OWN_N.forEach(function (n) { var P = 'c' + n; if (ans[P + 'name']) addOwn({ name: ans[P + 'name'], link: ans[P + 'link'], about: ans[P + 'about'], cat: ans[P + 'cat'], mbiz: ans[P + 'mbiz'] || '', inside: ans[P + 'inside'] || '', access: ans[P + 'access'], levels: ans[P + 'levels'], image: S.existing[P + 'banner'] }); });
     for (i = 1; i <= 3; i++) if (ans['r' + i + 'own'] === 'Yes' && ans['r' + i + 'name']) addOwn({ name: ans['r' + i + 'name'], link: ans['r' + i + 'link'], about: ans['r' + i + 'about'], cat: ans['r' + i + 'cat'], access: ans['r' + i + 'access'], levels: '', image: S.existing['r' + i + 'image'] });
     var oldR = {}; for (i = 1; i <= 3; i++) oldR[i] = S.existing['r' + i + 'image'];
     OWN_N.forEach(function (n) { var P = 'c' + n; delete S.existing[P + 'banner']; });
     owns.slice(0, 3).forEach(function (o, x) {
       var P = 'c' + (x + 2);
-      a[P + 'has'] = 'Yes'; a[P + 'name'] = o.name; a[P + 'link'] = o.link || ''; a[P + 'about'] = o.about || ''; a[P + 'access'] = o.access || ''; a[P + 'cat'] = pick(o.cat, COMM_CATS).slice(0, 4); a[P + 'mbiz'] = o.mbiz || '';
+      a[P + 'has'] = 'Yes'; a[P + 'name'] = o.name; a[P + 'link'] = o.link || ''; a[P + 'about'] = o.about || ''; a[P + 'access'] = o.access || ''; a[P + 'cat'] = pick(o.cat, COMM_CATS).slice(0, 4); a[P + 'mbiz'] = o.mbiz || ''; a[P + 'inside'] = o.inside || '';
       a[P + 'lvshow'] = o.levels ? 'Yes' : (st[P + 'lvshow'] || ''); setLevels(P + 'levels', parseLevels(o.levels), a);
       if (o.image) S.existing[P + 'banner'] = o.image;
     });

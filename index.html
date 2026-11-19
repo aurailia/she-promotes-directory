@@ -874,7 +874,6 @@
   }
   /* VIP room communities: the whole banner shows, nothing cropped */
   .room-comms { display: grid; gap: 22px; }
-  .room-comms.many { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .room-comms .room-comm { display: flex; flex-direction: column; margin-bottom: 0; }
   .room-comms .room-comm .rc-art { min-height: 0; aspect-ratio: 16 / 9; flex: 0 0 auto; }
   .room-comms .room-comm .rc-art img { object-fit: contain; }
@@ -886,8 +885,19 @@
   .room-comms .room-comm .rc-body .btn { margin-top: auto; }
   .room-comms .room-comm .rc-body .access { margin-bottom: 6px; }
   .room-comms:not(.many) .room-comm { max-width: 980px; }
+  /* more than one community: banner on the left, everything else on the right */
+  .room-comms.many { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+  .room-comms.many .room-comm { flex-direction: row; align-items: stretch; }
+  .room-comms.many .room-comm .rc-art { flex: 0 0 42%; aspect-ratio: auto; min-height: 220px; display: flex; align-items: center; }
+  .room-comms.many .room-comm .rc-art:has(img) { min-height: 0; align-items: flex-start; background: var(--card); }
+  .room-comms.many .room-comm .rc-art img { width: 100%; }
+  .room-comms.many .room-comm .rc-body { padding: 28px 30px 30px; }
+  .room-comms.many .room-comm h4 { font-size: 30px; }
   @media (max-width: 860px) {
-    .room-comms.many { grid-template-columns: minmax(0, 1fr); }
+    .room-comms.many .room-comm { flex-direction: column; }
+    .room-comms.many .room-comm .rc-art { flex: 0 0 auto; aspect-ratio: 16 / 9; }
+    .room-comms.many .room-comm .rc-art:has(img) { aspect-ratio: auto; }
+    .room-comms.many .room-comm .rc-body { padding: 22px 18px; }
     .room-comms .room-comm .rc-art { min-height: 0; }
   }
 </style>
@@ -1541,7 +1551,7 @@
   /* A recommendation she marked as her own community counts as her community */
   var ownComm = function (m, r) {
     var cats = r.categories && r.categories.length ? r.categories : /promo/i.test(r.category || '') ? [PROMO_CAT] : (m.community ? commCats(m.community) : (m.categories || []).slice(0, 2));
-    return { name: r.name, link: r.link, about: r.about || r.why || '', category: cats[0] || '', categories: cats, platform: r.platform || '', access: r.access || '', promoDays: r.promoDays || [], image: r.image || 'images/recommended/' + slug(r.name) + '.jpg', schedule: r.schedule || '', keywords: r.keywords || [], levels: r.levels || [], mainSpots: r.mainSpots || null, own: true };
+    return { name: r.name, link: r.link, about: r.about || r.why || '', category: cats[0] || '', categories: cats, platform: r.platform || '', access: r.access || '', promoDays: r.promoDays || [], image: r.image || 'images/recommended/' + slug(r.name) + '.jpg', schedule: r.schedule || '', keywords: r.keywords || [], levels: r.levels || [], mainSpots: r.mainSpots || null, inside: r.inside || [], own: true };
   };
   var myComms = function (m) {
     var list = [], seen = {};

@@ -565,7 +565,8 @@
       if (owM) {
         map.own = map.own || {};
         var oc = map.own[owM[1]] = map.own[owM[1]] || {}, ot = owM[2];
-        if (/banner|image/.test(ot)) oc.image = i;
+        if (/inside/.test(ot)) oc.inside = i;
+        else if (/banner|image/.test(ot)) oc.image = i;
         else if (/levels/.test(ot)) oc.levels = i;
         else if (/categor/.test(ot)) oc.cat = i;
         else if (/free or paid|access/.test(ot)) oc.access = i;
@@ -724,6 +725,8 @@
       var own = { name: on, link: ol, categories: ocats.length ? ocats : undefined, category: ocats.length ? (ocats.indexOf('Promo & Networking') !== -1 ? 'Promo Group' : pickRec(ocats[0])) : 'Other', about: g(o.about), access: g(o.access), why: '', affiliate: false, own: true, promoDays: [], image: photoUrl(g(o.image), 1200) };
       var olv = parseLevels(g(o.levels)); if (olv.length) own.levels = olv;
       var oms = spots('c' + n); if (oms) own.mainSpots = oms;
+      var oin = g(o.inside).split(/\n+/).map(function (x) { return x.replace(/^[\s\-*\u2022\u2726]+/, '').trim(); }).filter(Boolean);
+      if (oin.length) own.inside = oin.slice(0, 12);
       m.recommends.push(own);
     });
     /* recommendations she marked as hers go last, so they never push out the ones she loves */
@@ -1671,8 +1674,9 @@
         var r = {};
         cols.forEach(function (c) {
           var w = el('div', c[3] ? 'full' : '');
-          var l = el('label', 'f', c[1] + ' ' + (i + 1));
-          var inp = document.createElement('input'); inp.type = 'text'; inp.value = cur[c[0]] || ''; inp.placeholder = c[2];
+          var l = el('label', 'f', c[5] ? c[1] : c[1] + ' ' + (i + 1));
+          var inp = document.createElement(c[4] ? 'textarea' : 'input'); if (!c[4]) inp.type = 'text';
+          inp.value = Array.isArray(cur[c[0]]) ? cur[c[0]].join('\n') : (cur[c[0]] || ''); inp.placeholder = c[2];
           l.appendChild(inp); w.appendChild(l); g2.appendChild(w);
           r[c[0]] = inp;
         });
@@ -1681,7 +1685,7 @@
       }
       return out;
     };
-    var cRows = rowsOf('Her communities', v.communities, 3, [['name', 'Community', 'Name'], ['link', 'Link', 'https://'], ['about', 'In one sentence', 'What it is', true]]);
+    var cRows = rowsOf('Her communities', v.communities, 4, [['name', 'Community', 'Name'], ['link', 'Link', 'https://'], ['about', 'In one sentence', 'What it is', true], ['inside', 'What\u2019s inside (one per line)', 'A live call every month\nA private classroom', true, true, true], ['access', 'Who can join and what it costs', 'Free to join. Premium is $9 a month.', true, false, true]]);
     var oRows = rowsOf('Her offers', v.offers, 3, [['title', 'Offer', 'Name'], ['link', 'Link', 'https://'], ['desc', 'In one sentence', 'What she gets', true], ['price', 'Starting price', 'Optional']]);
     var acts = el('div', 'row');
     var save = el('button', 'btn btn-primary', 'Save VIP'); save.type = 'button';
@@ -1702,9 +1706,11 @@
       nv.banner = banner;
       var oldCs = nv.communities || [];
       nv.communities = cRows.map(function (r) {
-        var c = { name: r.name.value.trim(), link: cleanUrl(r.link.value), about: r.about.value.trim() };
-        /* keep what's inside, who can join and the image she already had */
-        oldCs.forEach(function (o) { if (o && ((normUrl(o.link) && normUrl(o.link) === normUrl(c.link)) || nameKey(o.name) === nameKey(c.name))) { ['inside', 'access', 'image', 'platform'].forEach(function (k) { if (o[k] && !c[k]) c[k] = o[k]; }); } });
+        var c = { name: r.name.value.trim(), link: cleanUrl(r.link.value), about: r.about.value.trim(),
+          inside: r.inside.value.split(/\n+/).map(function (x) { return x.replace(/^[\s\-*\u2022\u2726]+/, '').trim(); }).filter(Boolean).slice(0, 12), access: r.access.value.trim() };
+        if (!c.inside.length) delete c.inside; if (!c.access) delete c.access;
+        /* keep the image she already had */
+        oldCs.forEach(function (o) { if (o && ((normUrl(o.link) && normUrl(o.link) === normUrl(c.link)) || nameKey(o.name) === nameKey(c.name))) { ['image', 'platform'].forEach(function (k) { if (o[k] && !c[k]) c[k] = o[k]; }); } });
         return c;
       }).filter(function (c) { return c.name && c.link; });
       nv.offers = oRows.map(function (r) { return { title: r.title.value.trim(), desc: r.desc.value.trim(), link: cleanUrl(r.link.value), price: r.price.value.trim() }; }).filter(function (o) { return o.title || o.desc; });
