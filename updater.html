@@ -867,15 +867,24 @@
   };
   /* Hand edits: fields you changed in the Directory yourself stay put, even if her form says something else */
   var oldOf = function (id) { var o = null; current.members.forEach(function (c) { if (c.id === id) o = c; }); return o; };
-  var lockedKeys = function (id) {
+  /* A lock keeps your Directory version over her form. If she sends the form again AFTER you locked it
+     (or after your last Directory upload, for older locks), her new answers win, and you can lock again. */
+  var lockedKeys = function (id, formDate) {
     var old = oldOf(id), keys = {}, ed = saved.lockEdits[id] || {};
-    ((old && old.locked) || []).forEach(function (k) { keys[k] = true; });
-    Object.keys(ed).forEach(function (k) { if (ed[k]) keys[k] = true; else delete keys[k]; });
+    var pub = Date.parse((current && current.updated) || '') || 0;
+    var newer = function (t) { return isFinite(formDate) && formDate > 0 && formDate > t; };
+    if (!newer(pub)) ((old && old.locked) || []).forEach(function (k) { keys[k] = true; });
+    Object.keys(ed).forEach(function (k) {
+      var v = ed[k];
+      if (!v) { delete keys[k]; return; }
+      if (newer(typeof v === 'number' ? v : pub)) { delete keys[k]; return; }
+      keys[k] = true;
+    });
     return Object.keys(keys);
   };
   var setLock = function (id, key, on) {
     if (!saved.lockEdits[id]) saved.lockEdits[id] = {};
-    saved.lockEdits[id][key] = on;
+    saved.lockEdits[id][key] = on ? Date.now() : false;
     persist(); renderReview(); renderStats(); renderSpotPicker();
   };
   /* Community images you upload here win over the form, and stay put next time */
@@ -938,7 +947,7 @@
   var eff = function (m) { return withImg(eff0(m)); };
   var eff0 = function (m) {
     if (m._fromCurrent) return m;
-    var old = oldOf(m.id), keys = lockedKeys(m.id);
+    var old = oldOf(m.id), keys = lockedKeys(m.id, m._date);
     if (!old || !keys.length) return m;
     var c = JSON.parse(JSON.stringify(m));
     keys.forEach(function (k) { if (old[k] != null) c[k] = JSON.parse(JSON.stringify(old[k])); else delete c[k]; });
@@ -949,7 +958,7 @@
     if (!m._raw) return [];
     var old = oldOf(m.id), out = [];
     FIELDS.forEach(function (f) {
-      if (lockedKeys(m.id).indexOf(f[0]) !== -1 && norm2(f[0], m._raw[f[0]]) !== norm2(f[0], old[f[0]])) out.push({ label: f[1], from: show(f[0], old[f[0]]), to: show(f[0], m._raw[f[0]]), key: f[0] });
+      if (lockedKeys(m.id, m._raw._date).indexOf(f[0]) !== -1 && norm2(f[0], m._raw[f[0]]) !== norm2(f[0], old[f[0]])) out.push({ label: f[1], from: show(f[0], old[f[0]]), to: show(f[0], m._raw[f[0]]), key: f[0] });
     });
     return out;
   };
@@ -2114,7 +2123,7 @@
       if (m.extraRecommends) { m = Object.assign({}, m); m.extraRecommends = cleanExtras(m); if (!m.extraRecommends.length) delete m.extraRecommends; }
       ['id', 'name', 'business', 'about', 'offerName', 'photo', 'extraRecommends', 'social', 'website', 'socials', 'categories', 'formats', 'offer', 'who', 'price', 'offerLink', 'offerImage', 'keywords', 'offers', 'community', 'recommends', 'mainSpots']
         .forEach(function (k) { if (m[k] != null) o[k] = m[k]; });
-      var lk = m._fromCurrent ? (m.locked || []) : lockedKeys(m.id);
+      var lk = m._fromCurrent ? (m.locked || []) : lockedKeys(m.id, m._date);
       if (lk.length) o.locked = lk;
       return o;
     });
