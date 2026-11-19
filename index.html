@@ -1523,7 +1523,7 @@
   /* A recommendation she marked as her own community counts as her community */
   var ownComm = function (m, r) {
     var cats = r.categories && r.categories.length ? r.categories : /promo/i.test(r.category || '') ? [PROMO_CAT] : (m.community ? commCats(m.community) : (m.categories || []).slice(0, 2));
-    return { name: r.name, link: r.link, about: r.about || r.why || '', category: cats[0] || '', categories: cats, platform: r.platform || '', access: r.access || '', promoDays: r.promoDays || [], image: r.image || 'images/recommended/' + slug(r.name) + '.jpg', schedule: r.schedule || '', keywords: r.keywords || [], levels: r.levels || [], own: true };
+    return { name: r.name, link: r.link, about: r.about || r.why || '', category: cats[0] || '', categories: cats, platform: r.platform || '', access: r.access || '', promoDays: r.promoDays || [], image: r.image || 'images/recommended/' + slug(r.name) + '.jpg', schedule: r.schedule || '', keywords: r.keywords || [], levels: r.levels || [], mainSpots: r.mainSpots || null, own: true };
   };
   var myComms = function (m) {
     var list = [], seen = {};
@@ -1562,7 +1562,7 @@
       if (m.offer) push(m);
       (m.offers || []).slice(0, 2).forEach(function (x) {
         if (!x || !(x.title || x.desc)) return;
-        push(Object.assign({}, m, { offerImage: x.image || '', offerName: x.title || '', offer: x.desc || x.title, offerLink: x.link || '', price: x.price || '', who: x.who || '', categories: x.categories && x.categories.length ? x.categories : (m.categories || []), formats: x.formats || [], keywords: x.keywords || [], _base: m }));
+        push(Object.assign({}, m, { offerImage: x.image || '', offerName: x.title || '', offer: x.desc || x.title, offerLink: x.link || '', price: x.price || '', who: x.who || '', categories: x.categories && x.categories.length ? x.categories : (m.categories || []), formats: x.formats || [], keywords: x.keywords || [], mainSpots: x.mainSpots || null, _base: m }));
       });
       perO.push({ key: m.id || m.name, list: mine });
     });
@@ -2057,6 +2057,13 @@
   var BIZ_SECS = ['Business Coaching & Strategy', 'Money Mindset & Wealth', 'Social Media & Content', 'Websites, Funnels & Tech', 'AI & Automation Support', 'Virtual Assistants & Admin', 'Branding, Design & Photography', 'Digital Products & Templates', 'Workshops & Events', 'Communities & Memberships'];
   var BIZ_CAT_SECS = ['Money Mindset & Wealth', 'Social Media & Content', 'Websites, Funnels & Tech', 'AI & Automation Support', 'Virtual Assistants & Admin', 'Branding, Design & Photography'];
   var SKOOL_SECS = ['Tools', 'Skool Community Growth', 'Communities', 'Promo Communities'];
+  /* the main spot she picked for this page, as a section name. It joins her sections if it isn't there yet. */
+  var mainSpotIn = function (key, spots, secs, isOffer) {
+    var v = spots && spots[key]; if (!v) return '';
+    var sec = key === 'skool' ? (v === 'Skool Tools & Apps' ? (isOffer ? 'Tools' : '') : v === 'Skool Community Growth' ? 'Skool Community Growth' : '') : key === 'business' ? (BIZ_SECS.indexOf(v) !== -1 ? v : '') : '';
+    if (sec && secs.indexOf(sec) === -1) secs.unshift(sec);
+    return sec;
+  };
   var pillarSecsOf = function (key, cats, isTrain, isOffer, formats) {
     var P = PILLARS[key], out = [];
     var add = function (x) { if (x && out.indexOf(x) === -1) out.push(x); };
@@ -2084,7 +2091,8 @@
       if (isOffer && !personal && (has('Digital Product') || has('Physical Product'))) add('Digital Products & Templates');
       if (isOffer && !personal && has('Live Event or Workshop')) add('Workshops & Events');
       cats.forEach(function (c) { if (BIZ_CAT_SECS.indexOf(c) !== -1) add(c); });
-      if (cats.indexOf('Business Coaching & Strategy') !== -1 && (personal || !out.length)) add('Business Coaching & Strategy');
+      /* communities tagged Business Coaching & Strategy always show there too, next to Communities & Memberships */
+      if (cats.indexOf('Business Coaching & Strategy') !== -1 && (personal || !isOffer || !out.length)) add('Business Coaching & Strategy');
       if (!out.length) add(isOffer ? P.fallback : 'Communities & Memberships');
       return out;
     }
@@ -2123,7 +2131,8 @@
       if (ps.indexOf(key) === -1) return;
       offerSeen[(linkKey(m.offerLink) || '') + '|' + norm(m.offerName || m.offer)] = true;
       var so = byOrd(pillarSecsOf(key, m.categories || [], ps.indexOf('training') !== -1, true, m.formats || []));
-      list.push({ k: 'o', m: m, sec: so[0], secs: so });
+      var om = mainSpotIn(key, m.mainSpots, so, true);
+      list.push({ k: 'o', m: m, sec: om || so[0], secs: so, main: om });
     });
     communities.forEach(function (m) {
       var ps = commPlaces(m);
@@ -2133,7 +2142,8 @@
       if (offerSeen[(linkKey(m.community.link) || '') + '|' + norm(m.community.name)]) return;
       seenC[linkKey(m.community.link) || norm(m.community.name)] = true;
       var sc = byOrd(pillarSecsOf(key, commCats(m.community), ps.indexOf('training') !== -1, false, []));
-      list.push({ k: 'c', m: m, sec: sc[0], secs: sc });
+      var cmn = mainSpotIn(key, m.community.mainSpots, sc, false);
+      list.push({ k: 'c', m: m, sec: cmn || sc[0], secs: sc, main: cmn });
     });
     if (P.promos) promos.forEach(function (f) {
       var lk = linkKey(f.link) || norm(f.name);
@@ -2343,7 +2353,10 @@
       items.forEach(function (it) {
         var ss = secsOf(it), put = function (k) { (pSec[k] = pSec[k] || []).push(it); };
         if (state.chip && ss.indexOf(state.chip) !== -1) { put(state.chip); return; }
-        var main = ss.filter(function (x) { return ALSO.indexOf(x) === -1; })[0] || ss[0];
+        var core = ss.filter(function (x) { return ALSO.indexOf(x) === -1; });
+        /* a community gets one topic home: its most specific one. Business Coaching & Strategy is its home only when nothing else fits. */
+        if (it.k !== 'o' && core.length > 1) core = core.filter(function (x) { return x !== 'Business Coaching & Strategy'; });
+        var main = it.main && ss.indexOf(it.main) !== -1 ? it.main : core[0] || ss[0];
         put(main);
         ss.forEach(function (x) { if (x !== main && ALSO.indexOf(x) !== -1) put(x); });
       });

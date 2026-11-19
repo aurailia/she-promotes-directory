@@ -550,6 +550,16 @@
       /* columns from the She Promotes form that only the form uses */
       if (/^form state/.test(h)) { map.formState = i; return; }
       if (/^(edit token|okay to show)/.test(h)) return;
+      /* her main spot on the Grow Your Business and Grow Your Skool Community pages */
+      var msM = h.match(/main spot in grow your (business|skool)/);
+      if (msM) {
+        var ar = msM[1] === 'skool' ? 'skool' : 'business', wh;
+        map.main = map.main || {};
+        if ((wh = h.match(/^offer ([1-9])/))) map.main['o' + wh[1]] = Object.assign(map.main['o' + wh[1]] || {}, (function () { var x = {}; x[ar] = i; return x; })());
+        else if ((wh = h.match(/^own community ([2-9])/))) map.main['c' + wh[1]] = Object.assign(map.main['c' + wh[1]] || {}, (function () { var x = {}; x[ar] = i; return x; })());
+        else if (/^community/.test(h)) map.main.c = Object.assign(map.main.c || {}, (function () { var x = {}; x[ar] = i; return x; })());
+        return;
+      }
       /* her other communities (2 to 4) and membership levels, from the She Promotes form */
       var owM = h.match(/^own community ([2-9]) (.+)$/);
       if (owM) {
@@ -662,6 +672,8 @@
   };
   var rowToMember = function (row, map) {
     var g = function (i) { return i == null ? '' : String(row[i] || '').replace(/[\u200B-\u200F\u2060-\u2064\uFEFF\u00AD\uFFFC]/g, '').trim(); };
+    /* her main spot per page, like { business: 'Money Mindset & Wealth' } */
+    var spots = function (key) { var x = (map.main || {})[key]; if (!x) return null; var o = {}; ['business', 'skool'].forEach(function (k) { var v = pickKnown(g(x[k]), ALL_CATS)[0]; if (v) o[k] = v; }); return Object.keys(o).length ? o : null; };
     var name = g(map.name) || (g(map.first) + ' ' + g(map.last)).trim();
     var skool = g(map.skool);
     var m = {
@@ -684,7 +696,9 @@
       offerImage: photoUrl(g(map.offerImage), 1200),
       offers: Object.keys(map.offers || {}).sort().map(function (n) {
         var o = map.offers[n];
-        return { title: g(o.title), desc: g(o.desc), link: cleanUrl(g(o.link)), price: g(o.price), who: g(o.who), categories: pickKnown(g(o.cat), CATEGORIES).slice(0, 3), formats: pickKnown(g(o.format), FORMATS), keywords: keyList(g(o.keys)), image: photoUrl(g(o.image), 1200) };
+        var xo = { title: g(o.title), desc: g(o.desc), link: cleanUrl(g(o.link)), price: g(o.price), who: g(o.who), categories: pickKnown(g(o.cat), CATEGORIES).slice(0, 3), formats: pickKnown(g(o.format), FORMATS), keywords: keyList(g(o.keys)), image: photoUrl(g(o.image), 1200) };
+        var xs = spots('o' + n); if (xs) xo.mainSpots = xs;
+        return xo;
       }).filter(function (o) { return o.title || o.desc; }).slice(0, 2),
       community: null,
       recommends: []
@@ -693,6 +707,7 @@
       var ccats = pickKnown(g(map.cCat), ALL_CATS).slice(0, 4);
       m.community = { name: g(map.cName), link: cleanUrl(g(map.cLink)), category: ccats[0] || '', categories: ccats, platform: g(map.cPlatform), about: g(map.cAbout), access: g(map.cAccess), promoDays: parseDays(g(map.cDays)), image: photoUrl(g(map.cImage), 1200), keywords: keyList(g(map.cKeys)) };
       var clv = parseLevels(g(map.cLevels)); if (clv.length) m.community.levels = clv;
+      var cms = spots('c'); if (cms) m.community.mainSpots = cms;
     }
     Object.keys(map.recs).sort().forEach(function (n) {
       var r = map.recs[n];
@@ -708,10 +723,12 @@
       var ocats = pickKnown(g(o.cat), ALL_CATS).slice(0, 4);
       var own = { name: on, link: ol, categories: ocats.length ? ocats : undefined, category: ocats.length ? (ocats.indexOf('Promo & Networking') !== -1 ? 'Promo Group' : pickRec(ocats[0])) : 'Other', about: g(o.about), access: g(o.access), why: '', affiliate: false, own: true, promoDays: [], image: photoUrl(g(o.image), 1200) };
       var olv = parseLevels(g(o.levels)); if (olv.length) own.levels = olv;
+      var oms = spots('c' + n); if (oms) own.mainSpots = oms;
       m.recommends.push(own);
     });
     /* recommendations she marked as hers go last, so they never push out the ones she loves */
     m.recommends = m.recommends.filter(function (x) { return !x.own; }).concat(m.recommends.filter(function (x) { return x.own; }));
+    var oms1 = spots('o1'); if (oms1) m.mainSpots = oms1;
     /* review-only info, never saved to the Directory */
     m._skool = cleanUrl(/^@[\w.-]+$/.test(skool) ? 'https://www.skool.com/' + skool : skool);
     m._premium = map.premium == null ? null : truthy(g(map.premium));
@@ -2069,7 +2086,7 @@
       /* keep any hand-added bonus recommendations from the live Directory */
       if (!m.extraRecommends) current.members.forEach(function (c) { if (c.id === m.id && c.extraRecommends) m.extraRecommends = c.extraRecommends; });
       if (m.extraRecommends) { m = Object.assign({}, m); m.extraRecommends = cleanExtras(m); if (!m.extraRecommends.length) delete m.extraRecommends; }
-      ['id', 'name', 'business', 'about', 'offerName', 'photo', 'extraRecommends', 'social', 'website', 'socials', 'categories', 'formats', 'offer', 'who', 'price', 'offerLink', 'offerImage', 'keywords', 'offers', 'community', 'recommends']
+      ['id', 'name', 'business', 'about', 'offerName', 'photo', 'extraRecommends', 'social', 'website', 'socials', 'categories', 'formats', 'offer', 'who', 'price', 'offerLink', 'offerImage', 'keywords', 'offers', 'community', 'recommends', 'mainSpots']
         .forEach(function (k) { if (m[k] != null) o[k] = m[k]; });
       var lk = m._fromCurrent ? (m.locked || []) : lockedKeys(m.id);
       if (lk.length) o.locked = lk;
