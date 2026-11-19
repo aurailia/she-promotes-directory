@@ -1239,7 +1239,7 @@
   var PILLAR_ORDER = PLACE_ORDER;
   var DOOR_ORDER = ['skool', 'business', 'yourself', 'shop'];   /* the four on Home. Trainings lives in the menu. */
   var PILLARS = {
-    skool: { name: 'Grow Your Skool Community', img: 'Promo & Networking', line: 'Tools, Skool support and promo groups to help your community grow.', cats: PLACE_CATS.skool, promos: true, tools: 'skool', fallback: 'Skool Community Growth' },
+    skool: { name: 'Grow Your Skool Community', img: 'Promo & Networking', line: 'Tools, Skool support and promo groups to help your community grow.', cats: PLACE_CATS.skool, promos: true, tools: 'skool', fallback: 'Skool Strategy & Setup' },
     business: { name: 'Grow Your Business', img: 'Business Coaching & Strategy', line: 'Coaching, marketing, websites, AI and support to get you seen and paid.', cats: PLACE_CATS.business, tools: 'business', fallback: 'Business Coaching & Strategy' },
     yourself: { name: 'Mind, Body & Soul', img: 'Energy Healing', line: 'Mindset, healing, Human Design, readings and wellness for the woman behind the business.', cats: PLACE_CATS.yourself, fallback: 'More for you' },
     training: { name: 'Trainings & Certifications', img: 'Trainings & Certifications', line: 'Learn a skill you can use in your business or offer to your own clients.', cats: [], fallback: 'More trainings' },
@@ -2056,11 +2056,13 @@
      so a community tagged Money Mindset shows under Money Mindset & Wealth and under Communities & Memberships. */
   var BIZ_SECS = ['Business Coaching & Strategy', 'Money Mindset & Wealth', 'Social Media & Content', 'Websites, Funnels & Tech', 'AI & Automation Support', 'Virtual Assistants & Admin', 'Branding, Design & Photography', 'Digital Products & Templates', 'Workshops & Events', 'Communities & Memberships'];
   var BIZ_CAT_SECS = ['Money Mindset & Wealth', 'Social Media & Content', 'Websites, Funnels & Tech', 'AI & Automation Support', 'Virtual Assistants & Admin', 'Branding, Design & Photography'];
-  var SKOOL_SECS = ['Tools', 'Skool Community Growth', 'Communities', 'Promo Communities'];
+  /* Grow Your Skool Community: strategy and setup help, tools and apps, and promo communities on their own */
+  var SKOOL_GROW = 'Skool Strategy & Setup', SKOOL_TOOLS = 'Skool Tools & Apps';
+  var SKOOL_SECS = [SKOOL_GROW, SKOOL_TOOLS, 'Promo Communities'];
   /* the main spot she picked for this page, as a section name. It joins her sections if it isn't there yet. */
   var mainSpotIn = function (key, spots, secs, isOffer) {
     var v = spots && spots[key]; if (!v) return '';
-    var sec = key === 'skool' ? (v === 'Skool Tools & Apps' ? (isOffer ? 'Tools' : '') : v === 'Skool Community Growth' ? 'Skool Community Growth' : '') : key === 'business' ? (BIZ_SECS.indexOf(v) !== -1 ? v : '') : '';
+    var sec = key === 'business' ? (BIZ_SECS.indexOf(v) !== -1 ? v : '') : '';
     if (sec && secs.indexOf(sec) === -1) secs.unshift(sec);
     return sec;
   };
@@ -2074,17 +2076,13 @@
       if (!out.length) add(P.fallback);
       return out;
     }
-    if (isTrain && (key === 'business' || key === 'skool')) return ['Trainings'];
+    /* a promo community lives only in Promo Communities. Every offer, tool, training and other community helps you grow. */
     if (key === 'skool') {
-      if (!isOffer) {
-        if (cats.indexOf('Skool Community Growth') !== -1) add('Skool Community Growth');
-        add(promo ? 'Promo Communities' : 'Communities');
-        return out;
-      }
-      if (cats.indexOf('Skool Tools & Apps') !== -1 || has('Tool or App')) add('Tools');
-      if (!out.length || cats.indexOf('Skool Community Growth') !== -1) add('Skool Community Growth');
-      return out;
+      if (!isOffer) return [promo ? 'Promo Communities' : SKOOL_GROW];
+      var isTool = has('Tool or App') || (cats.indexOf('Skool Tools & Apps') !== -1 && cats.indexOf('Skool Community Growth') === -1);
+      return [isTool ? SKOOL_TOOLS : SKOOL_GROW];
     }
+    if (isTrain && key === 'business') return ['Trainings'];
     if (key === 'business') {
       var personal = has('1:1 Sessions') || has('Group Program');
       if (!isOffer || has('Membership or Skool Community')) add('Communities & Memberships');
@@ -2124,7 +2122,7 @@
     /* a listing's main section is the first one it fits, in the page's own section order */
     var ord = pillarSecs(key);
     var byOrd = function (a) { if (key !== 'business' && key !== 'skool') return a; return a.sort(function (x, y) { var i = ord.indexOf(x), j = ord.indexOf(y); return (i === -1 ? 99 : i) - (j === -1 ? 99 : j); }); };
-    if (P.tools) tools.forEach(function (t) { if (t.helps === P.tools || t.helps === 'both') list.push({ k: 't', t: t, sec: 'Tools', secs: ['Tools'] }); });
+    if (P.tools) tools.forEach(function (t) { if (t.helps === P.tools || t.helps === 'both') list.push({ k: 't', t: t, sec: key === 'skool' ? SKOOL_TOOLS : 'Tools', secs: [key === 'skool' ? SKOOL_TOOLS : 'Tools'] }); });
     var offerSeen = {};
     offers.forEach(function (m) {
       var ps = offerPlaces(m);
@@ -2156,7 +2154,7 @@
   var pillarSecs = function (key) {
     var P = PILLARS[key];
     if (key === 'training') return TRAIN_SECS.map(function (x) { return x[0]; }).concat([P.fallback]);
-    if (key === 'skool') return SKOOL_SECS.concat(['Trainings']);
+    if (key === 'skool') return SKOOL_SECS;
     if (key === 'yourself') return P.cats.map(function (c) { return SEC_NAMES[c] || c; }).concat([P.fallback, 'Communities & Memberships']);
     return (P.tools ? ['Tools'] : []).concat(key === 'business' ? BIZ_SECS : P.cats.map(function (c) { return SEC_NAMES[c] || c; }), ['Offers for promo and networking', 'Promo Communities', P.fallback, (key === 'business' || key === 'skool') ? 'Trainings' : '']).filter(function (x, i, arr) { return x && arr.indexOf(x) === i; });
   };

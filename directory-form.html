@@ -270,7 +270,7 @@
     cname: { label: 'Community name', gr: true },
     clink: { label: 'Link to join', type: 'url', gr: true, ph: 'https://www.skool.com/your-community/about' },
     cabout: { label: 'Your community in one sentence', type: 'textarea', short: true, max: 200, gr: true },
-    ccat: { label: 'Categories', type: 'multi', grouped: true, options: COMM_CATS, maxPick: 4, gr: true, help: 'Your categories decide where you show up in the Directory: Grow Your Skool Community, Grow Your Business, Mind, Body & Soul or Women-Owned Shops. Pick every one that fits, up to 4. Running a promo group? Pick Promo & Networking.' },
+    ccat: { label: 'Categories', type: 'multi', grouped: true, options: COMM_CATS, maxPick: 4, gr: true, help: 'Your categories decide where you show up in the Directory: Grow Your Skool Community, Grow Your Business, Mind, Body & Soul or Women-Owned Shops. Pick every one that fits, up to 4. Running a promo group? Pick Promo & Networking. Help with Skool strategy, coaching, setup or support goes under Skool Community Growth.' },
     cplatform: { label: 'Where is it?', type: 'choice', options: ['Skool', 'Facebook', 'Other'], optional: true },
     caccess: { label: 'Free or paid?', type: 'choice', options: ['Free', 'Paid', 'Free with a paid upgrade'], optional: true },
     cpromo: { label: 'Is it a promo community where people share their business?', type: 'choice', options: ['No', 'Yes'], optional: true },
@@ -287,7 +287,7 @@
     F['o' + n + 'who'] = { label: 'Who it\'s for', optional: true, ph: 'Busy moms who want a calm evening' };
     F['o' + n + 'price'] = { label: 'Starting price', optional: true, ph: '$48, or Free' };
     F['o' + n + 'link'] = { label: 'Link to your offer', type: 'url', gr: true, ph: 'yourwebsite.com/offer' };
-    F['o' + n + 'cat'] = { label: 'Categories', type: 'multi', grouped: true, options: CATEGORIES, maxPick: 3, gr: true, help: 'Your categories decide where you show up in the Directory: Grow Your Skool Community, Grow Your Business, Mind, Body & Soul or Women-Owned Shops. Pick every one that fits, up to 3. Made a tool or app for Skool? Pick Skool Tools & Apps.' };
+    F['o' + n + 'cat'] = { label: 'Categories', type: 'multi', grouped: true, options: CATEGORIES, maxPick: 3, gr: true, help: 'Your categories decide where you show up in the Directory: Grow Your Skool Community, Grow Your Business, Mind, Body & Soul or Women-Owned Shops. Pick every one that fits, up to 3. Made a tool or app for Skool? Pick Skool Tools & Apps. Help with Skool strategy, coaching, setup or support goes under Skool Community Growth.' };
     F['o' + n + 'format'] = { label: 'What kind of offer is it?', type: 'multi', options: FORMATS, maxPick: 3, optional: true };
     F['o' + n + 'mbiz'] = mainSpotField('o' + n + 'cat', 'business');
     F['o' + n + 'mskool'] = mainSpotField('o' + n + 'cat', 'skool');
@@ -337,7 +337,7 @@
   F.ejoin = { label: 'What does it cost to join the community?', optional: true, ph: 'Free to join', showIf: function () { return val('ewhere') === WHERE_SKOOL; } };
   F.elink = { label: 'Link for the button', type: 'url', required: true, ph: 'https://', help: 'Where people go to sign up or join.' };
   var EVENT_KEYS = ['etitle', 'edesc', 'eimage', 'ecat', 'ecost', 'eprice', 'edate', 'estart', 'eend', 'etz', 'emode', 'evenue', 'eaddress', 'ecity', 'eregion', 'ecountry', 'ewhere', 'ecomm', 'ejoin', 'elink'];
-  var OFFER_SFX = ['title', 'desc', 'who', 'price', 'link', 'cat', 'mbiz', 'mskool', 'format', 'keys', 'image'];
+  var OFFER_SFX = ['title', 'desc', 'who', 'price', 'link', 'cat', 'mbiz', 'format', 'keys', 'image'];
   var REC_SFX = ['name', 'link', 'about', 'cat', 'access', 'days', 'why', 'aff', 'image'];
   var IMAGE_KEYS = ['photo', 'vcover', 'vthumb', 'cbanner', 'o1image', 'o2image', 'o3image', 'c2banner', 'c3banner', 'c4banner'];
 
