@@ -1325,8 +1325,13 @@
     S.step++; S.hadDraft = false; S.freshConfirm = false; saveDraft(); render(true);
   });
 
-  /* ---------- Your Directory stats ---------- */
+  /* ---------- Your Directory stats ----------
+     Clicks are being counted, but members don't see them yet. Switch this to true to show the stats box on their edit page. */
+  var SHOW_MEMBER_STATS = false;
+  /* You still see them: any browser where you've opened the Updater counts as yours */
+  var isOwner = function () { try { return localStorage.getItem('spNoTrack') === '1'; } catch (e) { return false; } };
   function loadStats(tok) {
+    if (!SHOW_MEMBER_STATS && !isOwner()) return;
     fetch(SCRIPT_URL + '?action=stats&token=' + encodeURIComponent(tok))
       .then(function (r) { return r.json(); })
       .then(function (res) { if (res && res.ok) renderStats(res); })
