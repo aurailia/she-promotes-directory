@@ -190,6 +190,12 @@
   }
   [hidden] { display: none !important; }
   section.panel.off { display: none !important; }
+  .st-wrap { overflow-x: auto; margin-top: 14px; }
+  .st-table { border-collapse: collapse; width: 100%; font-size: 14px; }
+  .st-table th, .st-table td { padding: 8px 10px; border-bottom: 1px solid rgba(255,255,255,0.08); text-align: right; white-space: nowrap; }
+  .st-table th { font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--gold, #e8c47a); }
+  .st-table th:first-child, .st-table td.nm { text-align: left; }
+  .st-table td.zero { opacity: 0.4; }
 </style>
 </head>
 <body>
@@ -251,6 +257,20 @@
   </section>
 
   <!-- 1. CURRENT DIRECTORY -->
+  <section class="panel" data-sec="stats">
+    <div class="step">Anytime</div>
+    <h2>&#128202; Directory stats</h2>
+    <p class="help">Clicks on each woman&rsquo;s listing, and visits that came through her shared Directory link. Each member sees her own numbers on her edit page. Your own clicks don&rsquo;t count while you use this browser.</p>
+    <div class="grid2">
+      <div><label class="f" for="stKey">Your stats key <span class="sub">(saved in this browser)</span></label><input type="password" id="stKey" placeholder="From your Google Script" autocomplete="off"></div>
+      <div><label class="f" for="stRange">Show</label><select id="stRange"><option value="recent">Last 30 days</option><option value="all">All time</option></select></div>
+    </div>
+    <div class="row"><button class="btn btn-primary" type="button" id="stLoad">Load stats</button></div>
+    <div class="status" id="stStatus" aria-live="polite"></div>
+    <div id="stTable" class="st-wrap"></div>
+    <p class="help" style="margin-top:14px;">Referral numbers come from the Referrals tab in your Google Sheet. Paste in the weekly snapshot and they show here and on each member&rsquo;s stats page.</p>
+  </section>
+
   <section class="panel" data-sec="current">
     <div class="step">Your current Directory</div>
     <h2>Where you&rsquo;re starting from</h2>
@@ -2270,8 +2290,46 @@
     { id: 'download', n: 5, label: 'Download and upload' },
     { h: 'Anytime' },
     { id: 'picks', label: 'Promo communities and tools' },
+    { id: 'stats', label: 'Directory stats' },
     { id: 'current', label: 'Your current Directory' }
   ];
+  /* ---------- Directory stats ---------- */
+  try { localStorage.setItem('spNoTrack', '1'); } catch (e) { /* fine */ }
+  var STATS_URL = 'https://script.google.com/macros/s/AKfycbycxguYXDx0CMH59VFBONGluY7yDboFzXaQe4po_ZKmj4XCaLtR4C-ERZMXT3pg5ACk/exec';
+  var stData = null;
+  try { $('stKey').value = localStorage.getItem('spStatsKey') || ''; } catch (e) { /* fine */ }
+  var renderStats = function () {
+    var box = $('stTable'); box.innerHTML = '';
+    if (!stData) return;
+    var rng = $('stRange').value, K = ['profile', 'offer', 'community', 'rec', 'featured', 'refvisit', 'refjoin'];
+    var short = { profile: 'Profile', offer: 'Offers', community: 'Community', rec: 'Recommended', featured: 'Featured page', refvisit: 'Link visits', refjoin: 'Join clicks' };
+    var t = document.createElement('table'); t.className = 'st-table';
+    var hr = document.createElement('tr');
+    ['Member'].concat(K.map(function (k) { return short[k]; })).concat(['Referrals']).forEach(function (h) { hr.appendChild(el('th', '', h)); });
+    t.appendChild(hr);
+    stData.members.forEach(function (m) {
+      var tr = document.createElement('tr'), src = m[rng] || {};
+      tr.appendChild(el('td', 'nm', m.name));
+      K.forEach(function (k) { tr.appendChild(el('td', src[k] ? '' : 'zero', String(src[k] || 0))); });
+      var r = m.referrals;
+      tr.appendChild(el('td', r ? '' : 'zero', r ? r.joined + ' joined, ' + r.premium + ' Premium, ' + r.vip + ' VIP' + (r.estimate ? ' (' + r.estimate + ')' : '') : '-'));
+      t.appendChild(tr);
+    });
+    box.appendChild(t);
+  };
+  $('stRange').addEventListener('change', renderStats);
+  $('stLoad').addEventListener('click', function () {
+    var key = $('stKey').value.trim();
+    try { localStorage.setItem('spStatsKey', key); } catch (e) { /* fine */ }
+    $('stStatus').textContent = 'Loading...';
+    fetch(STATS_URL + '?action=allstats&key=' + encodeURIComponent(key))
+      .then(function (r) { return r.json(); })
+      .then(function (res) {
+        if (!res || !res.ok) { $('stStatus').textContent = res && res.error === 'key' ? 'That key doesn\u2019t match the one in your Google Script.' : 'Couldn\u2019t load stats. Is the new Script version deployed?'; return; }
+        stData = res; $('stStatus').textContent = res.clicks + ' clicks recorded so far.'; renderStats();
+      })
+      .catch(function () { $('stStatus').textContent = 'Couldn\u2019t reach your Google Script. Is the new version deployed?'; });
+  });
   var STEP_IDS = SECS.filter(function (x) { return x.n; }).map(function (x) { return x.id; });
   var labelOf = function (id) { return SECS.filter(function (x) { return x.id === id; })[0].label; };
   var secNow = 'import';

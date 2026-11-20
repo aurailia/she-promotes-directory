@@ -181,6 +181,21 @@
   .done-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 26px; }
   .done-actions .btn { flex: 0 0 auto; text-decoration: none; padding-left: 26px; padding-right: 26px; }
   .confetti { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 50; }
+  /* Your Directory stats, on your edit page */
+  #statsBox { margin: 6px 0 26px; border: 1px solid rgba(232, 196, 122, 0.35); border-radius: 20px; padding: 18px 18px 16px; background: linear-gradient(180deg, rgba(232, 196, 122, 0.07), rgba(255, 255, 255, 0.02)); }
+  #statsBox summary { cursor: pointer; list-style: none; display: flex; align-items: center; justify-content: space-between; gap: 10px; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 24px; color: var(--gold-bright); }
+  #statsBox summary::-webkit-details-marker { display: none; }
+  #statsBox summary .tog { font-family: 'Inter', system-ui, sans-serif; font-size: 13px; color: var(--gold); }
+  #statsBox.later { display: none; }
+  .st-note { font-size: 13px; opacity: 0.8; margin: 6px 0 12px; }
+  .st-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+  .st-tile { border-radius: 14px; background: rgba(255, 255, 255, 0.05); padding: 12px 14px; }
+  .st-tile b { display: block; font-family: 'Cormorant Garamond', Georgia, serif; font-size: 30px; line-height: 1.1; color: var(--gold-bright); }
+  .st-tile span { font-size: 13px; opacity: 0.85; }
+  .st-tile small { display: block; font-size: 12px; opacity: 0.6; margin-top: 2px; }
+  .st-h { font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); margin: 18px 0 8px; }
+  .st-top { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; font-size: 14px; }
+  .st-top li { display: flex; justify-content: space-between; gap: 12px; }
 </style>
 </head>
 <body>
@@ -188,6 +203,7 @@
 <div class="wrap">
   <div class="brand grad">She <span>Promotes</span>&trade;</div>
   <div class="brand-sub">Directory Form</div>
+  <div id="statsBox" hidden></div>
   <div id="app"></div>
 </div>
 
@@ -553,6 +569,7 @@
   function render(top) {
     var st = cur(), all = steps(), i = all.indexOf(st), h = '';
     S.step = i;
+    var sbx = document.getElementById('statsBox'); if (sbx) sbx.classList.toggle('later', i > 0);
     h += '<div class="progress"><div class="bars" style="grid-template-columns:repeat(' + all.length + ',1fr)" aria-hidden="true">';
     all.forEach(function (s, j) { h += '<i class="' + (j <= i ? 'on' : '') + '"></i>'; });
     h += '</div><div class="progress-label"><span>Step ' + (i + 1) + ' of ' + all.length + '</span><span>' + esc(st.nav) + '</span></div></div>';
@@ -1308,6 +1325,46 @@
     S.step++; S.hadDraft = false; S.freshConfirm = false; saveDraft(); render(true);
   });
 
+  /* ---------- Your Directory stats ---------- */
+  function loadStats(tok) {
+    fetch(SCRIPT_URL + '?action=stats&token=' + encodeURIComponent(tok))
+      .then(function (r) { return r.json(); })
+      .then(function (res) { if (res && res.ok) renderStats(res); })
+      .catch(function () { /* stats are a bonus */ });
+  }
+  function renderStats(res) {
+    var box = document.getElementById('statsBox');
+    if (!res.stats && !res.referrals) return;
+    var L = res.labels || {}, h = '<details open><summary>Your Directory stats <span class="tog">Show or hide</span></summary>';
+    h += '<p class="st-note">How many times people tapped on your listing. These are clicks, not sales.</p>';
+    if (res.stats) {
+      var order = ['profile', 'offer', 'community', 'rec', 'featured', 'refvisit', 'refjoin'];
+      h += '<div class="st-tiles">';
+      order.forEach(function (k) {
+        var all = res.stats.all[k] || 0, rec = res.stats.recent[k] || 0;
+        if (!all && (k === 'featured' || k === 'rec')) return;
+        h += '<div class="st-tile"><b>' + rec + '</b><span>' + esc(L[k] || k) + '</span><small>last 30 days, ' + all + ' all time</small></div>';
+      });
+      h += '</div>';
+      if (res.stats.top && res.stats.top.length) {
+        var kn = { offer: 'Offer', community: 'Community', rec: 'Recommended' };
+        h += '<div class="st-h">What people clicked most</div><ul class="st-top">';
+        res.stats.top.forEach(function (t) { h += '<li><span>' + esc(t.what) + ' <small style="opacity:.6">' + esc(kn[t.kind] || '') + '</small></span><b>' + t.n + '</b></li>'; });
+        h += '</ul>';
+      }
+    }
+    h += '<div class="st-h">Your referrals</div>';
+    if (res.referrals) {
+      var r = res.referrals;
+      h += '<div class="st-tiles"><div class="st-tile"><b>' + r.joined + '</b><span>Joined through your link</span></div><div class="st-tile"><b>' + r.premium + '</b><span>Upgraded to Premium</span></div><div class="st-tile"><b>' + r.vip + '</b><span>Upgraded to VIP</span></div>' + (r.estimate ? '<div class="st-tile"><b>' + esc(r.estimate) + '</b><span>Estimated each month</span></div>' : '') + '</div>';
+      h += '<p class="st-note" style="margin-top:10px">Counted from ' + esc(res.referralsStart) + ', when referral fees started.' + (r.updated ? ' Updated ' + esc(r.updated) + '.' : '') + ' This is an estimate. Your real payouts are in Skool under Settings, then Affiliate.</p>';
+    } else {
+      h += '<p class="st-note">No referrals yet. Share your Directory link from the Directory Referral Program page. Referral fees count from ' + esc(res.referralsStart) + ', and your real payouts show in Skool under Settings, then Affiliate.</p>';
+    }
+    h += '</details>';
+    box.innerHTML = h; box.hidden = false;
+  }
+
   /* ---------- start ---------- */
   document.getElementById('previewNote').hidden = LIVE;
   var token = '';
@@ -1319,6 +1376,7 @@
       .then(function (res) {
         if (!res || !res.ok) throw new Error('nf');
         S.token = token;
+        loadStats(token);
         var ans = res.answers || {}, imgs = res.images || {};
         var done = function () { unpack(ans, imgs); render(true); };
         fetch(DIRECTORY_URL + 'directory.json?fresh=' + Date.now(), { cache: 'no-store' })
