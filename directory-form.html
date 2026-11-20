@@ -1334,7 +1334,7 @@
   }
   function renderStats(res) {
     var box = document.getElementById('statsBox');
-    if (!res.stats && !res.referrals) return;
+    if (!res.stats) return;
     var L = res.labels || {}, h = '<details open><summary>Your Directory stats <span class="tog">Show or hide</span></summary>';
     h += '<p class="st-note">How many times people tapped on your listing. These are clicks, not sales.</p>';
     if (res.stats) {
@@ -1353,14 +1353,7 @@
         h += '</ul>';
       }
     }
-    h += '<div class="st-h">Your referrals</div>';
-    if (res.referrals) {
-      var r = res.referrals;
-      h += '<div class="st-tiles"><div class="st-tile"><b>' + r.joined + '</b><span>Joined through your link</span></div><div class="st-tile"><b>' + r.premium + '</b><span>Upgraded to Premium</span></div><div class="st-tile"><b>' + r.vip + '</b><span>Upgraded to VIP</span></div>' + (r.estimate ? '<div class="st-tile"><b>' + esc(r.estimate) + '</b><span>Estimated each month</span></div>' : '') + '</div>';
-      h += '<p class="st-note" style="margin-top:10px">Counted from ' + esc(res.referralsStart) + ', when referral fees started.' + (r.updated ? ' Updated ' + esc(r.updated) + '.' : '') + ' This is an estimate. Your real payouts are in Skool under Settings, then Affiliate.</p>';
-    } else {
-      h += '<p class="st-note">No referrals yet. Share your Directory link from the Directory Referral Program page. Referral fees count from ' + esc(res.referralsStart) + ', and your real payouts show in Skool under Settings, then Affiliate.</p>';
-    }
+    h += '<p class="st-note" style="margin-top:14px">Want to see who joined through your link and what you earned? That lives in Skool: tap your profile picture, then Settings, then Affiliate.</p>';
     h += '</details>';
     box.innerHTML = h; box.hidden = false;
   }
