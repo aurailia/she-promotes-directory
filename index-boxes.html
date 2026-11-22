@@ -653,12 +653,12 @@
   .room-story p { font-size: 17px; line-height: 1.75; white-space: pre-line; }
   .room-who { border-left: 2px solid var(--gold); padding: 2px 0 2px 20px; }
   .room-who .eyebrow { display: block; margin-bottom: 6px; }
-  .room-who p { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 26px; font-style: italic; line-height: 1.28; color: #f3d89b; white-space: normal; }
+  .room-who p { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 26px; font-style: italic; line-height: 1.28; color: var(--gold-bright); white-space: normal; }
   .room-comm { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); background: var(--card); border: 1px solid var(--card-border); border-radius: 22px; overflow: hidden; margin-bottom: 16px; }
   .room-comm .rc-art { background: var(--plum-soft); min-height: 220px; }
   .room-comm .rc-art img { width: 100%; height: 100%; object-fit: cover; display: block; }
   .room-comm .rc-body { padding: 28px 28px 30px; display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
-  .room-comm h4 { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 32px; font-weight: 600; line-height: 1.1; color: #f3d89b; }
+  .room-comm h4 { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 32px; font-weight: 600; line-height: 1.1; color: var(--gold-bright); }
   .room-comm .lbl2 { font-size: 13px; font-weight: 600; color: var(--blush); margin-top: 6px; }
   .room-list { list-style: none; display: grid; gap: 4px; }
   .room-list li { position: relative; padding-left: 22px; }
@@ -2864,7 +2864,7 @@
       communities: [], offers: [], links: [], loves: []
     };
     var seenC = {};
-    var addC = function (c) { if (!c || !c.name || !c.link) return; var k = linkKey(c.link) || norm(c.name); if (!seenC[k] && seenC['n:' + norm(c.name)]) k = 'n:' + norm(c.name); if (seenC[k]) { var o = seenC[k]; ['about', 'image', 'access', 'platform'].forEach(function (f) { if (!o[f] && c[f]) o[f] = c[f]; }); if ((!o.inside || !o.inside.length) && c.inside && c.inside.length) o.inside = c.inside; return; } var cc = Object.assign({}, c); seenC[k] = cc; seenC['n:' + norm(c.name)] = cc; R.communities.push(cc); };
+    var addC = function (c) { if (!c || !c.name || !c.link) return; var k = linkKey(c.link) || norm(c.name); if (!seenC[k] && seenC['n:' + norm(c.name)]) k = 'n:' + norm(c.name); if (seenC[k]) { var o = seenC[k]; ['about', 'image', 'access', 'platform'].forEach(function (f) { if (!o[f] && c[f]) o[f] = c[f]; }); if ((!o.inside || !o.inside.length) && c.inside && c.inside.length) o.inside = c.inside; if ((!o.levels || !o.levels.length) && c.levels && c.levels.length) o.levels = c.levels; return; } var cc = Object.assign({}, c); seenC[k] = cc; seenC['n:' + norm(c.name)] = cc; R.communities.push(cc); };
     (v.communities || []).forEach(addC);
     if (mem) myComms(mem).forEach(addC);
     var seenO = {};
@@ -3069,7 +3069,9 @@
           /* if she starts a line with her own emoji, it takes the place of the gold star */
           var ul = el('ul', 'room-list'); inside.forEach(function (x) { var em = x.match(/^((?:\p{Extended_Pictographic}|\p{Emoji_Presentation})[\uFE0F\u200D\p{Extended_Pictographic}]*)\s*/u); if (em) { var li = el('li', 'own-mark'); li.appendChild(el('span', 'om', em[1])); li.appendChild(document.createTextNode(x.slice(em[0].length))); ul.appendChild(li); } else ul.appendChild(el('li', '', x)); }); cb.appendChild(ul);
         }
-        if (c.access) cb.appendChild(el('p', 'access', String(c.access).replace(/;/g, ' and ')));
+        /* her membership levels and prices when she added them, otherwise free or paid */
+        if (levelsOf(c).length) cb.appendChild(levelsTag(levelsOf(c), 'in-block'));
+        else if (c.access) cb.appendChild(el('p', 'access', String(c.access).replace(/;/g, ' and ')));
         var j = linkBtn('Join ' + c.name, c.link, true); if (j) cb.appendChild(j);
         cc.appendChild(cb);
         cwrap.appendChild(cc);

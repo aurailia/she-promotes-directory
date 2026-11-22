@@ -1709,7 +1709,8 @@
           var w = el('div', c[3] ? 'full' : '');
           var l = el('label', 'f', c[5] ? c[1] : c[1] + ' ' + (i + 1));
           var inp = document.createElement(c[4] ? 'textarea' : 'input'); if (!c[4]) inp.type = 'text';
-          inp.value = Array.isArray(cur[c[0]]) ? cur[c[0]].join('\n') : (cur[c[0]] || ''); inp.placeholder = c[2];
+          var cv = cur[c[0]];
+          inp.value = Array.isArray(cv) ? cv.map(function (x) { return x && typeof x === 'object' ? [x.name, x.price].filter(Boolean).join(' | ') : x; }).join('\n') : (cv || ''); inp.placeholder = c[2];
           l.appendChild(inp); w.appendChild(l); g2.appendChild(w);
           r[c[0]] = inp;
         });
@@ -1723,16 +1724,16 @@
     if (id !== 'new') {
       var lm = null; allMembers().forEach(function (q) { if (!lm && nameKey(q.name) === nameKey(v.name)) lm = eff(q); });
       if (lm) {
-        var addL = function (c) { if (!c || !c.name || !c.link) return; if (listC.some(function (x) { return normUrl(x.link) === normUrl(c.link); })) return; listC.push({ name: c.name, link: c.link, about: c.about || '', access: c.access || '' }); };
+        var addL = function (c) { if (!c || !c.name || !c.link) return; if (listC.some(function (x) { return normUrl(x.link) === normUrl(c.link); })) return; listC.push({ name: c.name, link: c.link, about: c.about || '', access: c.access || '', levels: c.levels || [] }); };
         addL(lm.community); (lm.recommends || []).forEach(function (r) { if (r && r.own) addL(r); });
       }
     }
     var vcs = (v.communities || []).slice();
     listC.forEach(function (c) {
       var hit = vcs.filter(function (x) { return (normUrl(x.link) && normUrl(x.link) === normUrl(c.link)) || nameKey(x.name) === nameKey(c.name); })[0];
-      if (!hit) vcs.push(c); else ['name', 'link', 'about'].forEach(function (k) { if (!hit[k] && c[k]) hit[k] = c[k]; });
+      if (!hit) vcs.push(c); else { ['name', 'link', 'about'].forEach(function (k) { if (!hit[k] && c[k]) hit[k] = c[k]; }); if ((!hit.levels || !hit.levels.length) && c.levels && c.levels.length) hit.levels = c.levels; }
     });
-    var cRows = rowsOf('Her communities', vcs, 4, [['name', 'Community', 'Name'], ['link', 'Link', 'https://'], ['about', 'In one sentence', 'What it is', true], ['inside', 'What\u2019s inside (one per line)', 'A live call every month\nA private classroom', true, true, true], ['access', 'Who can join and what it costs', 'Free to join. Premium is $9 a month.', true, false, true]]);
+    var cRows = rowsOf('Her communities', vcs, 4, [['name', 'Community', 'Name'], ['link', 'Link', 'https://'], ['about', 'In one sentence', 'What it is', true], ['inside', 'What\u2019s inside (one per line)', 'A live call every month\nA private classroom', true, true, true], ['access', 'Who can join and what it costs', 'Free to join. Premium is $9 a month.', true, false, true], ['levels', 'Membership levels (one per line: level | price)', 'Free | Free\nPremium | $9/month\nVIP | $27/month', true, true, true]]);
     var oRows = rowsOf('Her offers', v.offers, 3, [['title', 'Offer', 'Name'], ['link', 'Link', 'https://'], ['desc', 'In one sentence', 'What she gets', true], ['price', 'Starting price', 'Optional']]);
     var acts = el('div', 'row');
     var save = el('button', 'btn btn-primary', 'Save VIP'); save.type = 'button';
@@ -1758,6 +1759,7 @@
         var c = { name: r.name.value.trim(), link: cleanUrl(r.link.value), about: r.about.value.trim(),
           inside: r.inside.value.split(/\n+/).map(function (x) { return x.replace(/^[\s\-*\u2022\u2726]+/, '').trim(); }).filter(Boolean).slice(0, 12), access: r.access.value.trim() };
         if (!c.inside.length) delete c.inside; if (!c.access) delete c.access;
+        var lv = parseLevels(r.levels.value.replace(/\n+/g, '; ')); if (lv.length) c.levels = lv;
         /* keep the image she already had */
         oldCs.forEach(function (o) { if (o && ((normUrl(o.link) && normUrl(o.link) === normUrl(c.link)) || nameKey(o.name) === nameKey(c.name))) { ['image', 'platform'].forEach(function (k) { if (o[k] && !c[k]) c[k] = o[k]; }); } });
         return c;
@@ -2323,12 +2325,16 @@
     try { localStorage.setItem('spStatsKey', key); } catch (e) { /* fine */ }
     $('stStatus').textContent = 'Loading...';
     fetch(STATS_URL + '?action=allstats&key=' + encodeURIComponent(key))
-      .then(function (r) { return r.json(); })
-      .then(function (res) {
-        if (!res || !res.ok) { $('stStatus').textContent = res && res.error === 'key' ? 'That key doesn\u2019t match the one in your Google Script.' : 'Couldn\u2019t load stats. Is the new Script version deployed?'; return; }
-        stData = res; $('stStatus').textContent = res.clicks + ' clicks recorded so far.'; renderStats();
+      .then(function (r) { return r.text(); })
+      .then(function (txt) {
+        var res = null; try { res = JSON.parse(txt); } catch (e) { res = null; }
+        if (!res) { $('stStatus').textContent = 'Your Google Script needs one more permission. In Apps Script, pick the function directory_ in the menu at the top, click Run, and allow access. Then try again.'; return; }
+        if (res.error === 'key') { $('stStatus').textContent = 'That key doesn\u2019t match the ADMIN_KEY in your Google Script.'; return; }
+        if (!res.ok) { $('stStatus').textContent = 'Your Google Script said: ' + (res.error || 'something went wrong') + '.'; return; }
+        if (!Array.isArray(res.members)) { $('stStatus').textContent = 'Your Google Script is still running the old version. In Apps Script: Deploy, Manage deployments, the pencil, Version: New version, Deploy.'; return; }
+        stData = res; $('stStatus').textContent = (res.clicks || 0) + ' clicks recorded so far.'; renderStats();
       })
-      .catch(function () { $('stStatus').textContent = 'Couldn\u2019t reach your Google Script. Is the new version deployed?'; });
+      .catch(function () { $('stStatus').textContent = 'Couldn\u2019t get a reply from your Google Script. Usually it needs one more permission: in Apps Script, pick directory_ in the function menu at the top, click Run and allow access. Then try again.'; });
   });
   var STEP_IDS = SECS.filter(function (x) { return x.n; }).map(function (x) { return x.id; });
   var labelOf = function (id) { return SECS.filter(function (x) { return x.id === id; })[0].label; };
