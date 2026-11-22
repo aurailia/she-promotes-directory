@@ -915,23 +915,45 @@
   .room-list li.own-mark .om { position: absolute; left: 0; top: 0; font-size: 0.95em; line-height: inherit; }
 
   /* ---------- Preview: purple page and menu, white boxes where the reading happens ---------- */
-  .gdoor, .who-box, .card, .dialog, .door, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal {
+  .gdoor, .who-box, .card, .cat-info, .dialog, .door, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal {
     --text: #2a1028; --muted: #6b5466; --gold: #a8762a; --gold-bright: #8c5f1c; --blush: #b8467a; --blush-soft: #c96a90;
     --violet: #7a3fbf; --card: #faf5f8; --card-border: rgba(168, 118, 40, 0.28); --input-bg: #ffffff; --input-border: rgba(184, 70, 122, 0.3);
     --title-grad: linear-gradient(100deg, #6a2c94 0%, #9a3a8e 45%, #b8467a 100%);
     background: #ffffff; color: var(--text); border-color: rgba(232, 196, 122, 0.55);
     box-shadow: 0 14px 40px rgba(0, 0, 0, 0.28);
   }
-  .dialog .block, .card .block, .room-comm .block { background: #faf5f8; }
-  :is(.gdoor, .who-box, .card, .dialog, .door, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal) .btn-primary, :is(.gdoor, .who-box, .card, .dialog, .door, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal) .ev-now, :is(.gdoor, .who-box, .card, .dialog, .door, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal) .door .now, :is(.gdoor, .who-box, .card, .dialog, .door, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal) .sh-num { background: linear-gradient(135deg, #ecc97f, #f4b6c8); color: #2a1028; }
-  :is(.gdoor, .who-box, .card, .dialog, .door, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal) .btn-ghost { color: #2a1028; border-color: rgba(42, 16, 40, 0.22); background: #ffffff; }
-  :is(.gdoor, .who-box, .card, .dialog, .door, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal) .chip:not([aria-pressed="true"]) { color: #2a1028; border-color: rgba(42, 16, 40, 0.2); background: #ffffff; }
-  :is(.gdoor, .who-box, .card, .dialog, .door, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal) .tag { color: #6b2f5c; background: #f7edf2; border-color: rgba(184, 70, 122, 0.25); }
-  :is(.gdoor, .who-box, .card, .dialog, .door, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal) .price-tag { border-top-color: rgba(168, 118, 40, 0.35); }
-  :is(.gdoor, .who-box, .card, .dialog, .door, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal) a:not(.btn) { color: #8c5f1c; }
+  /* the pop-up is a soft blush page, and each offer and community is its own white card with a gold edge */
+  .dialog { background: #f8f1f5; }
+  .dialog .block, .sharer-profile .block {
+    background: #ffffff; border: 1px solid rgba(168, 118, 40, 0.38); border-radius: 18px; overflow: hidden;
+    box-shadow: 0 8px 22px rgba(74, 28, 64, 0.09); padding: 16px; margin-bottom: 14px;
+  }
+  .dialog .block.has-img, .sharer-profile .block.has-img { padding-top: 0; }
+  .dialog .block .card-thumb, .sharer-profile .block .card-thumb { margin: 0 -16px 4px; width: calc(100% + 32px); border-radius: 0; border-bottom: 1px solid rgba(168, 118, 40, 0.25); }
+  .dialog .block > b:first-child, .dialog .block .name { color: #2a1028; }
+  .dialog .who-row, .dialog h3.sub { position: relative; }
+  .sharer-profile .block { color: #2a1028; --text: #2a1028; --muted: #6b5466; --gold: #a8762a; --gold-bright: #8c5f1c; }
+  .sharer-profile .block .btn-primary { background: linear-gradient(135deg, #ecc97f, #f4b6c8); color: #2a1028; }
+  .sharer-profile .block .btn-ghost { color: #2a1028; border-color: rgba(42, 16, 40, 0.22); background: #ffffff; }
+  .sharer-profile .block .tag { color: #6b2f5c; background: #f7edf2; border-color: rgba(184, 70, 122, 0.25); }
+  .card .block, .room-comm .block { background: #faf5f8; }
+  /* category tiles: the photo on top, a clean white label underneath */
+  .cat-tile { background: #ffffff; border-color: rgba(232, 196, 122, 0.55); box-shadow: 0 12px 30px rgba(0, 0, 0, 0.28); }
+  .cat-tile::before { display: none; }
+  .cat-tile .cname { color: #2a1028; }
+  .cat-tile .ccount { color: #6b5466; }
+  .cat-tile .ccount .dot { border-color: #a8762a; color: #a8762a; }
+  .cat-tile.zero .ccount { color: #b8467a; }
+  .cat-tile:hover, .cat-tile:focus-visible { border-color: #e8c47a; box-shadow: 0 16px 34px rgba(0, 0, 0, 0.32), 0 0 0 2px rgba(232, 196, 122, 0.55); }
+  :is(.gdoor, .who-box, .card, .cat-info, .dialog, .door, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal) .btn-primary, :is(.gdoor, .who-box, .card, .cat-info, .dialog, .door, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal) .ev-now, :is(.gdoor, .who-box, .card, .cat-info, .dialog, .door, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal) .door .now, :is(.gdoor, .who-box, .card, .cat-info, .dialog, .door, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal) .sh-num { background: linear-gradient(135deg, #ecc97f, #f4b6c8); color: #2a1028; }
+  :is(.gdoor, .who-box, .card, .cat-info, .dialog, .door, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal) .btn-ghost { color: #2a1028; border-color: rgba(42, 16, 40, 0.22); background: #ffffff; }
+  :is(.gdoor, .who-box, .card, .cat-info, .dialog, .door, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal) .chip:not([aria-pressed="true"]) { color: #2a1028; border-color: rgba(42, 16, 40, 0.2); background: #ffffff; }
+  :is(.gdoor, .who-box, .card, .cat-info, .dialog, .door, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal) .tag { color: #6b2f5c; background: #f7edf2; border-color: rgba(184, 70, 122, 0.25); }
+  :is(.gdoor, .who-box, .card, .cat-info, .dialog, .door, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal) .price-tag { border-top-color: rgba(168, 118, 40, 0.35); }
+  :is(.gdoor, .who-box, .card, .cat-info, .dialog, .door, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal) a:not(.btn) { color: #8c5f1c; }
   .door-art::after { background: none; }
-  :is(.gdoor, .who-box, .card, .dialog, .door, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal) .price-tag::before { color: #a8762a; }
-  :is(.gdoor, .who-box, .card, .dialog, .door, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal) .avatar, :is(.gdoor, .who-box, .card, .dialog, .door, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal) .ph { color: #2a1028; }
+  :is(.gdoor, .who-box, .card, .cat-info, .dialog, .door, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal) .price-tag::before { color: #a8762a; }
+  :is(.gdoor, .who-box, .card, .cat-info, .dialog, .door, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal) .avatar, :is(.gdoor, .who-box, .card, .cat-info, .dialog, .door, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal) .ph { color: #2a1028; }
   .dialog .close-btn, .dialog #closeBtn { background: #ffffff; color: #2a1028; }
 </style>
 </head>
