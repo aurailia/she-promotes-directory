@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updated": "2026-11-19T16:52:43.339Z",
+  "updated": "2026-11-22T04:48:01.749Z",
   "featured": [
     {
       "name": "She Promotes™",
@@ -195,8 +195,8 @@
     }
   ],
   "spotlight": {
-    "vip": "vip-fmq40z",
-    "note": "Shelly brings something you don’t see every day. She’s a Fractional CFO who also builds AI solutions, so she gets the money side AND the tech side of business. I love that she’s taking AI and making it simple for women who feel called to build something bigger. Her app Praise Patch is such a smart idea too. Happy customers are the best marketing you’ve got, and she found a way to put them to work."
+    "vip": "vip-b0xhyj",
+    "note": "Shandanette Goodwin is a Menopause and Wellness Coach who holds space for women 40+ who are starting over. Maybe it's life after divorce, an empty house, or waking up one day and not recognizing the woman in the mirror.\n\nWhat I love most is how gently she does it. In Midlife Grace Shift, women rebuild their confidence, find their purpose again, and even learn simple AI tools in plain language, without feeling overwhelmed or behind.\n\nStarting over at 40, 50 or beyond takes so much courage. Shandanette makes sure no woman has to do it alone."
   },
   "vips": [
     {
@@ -322,6 +322,43 @@
       "fromListing": true,
       "who": "Women 40+ navigating identity changes, caregiving, burnout, menopause, confidence challenges, and personal reinvention.",
       "thumb": "https://lh3.googleusercontent.com/d/1gy_TUHQn3N_YsD7D0vgTAJT_zziMUpbs=w1600"
+    },
+    {
+      "id": "vip-10ltgym",
+      "name": "Mercedes Aspland",
+      "headline": "I help online business owners create digital products, grow their visibility and find new opportunities to generate income.",
+      "about": "I've been running businesses since 2008. After leaving investment banking, I worked in web design, built an ecommerce business with my mum and moved into property development before creating online courses and communities.\n\nOver the years, I've learned a lot about what it takes to build a business. I love exploring new ideas, testing tools and finding simpler ways to do things. I now share what I learn through practical resources, digital products and business support.\n\nAs a single mum with ADHD, building a business that fits around my life is important to me. I want to help others do the same, while creating opportunities for business owners to connect, collaborate and grow together.",
+      "photo": "",
+      "banner": "",
+      "website": "https://itacommunity.com/",
+      "social": "",
+      "video": "",
+      "communities": [
+        {
+          "name": "Mercedes Hangout",
+          "link": "https://www.skool.com/the-sacred-pause-8685/about",
+          "about": "",
+          "inside": [
+            "Free digital products and resources",
+            "Weekly business promotion threads",
+            "Business discussions and practical exercises",
+            "Networking and collaboration opportunities",
+            "Summits and bundles",
+            "Access to my digital product library and mini courses for Premium members",
+            "Regular coworking sessions for Premium and VIP members",
+            "Daily promotional opportunities for paid members",
+            "Monthly pinned promotional posts and email visibility for VIP members",
+            "Access to all my courses for VIP members",
+            "Weekly Voxer office hours for VIP members"
+          ],
+          "access": "Anyone building an online business or side hustle can join Mercedes Hangout for free, upgrade to Premium for $5/month or become a VIP member for $15/month."
+        }
+      ],
+      "offers": [],
+      "edited": false,
+      "fromListing": true,
+      "who": "Online business owners and aspiring digital product creators who want practical resources, greater visibility and new ways to grow their businesses.",
+      "thumb": "https://lh3.googleusercontent.com/d/1-Zezl_1NJLoL-wIDQqht1_ufKF4xQp1h=w1600"
     }
   ],
   "events": [
@@ -588,12 +625,12 @@
     {
       "id": "m10zb3gg",
       "name": "Tina Ryan",
-      "business": "Her Fasting Club",
-      "about": "Hi 👋 I’m Tina, mum to a pre-teen daughter, married for far too long 🤣 and a Certified Fast Like a Girl Coach trained under Dr Mindy Pelz - and Mindfulness Mentor. I help women 30+ lose weight and stress less with hormone aligned fasting and mindset coaching. No calorie counting and no gym. After living this lifestyle for 20 years myself I’ve learnt a thing or two and am so excited to share it with women to free them from exhausting workouts, food noise and restriction! 💕",
+      "business": "Tine the Fasting Coach",
+      "about": "Hi, I’m Tina, a holistic weight loss coach and a mum in my mid-40s. I offer private 1:1 coaching for professional women over 40 who want a calmer, natural approach to weight loss without injections, calorie counting or exhausting workouts.\n\nI’m a Certified Fast Like a Girl® Coach, trained under Dr Mindy Pelz, and I’ve practised fasting myself for over 20 years. I combine hormone-aligned fasting, mindset coaching and mindfulness to help you learn when to fast, when to nourish and how to look after yourself when life gets busy.\n\nTogether, we build a plan that fits your diary, including the days when you’ve barely had time for lunch and find yourself grazing all evening. My aim is to help you quieten the food noise, build habits that support your long-term health and feel more comfortable in your body again. I’m based in the UK and work with women worldwide.",
       "offerName": "",
-      "photo": "https://lh3.googleusercontent.com/d/1Aj9xO2SEhTrhNrfcWps549ZoVSOHcubJ=w600",
-      "social": "https://www.instagram.com/tinathefastingcoach/",
-      "website": "",
+      "photo": "https://lh3.googleusercontent.com/d/1u1uh5VlRHUfewE5i_23WgX4f8BpMn7wd=w600",
+      "social": "",
+      "website": "https://tinathefastingcoach.netlify.app",
       "socials": {},
       "categories": [],
       "formats": [],
@@ -604,53 +641,38 @@
       "offerImage": "",
       "keywords": [],
       "offers": [],
-      "community": {
-        "name": "Her Fasting Club",
-        "link": "https://www.skool.com/herfastingclub/about",
-        "category": "Perimenopause & Menopause",
-        "categories": [
-          "Perimenopause & Menopause",
-          "Nutrition & Fitness"
-        ],
-        "platform": "Skool",
-        "about": "Hormone-aligned fasting & mindset coaching for midlife women. A natural approach to weight loss & metabolic health.",
-        "access": "Paid",
-        "promoDays": [],
-        "image": "",
-        "keywords": []
-      },
       "recommends": [
+        {
+          "name": "The Thrive Community",
+          "link": "https://www.skool.com/releasetheweight/about?ref=cb56c65c1b4547a9aef2860ab1196746",
+          "category": "Other",
+          "about": "A connection hub for all your health & wellness needs! For Pros & Seekers. Nourish your nervous system, heal the gut, transform stress to JOY.",
+          "access": "Paid",
+          "why": "For Nutritionists, Life Coaches, Somatic Practitioners, Personal Trainers, Naturopathic Doctors, & more! For anyone interested in being more healthy and energetic.",
+          "affiliate": true,
+          "own": false,
+          "promoDays": [],
+          "image": ""
+        },
+        {
+          "name": "My Menopause Wellness Club",
+          "link": "https://www.skool.com/my-menopause-wellness-club/about?ref=cb56c65c1b4547a9aef2860ab1196746",
+          "category": "Other",
+          "about": "For women in peri & post menopause. Optimize your hormones, HRT, thyroid, sleep, metabolism & nervous system with the 6-Step Menopause Reset Roadmap.",
+          "access": "Free with a paid upgrade",
+          "why": "This is a wonderful community where you can dive into the hormone options available to use alongside a fasting pathway to support metabolic health - by a triple-certified menopause coach who’s supported 30,000+ women.",
+          "affiliate": true,
+          "own": false,
+          "promoDays": [],
+          "image": ""
+        },
         {
           "name": "Plant Positive",
           "link": "https://www.skool.com/plant-positive/about?ref=cb56c65c1b4547a9aef2860ab1196746",
           "category": "Other",
-          "about": "High-Protein Plant Based Recipes & Coaching",
+          "about": "For vegans and vegans-at-heart who want to build a fit, strong, healthy body and the confidence to live their values. Simplify your health with Kate — trainer + coach for 20 years, vegan for 10+.",
           "access": "Free with a paid upgrade",
-          "why": "A wonderful community to learn how to prepare balanced, nutritious plant based meals - and a brilliant resource for vegans too!",
-          "affiliate": true,
-          "own": false,
-          "promoDays": [],
-          "image": ""
-        },
-        {
-          "name": "Thrive Again With Kelli",
-          "link": "https://www.skool.com/thrive-again/about?ref=cb56c65c1b4547a9aef2860ab1196746",
-          "category": "Other",
-          "about": "For midlife women navigating peri/menopause. Support your health with food, herbs, mindset and lifestyle.",
-          "access": "Free with a paid upgrade",
-          "why": "Thrive Again helps women understand what’s happening in their body, work out what matters most and turn confusion into a practical plan to support their health naturally.",
-          "affiliate": true,
-          "own": false,
-          "promoDays": [],
-          "image": ""
-        },
-        {
-          "name": "Connect & Collab with Éva+",
-          "link": "https://www.skool.com/eva/about?ref=cb56c65c1b4547a9aef2860ab1196746",
-          "category": "Business",
-          "about": "Find & Create Amazing Collaborations! 🎯 COLLABS help you sustainably grow your business. Make SOLID progress with fellow founders & community owners",
-          "access": "Paid",
-          "why": "Eva the founder is a beautiful being, supporting hundreds of Skool group founders opportunities to network and collaborate to grow their business",
+          "why": "Eating more plant based meals is the best way to add fibre to your diet and support your gut health - not just for vegans, this fun community supports anyone to add more plant based meals into your everyday!",
           "affiliate": true,
           "own": false,
           "promoDays": [],
@@ -1508,6 +1530,155 @@
           "own": false,
           "promoDays": [],
           "image": "https://lh3.googleusercontent.com/d/1cgovG8vcMgMOM2CGloPr2BCt0pEceRbR=w1200"
+        }
+      ]
+    },
+    {
+      "id": "m3yfbgn",
+      "name": "Mercedes Aspland",
+      "business": "Mercedes Aspland",
+      "about": "I'm Mercedes, a single mum, entrepreneur and course creator who has been running businesses since 2008.\n\nMy background includes investment banking, web design, ecommerce, property development and creating online courses and communities.\n\nI love finding new ways to make business easier. I share what I'm learning through practical digital products, AI tools, courses and my Skool community of over 2,600 members.\n\nI help business owners develop their ideas, create products, increase their visibility and find new ways to generate income. I also organise summits and bundles that bring business owners together and help them reach new audiences.\n\nAs someone with ADHD, I understand how easy it is to have a hundred ideas and struggle to know which one to focus on.\n\nI'm passionate about creating a business that supports the life you want to live.",
+      "offerName": "A Day of Voxer",
+      "photo": "https://lh3.googleusercontent.com/d/1o5pFYn16GjCQ_UT4e2F_f914AsQPbrey=w600",
+      "social": "https://www.instagram.com/mercedesaspland/",
+      "website": "https://itacommunity.com/",
+      "socials": {
+        "facebook": "https://www.facebook.com/mercedes.aspland/",
+        "youtube": "https://www.youtube.com/@MercedesAspland"
+      },
+      "categories": [
+        "Business Coaching & Strategy"
+      ],
+      "formats": [
+        "1:1 Sessions"
+      ],
+      "offer": "Spend a day chatting with me on Voxer, getting your business questions answered and working out what to do next.",
+      "who": "Online business owners who feel stuck, have too many ideas or need experienced business advice to move forward.",
+      "price": "$97",
+      "offerLink": "https://itacommunity.com/day-of-voxer/",
+      "offerImage": "https://lh3.googleusercontent.com/d/1mAArUutEWoD40tx8hPvJ5OO28FukIF22=w1200",
+      "keywords": [
+        "business advice",
+        "mentoring",
+        "strategy",
+        "Voxer",
+        "marketing",
+        "Skool"
+      ],
+      "offers": [
+        {
+          "title": "Mercedes Hangout Premium",
+          "desc": "Access my digital product library, mini courses and daily promo opportunities in a community of over 2,600 members.",
+          "link": "https://www.skool.com/the-sacred-pause-8685/plans",
+          "price": "$5/month",
+          "who": "Online business owners who want affordable business resources, greater visibility for their offers and opportunities to grow.",
+          "categories": [
+            "Business Coaching & Strategy",
+            "Social Media & Content",
+            "AI & Automation Support"
+          ],
+          "formats": [
+            "Membership or Skool Community"
+          ],
+          "keywords": [
+            "digital products",
+            "visibility",
+            "promotion",
+            "courses",
+            "AI",
+            "marketing"
+          ],
+          "image": "https://lh3.googleusercontent.com/d/19c_tNEgf_CbadgonDUwdYcntX458ygpX=w1200"
+        },
+        {
+          "title": "Digital Product Idea Finder",
+          "desc": "Discover digital product ideas based on your skills, interests and experience so you can decide what to create and sell.",
+          "link": "https://shop.beacons.ai/mercedes.aspland/afdfa801-40cd-43c6-95a4-851e6942a186",
+          "price": "$17",
+          "who": "Aspiring digital product creators and business owners who want to earn money from their knowledge but aren't sure what to create.",
+          "categories": [
+            "Business Coaching & Strategy",
+            "AI & Automation Support"
+          ],
+          "formats": [
+            "Digital Product",
+            "Tool or App"
+          ],
+          "keywords": [
+            "digital products",
+            "product ideas",
+            "passive income",
+            "niche",
+            "online business",
+            "AI"
+          ],
+          "image": "https://lh3.googleusercontent.com/d/1UZjbCnat-YhQ8kcRQwU0YTNLRaQErN1B=w1200"
+        }
+      ],
+      "community": {
+        "name": "Mercedes Hangout",
+        "link": "https://www.skool.com/the-sacred-pause-8685/about",
+        "category": "Promo & Networking",
+        "categories": [
+          "Promo & Networking",
+          "Business Coaching & Strategy",
+          "AI & Automation Support",
+          "Social Media & Content"
+        ],
+        "platform": "Skool",
+        "about": "A friendly community of over 2,600 members for online business owners to discover digital products, explore AI tools, share ideas, promote their offers and find collaboration opportunities.",
+        "access": "Free with a paid upgrade",
+        "promoDays": [
+          "Mon"
+        ],
+        "image": "https://lh3.googleusercontent.com/d/19RzAKsd94KGrKU9mPns__fdlyHJ00O0M=w1200",
+        "keywords": [],
+        "levels": [
+          {
+            "name": "Free",
+            "price": "Free"
+          },
+          {
+            "name": "Premium",
+            "price": "$5/month"
+          },
+          {
+            "name": "VIP",
+            "price": "$15/month"
+          }
+        ]
+      },
+      "recommends": [
+        {
+          "name": "The ADHD Reset Lab",
+          "link": "https://www.skool.com/the-adhd-reset-lab-8629/about",
+          "categories": [
+            "Life & Purpose Coaching"
+          ],
+          "category": "Other",
+          "about": "A practical community for women with ADHD who want less overwhelm, more follow through and ways of managing everyday life that work with their brains. Join for $15/month.",
+          "access": "Paid",
+          "why": "",
+          "affiliate": false,
+          "own": true,
+          "promoDays": [],
+          "image": "https://lh3.googleusercontent.com/d/1yd_en35VIXNnOrqIfl-Yg6xFgwLDIyO_=w1200"
+        },
+        {
+          "name": "Quote Page Academy",
+          "link": "https://www.skool.com/quote-page-growth-9207/about",
+          "categories": [
+            "Social Media & Content",
+            "Business Coaching & Strategy"
+          ],
+          "category": "Other",
+          "about": "Follow my journey building Passive Income Princess as I share my content strategies, real numbers and ways to earn money from a faceless Instagram quote page, so you can build your own alongside me. J",
+          "access": "Paid",
+          "why": "",
+          "affiliate": false,
+          "own": true,
+          "promoDays": [],
+          "image": "https://lh3.googleusercontent.com/d/15X_0XTrRQp1bEv48KHHZyVkc0aEZugkL=w1200"
         }
       ]
     }
