@@ -380,8 +380,8 @@
 
   <!-- WHAT'S INSIDE -->
   <section class="panel" data-sec="insides" id="insidePanel">
-    <h2>&#10022; What&rsquo;s inside</h2>
-    <p class="help">What people get inside each community, one thing per line. If a member fills hers in on the form, hers shows instead. Download your directory.json when you&rsquo;re done.</p>
+    <h2>&#10022; What&rsquo;s inside and membership levels</h2>
+    <p class="help">For each community: what people get inside (one thing per line) and its membership levels (one per line, like <b>Premium | $11/month or $111/year</b>). If a member fills hers in on the form, hers shows instead. Download your directory.json when you&rsquo;re done.</p>
     <div class="status" id="inStatus" aria-live="polite"></div>
     <div class="list" id="inList"></div>
   </section>
@@ -1830,10 +1830,13 @@
 
   /* ---------- Output ---------- */
   /* ---------- What's inside: your lines for each community, by link ---------- */
-  var insides = {};
+  var insides = {}, levelsBy = {};
+  var cleanLevels = function () { var o = {}; Object.keys(levelsBy).forEach(function (k) { var l = (levelsBy[k] || []).filter(function (x) { return x && (x.name || x.price); }); if (k && l.length) o[k] = l.slice(0, 4); }); return o; };
+  var lvToText = function (l) { return (l || []).map(function (x) { return (x.name || '') + (x.price ? ' | ' + x.price : ''); }).join('\n'); };
+  var textToLv = function (t) { return String(t || '').split(/\n+/).map(function (x) { var p = x.split('|'); return { name: (p[0] || '').trim(), price: p.slice(1).join('|').trim() }; }).filter(function (x) { return x.name || x.price; }).slice(0, 4); };
   var inKey = function (u) { return String(u || '').toLowerCase().replace(/^https?:\/\//, '').replace(/^www\./, '').split(/[?#]/)[0].replace(/\/+$/, '').replace(/\/about$/, ''); };
   var cleanInsides = function () { var o = {}; Object.keys(insides).forEach(function (k) { var l = (insides[k] || []).filter(Boolean); if (k && l.length) o[k] = l.slice(0, 12); }); return o; };
-  var saveInsides = function () { saved.insidesDraft = { insides: insides, savedAt: Date.now() }; persist(); };
+  var saveInsides = function () { saved.insidesDraft = { insides: insides, levels: levelsBy, savedAt: Date.now() }; persist(); };
   var renderInsides = function () {
     var list = $('inList'); if (!list) return;
     list.innerHTML = '';
@@ -1856,6 +1859,12 @@
           saveInsides(); $('inStatus').textContent = 'Saved here. Download your directory.json to make it live.';
         });
         it.appendChild(ta);
+        var herLv = Array.isArray(c.levels) && c.levels.length;
+        it.appendChild(el('div', 'sub', 'Membership levels' + (herLv ? ' \u00b7 She added her own, so hers show' : '')));
+        var tl = el('textarea', ''); tl.rows = 3; tl.style.width = '100%'; tl.style.marginTop = '6px';
+        tl.value = lvToText(levelsBy[k]); tl.placeholder = 'Free | $0\nPremium | $11/month';
+        tl.addEventListener('input', function () { levelsBy[k] = textToLv(tl.value); saveInsides(); $('inStatus').textContent = 'Saved here. Download your directory.json to make it live.'; });
+        it.appendChild(tl);
         list.appendChild(it);
       });
     });
@@ -2338,7 +2347,7 @@
       return o;
     });
     var sp = spotlight && spotlight.vip && vipOf(spotlight.vip) ? { vip: spotlight.vip, note: spotlight.note || '' } : null;
-    return { version: 1, updated: new Date().toISOString(), featured: featured, spotlight: sp, vips: vips, events: events, insides: cleanInsides(), collabs: collabs.filter(function (c) { return !c.until || c.until >= todayKey(); }), placements: allPlacements(), members: members };
+    return { version: 1, updated: new Date().toISOString(), featured: featured, spotlight: sp, vips: vips, events: events, insides: cleanInsides(), levels: cleanLevels(), collabs: collabs.filter(function (c) { return !c.until || c.until >= todayKey(); }), placements: allPlacements(), members: members };
   };
   var renderStats = function () {
     var out = buildOutput();
@@ -2430,6 +2439,7 @@
     var idr = saved.insidesDraft;
     if (idr && idr.savedAt && fileTime > idr.savedAt) { idr = null; saved.insidesDraft = null; persist(); }
     insides = idr ? (idr.insides || {}) : (json.insides && typeof json.insides === 'object' ? JSON.parse(JSON.stringify(json.insides)) : {});
+    levelsBy = idr && idr.levels ? idr.levels : (json.levels && typeof json.levels === 'object' && !Array.isArray(json.levels) ? JSON.parse(JSON.stringify(json.levels)) : {});
     renderInsides();
     renderFeatured(); renderStats(); renderSpotPicker();
     linkByName();
@@ -2501,7 +2511,7 @@
     { h: 'Anytime' },
     { id: 'picks', label: 'Promo communities and tools' },
     { id: 'collabs', label: 'Collab Board' },
-    { id: 'insides', label: 'What\u2019s inside' },
+    { id: 'insides', label: 'What\u2019s inside and levels' },
     { id: 'stats', label: 'Directory stats' },
     { id: 'current', label: 'Your current Directory' }
   ];
@@ -2613,7 +2623,7 @@
       if (saved.vipDraft) { vips = saved.vipDraft.vips || []; spotlight = saved.vipDraft.spotlight || null; }
       if (saved.eventsDraft) events = saved.eventsDraft.events || [];
       if (saved.collabsDraft) collabs = saved.collabsDraft.collabs || [];
-      if (saved.insidesDraft) insides = saved.insidesDraft.insides || {};
+      if (saved.insidesDraft) { insides = saved.insidesDraft.insides || {}; levelsBy = saved.insidesDraft.levels || levelsBy; }
       renderSpotPicker(); renderEvents(); renderCollabs(); renderInsides();
       $('loadStatus').className = 'note warn';
       $('loadStatus').textContent = 'I couldn’t load your current Directory automatically. Choose your directory.json file, or start fresh if this is your first time.';

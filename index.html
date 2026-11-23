@@ -2085,7 +2085,7 @@
     return a;
   };
   /* her membership levels, like Free, Premium $5, VIP $9. Only there when she chose to show them. */
-  var levelsOf = function (cm) { return (cm && Array.isArray(cm.levels) ? cm.levels : []).filter(function (l) { return l && (String(l.name || '').trim() || String(l.price || '').trim()); }).slice(0, 4); };
+  var levelsOf = function (cm) { var own = cm && Array.isArray(cm.levels) && cm.levels.length ? cm.levels : (cm && cm.link && data && data.levels ? data.levels[linkKey(cm.link)] : null); return (Array.isArray(own) ? own : []).filter(function (l) { return l && (String(l.name || '').trim() || String(l.price || '').trim()); }).slice(0, 4); };
   var levelsTag = function (lv, cls) {
     var t = el('div', 'price-tag levels' + (cls ? ' ' + cls : '')); t.setAttribute('data-label', 'Membership levels');
     var w = el('span', 'lvs');
