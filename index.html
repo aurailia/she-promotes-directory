@@ -951,7 +951,7 @@
   .room-list li.own-mark .om { position: absolute; left: 0; top: 0; font-size: 0.95em; line-height: inherit; }
 
   /* ---------- Preview: purple page and menu, white boxes where the reading happens ---------- */
-  .gdoor, .who-box, .card, .cat-info, .door, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal, .kcard {
+  .gdoor, .card, .cat-info, .door, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal, .kcard {
     --text: #2a1028; --muted: #6b5466; --gold: #a8762a; --gold-bright: #8c5f1c; --blush: #b8467a; --blush-soft: #c96a90;
     --violet: #7a3fbf; --card: #faf5f8; --card-border: rgba(168, 118, 40, 0.28); --input-bg: #ffffff; --input-border: rgba(184, 70, 122, 0.3);
     --title-grad: linear-gradient(100deg, #6a2c94 0%, #9a3a8e 45%, #b8467a 100%);
@@ -960,6 +960,10 @@
   }
   /* the pop-up stays purple, and each offer, community and recommendation is its own white card with a gold edge */
   .dialog { background: linear-gradient(180deg, #3a1838 0%, #2a1028 100%); }
+  .dialog .card.detail { background: #ffffff; border: 1px solid rgba(232, 196, 122, 0.6); border-radius: 18px; padding: 20px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25); }
+  .dialog .card.detail .card-thumb, .dialog .card.detail .feat-thumb { margin: -20px -20px 10px; width: calc(100% + 40px); max-width: none; border-radius: 17px 17px 0 0; }
+  .who-box { color: #f7eef4; }
+  .who-box b { color: #f3d89b; }
   .dialog .block, .sharer-profile .block {
     --text: #2a1028; --muted: #6b5466; --gold: #a8762a; --gold-bright: #8c5f1c; --blush: #b8467a; --blush-soft: #c96a90; --violet: #7a3fbf;
     --card-border: rgba(168, 118, 40, 0.28);
@@ -982,20 +986,20 @@
   .cat-tile .ccount .dot { border-color: #a8762a; color: #a8762a; }
   .cat-tile.zero .ccount { color: #b8467a; }
   .cat-tile:hover, .cat-tile:focus-visible { border-color: #e8c47a; box-shadow: 0 16px 34px rgba(0, 0, 0, 0.32), 0 0 0 2px rgba(232, 196, 122, 0.55); }
-  :is(.gdoor, .who-box, .card, .cat-info, .door, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal, .kcard) .btn-primary, :is(.gdoor, .who-box, .card, .cat-info, .door, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal, .kcard) .ev-now, :is(.gdoor, .who-box, .card, .cat-info, .door, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal, .kcard) .door .now, :is(.gdoor, .who-box, .card, .cat-info, .door, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal, .kcard) .sh-num { background: linear-gradient(135deg, #ecc97f, #f4b6c8); color: #2a1028; }
-  :is(.gdoor, .who-box, .card, .cat-info, .door, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal, .kcard) .btn-ghost { color: #2a1028; border-color: rgba(42, 16, 40, 0.22); background: #ffffff; }
-  :is(.gdoor, .who-box, .card, .cat-info, .door, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal, .kcard) .chip:not([aria-pressed="true"]) { color: #2a1028; border-color: rgba(42, 16, 40, 0.2); background: #ffffff; }
-  :is(.gdoor, .who-box, .card, .cat-info, .door, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal, .kcard) .tag { color: #6b2f5c; background: #f7edf2; border-color: rgba(184, 70, 122, 0.25); }
-  :is(.gdoor, .who-box, .card, .cat-info, .door, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal, .kcard) .price-tag { border-top-color: rgba(168, 118, 40, 0.35); }
-  :is(.gdoor, .who-box, .card, .cat-info, .door, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal, .kcard) a:not(.btn) { color: #8c5f1c; }
+  :is(.gdoor, .card, .cat-info, .door, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal, .kcard) .btn-primary, :is(.gdoor, .card, .cat-info, .door, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal, .kcard) .ev-now, :is(.gdoor, .card, .cat-info, .door, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal, .kcard) .door .now, :is(.gdoor, .card, .cat-info, .door, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal, .kcard) .sh-num { background: linear-gradient(135deg, #ecc97f, #f4b6c8); color: #2a1028; }
+  :is(.gdoor, .card, .cat-info, .door, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal, .kcard) .btn-ghost { color: #2a1028; border-color: rgba(42, 16, 40, 0.22); background: #ffffff; }
+  :is(.gdoor, .card, .cat-info, .door, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal, .kcard) .chip:not([aria-pressed="true"]) { color: #2a1028; border-color: rgba(42, 16, 40, 0.2); background: #ffffff; }
+  :is(.gdoor, .card, .cat-info, .door, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal, .kcard) .tag { color: #6b2f5c; background: #f7edf2; border-color: rgba(184, 70, 122, 0.25); }
+  :is(.gdoor, .card, .cat-info, .door, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal, .kcard) .price-tag { border-top-color: rgba(168, 118, 40, 0.35); }
+  :is(.gdoor, .card, .cat-info, .door, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal, .kcard) a:not(.btn) { color: #8c5f1c; }
   .door-art::after { background: none; }
   /* Featured Business cards: a stronger gold frame and inner line on white */
   .door { border: 2px solid #d9b56a; }
   .door::after { border: 1.5px solid #e2bf6e; }
   .door .now.now { background: linear-gradient(135deg, #5a2163, #3a1540); color: #f3d89b; }
   .door.is-spot { border-color: #e8c47a; }
-  :is(.gdoor, .who-box, .card, .cat-info, .door, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal, .kcard) .price-tag::before { color: #a8762a; }
-  :is(.gdoor, .who-box, .card, .cat-info, .door, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal, .kcard) .avatar, :is(.gdoor, .who-box, .card, .cat-info, .door, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal, .kcard) .ph { color: #2a1028; }
+  :is(.gdoor, .card, .cat-info, .door, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal, .kcard) .price-tag::before { color: #a8762a; }
+  :is(.gdoor, .card, .cat-info, .door, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal, .kcard) .avatar, :is(.gdoor, .card, .cat-info, .door, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal, .kcard) .ph { color: #2a1028; }
 </style>
 </head>
 <body>
