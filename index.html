@@ -1890,9 +1890,10 @@
     var tags = el('div', 'tags');
     var fd = parseDays(f.promoDays);
     if (fd.length) c.appendChild(el('p', 'days', 'Promo days: ' + (fd.length === 7 ? 'every day' : fd.join(', ')) + (f.schedule ? '. ' + f.schedule : '')));
-    if (f.access) tags.appendChild(el('span', 'tag', accessText(f.access)));
+    if (f.access && !levelsOf(f).length) tags.appendChild(el('span', 'tag', accessText(f.access)));
     if (f.affiliate) tags.appendChild(el('span', 'tag gold', 'Affiliate link'));
     if (tags.childNodes.length) c.appendChild(tags);
+    if (levelsOf(f).length) c.appendChild(levelsTag(levelsOf(f)));
     var acts = el('div', 'actions');
     var b = linkBtn('Visit community', f.link, true);
     if (b) acts.appendChild(b);
@@ -2028,8 +2029,9 @@
     if (r.about) c.appendChild(el('p', 'offer', r.about));
     var rd = parseDays(r.promoDays);
     if (rd.length) c.appendChild(el('p', 'days', 'Promo days: ' + (rd.length === 7 ? 'every day' : rd.join(', '))));
+    if (levelsOf(r).length) c.appendChild(levelsTag(levelsOf(r)));
     var tags = el('div', 'tags');
-    if (r.access) tags.appendChild(el('span', 'tag', r.access.replace(/;/g, ' and ')));
+    if (r.access && !levelsOf(r).length) tags.appendChild(el('span', 'tag', r.access.replace(/;/g, ' and ')));
     if (r.affiliate) tags.appendChild(el('span', 'tag gold', 'Affiliate link'));
     if (tags.childNodes.length) c.appendChild(tags);
     var all = item.all || [item];
@@ -2205,7 +2207,7 @@
     addThumb(c, r.image, 'recommended', r.name);
     c.appendChild(el('h3', '', r.name));
     if (r.about) c.appendChild(el('p', 'offer clamp2', r.about));
-    addAll(c, [metaLine([recCat(r.category), 'Recommended by ' + whoNames(item), r.affiliate ? 'Affiliate link' : '']), priceTag(accessText(r.access), '', 'Membership')]);
+    addAll(c, [metaLine([recCat(r.category), 'Recommended by ' + whoNames(item), r.affiliate ? 'Affiliate link' : '']), memberTag(r)]);
     var acts = el('div', 'actions');
     var lb = linkBtn('Visit community', r.link, true);
     if (lb) acts.appendChild(lb);
@@ -2251,7 +2253,7 @@
     c.appendChild(top);
     if (f.about) c.appendChild(el('p', 'offer clamp2', f.about));
     var fd = parseDays(f.promoDays);
-    addAll(c, [metaLine([fd.length ? daysShort(fd) : '', f.affiliate ? 'Affiliate link' : '']), priceTag(accessText(f.access), '', 'Membership')]);
+    addAll(c, [metaLine([fd.length ? daysShort(fd) : '', f.affiliate ? 'Affiliate link' : '']), memberTag(f)]);
     var acts = el('div', 'actions');
     var lb = linkBtn('Visit community', f.link, true);
     if (lb) acts.appendChild(lb);
@@ -3386,6 +3388,7 @@
         addThumb(rc, r.image, ['recommended', 'promo', 'communities'], r.name);
         rc.appendChild(el('h4', '', r.name));
         if (r.why) rc.appendChild(whyBox(['Why ' + R.first + ' recommends it'], r.why));
+        if (levelsOf(r).length) rc.appendChild(levelsTag(levelsOf(r)));
         var rb = linkBtn('See the community', r.link, false); if (rb) rc.appendChild(rb);
         if (r.affiliate) rc.appendChild(el('p', 'disclose', 'Affiliate link. ' + R.first + ' may earn a fee if you join through it.'));
         rg.appendChild(rc);
@@ -4103,6 +4106,7 @@
         addThumb(rb, r.image, ['recommended', 'promo', 'communities'], r.name);
         rb.appendChild(el('p', 'name', r.name));
         if (r.why) rb.appendChild(whyBox(['Why I recommend it'], r.why));
+        if (levelsOf(r).length) rb.appendChild(levelsTag(levelsOf(r), 'in-block'));
         var rt = el('div', 'tags');
         if (r.affiliate) rt.appendChild(el('span', 'tag gold', 'Affiliate link'));
         if (rt.childNodes.length) rb.appendChild(rt);
