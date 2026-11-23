@@ -212,7 +212,7 @@
   <section class="panel" data-sec="import">
     <div class="step">Step 1</div>
     <h2>Bring in your form submissions</h2>
-    <p class="help">Open your <b>She Promotes Directory Form Responses</b> Sheet. On the first tab, choose File, Download, Comma Separated Values (.csv), and choose that file here. Download all of it every time. Duplicates are handled for you. Got new events? Download the <b>Events</b> tab the same way and choose it with the second button. You&rsquo;ll see each one here and can approve it with one tap.</p>
+    <p class="help">Open your <b>She Promotes Directory Form Responses</b> Sheet. On the first tab, choose File, Download, Comma Separated Values (.csv), and choose that file here. Download all of it every time. Duplicates are handled for you. Got new events or collabs? Download the <b>Events</b> or <b>Collabs</b> tab the same way and choose it with either button. I&rsquo;ll send it to the right place. You&rsquo;ll see each one here and can approve it with one tap.</p>
     <div class="row">
       <label class="file"><input type="file" id="csvFile" accept=".csv,text/csv"><span class="btn btn-primary">Choose form CSV</span></label>
       <label class="file"><input type="file" id="evCsvTop" accept=".csv,text/csv"><span class="btn btn-ghost">Choose Events CSV</span></label>
@@ -298,7 +298,10 @@
       <div class="nm" id="featFormTitle">Add a community or tool</div>
       <div class="grid2">
         <div><label class="f" for="ff-type">What is it?</label>
-          <select id="ff-type"><option value="">Promo community</option><option value="tool">Tool or app</option><option value="rec">A community someone recommends</option></select></div>
+          <select id="ff-type"><option value="">Promo community</option><option value="tool">Tool or app</option><option value="rec">A community someone recommends</option><option value="refprog">Referral program (a community or offer)</option></select></div>
+        <div class="ref-only"><label class="f" for="ff-refkind">Is it a community or an offer?</label><select id="ff-refkind"><option value="community">Community</option><option value="offer">Offer, course or tool</option></select></div>
+        <div class="ref-only"><label class="f" for="ff-refrate">What it pays</label><input type="text" id="ff-refrate" maxlength="80" placeholder="50% every month they stay"></div>
+        <div class="full ref-only"><label class="f" for="ff-refhow">How people join the referral program</label><input type="text" id="ff-refhow" maxlength="240" placeholder="Join, then grab your link in Settings, Invite."></div>
         <div class="rec-only"><label class="f" for="ff-category">Category</label><select id="ff-category"></select></div>
         <div class="tool-only"><label class="f" for="ff-helps">Where it shows</label>
           <select id="ff-helps"><option value="skool">Grow Your Skool Community</option><option value="business">Grow Your Business</option><option value="both">Both</option></select></div>
@@ -373,6 +376,18 @@
     <div id="evWaitHost"></div>
     <div class="item" id="evEditor" hidden style="margin-top:14px;"></div>
     <div class="list" id="evList"></div>
+  </section>
+
+  <!-- COLLAB BOARD -->
+  <section class="panel" data-sec="collabs" id="collabPanel">
+    <h2>&#129309; Collab Board</h2>
+    <p class="help">Members post collabs through the Directory form. They land in the <b>Collabs</b> tab of your responses Sheet. Download that tab as a CSV and choose it here, then approve the ones you want with one tap. Collabs with an &ldquo;open until&rdquo; date drop off the Directory on their own. Found her person? Tap Remove.</p>
+    <div class="row">
+      <label class="file"><input type="file" id="koCsv" accept=".csv,text/csv"><span class="btn btn-primary">Choose Collabs CSV</span></label>
+    </div>
+    <div class="status" id="koStatus" aria-live="polite"></div>
+    <div id="koWaitHost"></div>
+    <div class="list" id="koList"></div>
   </section>
 
   <!-- 3. CSV -->
@@ -454,10 +469,11 @@
   var saved = { status: {}, featuredDraft: null, spotlightDraft: null, lockEdits: {}, cImg: {}, rImg: {}, pImg: {}, oImg: {}, place: {} };
   try {
     var raw = localStorage.getItem(STORE);
-    if (raw) { var p = JSON.parse(raw); if (p && typeof p === 'object') { saved.status = p.status || {}; saved.featuredDraft = p.featuredDraft || null; saved.spotlightDraft = p.spotlightDraft || null; saved.lockEdits = p.lockEdits || {}; saved.cImg = p.cImg || {}; saved.rImg = p.rImg || {}; saved.pImg = p.pImg || {}; saved.oImg = p.oImg || {}; saved.vipDraft = p.vipDraft || null; saved.eventsDraft = p.eventsDraft || null; saved.tierSet = p.tierSet || {}; saved.evApproved = p.evApproved || {}; saved.place = p.place || {}; saved.dropExtra = p.dropExtra || {}; } }
+    if (raw) { var p = JSON.parse(raw); if (p && typeof p === 'object') { saved.status = p.status || {}; saved.featuredDraft = p.featuredDraft || null; saved.spotlightDraft = p.spotlightDraft || null; saved.lockEdits = p.lockEdits || {}; saved.cImg = p.cImg || {}; saved.rImg = p.rImg || {}; saved.pImg = p.pImg || {}; saved.oImg = p.oImg || {}; saved.vipDraft = p.vipDraft || null; saved.eventsDraft = p.eventsDraft || null; saved.tierSet = p.tierSet || {}; saved.evApproved = p.evApproved || {}; saved.koApproved = p.koApproved || {}; saved.collabsDraft = p.collabsDraft || null; saved.place = p.place || {}; saved.dropExtra = p.dropExtra || {}; } }
   } catch (e) { /* storage unavailable */ }
   if (!saved.tierSet) saved.tierSet = {};
   if (!saved.evApproved) saved.evApproved = {};
+  if (!saved.koApproved) saved.koApproved = {};
   var persist = function () { try { localStorage.setItem(STORE, JSON.stringify(saved)); } catch (e) { /* ignore */ } };
 
   var current = { featured: [], members: [], placements: {} };   /* from directory.json */
@@ -571,6 +587,12 @@
       /* columns from the She Promotes form that only the form uses */
       if (/^form state/.test(h)) { map.formState = i; return; }
       if (/^(edit token|okay to show)/.test(h)) return;
+      /* referral programs on her own offers and communities */
+      if (/referral/.test(h)) {
+        var rfx = h.match(/^offer ([1-9])/), rfc = h.match(/^own community ([2-9])/), rk = rfx ? 'o' + rfx[1] : rfc ? 'c' + rfc[1] : /^community/.test(h) ? 'c' : '';
+        if (rk) { map.ref = map.ref || {}; var rr = map.ref[rk] = map.ref[rk] || {}; if (/how to join/.test(h)) rr.how = i; else if (/pays/.test(h)) rr.rate = i; else rr.on = i; }
+        return;
+      }
       /* her main spot on the Grow Your Business and Grow Your Skool Community pages */
       var msM = h.match(/main spot in grow your (business|skool)/);
       if (msM) {
@@ -698,6 +720,8 @@
     var spots = function (key) { var x = (map.main || {})[key]; if (!x) return null; var o = {}; ['business', 'skool'].forEach(function (k) { var v = pickKnown(g(x[k]), ALL_CATS)[0]; if (v) o[k] = v; }); return Object.keys(o).length ? o : null; };
     var name = g(map.name) || (g(map.first) + ' ' + g(map.last)).trim();
     var skool = g(map.skool);
+    /* her referral program, like { rate: '50% recurring', how: 'Grab your link in Settings' } */
+    var refOf = function (k) { var x = (map.ref || {})[k]; if (!x || !truthy(g(x.on))) return null; var r = { rate: g(x.rate).slice(0, 80), how: g(x.how).slice(0, 240) }; return r.rate || r.how ? r : null; };
     var m = {
       id: hashId(normUrl(skool) || (name + '|' + g(map.business)).toLowerCase()),
       name: name,
@@ -720,6 +744,7 @@
         var o = map.offers[n];
         var xo = { title: g(o.title), desc: g(o.desc), link: cleanUrl(g(o.link)), price: g(o.price), who: g(o.who), categories: pickKnown(g(o.cat), CATEGORIES).slice(0, 3), formats: pickKnown(g(o.format), FORMATS), keywords: keyList(g(o.keys)), image: photoUrl(g(o.image), 1200) };
         var xs = spots('o' + n); if (xs) xo.mainSpots = xs;
+        var xr = refOf('o' + n); if (xr) xo.referral = xr;
         return xo;
       }).filter(function (o) { return o.title || o.desc; }).slice(0, 2),
       community: null,
@@ -730,6 +755,7 @@
       m.community = { name: g(map.cName), link: cleanUrl(g(map.cLink)), category: ccats[0] || '', categories: ccats, platform: g(map.cPlatform), about: g(map.cAbout), access: g(map.cAccess), promoDays: parseDays(g(map.cDays)), image: photoUrl(g(map.cImage), 1200), keywords: keyList(g(map.cKeys)) };
       var clv = parseLevels(g(map.cLevels)); if (clv.length) m.community.levels = clv;
       var cms = spots('c'); if (cms) m.community.mainSpots = cms;
+      var crf = refOf('c'); if (crf) m.community.referral = crf;
     }
     Object.keys(map.recs).sort().forEach(function (n) {
       var r = map.recs[n];
@@ -746,6 +772,7 @@
       var own = { name: on, link: ol, categories: ocats.length ? ocats : undefined, category: ocats.length ? (ocats.indexOf('Promo & Networking') !== -1 ? 'Promo Group' : pickRec(ocats[0])) : 'Other', about: g(o.about), access: g(o.access), why: '', affiliate: false, own: true, promoDays: [], image: photoUrl(g(o.image), 1200) };
       var olv = parseLevels(g(o.levels)); if (olv.length) own.levels = olv;
       var oms = spots('c' + n); if (oms) own.mainSpots = oms;
+      var orf = refOf('c' + n); if (orf) own.referral = orf;
       var oin = g(o.inside).split(/\n+/).map(function (x) { return x.replace(/^[\s\-*\u2022\u2726]+/, '').trim(); }).filter(Boolean);
       if (oin.length) own.inside = oin.slice(0, 12);
       m.recommends.push(own);
@@ -753,6 +780,7 @@
     /* recommendations she marked as hers go last, so they never push out the ones she loves */
     m.recommends = m.recommends.filter(function (x) { return !x.own; }).concat(m.recommends.filter(function (x) { return x.own; }));
     var oms1 = spots('o1'); if (oms1) m.mainSpots = oms1;
+    var orf1 = refOf('o1'); if (orf1) m.offerReferral = orf1;
     /* review-only info, never saved to the Directory */
     m._skool = cleanUrl(/^@[\w.-]+$/.test(skool) ? 'https://www.skool.com/' + skool : skool);
     m._premium = map.premium == null ? null : truthy(g(map.premium));
@@ -800,6 +828,10 @@
     if (rows.length && rows[0].some(function (h) { return /^\s*event title\s*$/i.test(h); })) {
       report.appendChild(el('div', 'note', 'That\u2019s your Events tab, so I sent it to Upcoming Events.'));
       handleEventsCSV(rows); return;
+    }
+    if (rows.length && rows[0].some(function (h) { return /^\s*collab headline\s*$/i.test(h); })) {
+      report.appendChild(el('div', 'note', 'That\u2019s your Collabs tab, so I sent it to the Collab Board.'));
+      handleCollabsCSV(rows); return;
     }
     if (rows.length < 2) { report.appendChild(el('div', 'note warn', 'That file looks empty. Try downloading the CSV again from your responses sheet.')); return; }
     var map = mapColumns(rows[0]);
@@ -1304,15 +1336,17 @@
   };
   var ffShow = picker('ff', null, 'featStatus');
 
-  var FF = ['type', 'helps', 'category', 'name', 'by', 'link', 'platform', 'access', 'about', 'why', 'image', 'schedule', 'video'];
+  var FF = ['type', 'helps', 'category', 'name', 'by', 'link', 'platform', 'access', 'about', 'why', 'image', 'schedule', 'video', 'refkind', 'refrate', 'refhow'];
   (function () { var sel = $('ff-category'); ALL_CATS.forEach(function (c) { var o = document.createElement('option'); o.value = c; o.textContent = c; sel.appendChild(o); }); })();
   /* Tool fields only show for tools; promo days only for promo communities */
   var ffType = function () {
-    var isTool = $('ff-type').value === 'tool', isRec = $('ff-type').value === 'rec';
+    var isTool = $('ff-type').value === 'tool', isRec = $('ff-type').value === 'rec', isRef = $('ff-type').value === 'refprog';
+    Array.prototype.forEach.call(document.querySelectorAll('#featForm .ref-only'), function (x) { x.hidden = !isRef; });
+    $('ff-by').parentNode.hidden = isRef;
     Array.prototype.forEach.call(document.querySelectorAll('#featForm .tool-only'), function (x) { x.hidden = !isTool; });
     Array.prototype.forEach.call(document.querySelectorAll('#featForm .rec-only'), function (x) { x.hidden = !isRec; });
-    var dayBox = $('ff-days').parentNode; dayBox.hidden = isTool || isRec;
-    $('ff-schedule').parentNode.hidden = isTool || isRec;
+    var dayBox = $('ff-days').parentNode; dayBox.hidden = isTool || isRec || isRef;
+    $('ff-schedule').parentNode.hidden = isTool || isRec || isRef;
     $('ff-platform').parentNode.hidden = isTool;
   };
   $('ff-type').addEventListener('change', ffType);
@@ -1350,7 +1384,7 @@
       top.appendChild(thumb(f.image, f.name));
       var t = el('div', 'grow');
       t.appendChild(el('div', 'nm', f.name));
-      t.appendChild(el('div', 'sub', [f.by ? 'Recommended by ' + f.by : '', f.type === 'tool' ? 'Tool \u00B7 ' + ({ skool: 'Grow Your Skool Community', business: 'Grow Your Business', both: 'Skool and Business' }[f.helps] || 'Grow Your Skool Community') : f.platform, f.access, f.video ? 'Demo video' : '', f.affiliate ? 'Affiliate link' : '', (f.promoDays || []).length ? 'Promo ' + f.promoDays.join(', ') : ''].filter(Boolean).join(' · ')));
+      t.appendChild(el('div', 'sub', [f.type === 'refprog' ? 'Referral program \u00B7 ' + (f.refkind === 'offer' ? 'Offer' : 'Community') + (f.refrate ? ' \u00B7 ' + f.refrate : '') : '', f.by ? 'Recommended by ' + f.by : '', f.type === 'refprog' ? '' : f.type === 'tool' ? 'Tool \u00B7 ' + ({ skool: 'Grow Your Skool Community', business: 'Grow Your Business', both: 'Skool and Business' }[f.helps] || 'Grow Your Skool Community') : f.platform, f.access, f.video ? 'Demo video' : '', f.affiliate ? 'Affiliate link' : '', (f.promoDays || []).length ? 'Promo ' + f.promoDays.join(', ') : ''].filter(Boolean).join(' · ')));
       top.appendChild(t);
       it.appendChild(top);
       if (f.about) it.appendChild(el('p', '', f.about));
@@ -1394,7 +1428,9 @@
     FF.forEach(function (k) { f[k] = $('ff-' + k).value.trim(); });
     f.affiliate = $('ff-aff').checked;
     f.promoDays = f.type === 'tool' || f.type === 'rec' ? [] : getDays();
-    if (f.type === 'rec') { delete f.helps; delete f.video; delete f.schedule; if (!f.by) { $('featStatus').textContent = 'Add who recommends it, like your own name.'; return; } }
+    if (f.type !== 'refprog') { delete f.refkind; delete f.refrate; delete f.refhow; }
+    if (f.type === 'refprog') { delete f.helps; delete f.video; delete f.schedule; delete f.category; delete f.by; f.promoDays = []; if (!f.refrate) { $('featStatus').textContent = 'Add what the referral program pays.'; return; } }
+    else if (f.type === 'rec') { delete f.helps; delete f.video; delete f.schedule; if (!f.by) { $('featStatus').textContent = 'Add who recommends it, like your own name.'; return; } }
     else { delete f.category; if (f.type !== 'tool') { delete f.type; delete f.helps; delete f.video; } else { f.video = cleanUrl(f.video); delete f.platform; delete f.schedule; } }
     f.link = cleanUrl(f.link);
     f.image = keepImg(f.image);
@@ -1776,6 +1812,108 @@
   $('vipAdd').addEventListener('click', function () { openVipEditor('new'); });
 
   /* ---------- Output ---------- */
+  /* ---------- Collab Board ----------
+     Approved collabs from the Collabs tab of your responses Sheet. */
+  var collabs = [], waitingCollabs = [], koConfirm = '';
+  var todayKey = function () { var d = new Date(); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); };
+  var saveCollabs = function () { saved.collabsDraft = { collabs: collabs, savedAt: Date.now() }; persist(); };
+  var handleCollabsCSV = function (rows) {
+    var st = $('koStatus');
+    if (rows.length < 2) { st.textContent = 'That Collabs CSV looks empty.'; return; }
+    var H = rows[0].map(function (h) { return String(h).trim().toLowerCase(); });
+    var col = function (r, name) { var i = H.indexOf(name.toLowerCase()); return i === -1 ? '' : String(r[i] == null ? '' : r[i]).trim(); };
+    var added = 0, updated = 0, waiting = 0, past = 0;
+    waitingCollabs = [];
+    rows.slice(1).forEach(function (r) {
+      if (!col(r, 'Collab headline')) return;
+      var until = col(r, 'Open until');
+      var nc = {
+        id: col(r, 'Collab ID') || ('co-' + hashId(col(r, 'Collab headline') + col(r, 'Name'))),
+        type: col(r, 'Collab type'), title: col(r, 'Collab headline'), desc: col(r, 'Collab details'), fit: col(r, 'Who it is a fit for'),
+        formats: col(r, 'Collab formats').split(/\s*;\s*/).filter(Boolean).slice(0, 3),
+        name: col(r, 'Name'), business: col(r, 'Business'),
+        contact: /link/i.test(col(r, 'How to reach her')) ? 'link' : 'skool',
+        link: cleanUrl(col(r, 'Collab link')), skool: cleanUrl(col(r, 'Skool profile')),
+        until: /^\d{4}-\d{2}-\d{2}$/.test(until) ? until : '', added: (col(r, 'Submitted') || '').slice(0, 10)
+      };
+      if (nc.contact === 'link' && !nc.link) nc.contact = 'skool';
+      if (nc.contact === 'link') delete nc.skool;
+      if (nc.until && nc.until < todayKey()) { past++; return; }
+      if (!truthy(col(r, 'Approved')) && !saved.koApproved[nc.id]) {
+        nc._tier = col(r, 'Premium or VIP'); nc._skoolP = cleanUrl(col(r, 'Skool profile'));
+        if (!collabs.some(function (x) { return x.id === nc.id; })) { waitingCollabs.push(nc); waiting++; }
+        return;
+      }
+      var i = -1; collabs.forEach(function (x, k) { if (x.id === nc.id) i = k; });
+      if (i === -1) { collabs.push(nc); added++; } else { collabs[i] = nc; updated++; }
+    });
+    saveCollabs(); renderCollabs(); renderStats(); renderCollabWaiting();
+    var bits = [added + ' approved collab' + (added === 1 ? '' : 's') + ' added'];
+    if (updated) bits.push(updated + ' updated');
+    if (waiting) bits.push(waiting + ' waiting for your approval');
+    if (past) bits.push(past + ' past their date, so I left ' + (past === 1 ? 'it' : 'them') + ' out');
+    st.textContent = bits.join('. ') + '. Download your directory.json when you\u2019re ready.';
+    var rp = $('csvReport'); if (rp) { rp.innerHTML = ''; rp.appendChild(el('div', 'note ok', '\uD83E\uDD1D Collab Board: ' + st.textContent)); }
+  };
+  var koLine = function (c) { return [c.type, c.name + (c.business ? ' \u00b7 ' + c.business : ''), c.until ? 'Open until ' + c.until : 'No end date'].filter(Boolean).join(' \u00b7 '); };
+  var renderCollabWaiting = function () {
+    var host = $('koWaitHost'); if (!host) return;
+    host.innerHTML = '';
+    if (!waitingCollabs.length) return;
+    var box = el('div', 'ev-wait');
+    box.appendChild(el('h3', '', 'Waiting for your approval (' + waitingCollabs.length + ')'));
+    box.appendChild(el('p', 'sub', 'Look it over, then tap Approve. It goes on the Collab Board the next time you download your directory.json.'));
+    waitingCollabs.forEach(function (c, idx) {
+      var it = el('div', 'item');
+      it.appendChild(el('div', 'name', c.title));
+      it.appendChild(el('div', 'sub', koLine(c) + (c._tier ? ' \u00b7 says ' + c._tier : '')));
+      if (c.desc) it.appendChild(el('p', 'ev-wait-desc', c.desc));
+      var links = el('div', 'row');
+      var sk = c.skool || c._skoolP;
+      if (sk) { var a1 = el('a', 'btn btn-ghost btn-sm', 'Open her Skool profile'); a1.href = sk; a1.target = '_blank'; a1.rel = 'noopener'; links.appendChild(a1); }
+      if (c.link) { var a2 = el('a', 'btn btn-ghost btn-sm', 'Open her link'); a2.href = c.link; a2.target = '_blank'; a2.rel = 'noopener'; links.appendChild(a2); }
+      if (links.childNodes.length) it.appendChild(links);
+      var acts = el('div', 'row');
+      var ok = el('button', 'btn btn-primary btn-sm', 'Approve'); ok.type = 'button';
+      ok.addEventListener('click', function () {
+        var nc = {}; Object.keys(c).forEach(function (k) { if (k.charAt(0) !== '_') nc[k] = c[k]; });
+        saved.koApproved[nc.id] = Date.now();
+        collabs.push(nc); waitingCollabs.splice(idx, 1);
+        saveCollabs(); persist(); renderCollabs(); renderStats(); renderCollabWaiting(); renderNav();
+        $('koStatus').textContent = '\u2713 ' + nc.title + ' approved. Download your directory.json to make it live.';
+      });
+      var no = el('button', 'btn btn-ghost btn-sm', 'Not now'); no.type = 'button';
+      no.addEventListener('click', function () { waitingCollabs.splice(idx, 1); renderCollabWaiting(); renderNav(); });
+      acts.appendChild(ok); acts.appendChild(no);
+      it.appendChild(acts);
+      box.appendChild(it);
+    });
+    host.appendChild(box);
+  };
+  var renderCollabs = function () {
+    var list = $('koList'); if (!list) return;
+    list.innerHTML = '';
+    if (!collabs.length) { list.appendChild(el('p', 'sub', 'No collabs on the board yet.')); return; }
+    collabs.forEach(function (c) {
+      var gone = c.until && c.until < todayKey();
+      var it = el('div', 'item' + (gone ? ' past' : ''));
+      it.appendChild(el('div', 'nm', c.title));
+      it.appendChild(el('div', 'sub', koLine(c) + (gone ? ' \u00b7 Past, hidden on the Directory' : '')));
+      var row = el('div', 'row'); row.style.marginTop = '0';
+      var rb = el('button', 'btn btn-ghost btn-sm', koConfirm === c.id ? 'Tap again to remove' : 'Remove'); rb.type = 'button';
+      rb.addEventListener('click', function () {
+        if (koConfirm !== c.id) { koConfirm = c.id; renderCollabs(); return; }
+        koConfirm = '';
+        collabs = collabs.filter(function (x) { return x.id !== c.id; });
+        saveCollabs(); renderCollabs(); renderStats();
+        $('koStatus').textContent = 'Removed. Download and upload directory.json to update the Directory.';
+      });
+      row.appendChild(rb);
+      it.appendChild(row);
+      list.appendChild(it);
+    });
+  };
+
   /* ---------- Upcoming Events ----------
      Added here by hand for now. Times are saved with the host's time zone,
      so the Directory can show each visitor the right time. */
@@ -2143,14 +2281,14 @@
       /* keep any hand-added bonus recommendations from the live Directory */
       if (!m.extraRecommends) current.members.forEach(function (c) { if (c.id === m.id && c.extraRecommends) m.extraRecommends = c.extraRecommends; });
       if (m.extraRecommends) { m = Object.assign({}, m); m.extraRecommends = cleanExtras(m); if (!m.extraRecommends.length) delete m.extraRecommends; }
-      ['id', 'name', 'business', 'about', 'offerName', 'photo', 'extraRecommends', 'social', 'website', 'socials', 'categories', 'formats', 'offer', 'who', 'price', 'offerLink', 'offerImage', 'keywords', 'offers', 'community', 'recommends', 'mainSpots']
+      ['id', 'name', 'business', 'about', 'offerName', 'photo', 'extraRecommends', 'social', 'website', 'socials', 'categories', 'formats', 'offer', 'who', 'price', 'offerLink', 'offerImage', 'keywords', 'offers', 'community', 'recommends', 'mainSpots', 'offerReferral']
         .forEach(function (k) { if (m[k] != null) o[k] = m[k]; });
       var lk = m._fromCurrent ? (m.locked || []) : lockedKeys(m.id, m._date);
       if (lk.length) o.locked = lk;
       return o;
     });
     var sp = spotlight && spotlight.vip && vipOf(spotlight.vip) ? { vip: spotlight.vip, note: spotlight.note || '' } : null;
-    return { version: 1, updated: new Date().toISOString(), featured: featured, spotlight: sp, vips: vips, events: events, placements: allPlacements(), members: members };
+    return { version: 1, updated: new Date().toISOString(), featured: featured, spotlight: sp, vips: vips, events: events, collabs: collabs.filter(function (c) { return !c.until || c.until >= todayKey(); }), placements: allPlacements(), members: members };
   };
   var renderStats = function () {
     var out = buildOutput();
@@ -2169,7 +2307,7 @@
     stats.forEach(function (s) { var d = el('div', 'stat'); d.appendChild(el('b', '', String(s[0]))); d.appendChild(el('span', '', s[1])); w.appendChild(d); });
   };
   var finished = function (msg) {
-    saved.featuredDraft = null; saved.spotlightDraft = null; saved.vipDraft = null; saved.eventsDraft = null; saved.cImg = {}; saved.rImg = {}; saved.pImg = {}; saved.oImg = {}; persist();
+    saved.featuredDraft = null; saved.spotlightDraft = null; saved.vipDraft = null; saved.eventsDraft = null; saved.collabsDraft = null; saved.cImg = {}; saved.rImg = {}; saved.pImg = {}; saved.oImg = {}; persist();
     $('dlStatus').textContent = msg;
   };
   $('downloadBtn').addEventListener('click', function () {
@@ -2235,6 +2373,10 @@
     if (ed && ed.savedAt && fileTime > ed.savedAt) { ed = null; saved.eventsDraft = null; persist(); }
     events = ed ? (ed.events || []) : (Array.isArray(json.events) ? JSON.parse(JSON.stringify(json.events)) : []);
     renderEvents();
+    var kd = saved.collabsDraft;
+    if (kd && kd.savedAt && fileTime > kd.savedAt) { kd = null; saved.collabsDraft = null; persist(); }
+    collabs = kd ? (kd.collabs || []) : (Array.isArray(json.collabs) ? JSON.parse(JSON.stringify(json.collabs)) : []);
+    renderCollabs();
     renderFeatured(); renderStats(); renderSpotPicker();
     linkByName();
     if (current.members.length) { $('reviewPanel').hidden = false; renderReview(); }
@@ -2261,6 +2403,7 @@
     var r = new FileReader();
     r.onload = function () {
       var rows = parseCSV(String(r.result));
+      if (rows.length && rows[0].some(function (h) { return /^\s*collab headline\s*$/i.test(h); })) { handleCollabsCSV(rows); return; }
       if (!rows.length || !rows[0].some(function (h) { return /^\s*event title\s*$/i.test(h); })) { $('evStatus').textContent = 'That doesn\u2019t look like your Events tab. In your responses Sheet, open the Events tab, then File, Download, CSV.'; return; }
       handleEventsCSV(rows);
     };
@@ -2268,12 +2411,23 @@
     this.value = '';
   };
   $('evCsv').addEventListener('change', evCsvHandler);
+  $('koCsv').addEventListener('change', function () {
+    var f = this.files[0]; if (!f) return;
+    var r = new FileReader();
+    r.onload = function () {
+      var rows = parseCSV(String(r.result));
+      if (!rows.length || !rows[0].some(function (h) { return /^\s*collab headline\s*$/i.test(h); })) { $('koStatus').textContent = 'That doesn\u2019t look like your Collabs tab. In your responses Sheet, open the Collabs tab, then File, Download, CSV.'; return; }
+      handleCollabsCSV(rows);
+    };
+    r.readAsText(f);
+    this.value = '';
+  });
   $('evCsvTop').addEventListener('change', evCsvHandler);
   $('freshBtn').addEventListener('click', function () { $('freshConfirm').hidden = false; });
   $('freshNo').addEventListener('click', function () { $('freshConfirm').hidden = true; });
   $('freshYes').addEventListener('click', function () {
     saved = { status: {}, featuredDraft: null, spotlightDraft: null, lockEdits: {}, cImg: {}, rImg: {}, pImg: {}, oImg: {}, place: {} }; persist();
-    current = { featured: [], members: [], placements: {} }; featured = []; csvMembers = []; spotlight = null; vips = []; events = []; saved.vipDraft = null; saved.eventsDraft = null; persist(); renderSpotPicker(); renderEvents();
+    current = { featured: [], members: [], placements: {} }; featured = []; csvMembers = []; spotlight = null; vips = []; events = []; saved.vipDraft = null; saved.eventsDraft = null; collabs = []; saved.collabsDraft = null; persist(); renderSpotPicker(); renderEvents(); renderCollabs();
     $('freshConfirm').hidden = true;
     $('csvReport').innerHTML = '';
     $('reviewPanel').hidden = true;
@@ -2292,6 +2446,7 @@
     { id: 'download', n: 5, label: 'Download and upload' },
     { h: 'Anytime' },
     { id: 'picks', label: 'Promo communities and tools' },
+    { id: 'collabs', label: 'Collab Board' },
     { id: 'stats', label: 'Directory stats' },
     { id: 'current', label: 'Your current Directory' }
   ];
@@ -2344,6 +2499,7 @@
     try {
       if (id === 'review') { var nn = 0; allMembers().forEach(function (m) { var c = changesFor(m); if (c === 'new' || (c && c.length)) nn++; }); return nn ? nn + ' to check' : ''; }
       if (id === 'events') return waitingEvents.length ? waitingEvents.length + ' waiting' : '';
+      if (id === 'collabs') return waitingCollabs.length ? waitingCollabs.length + ' waiting' : '';
     } catch (e) { /* fine */ }
     return '';
   };
@@ -2401,7 +2557,8 @@
       if (saved.featuredDraft) { featured = saved.featuredDraft; renderFeatured(); renderStats(); }
       if (saved.vipDraft) { vips = saved.vipDraft.vips || []; spotlight = saved.vipDraft.spotlight || null; }
       if (saved.eventsDraft) events = saved.eventsDraft.events || [];
-      renderSpotPicker(); renderEvents();
+      if (saved.collabsDraft) collabs = saved.collabsDraft.collabs || [];
+      renderSpotPicker(); renderEvents(); renderCollabs();
       $('loadStatus').className = 'note warn';
       $('loadStatus').textContent = 'I couldn’t load your current Directory automatically. Choose your directory.json file, or start fresh if this is your first time.';
     });

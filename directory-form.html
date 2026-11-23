@@ -257,7 +257,7 @@
     email: { label: 'Your email', type: 'email', required: true, auto: 'email', help: 'Private. I\'ll only use it to email you about this.' },
     skool: { label: 'Your Skool profile link', type: 'url', required: true, help: 'So I can confirm your membership.', ph: 'https://www.skool.com/@your-name' },
     tier: { label: 'Are you a Premium or VIP member?', type: 'choice', required: true, options: ['Premium', 'VIP'], note: function () {
-      if (isEvent()) return '';
+      if (isSide()) return '';
       if (val('tier') === 'VIP') return 'You fill out your offers and community once, and they carry over to your Featured Business page. You get one extra step at the end for your story and cover image.';
       if (val('tier') === 'Premium') return S.token ? '' : 'Already listed and upgrading to VIP? Use the private link in your email so you don\'t start over.';
       return '';
@@ -296,6 +296,14 @@
     clvshow: { label: 'Show your membership levels?', type: 'choice', options: ['No', 'Yes'], optional: true, help: 'Like Free, Premium $5 a month and VIP $9 a month. They only show in the Directory if you pick Yes.', showIf: function () { return val('caccess') !== 'Free'; } },
     clevels: { label: 'Your membership levels', type: 'levels', optional: true, showIf: function () { return val('caccess') !== 'Free' && val('clvshow') === 'Yes'; } }
   };
+  /* Does this offer or community pay a referral fee? Owners only. */
+  function refFields(P, label, extraShow) {
+    var on = function () { return !extraShow || extraShow(); };
+    F[P + 'ref'] = { label: 'Does ' + label + ' have a referral program?', type: 'choice', options: ['No', 'Yes'], optional: true, help: 'If people can earn by sharing it, say yes and it shows on the Referral Programs page. No MLM, nothing people pay to join just to earn, and no team recruiting.', showIf: on };
+    F[P + 'refrate'] = { label: 'What does it pay?', required: true, max: 80, ph: '50% every month they stay, or $20 per sale', showIf: function () { return on() && val(P + 'ref') === 'Yes'; } };
+    F[P + 'refhow'] = { label: 'How do people join your referral program?', type: 'textarea', short: true, required: true, max: 240, ph: 'Join the community, then grab your link in Settings, Invite.', help: 'A link or a short line. This shows on the card.', showIf: function () { return on() && val(P + 'ref') === 'Yes'; } };
+  }
+  var REF_SFX = ['ref', 'refrate', 'refhow'];
   var n;
   for (n = 1; n <= 3; n++) {
     F['o' + n + 'title'] = { label: 'Offer name', gr: true, ph: 'The Retreat Box' };
@@ -308,6 +316,7 @@
     F['o' + n + 'mbiz'] = mainSpotField('o' + n + 'cat', 'business');
     F['o' + n + 'mskool'] = mainSpotField('o' + n + 'cat', 'skool');
     F['o' + n + 'keys'] = { label: 'Search words', optional: true, help: 'Up to 10, separated by commas. Words someone would type to find you.', ph: 'money blocks, pricing, abundance' };
+    refFields('o' + n, 'this offer');
     F['o' + n + 'image'] = { label: 'Offer image', type: 'image', optional: true, size: 1600, dims: '1600 x 900 px', help: 'Best size: 1600 x 900 px (wide, like a YouTube thumbnail). Keep words and faces toward the middle.' };
     F['r' + n + 'name'] = { label: 'Community name', gr: true };
     F['r' + n + 'link'] = { label: 'Link to join (your affiliate link is great)', type: 'url', gr: true };
@@ -319,8 +328,22 @@
     F['r' + n + 'aff'] = { label: 'Is that an affiliate link?', type: 'choice', options: ['No', 'Yes'], gr: true, help: 'We always let people know when a link pays you a fee.' };
     F['r' + n + 'image'] = { label: 'Community banner', type: 'image', optional: true, size: 1600, dims: '1600 x 900 px', help: 'Best size: 1600 x 900 px (wide, like a YouTube thumbnail). Keep words and faces toward the middle. Their Skool banner works great. Save it from their about page.' };
   }
-  var WANT_LIST = 'Get listed or update my listing', WANT_EVENT = 'Share an event';
-  F.want = { label: 'What would you like to do?', type: 'choice', required: true, options: [WANT_LIST, WANT_EVENT] };
+  refFields('c', 'your community');
+  var WANT_LIST = 'Get listed or update my listing', WANT_EVENT = 'Share an event', WANT_COLLAB = 'Post a collab';
+  F.want = { label: 'What would you like to do?', type: 'choice', required: true, options: [WANT_LIST, WANT_EVENT, WANT_COLLAB] };
+  /* Collab Board */
+  var COLLAB_TYPES = ['Looking for guests or speakers', 'Available as a guest or speaker', 'Looking for a co-host or partner', 'Something else'];
+  var COLLAB_FORMATS = ['Podcast', 'Guest workshop or training', 'Summit or bundle', 'Live or co-hosted event', 'Joint offer or giveaway', 'Something else'];
+  var CONTACT_DM = 'Message me on Skool', CONTACT_LINK = 'Use a link';
+  F.ktype = { label: 'What kind of collab?', type: 'choice', required: true, options: COLLAB_TYPES };
+  F.ktitle = { label: 'Your collab in one line', required: true, max: 90, ph: 'Looking for 5 healers to speak at my December summit' };
+  F.kdesc = { label: 'Tell people more', type: 'textarea', required: true, max: 700, help: 'What it is, what you need, and what she gets out of it. Dates help too.' };
+  F.kfit = { label: 'Who is a good fit?', optional: true, max: 160, ph: 'Coaches and healers who work with women over 40' };
+  F.kformats = { label: 'What does it look like?', type: 'multi', options: COLLAB_FORMATS, maxPick: 3, optional: true };
+  F.kcontact = { label: 'How should people reach you?', type: 'choice', required: true, options: [CONTACT_DM, CONTACT_LINK], help: 'Message me on Skool sends them to your Skool profile. Posting here counts as your invite to message you.' };
+  F.klink = { label: 'Link', type: 'url', required: true, ph: 'https://', help: 'An application form, your booking page or your sign-up page.', showIf: function () { return val('kcontact') === CONTACT_LINK; } };
+  F.kuntil = { label: 'Open until', type: 'date', optional: true, help: 'It comes off the Collab Board after this date. Skip it and it stays up until you tell me it\'s filled.' };
+  var COLLAB_KEYS = ['ktype', 'ktitle', 'kdesc', 'kfit', 'kformats', 'kcontact', 'klink', 'kuntil'];
   var TZS = [
     ['America/Los_Angeles', 'Pacific (Los Angeles)'], ['America/Denver', 'Mountain (Denver)'], ['America/Phoenix', 'Arizona'], ['America/Chicago', 'Central (Chicago)'],
     ['America/New_York', 'Eastern (New York)'], ['America/Anchorage', 'Alaska'], ['Pacific/Honolulu', 'Hawaii'], ['America/Halifax', 'Atlantic (Halifax)'],
@@ -353,12 +376,12 @@
   F.ejoin = { label: 'What does it cost to join the community?', optional: true, ph: 'Free to join', showIf: function () { return val('ewhere') === WHERE_SKOOL; } };
   F.elink = { label: 'Link for the button', type: 'url', required: true, ph: 'https://', help: 'Where people go to sign up or join.' };
   var EVENT_KEYS = ['etitle', 'edesc', 'eimage', 'ecat', 'ecost', 'eprice', 'edate', 'estart', 'eend', 'etz', 'emode', 'evenue', 'eaddress', 'ecity', 'eregion', 'ecountry', 'ewhere', 'ecomm', 'ejoin', 'elink'];
-  var OFFER_SFX = ['title', 'desc', 'who', 'price', 'link', 'cat', 'mbiz', 'format', 'keys', 'image'];
+  var OFFER_SFX = ['title', 'desc', 'who', 'price', 'link', 'cat', 'mbiz', 'format', 'keys', 'ref', 'refrate', 'refhow', 'image'];
   var REC_SFX = ['name', 'link', 'about', 'cat', 'access', 'days', 'why', 'aff', 'image'];
   var IMAGE_KEYS = ['photo', 'vcover', 'vthumb', 'cbanner', 'o1image', 'o2image', 'o3image', 'c2banner', 'c3banner', 'c4banner'];
 
   /* her other communities, 2 to 4. Each one shows once she says yes to the one before it. */
-  var OWN_N = [2, 3, 4], OWN_SFX = ['name', 'link', 'about', 'inside', 'cat', 'mbiz', 'access', 'lvshow', 'levels', 'banner'], OWN_KEYS = [];
+  var OWN_N = [2, 3, 4], OWN_SFX = ['name', 'link', 'about', 'inside', 'cat', 'mbiz', 'access', 'lvshow', 'levels', 'ref', 'refrate', 'refhow', 'banner'], OWN_KEYS = [];
   var ORD = { 2: 'second', 3: 'third', 4: 'fourth' };
   function ownOn(n) { for (var q = 2; q <= n; q++) if (val('c' + q + 'has') !== 'Yes') return false; return true; }
   OWN_N.forEach(function (n) {
@@ -373,6 +396,7 @@
     F[P + 'access'] = { label: 'Free or paid?', type: 'choice', options: ['Free', 'Paid', 'Free with a paid upgrade'], optional: true, showIf: on };
     F[P + 'lvshow'] = { label: 'Show its membership levels?', type: 'choice', options: ['No', 'Yes'], optional: true, help: F.clvshow.help, showIf: function () { return on() && val(P + 'access') !== 'Free'; } };
     F[P + 'levels'] = { label: 'Its membership levels', type: 'levels', optional: true, showIf: function () { return on() && val(P + 'access') !== 'Free' && val(P + 'lvshow') === 'Yes'; } };
+    refFields(P, 'this community', on);
     F[P + 'banner'] = { label: 'Community banner', type: 'image', optional: true, size: 1600, dims: '1600 x 900 px', help: F.cbanner.help, showIf: on };
     ['has'].concat(OWN_SFX).forEach(function (x) { OWN_KEYS.push(P + x); });
   });
@@ -395,15 +419,16 @@
     { id: 'you', nav: 'You', title: 'Let\'s start with you', sub: 'This is how people meet you in the Directory.', keys: ['tier', 'name', 'email', 'skool', 'business', 'photo', 'about', 'website', 'social', 'sfacebook', 'stiktok', 'syoutube', 'slinkedin', 'spinterest'] },
     { id: 'event', nav: 'Your event', title: 'Tell me about your event', sub: 'This is what people see on the Upcoming Events page.', keys: ['etitle', 'edesc', 'eimage', 'ecat', 'ecost', 'eprice'], eventOnly: true },
     { id: 'when', nav: 'When and where', title: 'When and where', sub: 'Set the time in your own time zone.', keys: ['edate', 'estart', 'eend', 'etz', 'emode', 'evenue', 'eaddress', 'ecity', 'eregion', 'ecountry', 'ewhere', 'ecomm', 'ejoin', 'elink'], eventOnly: true },
+    { id: 'collab', nav: 'Your collab', title: 'Tell me about your collab', sub: 'This is what people see on the Collab Board.', keys: COLLAB_KEYS, collabOnly: true },
     { id: 'offers', nav: 'Your offers', title: 'Your offers', sub: 'Add up to 3. Put the one you\'d most want people to find first. No offer yet? You can skip this step.', group: 'o', listOnly: true },
-    { id: 'community', nav: 'Your community', title: 'Your community', sub: 'Run a Skool or Facebook community? Add it here. No community? You can skip this step.', keys: ['cname', 'clink', 'cabout', 'ccat', 'cmbiz', 'cplatform', 'caccess', 'clvshow', 'clevels', 'cpromo', 'cdays', 'cbanner'].concat(OWN_KEYS), listOnly: true },
+    { id: 'community', nav: 'Your community', title: 'Your community', sub: 'Run a Skool or Facebook community? Add it here. No community? You can skip this step.', keys: ['cname', 'clink', 'cabout', 'ccat', 'cmbiz', 'cplatform', 'caccess', 'clvshow', 'clevels', 'cpromo', 'cdays', 'cref', 'crefrate', 'crefhow', 'cbanner'].concat(OWN_KEYS), listOnly: true },
     { id: 'recs', nav: 'You recommend', title: 'Communities you love', sub: 'Recommend communities you\'re in and love. Use your affiliate link, and you can earn when someone joins. You can skip this step.', group: 'r', listOnly: true },
     { id: 'vip', nav: 'Your VIP page', title: 'Your Featured Business page', sub: 'As a VIP you get your own page in the Directory. These answers fill it in.', keys: ['vheadline', 'vstory', 'vwho', 'vvideo', 'vinside', 'vaccess', 'vcover', 'vthumb'], vipOnly: true, listOnly: true },
     { id: 'review', nav: 'Review', title: 'Take one last look', sub: 'Make sure it sounds like you, then send it to me.' }
   ];
 
   var app = document.getElementById('app');
-  var S = { step: 0, a: {}, images: {}, existing: {}, offers: 1, recs: 0, consent: false, affConsent: false, token: '', errors: {}, sending: false, formError: '', busy: 0, confirmRemove: '' };
+  var S = { step: 0, a: {}, images: {}, existing: {}, offers: 1, recs: 0, consent: false, affConsent: false, refConsent: false, token: '', errors: {}, sending: false, formError: '', busy: 0, confirmRemove: '' };
 
   /* ---------- helpers ---------- */
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
@@ -411,10 +436,19 @@
   function has(k) { var v = val(k); return Array.isArray(v) ? v.length > 0 : v.trim() !== ''; }
   function isVip() { return val('tier') === 'VIP'; }
   function isEvent() { return !S.token && val('want') === WANT_EVENT; }
-  function steps() { return STEPS.filter(function (s) { if (isEvent()) return !s.listOnly; return !s.eventOnly && (!s.vipOnly || isVip()); }); }
+  function isCollab() { return !S.token && val('want') === WANT_COLLAB; }
+  function isSide() { return isEvent() || isCollab(); }
+  function steps() { return STEPS.filter(function (s) { if (isEvent()) return !s.listOnly && !s.collabOnly; if (isCollab()) return !s.listOnly && !s.eventOnly; return !s.eventOnly && !s.collabOnly && (!s.vipOnly || isVip()); }); }
+  function anyRef() {
+    var i, on = false;
+    for (i = 1; i <= S.offers; i++) if (val('o' + i + 'ref') === 'Yes') on = true;
+    if (has('cname') && val('cref') === 'Yes') on = true;
+    OWN_N.forEach(function (n) { if (ownOn(n) && has('c' + n + 'name') && val('c' + n + 'ref') === 'Yes') on = true; });
+    return on;
+  }
   function keysOf(st) {
     if (st.id !== 'you') return st.keys;
-    var k = isEvent() ? ['tier', 'name', 'email', 'skool', 'business'] : st.keys.slice();
+    var k = isSide() ? ['tier', 'name', 'email', 'skool', 'business'] : st.keys.slice();
     return S.token ? k : ['want'].concat(k);
   }
   function cur() { return steps()[Math.min(S.step, steps().length - 1)]; }
@@ -553,6 +587,12 @@
       eh += '<div class="field' + (S.errors.consent ? ' invalid' : '') + '"><label class="consent"><input type="checkbox" id="consent"' + (S.consent ? ' checked' : '') + '><span>I\'m a ' + esc(val('tier') || 'Premium or VIP') + ' member of She Promotes\u2122, I\'m hosting this event or have permission to share it, and I have the rights to the image I shared.</span></label>' + (S.errors.consent ? '<div class="err">' + esc(S.errors.consent) + '</div>' : '') + '</div>';
       return eh;
     }
+    if (isCollab()) {
+      var kh = revCard('you', 'You', ['tier', 'name', 'email', 'skool', 'business']);
+      kh += revCard('collab', 'Your collab', COLLAB_KEYS);
+      kh += '<div class="field' + (S.errors.consent ? ' invalid' : '') + '"><label class="consent"><input type="checkbox" id="consent"' + (S.consent ? ' checked' : '') + '><span>I\'m a ' + esc(val('tier') || 'Premium or VIP') + ' member of She Promotes\u2122, this collab is real and mine to offer, and it isn\'t MLM or team recruiting.</span></label>' + (S.errors.consent ? '<div class="err">' + esc(S.errors.consent) + '</div>' : '') + '</div>';
+      return kh;
+    }
     var h = revCard('you', 'You', STEPS[0].keys);
     var o = [], r = [], i;
     for (i = 1; i <= S.offers; i++) OFFER_SFX.forEach(function (s) { o.push('o' + i + s); });
@@ -561,6 +601,7 @@
     if (isVip()) h += revCard('vip', 'Your Featured Business page', stepKeys('vip'));
     var anyAff = false; for (i = 1; i <= S.recs; i++) if (val('r' + i + 'aff') === 'Yes') anyAff = true;
     h += '<div class="field' + (S.errors.consent ? ' invalid' : '') + '"><label class="consent"><input type="checkbox" id="consent"' + (S.consent ? ' checked' : '') + '><span>I\'m a ' + esc(val('tier') || 'Premium or VIP') + ' member of She Promotes™, I\'m okay with this showing in the public Directory, and I have the rights to the images I shared.</span></label>' + (S.errors.consent ? '<div class="err">' + esc(S.errors.consent) + '</div>' : '') + '</div>';
+    if (anyRef()) h += '<div class="field' + (S.errors.refok ? ' invalid' : '') + '"><label class="consent"><input type="checkbox" id="refConsent"' + (S.refConsent ? ' checked' : '') + '><span>My referral programs aren\'t MLM. Nobody has to pay to join just to earn, and nobody is asked to recruit a team.</span></label>' + (S.errors.refok ? '<div class="err">' + esc(S.errors.refok) + '</div>' : '') + '</div>';
     if (anyAff) h += '<div class="field' + (S.errors.aff ? ' invalid' : '') + '"><label class="consent"><input type="checkbox" id="affConsent"' + (S.affConsent ? ' checked' : '') + '><span>I understand my affiliate links will be labeled as affiliate links.</span></label>' + (S.errors.aff ? '<div class="err">' + esc(S.errors.aff) + '</div>' : '') + '</div>';
     return h;
   }
@@ -573,8 +614,8 @@
     h += '<div class="progress"><div class="bars" style="grid-template-columns:repeat(' + all.length + ',1fr)" aria-hidden="true">';
     all.forEach(function (s, j) { h += '<i class="' + (j <= i ? 'on' : '') + '"></i>'; });
     h += '</div><div class="progress-label"><span>Step ' + (i + 1) + ' of ' + all.length + '</span><span>' + esc(st.nav) + '</span></div></div>';
-    var title = S.token && i === 0 ? 'Update your listing' : isEvent() && st.id === 'you' ? 'Share your event' : st.title;
-    var sub = isEvent() && st.id === 'you' ? 'Start with you, so I know who\'s hosting.' : isEvent() && st.id === 'review' ? 'Make sure everything looks right, then send it to me.' : st.sub;
+    var title = S.token && i === 0 ? 'Update your listing' : isEvent() && st.id === 'you' ? 'Share your event' : isCollab() && st.id === 'you' ? 'Post a collab' : st.title;
+    var sub = isEvent() && st.id === 'you' ? 'Start with you, so I know who\'s hosting.' : isCollab() && st.id === 'you' ? 'Start with you, so people know who they\'d be working with.' : isSide() && st.id === 'review' ? 'Make sure everything looks right, then send it to me.' : st.sub;
     h += '<h1 class="step-title grad" tabindex="-1" id="stepTitle">' + esc(title) + '</h1>';
     h += '<p class="step-sub">' + esc(sub) + '</p><form class="form-body" id="form" novalidate>';
     var picking = st.id === 'you' && !S.token;
@@ -583,6 +624,7 @@
     if (picking && !has('want')) h += '<p class="help" style="margin-top:4px">Pick one and tap Next.</p>';
     var aiFirst = i === 0 && (S.token || val('want') === WANT_LIST);
     if (aiFirst) h += aiHtml();
+    if (i === 0 && isCollab()) h += '<div class="ready"><b>The Collab Board is for She Promotes™ Premium and VIP members.</b> Looking for guests for your podcast or summit, offering yourself as a speaker, or want a co-host? Post it here. It takes about 3 minutes. I\'ll check it and add it to the Collab Board.</div>';
     if (i === 0 && isEvent()) h += '<div class="ready"><b>Sharing an event is for She Promotes™ Premium and VIP members.</b> It takes about 3 minutes. Have your sign-up link and an event image handy. I\'ll check it and add it to the Upcoming Events page.</div>';
     if (i === 0 && !S.token && !has('name') && val('want') === WANT_LIST) h += '<div class="ready"><b>This form is for She Promotes™ Premium and VIP members.</b> It takes about 10 minutes, and your answers save on this device as you go. Have these handy:<ul><li>A photo of you or your logo</li><li>Your offer and community links</li><li>Any affiliate links for communities you love</li></ul>Not Premium yet? <a href="' + UPGRADE_URL + '" target="_blank" rel="noopener">Upgrade here</a>.</div>';
     if (st.id === 'vip') h += aiHtml();
@@ -597,7 +639,7 @@
     if (S.formError) h += '<div class="form-error" role="alert">' + esc(S.formError) + '</div>';
     var last = i === all.length - 1;
     h += '<div class="nav">' + (i > 0 ? '<button type="button" class="btn btn-ghost" id="backBtn">Back</button>' : '');
-    h += '<button type="submit" class="btn btn-primary" id="nextBtn"' + (S.sending || S.busy ? ' disabled' : '') + '>' + (S.sending ? 'Sending...' : S.busy ? 'Getting your image ready...' : last ? (S.token ? 'Save my changes' : isEvent() ? 'Send my event' : 'Send to Aurailia') : (st.group && !(st.group === 'o' ? S.offers : S.recs) ? 'Skip' : 'Next')) + '</button></div></form>';
+    h += '<button type="submit" class="btn btn-primary" id="nextBtn"' + (S.sending || S.busy ? ' disabled' : '') + '>' + (S.sending ? 'Sending...' : S.busy ? 'Getting your image ready...' : last ? (S.token ? 'Save my changes' : isEvent() ? 'Send my event' : isCollab() ? 'Send my collab' : 'Send to Aurailia') : (st.group && !(st.group === 'o' ? S.offers : S.recs) ? 'Skip' : 'Next')) + '</button></div></form>';
     if (!S.token) h += '<p class="saved-note">Your answers save on this device as you go. If you leave before sending, you\'ll need to add your images again.</p>';
     app.innerHTML = h;
     if (top) { window.scrollTo(0, 0); var t = document.getElementById('stepTitle'); if (t) t.focus({ preventScroll: true }); }
@@ -617,6 +659,27 @@
     h += '<p class="signoff">I believe in you. To living our dreams.<br>Aurailia &#10022;</p></div>';
     app.innerHTML = h; window.scrollTo(0, 0);
     confetti();
+  }
+  function clearCollabDraft() {
+    COLLAB_KEYS.forEach(function (k) { delete S.a[k]; });
+    S.consent = false; S.a.want = WANT_LIST; S.step = 0; saveDraft();
+  }
+  function renderCollabDone() {
+    var first = String(val('name')).trim().split(/\s+/)[0];
+    var h = '<div class="done"><h1 class="grad">Your collab is in' + (first ? ', ' + esc(first) : '') + '</h1>';
+    h += '<p>Thank you for posting it. I\'ll take a look, and once it\'s approved it\'ll show on the Collab Board in the Directory. Found your person? Reply to my email and I\'ll take it down.</p>';
+    if (!LIVE) h += '<p>This is the preview, so nothing was saved.</p>';
+    h += '<div class="done-actions"><a class="btn btn-primary" href="' + DIRECTORY_URL + '#collabs">See the Collab Board</a><button type="button" class="btn btn-ghost" id="doneCollab">Post another collab</button></div>';
+    h += '<p class="signoff">I believe in you. To living our dreams.<br>Aurailia &#10022;</p></div>';
+    app.innerHTML = h; window.scrollTo(0, 0);
+    confetti();
+  }
+  function startCollab() {
+    S.token = ''; S.consent = false; S.errors = {}; S.formError = '';
+    COLLAB_KEYS.forEach(function (k) { delete S.a[k]; });
+    S.a.want = WANT_COLLAB;
+    S.step = has('name') && has('email') && has('skool') && has('tier') ? 1 : 0;
+    saveDraft(); render(true);
   }
   function startEvent() {
     S.token = ''; S.consent = false; S.errors = {}; S.formError = '';
@@ -977,11 +1040,15 @@
       st.keys.forEach(function (k) { check(k, errs, started && /^c[a-z]/.test(k) || (/^c[2-4]/.test(k) && ownOn(+k.charAt(1)))); });
     } else if (st.id === 'review' && isEvent()) {
       if (!S.consent) errs.consent = 'Please check this box so I can share your event.';
+    } else if (st.id === 'review' && isCollab()) {
+      if (!S.consent) errs.consent = 'Please check this box so I can share your collab.';
     } else if (st.id === 'review') {
       if (!S.consent) errs.consent = 'Please check this box so I can list you.';
       var anyAff = false; for (i = 1; i <= S.recs; i++) if (val('r' + i + 'aff') === 'Yes') anyAff = true;
       if (anyAff && !S.affConsent) errs.aff = 'Please check this box.';
+      if (anyRef() && !S.refConsent) errs.refok = 'Please check this box so I can list your referral program.';
     } else (st.id === 'you' && !S.token && !has('want') ? ['want'] : keysOf(st)).forEach(function (k) { check(k, errs, false); });
+    if (st.id === 'collab' && has('kuntil') && val('kuntil') < todayStr()) errs.kuntil = 'Pick a date that hasn\'t happened yet.';
     if (st.id === 'when' && has('edate') && val('edate') < todayStr()) errs.edate = 'Pick a date that hasn\'t happened yet.';
     if (st.id === 'when' && has('estart') && has('eend') && val('eend') === val('estart')) errs.eend = 'The end time is the same as the start time.';
     return errs;
@@ -989,7 +1056,7 @@
   function showErrors(errs) {
     S.errors = errs; render(false);
     var k = Object.keys(errs)[0];
-    var box = k === 'consent' ? document.getElementById('consent') : k === 'aff' ? document.getElementById('affConsent') : document.querySelector('[data-field="' + k + '"]');
+    var box = k === 'consent' ? document.getElementById('consent') : k === 'aff' ? document.getElementById('affConsent') : k === 'refok' ? document.getElementById('refConsent') : document.querySelector('[data-field="' + k + '"]');
     if (box) { var inp = box.matches && box.matches('input') ? box : box.querySelector('input, textarea, button'); if (inp) inp.focus({ preventScroll: true }); box.scrollIntoView({ block: 'center' }); }
   }
 
@@ -1030,6 +1097,7 @@
     ['name', 'email', 'skool', 'tier', 'business', 'about', 'social', 'website', 'sfacebook', 'stiktok', 'syoutube', 'slinkedin', 'spinterest'].forEach(function (k) { put(k, val(k)); });
     for (i = 1; i <= 3; i++) OFFER_SFX.forEach(function (s) {
       if (s === 'image') return;
+      if ((s === 'refrate' || s === 'refhow') && val('o' + i + 'ref') !== 'Yes') { put('o' + i + s, ''); return; }
       if (s === 'mbiz' || s === 'mskool') { put('o' + i + s, i <= S.offers ? mainSpotVal('o' + i + s, 'o' + i + 'cat', s === 'mbiz' ? 'business' : 'skool') : ''); return; }
       put('o' + i + s, i <= S.offers ? val('o' + i + s) : '');
     });
@@ -1037,6 +1105,10 @@
     ['cname', 'clink', 'cabout', 'ccat', 'cplatform', 'caccess'].forEach(function (k) { put(k, val(k)); });
     put('cdays', val('cpromo') === 'Yes' ? val('cdays') : '');
     put('clevels', has('cname') && val('caccess') !== 'Free' && val('clvshow') === 'Yes' ? levelsStr('clevels') : '');
+    var refOn = function (P, on) { var y = on && val(P + 'ref') === 'Yes'; put(P + 'ref', on && has(P + 'ref') ? val(P + 'ref') : ''); put(P + 'refrate', y ? val(P + 'refrate') : ''); put(P + 'refhow', y ? val(P + 'refhow') : ''); };
+    refOn('c', has('cname'));
+    OWN_N.forEach(function (n) { refOn('c' + n, ownOn(n) && has('c' + n + 'name')); });
+    put('refok', anyRef() && S.refConsent ? 'Yes' : '');
     /* her other communities have their own columns now */
     OWN_N.forEach(function (n) {
       var P = 'c' + n, on = ownOn(n) && has(P + 'name');
@@ -1070,8 +1142,30 @@
       link: t('elink'), categories: (Array.isArray(val('ecat')) ? val('ecat') : []).join('; ')
     };
   }
+  function collabPayload() {
+    var t = function (k) { return String(val(k)).trim(); }, link = val('kcontact') === CONTACT_LINK;
+    return {
+      name: t('name'), email: t('email'), skool: t('skool'), tier: t('tier'), business: t('business'),
+      type: t('ktype'), title: t('ktitle'), desc: t('kdesc'), fit: t('kfit'), formats: (Array.isArray(val('kformats')) ? val('kformats') : []).join('; '),
+      contact: link ? 'Link' : 'Skool', link: link ? t('klink') : '', until: t('kuntil')
+    };
+  }
   function submit() {
     S.sending = true; S.formError = ''; render(false);
+    if (isCollab()) {
+      var hpK = document.getElementById('hpField');
+      var kbody = { kind: 'collab', collab: collabPayload(), consent: S.consent === true, hp: hpK ? hpK.value : '' };
+      if (!LIVE) { S.sending = false; window.__lastPayload = kbody; renderCollabDone(); clearCollabDraft(); return; }
+      fetch(SCRIPT_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(kbody) })
+        .then(function (r) { return r.json(); })
+        .then(function (res) { S.sending = false; if (!res || !res.ok) throw new Error((res && res.error) || 'failed'); renderCollabDone(); clearCollabDraft(); })
+        .catch(function () {
+          S.sending = false;
+          S.formError = 'That didn\'t go through, but your answers are still here. Please try again. If it keeps happening, email team@aurailia.com.';
+          render(false); var e3 = document.querySelector('.form-error'); if (e3) e3.scrollIntoView({ block: 'center' });
+        });
+      return;
+    }
     if (isEvent()) {
       var eimg = S.images.eimage && S.images.eimage.data ? { data: S.images.eimage.data, mime: S.images.eimage.mime } : null;
       var hpE = document.getElementById('hpField');
@@ -1129,6 +1223,7 @@
     var str = function (x) { return Array.isArray(x) ? x.join('; ') : String(x == null ? '' : x).trim(); };
     var set = function (k, x) { x = str(x); if (x) ans[k] = x; };
     var img = function (k, u) { u = String(u || '').trim(); if (u) imgs[k] = u; };
+    var refOf = function (x) { var r = x && x.referral; return r && (r.rate || r.how) ? { ref: 'Yes', refrate: str(r.rate), refhow: str(r.how) } : { ref: '', refrate: '', refhow: '' }; };
     var lvText = function (lv) { return (Array.isArray(lv) ? lv : []).filter(function (l) { return l && (l.name || l.price); }).map(function (l) { return (str(l.name) + ' | ' + str(l.price)).replace(/;/g, ','); }).join('; '); };
     if (v) ans.tier = 'VIP';
     if (m) {
@@ -1139,8 +1234,8 @@
     }
     /* offers */
     var offers = [];
-    if (m && (m.offer || m.offerName)) offers.push({ title: m.offerName, desc: m.offer, who: m.who, price: m.price, link: m.offerLink, cat: m.categories, format: m.formats, keys: m.keywords, image: m.offerImage, mbiz: (m.mainSpots || {}).business, mskool: (m.mainSpots || {}).skool });
-    if (m) (m.offers || []).forEach(function (o) { if (o && (o.title || o.desc)) offers.push({ title: o.title, desc: o.desc, who: o.who, price: o.price, link: o.link, cat: o.categories, format: o.formats, keys: o.keywords, image: o.image, mbiz: (o.mainSpots || {}).business, mskool: (o.mainSpots || {}).skool }); });
+    if (m && (m.offer || m.offerName)) offers.push({ title: m.offerName, desc: m.offer, who: m.who, price: m.price, link: m.offerLink, cat: m.categories, format: m.formats, keys: m.keywords, image: m.offerImage, mbiz: (m.mainSpots || {}).business, mskool: (m.mainSpots || {}).skool, ref: refOf({ referral: m.offerReferral }).ref, refrate: refOf({ referral: m.offerReferral }).refrate, refhow: refOf({ referral: m.offerReferral }).refhow });
+    if (m) (m.offers || []).forEach(function (o) { if (o && (o.title || o.desc)) offers.push({ title: o.title, desc: o.desc, who: o.who, price: o.price, link: o.link, cat: o.categories, format: o.formats, keys: o.keywords, image: o.image, mbiz: (o.mainSpots || {}).business, mskool: (o.mainSpots || {}).skool, ref: refOf(o).ref, refrate: refOf(o).refrate, refhow: refOf(o).refhow }); });
     if (!offers.length && v) (v.offers || []).forEach(function (o) { if (o && (o.title || o.desc)) offers.push({ title: o.title, desc: o.desc, who: o.who, price: o.price, link: o.link }); });
     if (offers.length) {
       for (var i = 1; i <= 3; i++) {
@@ -1156,6 +1251,7 @@
       set('caccess', c.access); set('ccat', (c.categories && c.categories.length ? c.categories : [c.category]).slice(0, 4));
       set('cdays', (c.promoDays || []).join(', ')); img('cbanner', c.image);
       ans.clevels = lvText(c.levels); ans.cmbiz = str((c.mainSpots || {}).business);
+      var cr = refOf(c); ans.cref = cr.ref; ans.crefrate = cr.refrate; ans.crefhow = cr.refhow;
     }
     /* her other communities get their own spots, then the ones she loves */
     var all = m ? (m.recommends || []).concat(m.extraRecommends || []).filter(function (r) { return r && r.name && r.link; }) : [];
@@ -1165,6 +1261,7 @@
         var oc = mine[on - 2], P = 'c' + on;
         ans[P + 'name'] = oc ? str(oc.name) : ''; ans[P + 'link'] = oc ? str(oc.link) : ''; ans[P + 'about'] = oc ? str(oc.about) : '';
         ans[P + 'cat'] = oc ? str(oc.categories && oc.categories.length ? oc.categories : oc.category) : ''; ans[P + 'access'] = oc ? str(oc.access) : ''; ans[P + 'levels'] = oc ? lvText(oc.levels) : ''; ans[P + 'mbiz'] = oc ? str((oc.mainSpots || {}).business) : ''; ans[P + 'inside'] = oc && Array.isArray(oc.inside) ? oc.inside.join('\n') : (oc ? str(oc.inside) : '');
+        var ocr = refOf(oc); ans[P + 'ref'] = ocr.ref; ans[P + 'refrate'] = ocr.refrate; ans[P + 'refhow'] = ocr.refhow;
         if (oc && oc.image) imgs[P + 'banner'] = oc.image; else delete imgs[P + 'banner'];
       }
       for (var oj = 1; oj <= 3; oj++) if (ans['r' + oj + 'own'] === 'Yes') { ans['r' + oj + 'name'] = ''; ans['r' + oj + 'own'] = ''; }
@@ -1194,7 +1291,7 @@
   function unpack(ans, imgs) {
     var st = {}; try { st = JSON.parse(ans.formState || '{}'); } catch (e) { st = {}; }
     var a = {}, i, j = 1;
-    ['name', 'email', 'skool', 'tier', 'business', 'about', 'social', 'website', 'sfacebook', 'stiktok', 'syoutube', 'slinkedin', 'spinterest', 'cname', 'clink', 'cabout', 'cplatform', 'caccess', 'vheadline', 'vstory', 'vwho', 'vwebsite', 'vvideo', 'vinside', 'vaccess'].forEach(function (k) { a[k] = ans[k] || ''; });
+    ['name', 'email', 'skool', 'tier', 'business', 'about', 'social', 'website', 'sfacebook', 'stiktok', 'syoutube', 'slinkedin', 'spinterest', 'cname', 'clink', 'cabout', 'cplatform', 'caccess', 'cref', 'crefrate', 'crefhow', 'vheadline', 'vstory', 'vwho', 'vwebsite', 'vvideo', 'vinside', 'vaccess'].forEach(function (k) { a[k] = ans[k] || ''; });
     if (!a.website && ans.vwebsite) a.website = ans.vwebsite;
     var list = function (v) { return String(v || '').split(/\s*[,;]\s*/).filter(Boolean); };
     /* match whole names, since some categories have a comma in them */
@@ -1207,13 +1304,14 @@
     /* her other communities: their own columns, or the older way, where they sat in a recommendation spot */
     var owns = [], seenO = {}, nk = function (x) { return String(x || '').toLowerCase().replace(/\/+$/, '').trim(); };
     var addOwn = function (o) { var key = nk(o.link) || nk(o.name); if (!o.name || seenO[key] || key === nk(ans.clink)) return; seenO[key] = true; owns.push(o); };
-    OWN_N.forEach(function (n) { var P = 'c' + n; if (ans[P + 'name']) addOwn({ name: ans[P + 'name'], link: ans[P + 'link'], about: ans[P + 'about'], cat: ans[P + 'cat'], mbiz: ans[P + 'mbiz'] || '', inside: ans[P + 'inside'] || '', access: ans[P + 'access'], levels: ans[P + 'levels'], image: S.existing[P + 'banner'] }); });
+    OWN_N.forEach(function (n) { var P = 'c' + n; if (ans[P + 'name']) addOwn({ name: ans[P + 'name'], link: ans[P + 'link'], about: ans[P + 'about'], cat: ans[P + 'cat'], mbiz: ans[P + 'mbiz'] || '', inside: ans[P + 'inside'] || '', access: ans[P + 'access'], levels: ans[P + 'levels'], ref: ans[P + 'ref'] || '', refrate: ans[P + 'refrate'] || '', refhow: ans[P + 'refhow'] || '', image: S.existing[P + 'banner'] }); });
     for (i = 1; i <= 3; i++) if (ans['r' + i + 'own'] === 'Yes' && ans['r' + i + 'name']) addOwn({ name: ans['r' + i + 'name'], link: ans['r' + i + 'link'], about: ans['r' + i + 'about'], cat: ans['r' + i + 'cat'], access: ans['r' + i + 'access'], levels: '', image: S.existing['r' + i + 'image'] });
     var oldR = {}; for (i = 1; i <= 3; i++) oldR[i] = S.existing['r' + i + 'image'];
     OWN_N.forEach(function (n) { var P = 'c' + n; delete S.existing[P + 'banner']; });
     owns.slice(0, 3).forEach(function (o, x) {
       var P = 'c' + (x + 2);
       a[P + 'has'] = 'Yes'; a[P + 'name'] = o.name; a[P + 'link'] = o.link || ''; a[P + 'about'] = o.about || ''; a[P + 'access'] = o.access || ''; a[P + 'cat'] = pick(o.cat, COMM_CATS).slice(0, 4); a[P + 'mbiz'] = o.mbiz || ''; a[P + 'inside'] = o.inside || '';
+      a[P + 'ref'] = o.ref || ''; a[P + 'refrate'] = o.refrate || ''; a[P + 'refhow'] = o.refhow || '';
       a[P + 'lvshow'] = o.levels ? 'Yes' : (st[P + 'lvshow'] || ''); setLevels(P + 'levels', parseLevels(o.levels), a);
       if (o.image) S.existing[P + 'banner'] = o.image;
     });
@@ -1225,7 +1323,7 @@
       if (oldR[j]) S.existing['r' + i + 'image'] = oldR[j]; else delete S.existing['r' + i + 'image'];
       recs = i; i++;
     }
-    S.a = a; S.offers = offers; S.recs = recs;
+    S.a = a; S.offers = offers; S.recs = recs; S.refConsent = ans.refok === 'Yes';
   }
 
   /* ---------- events ---------- */
@@ -1237,9 +1335,9 @@
     saveDraft();
   });
   app.addEventListener('change', function (e) {
-    if (e.target.id === 'consent' || e.target.id === 'affConsent') {
-      var ek = e.target.id === 'consent' ? 'consent' : 'aff';
-      if (ek === 'consent') S.consent = e.target.checked; else S.affConsent = e.target.checked;
+    if (e.target.id === 'consent' || e.target.id === 'affConsent' || e.target.id === 'refConsent') {
+      var ek = e.target.id === 'consent' ? 'consent' : e.target.id === 'refConsent' ? 'refok' : 'aff';
+      if (ek === 'consent') S.consent = e.target.checked; else if (ek === 'refok') S.refConsent = e.target.checked; else S.affConsent = e.target.checked;
       if (e.target.checked && S.errors[ek]) { delete S.errors[ek]; var row = e.target.closest('.field'); if (row) { row.classList.remove('invalid'); var m = row.querySelector('.err'); if (m) m.remove(); } }
       return;
     }
@@ -1252,6 +1350,7 @@
     var t = e.target.closest ? e.target.closest('button') : null;
     if (!t) return;
     if (t.id === 'doneEvent' || t.id === 'doneAnother') { startEvent(); return; }
+    if (t.id === 'doneCollab') { startCollab(); return; }
     if (t.getAttribute('data-aimode')) { S.aiMode = t.getAttribute('data-aimode'); S.aiCopied = false; var ym = window.pageYOffset; render(false); window.scrollTo(0, ym); return; }
     if (t.id === 'aiToggle') { S.aiOpen = true; render(false); var bx = app.querySelector('.ai-box'); if (bx) bx.scrollIntoView({ block: 'start' }); return; }
     if (t.id === 'aiCopy') {
@@ -1388,10 +1487,11 @@
     var share = '';
     try { share = new URLSearchParams(location.search).get('share') || ''; } catch (e) { share = ''; }
     if (share === 'event') { S.a.want = WANT_EVENT; S.step = 0; }
+    if (share === 'collab') { S.a.want = WANT_COLLAB; S.step = 0; }
     if (val('want') === WANT_EVENT && !has('etz')) S.a.etz = myTz;
     render(false);
   }
-  window.__shePromotesForm = { unpack: unpack, liveOverlay: liveOverlay, render: render, payload: payload, eventPayload: eventPayload, S: S };
+  window.__shePromotesForm = { unpack: unpack, liveOverlay: liveOverlay, render: render, payload: payload, eventPayload: eventPayload, collabPayload: collabPayload, S: S };
 })();
 </script>
 </body>
