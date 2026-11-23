@@ -378,6 +378,14 @@
     <div class="list" id="evList"></div>
   </section>
 
+  <!-- WHAT'S INSIDE -->
+  <section class="panel" data-sec="insides" id="insidePanel">
+    <h2>&#10022; What&rsquo;s inside</h2>
+    <p class="help">What people get inside each community, one thing per line. If a member fills hers in on the form, hers shows instead. Download your directory.json when you&rsquo;re done.</p>
+    <div class="status" id="inStatus" aria-live="polite"></div>
+    <div class="list" id="inList"></div>
+  </section>
+
   <!-- COLLAB BOARD -->
   <section class="panel" data-sec="collabs" id="collabPanel">
     <h2>&#129309; Collab Board</h2>
@@ -469,7 +477,7 @@
   var saved = { status: {}, featuredDraft: null, spotlightDraft: null, lockEdits: {}, cImg: {}, rImg: {}, pImg: {}, oImg: {}, place: {} };
   try {
     var raw = localStorage.getItem(STORE);
-    if (raw) { var p = JSON.parse(raw); if (p && typeof p === 'object') { saved.status = p.status || {}; saved.featuredDraft = p.featuredDraft || null; saved.spotlightDraft = p.spotlightDraft || null; saved.lockEdits = p.lockEdits || {}; saved.cImg = p.cImg || {}; saved.rImg = p.rImg || {}; saved.pImg = p.pImg || {}; saved.oImg = p.oImg || {}; saved.vipDraft = p.vipDraft || null; saved.eventsDraft = p.eventsDraft || null; saved.tierSet = p.tierSet || {}; saved.evApproved = p.evApproved || {}; saved.koApproved = p.koApproved || {}; saved.collabsDraft = p.collabsDraft || null; saved.place = p.place || {}; saved.dropExtra = p.dropExtra || {}; } }
+    if (raw) { var p = JSON.parse(raw); if (p && typeof p === 'object') { saved.status = p.status || {}; saved.featuredDraft = p.featuredDraft || null; saved.spotlightDraft = p.spotlightDraft || null; saved.lockEdits = p.lockEdits || {}; saved.cImg = p.cImg || {}; saved.rImg = p.rImg || {}; saved.pImg = p.pImg || {}; saved.oImg = p.oImg || {}; saved.vipDraft = p.vipDraft || null; saved.eventsDraft = p.eventsDraft || null; saved.tierSet = p.tierSet || {}; saved.evApproved = p.evApproved || {}; saved.koApproved = p.koApproved || {}; saved.collabsDraft = p.collabsDraft || null; saved.insidesDraft = p.insidesDraft || null; saved.place = p.place || {}; saved.dropExtra = p.dropExtra || {}; } }
   } catch (e) { /* storage unavailable */ }
   if (!saved.tierSet) saved.tierSet = {};
   if (!saved.evApproved) saved.evApproved = {};
@@ -587,6 +595,10 @@
       /* columns from the She Promotes form that only the form uses */
       if (/^form state/.test(h)) { map.formState = i; return; }
       if (/^(edit token|okay to show)/.test(h)) return;
+      /* what's inside her community and what's included in each offer */
+      var inM = h.match(/^offer ([1-9]) what is included$/);
+      if (inM) { map.inside = map.inside || {}; map.inside['o' + inM[1]] = i; return; }
+      if (/^community what is inside$/.test(h)) { map.inside = map.inside || {}; map.inside.c = i; return; }
       /* referral programs on her own offers and communities */
       if (/referral/.test(h)) {
         var rfx = h.match(/^offer ([1-9])/), rfc = h.match(/^own community ([2-9])/), rk = rfx ? 'o' + rfx[1] : rfc ? 'c' + rfc[1] : /^community/.test(h) ? 'c' : '';
@@ -721,6 +733,8 @@
     var name = g(map.name) || (g(map.first) + ' ' + g(map.last)).trim();
     var skool = g(map.skool);
     /* her referral program, like { rate: '50% recurring', how: 'Grab your link in Settings' } */
+    var lines = function (v) { return String(v || '').split(/\n+/).map(function (x) { return x.replace(/^[\s\-*\u2022\u2726]+/, '').trim(); }).filter(Boolean).slice(0, 12); };
+    var insideOf = function (k) { var ix = (map.inside || {})[k]; return ix === undefined ? [] : lines(g(ix)); };
     var refOf = function (k) { var x = (map.ref || {})[k]; if (!x || !truthy(g(x.on))) return null; var r = { rate: g(x.rate).slice(0, 80), how: g(x.how).slice(0, 240) }; return r.rate || r.how ? r : null; };
     var m = {
       id: hashId(normUrl(skool) || (name + '|' + g(map.business)).toLowerCase()),
@@ -745,6 +759,7 @@
         var xo = { title: g(o.title), desc: g(o.desc), link: cleanUrl(g(o.link)), price: g(o.price), who: g(o.who), categories: pickKnown(g(o.cat), CATEGORIES).slice(0, 3), formats: pickKnown(g(o.format), FORMATS), keywords: keyList(g(o.keys)), image: photoUrl(g(o.image), 1200) };
         var xs = spots('o' + n); if (xs) xo.mainSpots = xs;
         var xr = refOf('o' + n); if (xr) xo.referral = xr;
+        var xi = insideOf('o' + n); if (xi.length) xo.inside = xi;
         return xo;
       }).filter(function (o) { return o.title || o.desc; }).slice(0, 2),
       community: null,
@@ -756,6 +771,7 @@
       var clv = parseLevels(g(map.cLevels)); if (clv.length) m.community.levels = clv;
       var cms = spots('c'); if (cms) m.community.mainSpots = cms;
       var crf = refOf('c'); if (crf) m.community.referral = crf;
+      var cin = insideOf('c'); if (cin.length) m.community.inside = cin;
     }
     Object.keys(map.recs).sort().forEach(function (n) {
       var r = map.recs[n];
@@ -781,6 +797,7 @@
     m.recommends = m.recommends.filter(function (x) { return !x.own; }).concat(m.recommends.filter(function (x) { return x.own; }));
     var oms1 = spots('o1'); if (oms1) m.mainSpots = oms1;
     var orf1 = refOf('o1'); if (orf1) m.offerReferral = orf1;
+    var oin1 = insideOf('o1'); if (oin1.length) m.offerInside = oin1;
     /* review-only info, never saved to the Directory */
     m._skool = cleanUrl(/^@[\w.-]+$/.test(skool) ? 'https://www.skool.com/' + skool : skool);
     m._premium = map.premium == null ? null : truthy(g(map.premium));
@@ -1812,6 +1829,39 @@
   $('vipAdd').addEventListener('click', function () { openVipEditor('new'); });
 
   /* ---------- Output ---------- */
+  /* ---------- What's inside: your lines for each community, by link ---------- */
+  var insides = {};
+  var inKey = function (u) { return String(u || '').toLowerCase().replace(/^https?:\/\//, '').replace(/^www\./, '').split(/[?#]/)[0].replace(/\/+$/, '').replace(/\/about$/, ''); };
+  var cleanInsides = function () { var o = {}; Object.keys(insides).forEach(function (k) { var l = (insides[k] || []).filter(Boolean); if (k && l.length) o[k] = l.slice(0, 12); }); return o; };
+  var saveInsides = function () { saved.insidesDraft = { insides: insides, savedAt: Date.now() }; persist(); };
+  var renderInsides = function () {
+    var list = $('inList'); if (!list) return;
+    list.innerHTML = '';
+    var seen = {};
+    current.members.forEach(function (m) {
+      var cs = [];
+      if (m.community && m.community.name && m.community.link) cs.push(m.community);
+      (m.recommends || []).forEach(function (r) { if (r && r.own && r.name && r.link) cs.push(r); });
+      cs.forEach(function (c) {
+        var k = inKey(c.link); if (!k || seen[k]) return; seen[k] = true;
+        var it = el('div', 'item');
+        it.appendChild(el('div', 'nm', c.name));
+        var hers = Array.isArray(c.inside) && c.inside.length;
+        it.appendChild(el('div', 'sub', m.name + (hers ? ' \u00b7 She filled hers in on the form, so hers shows' : '')));
+        var ta = el('textarea', ''); ta.rows = 5; ta.style.width = '100%'; ta.style.marginTop = '8px';
+        ta.value = (insides[k] || []).join('\n');
+        ta.placeholder = 'One thing per line';
+        ta.addEventListener('input', function () {
+          insides[k] = ta.value.split(/\n+/).map(function (x) { return x.replace(/^[\s\-*\u2022\u2726]+/, '').trim(); }).filter(Boolean);
+          saveInsides(); $('inStatus').textContent = 'Saved here. Download your directory.json to make it live.';
+        });
+        it.appendChild(ta);
+        list.appendChild(it);
+      });
+    });
+    if (!list.childNodes.length) list.appendChild(el('p', 'sub', 'Load your Directory first.'));
+  };
+
   /* ---------- Collab Board ----------
      Approved collabs from the Collabs tab of your responses Sheet. */
   var collabs = [], waitingCollabs = [], koConfirm = '';
@@ -2281,14 +2331,14 @@
       /* keep any hand-added bonus recommendations from the live Directory */
       if (!m.extraRecommends) current.members.forEach(function (c) { if (c.id === m.id && c.extraRecommends) m.extraRecommends = c.extraRecommends; });
       if (m.extraRecommends) { m = Object.assign({}, m); m.extraRecommends = cleanExtras(m); if (!m.extraRecommends.length) delete m.extraRecommends; }
-      ['id', 'name', 'business', 'about', 'offerName', 'photo', 'extraRecommends', 'social', 'website', 'socials', 'categories', 'formats', 'offer', 'who', 'price', 'offerLink', 'offerImage', 'keywords', 'offers', 'community', 'recommends', 'mainSpots', 'offerReferral']
+      ['id', 'name', 'business', 'about', 'offerName', 'photo', 'extraRecommends', 'social', 'website', 'socials', 'categories', 'formats', 'offer', 'who', 'price', 'offerLink', 'offerImage', 'keywords', 'offers', 'community', 'recommends', 'mainSpots', 'offerReferral', 'offerInside']
         .forEach(function (k) { if (m[k] != null) o[k] = m[k]; });
       var lk = m._fromCurrent ? (m.locked || []) : lockedKeys(m.id, m._date);
       if (lk.length) o.locked = lk;
       return o;
     });
     var sp = spotlight && spotlight.vip && vipOf(spotlight.vip) ? { vip: spotlight.vip, note: spotlight.note || '' } : null;
-    return { version: 1, updated: new Date().toISOString(), featured: featured, spotlight: sp, vips: vips, events: events, collabs: collabs.filter(function (c) { return !c.until || c.until >= todayKey(); }), placements: allPlacements(), members: members };
+    return { version: 1, updated: new Date().toISOString(), featured: featured, spotlight: sp, vips: vips, events: events, insides: cleanInsides(), collabs: collabs.filter(function (c) { return !c.until || c.until >= todayKey(); }), placements: allPlacements(), members: members };
   };
   var renderStats = function () {
     var out = buildOutput();
@@ -2307,7 +2357,7 @@
     stats.forEach(function (s) { var d = el('div', 'stat'); d.appendChild(el('b', '', String(s[0]))); d.appendChild(el('span', '', s[1])); w.appendChild(d); });
   };
   var finished = function (msg) {
-    saved.featuredDraft = null; saved.spotlightDraft = null; saved.vipDraft = null; saved.eventsDraft = null; saved.collabsDraft = null; saved.cImg = {}; saved.rImg = {}; saved.pImg = {}; saved.oImg = {}; persist();
+    saved.featuredDraft = null; saved.spotlightDraft = null; saved.vipDraft = null; saved.eventsDraft = null; saved.collabsDraft = null; saved.insidesDraft = null; saved.cImg = {}; saved.rImg = {}; saved.pImg = {}; saved.oImg = {}; persist();
     $('dlStatus').textContent = msg;
   };
   $('downloadBtn').addEventListener('click', function () {
@@ -2377,6 +2427,10 @@
     if (kd && kd.savedAt && fileTime > kd.savedAt) { kd = null; saved.collabsDraft = null; persist(); }
     collabs = kd ? (kd.collabs || []) : (Array.isArray(json.collabs) ? JSON.parse(JSON.stringify(json.collabs)) : []);
     renderCollabs();
+    var idr = saved.insidesDraft;
+    if (idr && idr.savedAt && fileTime > idr.savedAt) { idr = null; saved.insidesDraft = null; persist(); }
+    insides = idr ? (idr.insides || {}) : (json.insides && typeof json.insides === 'object' ? JSON.parse(JSON.stringify(json.insides)) : {});
+    renderInsides();
     renderFeatured(); renderStats(); renderSpotPicker();
     linkByName();
     if (current.members.length) { $('reviewPanel').hidden = false; renderReview(); }
@@ -2447,6 +2501,7 @@
     { h: 'Anytime' },
     { id: 'picks', label: 'Promo communities and tools' },
     { id: 'collabs', label: 'Collab Board' },
+    { id: 'insides', label: 'What\u2019s inside' },
     { id: 'stats', label: 'Directory stats' },
     { id: 'current', label: 'Your current Directory' }
   ];
@@ -2558,7 +2613,8 @@
       if (saved.vipDraft) { vips = saved.vipDraft.vips || []; spotlight = saved.vipDraft.spotlight || null; }
       if (saved.eventsDraft) events = saved.eventsDraft.events || [];
       if (saved.collabsDraft) collabs = saved.collabsDraft.collabs || [];
-      renderSpotPicker(); renderEvents(); renderCollabs();
+      if (saved.insidesDraft) insides = saved.insidesDraft.insides || {};
+      renderSpotPicker(); renderEvents(); renderCollabs(); renderInsides();
       $('loadStatus').className = 'note warn';
       $('loadStatus').textContent = 'I couldn’t load your current Directory automatically. Choose your directory.json file, or start fresh if this is your first time.';
     });

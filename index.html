@@ -20,11 +20,11 @@
     --blush: #f4b6c8;
     --blush-soft: #f9d7e1;
     --text: #fbeff3;
-    --muted: #d8bfd0;
+    --muted: #ecdde7;
     --input-bg: rgba(255, 255, 255, 0.08);
     --input-border: rgba(244, 182, 200, 0.35);
     --violet: #c49bff;
-    --title-grad: linear-gradient(100deg, #c49bff 0%, #e3a6f0 45%, #f4b6c8 100%);
+    --title-grad: linear-gradient(100deg, #e2ccff 0%, #f2d0f7 45%, #fdd9e5 100%);
   }
   .grad, .group-title, .spot h2, .cal h3, h1, h2.section, .card h3, .feat h3, .dialog h3.sub, .sharer-profile h3.sub, .listed h2, .side-brand, .how-in h2 {
     background: var(--title-grad); -webkit-background-clip: text; background-clip: text;
@@ -688,6 +688,11 @@
   .room-comm h4 { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 32px; font-weight: 600; line-height: 1.1; color: var(--gold-bright); }
   .room-comm .lbl2 { font-size: 13px; font-weight: 600; color: var(--blush); margin-top: 6px; }
   .room-list { list-style: none; display: grid; gap: 4px; }
+  .inside-box { margin: 4px 0 2px; }
+  .inside-box .ib-lbl { font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold); margin-bottom: 6px; }
+  .inside-box .room-list { gap: 6px; font-size: 15px; line-height: 1.5; }
+  .inside-box .room-list .om { position: absolute; left: 0; top: 0; }
+  .inside-box .room-list li.own-mark { padding-left: 22px; }
   .room-list li { position: relative; padding-left: 22px; }
   .room-list li::before { content: "\2726"; position: absolute; left: 0; color: var(--gold); font-size: 12px; top: 3px; }
   .room-comm .access { color: var(--muted); font-size: 14px; }
@@ -963,6 +968,9 @@
   .dialog .card.detail { background: #ffffff; border: 1px solid rgba(232, 196, 122, 0.6); border-radius: 18px; padding: 20px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25); }
   .dialog .card.detail .card-thumb, .dialog .card.detail .feat-thumb { margin: -20px -20px 10px; width: calc(100% + 40px); max-width: none; border-radius: 17px 17px 0 0; }
   .who-box { color: #f7eef4; }
+  .vip { border: 2px solid #e8c47a; box-shadow: 0 0 0 4px rgba(243, 216, 155, 0.22), 0 0 36px rgba(243, 216, 155, 0.55), 0 0 90px rgba(232, 196, 122, 0.3); animation: spotGlow 4s ease-in-out infinite; }
+  @keyframes spotGlow { 0%, 100% { box-shadow: 0 0 0 4px rgba(243, 216, 155, 0.22), 0 0 30px rgba(243, 216, 155, 0.45), 0 0 80px rgba(232, 196, 122, 0.25); } 50% { box-shadow: 0 0 0 5px rgba(243, 216, 155, 0.32), 0 0 48px rgba(243, 216, 155, 0.7), 0 0 110px rgba(232, 196, 122, 0.4); } }
+  @media (prefers-reduced-motion: reduce) { .vip { animation: none; } }
   .ev2 .ev-tile { background: #ffffff; border-color: #e8c47a; }
   .ev2 .ev-tile .d { color: #5a2163; }
   .ev2 .ev-tile .w { color: #6b5466; font-weight: 600; }
@@ -1731,7 +1739,7 @@
       if (m.offer) push(m);
       (m.offers || []).slice(0, 2).forEach(function (x) {
         if (!x || !(x.title || x.desc)) return;
-        push(Object.assign({}, m, { offerImage: x.image || '', offerName: x.title || '', offer: x.desc || x.title, offerLink: x.link || '', price: x.price || '', who: x.who || '', categories: x.categories && x.categories.length ? x.categories : (m.categories || []), formats: x.formats || [], keywords: x.keywords || [], mainSpots: x.mainSpots || null, offerReferral: x.referral || null, _base: m }));
+        push(Object.assign({}, m, { offerImage: x.image || '', offerName: x.title || '', offer: x.desc || x.title, offerLink: x.link || '', price: x.price || '', who: x.who || '', categories: x.categories && x.categories.length ? x.categories : (m.categories || []), formats: x.formats || [], keywords: x.keywords || [], mainSpots: x.mainSpots || null, offerReferral: x.referral || null, offerInside: x.inside || null, _base: m }));
       });
       perO.push({ key: m.id || m.name, list: mine });
     });
@@ -1944,12 +1952,10 @@
     var o = offerParts(m);
     if (o.title) c.appendChild(el('h3', 'offer-title', o.title));
     if (o.desc) c.appendChild(el('p', 'offer', o.desc));
+    var oib = insideBox(m.offerInside, 'What\u2019s included');
+    if (oib) c.appendChild(oib);
     var fb = factBox(m);
     if (fb) c.appendChild(fb);
-    var tags = el('div', 'tags');
-    (m.categories || []).forEach(function (x) { tags.appendChild(el('span', 'tag gold', x)); });
-    (m.formats || []).forEach(function (x) { tags.appendChild(el('span', 'tag', x)); });
-    if (tags.childNodes.length) c.appendChild(tags);
     var acts = el('div', 'actions');
     var lb = linkBtn('See her offer', m.offerLink, true);
     if (lb) acts.appendChild(lb);
@@ -1965,13 +1971,11 @@
     c.appendChild(el('h3', '', cm.name));
     if (cm.about) c.appendChild(el('p', 'offer', cm.about));
     var cd = parseDays(cm.promoDays);
+    var cib = insideBox(insideOf(cm));
+    if (cib) c.appendChild(cib);
     if (cd.length) c.appendChild(el('p', 'days', 'Promo days: ' + (cd.length === 7 ? 'every day' : cd.join(', '))));
-    var tags = el('div', 'tags');
-    commCats(cm).forEach(function (x) { tags.appendChild(el('span', 'tag gold', x)); });
-    if (cm.platform) tags.appendChild(el('span', 'tag', cm.platform));
-    if (cm.access) tags.appendChild(el('span', 'tag', cm.access.replace(/;/g, ' and ')));
-    if (tags.childNodes.length) c.appendChild(tags);
     if (levelsOf(cm).length) c.appendChild(levelsTag(levelsOf(cm), 'in-block'));
+    else if (cm.access) c.appendChild(el('p', 'days', (cm.platform ? cm.platform + ' \u00b7 ' : '') + accessText(cm.access)));
     var by = el('p', 'by', 'Hosted by ');
     var nb = el('button', '', m.name);
     nb.type = 'button';
@@ -2015,7 +2019,6 @@
     var rd = parseDays(r.promoDays);
     if (rd.length) c.appendChild(el('p', 'days', 'Promo days: ' + (rd.length === 7 ? 'every day' : rd.join(', '))));
     var tags = el('div', 'tags');
-    if (r.category) tags.appendChild(el('span', 'tag gold', recCat(r.category)));
     if (r.access) tags.appendChild(el('span', 'tag', r.access.replace(/;/g, ' and ')));
     if (r.affiliate) tags.appendChild(el('span', 'tag gold', 'Affiliate link'));
     if (tags.childNodes.length) c.appendChild(tags);
@@ -2111,6 +2114,22 @@
   var daysShort = function (d) { return d.length === 7 ? 'Promotes every day' : 'Promo days: ' + d.join(', '); };
   var addAll = function (c, nodes) { nodes.forEach(function (n) { if (n) c.appendChild(n); }); };
 
+  /* "What's inside" / "What's included": one item per line, a leading emoji replaces the star */
+  /* her own lines win; otherwise the lines added in the Updater for that community */
+  var insideOf = function (c) { if (!c) return []; if (Array.isArray(c.inside) ? c.inside.length : String(c.inside || '').trim()) return c.inside; return ((data && data.insides) || {})[linkKey(c.link)] || []; };
+  var insideBox = function (list, label) {
+    var items = (Array.isArray(list) ? list : String(list || '').split(/\n+/)).map(function (x) { return String(x).replace(/^[\s\-*\u2022\u2726]+/, '').trim(); }).filter(Boolean).slice(0, 12);
+    if (!items.length) return null;
+    var box = el('div', 'inside-box');
+    box.appendChild(el('div', 'ib-lbl', label || 'What\u2019s inside'));
+    var ul = el('ul', 'room-list');
+    items.forEach(function (x) {
+      var em = x.match(/^((?:\p{Extended_Pictographic}|\p{Emoji_Presentation})[\uFE0F\u200D\p{Extended_Pictographic}]*)\s*/u);
+      ul.appendChild(el('li', '', em ? x.slice(em[0].length) : x));
+    });
+    box.appendChild(ul);
+    return box;
+  };
   /* a small gold note on listings that pay a referral fee */
   var refPill = function (r) {
     if (!r || !(r.rate || r.how)) return null;
@@ -3282,12 +3301,12 @@
         var cb = el('div', 'rc-body');
         cb.appendChild(el('h4', '', c.name));
         if (c.about) cb.appendChild(el('p', '', c.about));
-        var inside = Array.isArray(c.inside) ? c.inside : String(c.inside || '').split(/\n+/);
+        var ins0 = insideOf(c), inside = Array.isArray(ins0) ? ins0 : String(ins0 || '').split(/\n+/);
         inside = inside.map(function (x) { return String(x).trim(); }).filter(Boolean);
         if (inside.length) {
           cb.appendChild(el('div', 'lbl2', 'What’s inside'));
           /* if she starts a line with her own emoji, it takes the place of the gold star */
-          var ul = el('ul', 'room-list'); inside.forEach(function (x) { var em = x.match(/^((?:\p{Extended_Pictographic}|\p{Emoji_Presentation})[\uFE0F\u200D\p{Extended_Pictographic}]*)\s*/u); if (em) { var li = el('li', 'own-mark'); li.appendChild(el('span', 'om', em[1])); li.appendChild(document.createTextNode(x.slice(em[0].length))); ul.appendChild(li); } else ul.appendChild(el('li', '', x)); }); cb.appendChild(ul);
+          var ul = el('ul', 'room-list'); inside.forEach(function (x) { var em = x.match(/^((?:\p{Extended_Pictographic}|\p{Emoji_Presentation})[\uFE0F\u200D\p{Extended_Pictographic}]*)\s*/u); ul.appendChild(el('li', '', em ? x.slice(em[0].length) : x)); }); cb.appendChild(ul);
         }
         /* her membership levels and prices when she added them, otherwise free or paid */
         if (levelsOf(c).length) cb.appendChild(levelsTag(levelsOf(c), 'in-block'));
@@ -4009,6 +4028,8 @@
       var op = offerParts(m);
       if (op.title) b.appendChild(el('p', 'name', op.title));
       if (op.desc) b.appendChild(el('p', 'offer', op.desc));
+      var pib = insideBox(m.offerInside, 'What\u2019s included');
+      if (pib) b.appendChild(pib);
       var pfb = factBox(m);
       if (pfb) b.appendChild(pfb);
       var a = el('div', 'actions');
@@ -4022,6 +4043,8 @@
       if (o.image) addThumb(xb, o.image, 'offers', '');
       if (o.title) xb.appendChild(el('p', 'name', o.title));
       if (o.desc) xb.appendChild(el('p', 'offer', o.desc));
+      var xib = insideBox(o.inside, 'What\u2019s included');
+      if (xib) xb.appendChild(xib);
       if (o.price) xb.appendChild(priceTag(o.price, 'in-block'));
       var xa = el('div', 'actions');
       var xl = linkBtn('See this offer', o.link, false);
@@ -4039,12 +4062,10 @@
         addThumb(cb, cm.image, ['communities', 'recommended', 'promo'], cm.name);
         cb.appendChild(el('p', 'name', cm.name));
         if (cm.about) cb.appendChild(el('p', 'offer', cm.about));
-        var ct = el('div', 'tags');
-        commCats(cm).forEach(function (x) { ct.appendChild(el('span', 'tag gold', x)); });
-        if (cm.platform) ct.appendChild(el('span', 'tag', cm.platform));
-        if (cm.access) ct.appendChild(el('span', 'tag', cm.access.replace(/;/g, ' and ')));
-        if (ct.childNodes.length) cb.appendChild(ct);
+        var pcib = insideBox(insideOf(cm));
+        if (pcib) cb.appendChild(pcib);
         if (levelsOf(cm).length) cb.appendChild(levelsTag(levelsOf(cm), 'in-block'));
+        else if (cm.access) cb.appendChild(el('p', 'days', (cm.platform ? cm.platform + ' \u00b7 ' : '') + accessText(cm.access)));
         var ca = el('div', 'actions');
         var cbn = linkBtn('Join my community', cm.link, true);
         if (cbn) ca.appendChild(cbn);
@@ -4063,7 +4084,6 @@
         rb.appendChild(el('p', 'name', r.name));
         if (r.why) rb.appendChild(whyBox(['Why I recommend it'], r.why));
         var rt = el('div', 'tags');
-        if (r.category) rt.appendChild(el('span', 'tag gold', recCat(r.category)));
         if (r.affiliate) rt.appendChild(el('span', 'tag gold', 'Affiliate link'));
         if (rt.childNodes.length) rb.appendChild(rt);
         var ra = el('div', 'actions');
