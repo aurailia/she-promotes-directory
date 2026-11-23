@@ -472,6 +472,7 @@
   .card.compact, .feat.compact { gap: 8px; }
   .card.tap, .feat.tap { cursor: pointer; transition: border-color 0.2s, box-shadow 0.2s; }
   .card.tap:hover, .feat.tap:hover { border-color: rgba(94, 214, 200, 0.5); box-shadow: 0 0 16px rgba(94, 214, 200, 0.18); }
+  .det-info { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
   .dialog .detail { background: none; border: none; padding: 0; box-shadow: none; }
   .dialog .detail .card-thumb, .dialog .detail .feat-thumb { margin: 0 0 8px; max-width: 100%; border-radius: 14px; }
   .whybox { background: rgba(196, 155, 255, 0.10); border: 1px solid rgba(196, 155, 255, 0.28); border-radius: 14px; padding: 12px 14px; display: grid; gap: 6px; }
@@ -550,6 +551,11 @@
   .pf-sec-about { order: 1; } .pf-sec-links { order: 2; } .pf-sec-offers { order: 3; } .pf-sec-comms { order: 4; } .pf-sec-recs { order: 5; }
   @media (min-width: 900px) {
     .dialog.wide { max-width: 980px; padding: 30px 32px; }
+    .dialog.det { max-width: 1080px; }
+    .card.detail.split { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 0 30px; align-items: start; }
+    .card.detail.split .det-media { position: sticky; top: 0; }
+    .card.detail.split:has(.det-media > [hidden]) { display: block; }
+    .dialog.det:not(:has(.split)), .dialog.det:has(.det-media > [hidden]) { max-width: 620px; }
     .pf-grid.two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 28px; align-items: start; }
     .pf-grid.two .pf-col { display: block; }
     .pf-grid.two .pf-col > .pf-sec:first-child > h3.sub:first-child { margin-top: 12px; }
@@ -968,6 +974,10 @@
   .dialog .card.detail { background: #ffffff; border: 1px solid rgba(232, 196, 122, 0.6); border-radius: 18px; padding: 20px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25); }
   .dialog .card.detail .card-thumb, .dialog .card.detail .feat-thumb { margin: -20px -20px 10px; width: calc(100% + 40px); max-width: none; border-radius: 17px 17px 0 0; }
   .who-box { color: #f7eef4; }
+  @media (min-width: 900px) {
+    .dialog .card.detail.split { padding: 24px; }
+    .dialog .card.detail.split .det-media .card-thumb, .dialog .card.detail.split .det-media .feat-thumb { margin: 0; width: 100%; border-radius: 14px; border: 1px solid rgba(168, 118, 40, 0.25); }
+  }
   .vip { border: 2px solid #e8c47a; box-shadow: 0 0 0 4px rgba(243, 216, 155, 0.22), 0 0 36px rgba(243, 216, 155, 0.55), 0 0 90px rgba(232, 196, 122, 0.3); animation: spotGlow 4s ease-in-out infinite; }
   @keyframes spotGlow { 0%, 100% { box-shadow: 0 0 0 4px rgba(243, 216, 155, 0.22), 0 0 30px rgba(243, 216, 155, 0.45), 0 0 80px rgba(232, 196, 122, 0.25); } 50% { box-shadow: 0 0 0 5px rgba(243, 216, 155, 0.32), 0 0 48px rgba(243, 216, 155, 0.7), 0 0 110px rgba(232, 196, 122, 0.4); } }
   @media (prefers-reduced-motion: reduce) { .vip { animation: none; } }
@@ -1974,7 +1984,7 @@
     var cib = insideBox(insideOf(cm));
     if (cib) c.appendChild(cib);
     if (cd.length) c.appendChild(el('p', 'days', 'Promo days: ' + (cd.length === 7 ? 'every day' : cd.join(', '))));
-    if (levelsOf(cm).length) c.appendChild(levelsTag(levelsOf(cm), 'in-block'));
+    if (levelsOf(cm).length) c.appendChild(levelsTag(levelsOf(cm)));
     else if (cm.access) c.appendChild(el('p', 'days', (cm.platform ? cm.platform + ' \u00b7 ' : '') + accessText(cm.access)));
     var by = el('p', 'by', 'Hosted by ');
     var nb = el('button', '', m.name);
@@ -2053,7 +2063,15 @@
     var body = $('dlgBody');
     body.innerHTML = '';
     $('dialog').classList.remove('wide');
+    $('dialog').classList.add('det');
     full.classList.add('detail');
+    /* wide screens: picture on the left, the details on the right */
+    var th = full.querySelector(':scope > .card-thumb, :scope > .feat-thumb');
+    if (th) {
+      var media = el('div', 'det-media'), info = el('div', 'det-info');
+      Array.prototype.slice.call(full.childNodes).forEach(function (n) { (n === th ? media : info).appendChild(n); });
+      full.appendChild(media); full.appendChild(info); full.classList.add('split');
+    }
     body.appendChild(full);
     if (!full.querySelector('#dlgName')) { var h = full.querySelector('h3, .name'); if (h) h.id = 'dlgName'; }
     overlay.classList.add('open');
@@ -2092,6 +2110,8 @@
     lv.forEach(function (l) {
       var s = el('span', 'lv'), n = String(l.name || '').trim(), pr = priceText(l.price);
       if (n) s.appendChild(el('span', 'lv-n', n));
+      /* monthly is enough; the yearly price only shows when it's the only price */
+      if (/month/i.test(pr)) pr = pr.replace(/\s*(?:or|,|\/|·)\s*\$?[\d,.]+\s*(?:\/|a|per)\s*(?:year|yr)\b.*$/i, '').replace(/^\$?[\d,.]+\s*(?:\/|a|per)\s*(?:year|yr)\s*(?:or|,)\s*/i, '');
       if ((!pr || /^free$/i.test(pr)) && /^free\b/i.test(n)) pr = '$0';
       if (pr && norm(pr) !== norm(n)) s.appendChild(el('span', 'lv-p', pr));
       w.appendChild(s);
@@ -3969,7 +3989,7 @@
     lastFocus = from || null;
     var top = $('dlgBody');
     top.innerHTML = '';
-    $('dialog').classList.add('wide');
+    $('dialog').classList.add('wide'); $('dialog').classList.remove('det');
     buildProfile(m, top, vip);
     var nm = top.querySelector('.who-row .name'); if (nm) nm.id = 'dlgName';
     if (m && (m._base || m).id) track('profile', (m._base || m).id, 'Profile');
