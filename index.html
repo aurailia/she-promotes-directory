@@ -1001,6 +1001,7 @@
   @media (min-width: 1181px) {
     .ev2 .ev-side { background: linear-gradient(180deg, #4a1f4a 0%, #2a1028 100%); border-left: 1px solid rgba(232, 196, 122, 0.45); --text: #f7eef4; --muted: #e6d3e0; --gold: #e8c47a; --gold-bright: #f3d89b; color: #f7eef4; }
     .ev2 .ev-side .ev-fact span { color: #f7eef4; }
+    .ev2 .ev-side .btn-primary, .ev2 .ev-side .btn-primary:hover { background: linear-gradient(135deg, #ecc97f, #f4b6c8); color: #2a1028; border-color: rgba(255, 255, 255, 0.4); }
   }
   .who-box b { color: #f3d89b; }
   .dialog .block, .sharer-profile .block {
@@ -1048,12 +1049,23 @@
   .card h3 { letter-spacing: 0; }
   .card h3::after, .feat h3::after { margin-top: 10px; }
   :is(.gdoor, .card, .cat-info, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal, .kcard, .dialog .block) .price-tag.levels .lv-n { font-size: 15px; }
+  :is(.gdoor, .card, .cat-info, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal, .kcard, .dialog .block) .price-tag.levels .lvs { font-size: 21px; font-weight: 600; gap: 4px; }
+  :is(.gdoor, .card, .cat-info, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal, .kcard, .dialog .block) .price-tag.levels.in-block .lvs { font-size: 20px; }
+  :is(.gdoor, .card, .cat-info, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal, .kcard, .dialog .block) .price-tag.levels .lv { align-items: center; }
+  :is(.gdoor, .card, .cat-info, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal, .kcard, .dialog .block) .price-tag:not(.levels) .pt { font-size: 22px; }
+  :is(.gdoor, .card, .cat-info, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal, .kcard, .dialog .block) .price-tag::before { font-size: 11px; }
   :is(.gdoor, .card, .cat-info, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal, .kcard, .dialog .block) .btn { font-size: 16px; padding: 13px 20px; }
+  /* the main button and Details sit side by side on the cards */
+  :is(.card, .feat, .kcard) > .actions { flex-wrap: nowrap; gap: 8px; }
+  :is(.card, .feat, .kcard) > .actions .btn { font-size: 15.5px; padding: 13px 15px; white-space: nowrap; min-width: 0; }
+  :is(.card, .feat, .kcard) > .actions .btn-primary { flex: 1 1 auto; }
+  :is(.card, .feat, .kcard) > .actions .btn-ghost { flex: 0 0 auto; }
   :is(.gdoor, .card, .cat-info, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal, .kcard, .dialog .block, .dialog .card.detail) .btn-primary {
     background: linear-gradient(135deg, #5a2163 0%, #2a1028 100%); color: #fff8ee;
     border: 1px solid rgba(232, 196, 122, 0.75); box-shadow: 0 6px 16px rgba(42, 16, 40, 0.28); letter-spacing: 0.01em;
   }
   :is(.gdoor, .card, .cat-info, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal, .kcard, .dialog .block, .dialog .card.detail) .btn-primary:hover { background: linear-gradient(135deg, #6a2a73 0%, #3a1540 100%); }
+  @media (min-width: 1181px) { .ev2 .ev-side .btn.btn-primary { background: linear-gradient(135deg, #ecc97f, #f4b6c8); color: #2a1028; border-color: rgba(255, 255, 255, 0.4); } }
   :is(.gdoor, .card, .cat-info, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal, .kcard, .dialog .block, .dialog .card.detail) .btn-ghost { color: #2a1028; background: #ffffff; border: 1.5px solid rgba(42, 16, 40, 0.3); }
   /* phones: a clearer header and menu button */
   @media (max-width: 860px) {
@@ -2931,7 +2943,14 @@
     return (data.events || []).filter(function (e) { return e && e.title && e.startUtc && (e.endUtc || e.startUtc + 7200000) > now; })
       .sort(function (a, b) { return a.startUtc - b.startUtc; });
   };
+  /* events that run several days, like a 5-day challenge: show the dates as she entered them */
+  var multiDay = function (e) { return !!(e && e.endDate && e.date && e.endDate > e.date); };
+  var ymdFmt = function (ymd, o) { var p = String(ymd).split('-'); try { return new Intl.DateTimeFormat(undefined, Object.assign({ timeZone: 'UTC' }, o)).format(new Date(Date.UTC(+p[0], +p[1] - 1, +p[2], 12))); } catch (x) { return ymd; } };
   var evWhen = function (e, short) {
+    if (multiDay(e)) {
+      var d1 = ymdFmt(e.date, { weekday: 'short', month: 'short', day: 'numeric' }), d2 = ymdFmt(e.endDate, { weekday: 'short', month: 'short', day: 'numeric' });
+      return d1 + ' to ' + d2;
+    }
     var opts = { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', timeZoneName: 'short' };
     if (e.mode === 'inperson' && e.tz) opts.timeZone = e.tz;
     try { return new Intl.DateTimeFormat(undefined, opts).format(new Date(e.startUtc)); }
@@ -2951,6 +2970,11 @@
     var opts = { month: 'short', day: 'numeric', weekday: 'short', hour: 'numeric', minute: '2-digit', timeZoneName: 'short' };
     if (e.mode === 'inperson' && e.tz) opts.timeZone = e.tz;
     var out = { m: '', d: '', w: '', t: '' }, parts;
+    if (multiDay(e)) {
+      var sm = ymdFmt(e.date, { month: 'short' }), em = ymdFmt(e.endDate, { month: 'short' });
+      out.m = sm; out.d = ymdFmt(e.date, { day: 'numeric' }); out.w = 'to ' + (em === sm ? '' : em + ' ') + ymdFmt(e.endDate, { day: 'numeric' }); out.t = '';
+      return out;
+    }
     try { parts = new Intl.DateTimeFormat(undefined, opts).formatToParts(new Date(e.startUtc)); }
     catch (x) { delete opts.timeZone; parts = new Intl.DateTimeFormat(undefined, opts).formatToParts(new Date(e.startUtc)); }
     var t = [];
