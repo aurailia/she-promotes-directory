@@ -1024,6 +1024,29 @@
   .door.is-spot { border-color: #e8c47a; }
   :is(.gdoor, .card, .cat-info, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal, .kcard) .price-tag::before { color: #a8762a; }
   :is(.gdoor, .card, .cat-info, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal, .kcard) .avatar, :is(.gdoor, .card, .cat-info, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal, .kcard) .ph { color: #2a1028; }
+
+  /* ---------- Readability pass: bigger text, solid titles, buttons that stand out ---------- */
+  .gdoor, .card, .cat-info, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal, .kcard, .dialog .block, .sharer-profile .block { --title-grad: linear-gradient(#2a1028, #2a1028); }
+  .card, .feat, .kcard { gap: 14px; }
+  :is(.gdoor, .card, .cat-info, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal, .kcard, .dialog .block) .offer, .kcard .kc-desc, .room-who p { font-size: 16.5px; line-height: 1.6; }
+  :is(.gdoor, .card, .cat-info, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal, .kcard, .dialog .block) .meta, :is(.gdoor, .card, .cat-info, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal, .kcard, .dialog .block) .by { font-size: 15px; }
+  :is(.gdoor, .card, .cat-info, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal, .kcard, .dialog .block) .factbox .ft, :is(.gdoor, .card, .cat-info, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal, .kcard, .dialog .block) .inside-box .room-list { font-size: 16px; }
+  .card h3 { letter-spacing: 0; }
+  .card h3::after, .feat h3::after { margin-top: 10px; }
+  :is(.gdoor, .card, .cat-info, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal, .kcard, .dialog .block) .price-tag.levels .lv-n { font-size: 15px; }
+  :is(.gdoor, .card, .cat-info, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal, .kcard, .dialog .block) .btn { font-size: 16px; padding: 13px 20px; }
+  :is(.gdoor, .card, .cat-info, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal, .kcard, .dialog .block, .dialog .card.detail) .btn-primary {
+    background: linear-gradient(135deg, #5a2163 0%, #2a1028 100%); color: #fff8ee;
+    border: 1px solid rgba(232, 196, 122, 0.75); box-shadow: 0 6px 16px rgba(42, 16, 40, 0.28); letter-spacing: 0.01em;
+  }
+  :is(.gdoor, .card, .cat-info, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal, .kcard, .dialog .block, .dialog .card.detail) .btn-primary:hover { background: linear-gradient(135deg, #6a2a73 0%, #3a1540 100%); }
+  :is(.gdoor, .card, .cat-info, .cat-tile, .ev-mini, .feat-mini, .room-comm, .room-offer, .room-love, .room-who, .ev2, .spot, .feat, .share-card, .how-in, .cal, .kcard, .dialog .block, .dialog .card.detail) .btn-ghost { color: #2a1028; background: #ffffff; border: 1.5px solid rgba(42, 16, 40, 0.3); }
+  /* phones: a clearer header and menu button */
+  @media (max-width: 860px) {
+    .topbar { padding: 12px 18px; background: linear-gradient(180deg, #3a1540 0%, #2a1028 100%); border-bottom: 1px solid rgba(232, 196, 122, 0.55); box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35); }
+    .menu-btn { font-size: 16px; font-weight: 700; padding: 11px 20px; background: linear-gradient(135deg, #f3d89b, #e8c47a); color: #2a1028; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), inset 0 0 0 1px rgba(255, 255, 255, 0.35); }
+    .topbar-sec { font-size: 17px; font-weight: 600; color: #fbf3f8; letter-spacing: 0.01em; }
+  }
 </style>
 </head>
 <body>
@@ -4168,7 +4191,7 @@
   var TRACK_URL = 'https://script.google.com/macros/s/AKfycbycxguYXDx0CMH59VFBONGluY7yDboFzXaQe4po_ZKmj4XCaLtR4C-ERZMXT3pg5ACk/exec';
   var trackOn = (function () {
     try { if (localStorage.getItem('spNoTrack') === '1') return false; } catch (e) { /* fine */ }
-    return /\.github\.io$/.test(location.hostname);
+    return /\.github\.io$|(^|\.)aurailia\.com$/.test(location.hostname);
   })();
   var tkSeen = {};
   try { tkSeen = JSON.parse(sessionStorage.getItem('spTrackSeen') || '{}') || {}; } catch (e) { tkSeen = {}; }
