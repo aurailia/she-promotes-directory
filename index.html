@@ -473,6 +473,20 @@
   .card.tap, .feat.tap { cursor: pointer; transition: border-color 0.2s, box-shadow 0.2s; }
   .card.tap:hover, .feat.tap:hover { border-color: rgba(94, 214, 200, 0.5); box-shadow: 0 0 16px rgba(94, 214, 200, 0.18); }
   .det-info { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+  .card, .feat { position: relative; }
+  .move-btn { position: absolute; top: 10px; right: 10px; z-index: 4; font: 700 12px 'Inter', sans-serif; letter-spacing: 0.04em; color: #2a1028; background: #f3d89b; border: 1px solid #a8762a; border-radius: 999px; padding: 6px 12px; cursor: pointer; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); }
+  .dialog .move-panel.detail, .move-panel { background: #ffffff; color: #2a1028; border-radius: 18px; padding: 22px; display: flex; flex-direction: column; gap: 14px; }
+  .move-panel .mv-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: #a8762a; }
+  .move-panel .mv-title { font-family: 'Cormorant Garamond', Georgia, serif; font-size: 28px; font-weight: 700; line-height: 1.1; color: #2a1028; -webkit-text-fill-color: #2a1028; background: none; }
+  .move-panel .mv-help, .move-panel .mv-note { font-size: 14.5px; color: #6b5466; }
+  .move-panel h4 { font-size: 13px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #5a2163; margin-bottom: 8px; }
+  .mv-group { border-top: 1px solid rgba(168, 118, 40, 0.3); padding-top: 12px; }
+  .mv-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .mv-chip { font: 600 14px 'Inter', sans-serif; color: #2a1028; background: #ffffff; border: 1.5px solid rgba(42, 16, 40, 0.25); border-radius: 999px; padding: 8px 14px; cursor: pointer; }
+  .mv-chip[aria-pressed="true"] { background: #2a1028; color: #fff8ee; border-color: #2a1028; }
+  .move-panel .actions { display: flex; gap: 10px; flex-wrap: wrap; }
+  .move-panel .btn-primary { background: linear-gradient(135deg, #5a2163, #2a1028); color: #fff8ee; }
+  .move-panel .btn-ghost { color: #2a1028; border: 1.5px solid rgba(42, 16, 40, 0.3); background: #fff; }
   .dialog .detail { background: none; border: none; padding: 0; box-shadow: none; }
   .dialog .detail .card-thumb, .dialog .detail .feat-thumb { margin: 0 0 8px; max-width: 100%; border-radius: 14px; }
   .whybox { background: rgba(196, 155, 255, 0.10); border: 1px solid rgba(196, 155, 255, 0.28); border-radius: 14px; padding: 12px 14px; display: grid; gap: 6px; }
@@ -2201,6 +2215,7 @@
     if (lb) acts.appendChild(lb);
     acts.appendChild(detailsBtn(offerFull, m));
     c.appendChild(acts);
+    var mb = moveBtn('o', m); if (mb) c.appendChild(mb);
     tapCard(c, offerFull, m);
     return c;
   };
@@ -2217,6 +2232,7 @@
     if (lb) acts.appendChild(lb);
     acts.appendChild(detailsBtn(communityFull, m));
     c.appendChild(acts);
+    var mb = moveBtn('c', m); if (mb) c.appendChild(mb);
     tapCard(c, communityFull, m);
     return c;
   };
@@ -2282,6 +2298,7 @@
     if (lb) acts.appendChild(lb);
     acts.appendChild(detailsBtn(promoFull, f));
     c.appendChild(acts);
+    var mb = moveBtn('p', f); if (mb) c.appendChild(mb);
     tapCard(c, promoFull, f);
     return c;
   };
@@ -2361,18 +2378,37 @@
   var allPromoItems = function () {
     var out = [], seen = {};
     communities.forEach(function (m) {
-      if (commCats(m.community).indexOf(PROMO_CAT) === -1) return;
+      var cv = ovFor(commKey(m));
+      if (cv ? (cv.skool || []).indexOf('Promo Communities') === -1 : commCats(m.community).indexOf(PROMO_CAT) === -1) return;
       var k = linkKey(m.community.link) || norm(m.community.name);
       if (seen[k]) return; seen[k] = true;
       out.push({ m: m });
     });
     promos.forEach(function (f) {
+      var fv = ovFor(promoKey(f));
+      if (fv && (fv.skool || []).indexOf('Promo Communities') === -1) return;
       var k = linkKey(f.link) || norm(f.name);
       if (seen[k]) return; seen[k] = true;
       out.push({ f: f });
     });
     return out;
   };
+  /* ---------- Your section picks: where each offer, community and promo group shows ----------
+     data.sections comes from directory.json. Moves you make in the Directory on your own browser
+     wait in this browser until you download directory.json from the Updater. */
+  var OWNER = (function () { try { return localStorage.getItem('spNoTrack') === '1'; } catch (e) { return false; } })();
+  var localMoves = function () { try { return JSON.parse(localStorage.getItem('spSections') || '{}') || {}; } catch (e) { return {}; } };
+  var sectionsMap = function () {
+    var out = {}, base = (data && data.sections) || {};
+    Object.keys(base).forEach(function (k) { out[k] = base[k]; });
+    if (OWNER) { var lm = localMoves(); Object.keys(lm).forEach(function (k) { if (lm[k] === null) delete out[k]; else out[k] = lm[k]; }); }
+    return out;
+  };
+  var SECT = {};
+  var ovFor = function (k) { return Object.prototype.hasOwnProperty.call(SECT, k) ? SECT[k] : null; };
+  var offerKey = function (m) { return placeKey(m.id, 'o', m.offerLink, m.offerName || m.offer); };
+  var commKey = function (m) { return placeKey(m.id, 'c', m.community.link, m.community.name); };
+  var promoKey = function (f) { return 'p|' + (linkKey(f.link) || norm(f.name)); };
   var pillarItems = function (key) {
     var P = PILLARS[key], list = [], seenC = {};
     if (!P) return list;
@@ -2382,6 +2418,8 @@
     if (P.tools) tools.forEach(function (t) { if (t.helps === P.tools || t.helps === 'both') list.push({ k: 't', t: t, sec: key === 'skool' ? SKOOL_TOOLS : 'Tools', secs: [key === 'skool' ? SKOOL_TOOLS : 'Tools'] }); });
     var offerSeen = {};
     offers.forEach(function (m) {
+      var ov = ovFor(offerKey(m));
+      if (ov) { if (!(ov[key] || []).length) return; offerSeen[(linkKey(m.offerLink) || '') + '|' + norm(m.offerName || m.offer)] = true; list.push({ k: 'o', m: m, sec: ov[key][0], secs: ov[key].slice(), main: '' }); return; }
       var ps = offerPlaces(m);
       if (ps.indexOf(key) === -1) return;
       offerSeen[(linkKey(m.offerLink) || '') + '|' + norm(m.offerName || m.offer)] = true;
@@ -2390,6 +2428,13 @@
       list.push({ k: 'o', m: m, sec: om || so[0], secs: so, main: om });
     });
     communities.forEach(function (m) {
+      var cov = ovFor(commKey(m));
+      if (cov) {
+        if (!(cov[key] || []).length) return;
+        if (offerSeen[(linkKey(m.community.link) || '') + '|' + norm(m.community.name)]) return;
+        seenC[linkKey(m.community.link) || norm(m.community.name)] = true;
+        list.push({ k: 'c', m: m, sec: cov[key][0], secs: cov[key].slice(), main: '' }); return;
+      }
       var ps = commPlaces(m);
       /* promo groups always show in Grow Your Skool Community, wherever else they're placed */
       if (ps.indexOf(key) === -1 && !(key === 'skool' && commCats(m.community).indexOf(PROMO_CAT) !== -1)) return;
@@ -2400,11 +2445,15 @@
       var cmn = mainSpotIn(key, m.community.mainSpots, sc, false);
       list.push({ k: 'c', m: m, sec: cmn || sc[0], secs: sc, main: cmn });
     });
-    if (P.promos) promos.forEach(function (f) {
+    promos.forEach(function (f) {
+      var pov = ovFor(promoKey(f));
+      if (!pov && !P.promos) return;
+      if (pov && !(pov[key] || []).length) return;
       var lk = linkKey(f.link) || norm(f.name);
       if (seenC[lk]) return;
       seenC[lk] = true;
-      list.push({ k: 'p', f: f, sec: 'Promo Communities', secs: ['Promo Communities'] });
+      var ps2 = pov ? pov[key].slice() : ['Promo Communities'];
+      list.push({ k: 'p', f: f, sec: ps2[0], secs: ps2 });
     });
     return list;
   };
@@ -2414,6 +2463,79 @@
     if (key === 'skool') return SKOOL_SECS;
     if (key === 'yourself') return P.cats.map(function (c) { return SEC_NAMES[c] || c; }).concat([P.fallback, 'Communities & Memberships']);
     return (P.tools ? ['Tools'] : []).concat(key === 'business' ? BIZ_SECS : P.cats.map(function (c) { return SEC_NAMES[c] || c; }), ['Offers for promo and networking', 'Promo Communities', P.fallback, (key === 'business' || key === 'skool') ? 'Trainings' : '']).filter(function (x, i, arr) { return x && arr.indexOf(x) === i; });
+  };
+  /* The sections you can pick on each page */
+  var MOVE_PILLARS = ['skool', 'business', 'yourself', 'shop', 'training'];
+  var movableSecs = function (key) {
+    if (key === 'skool') return SKOOL_SECS.slice();
+    if (key === 'business') return BIZ_SECS.concat(['Trainings']);
+    return pillarSecs(key).filter(function (x) { return ['Tools', 'Offers for promo and networking', 'Promo Communities'].indexOf(x) === -1; });
+  };
+  /* where it shows right now, page by page */
+  var placementOf = function (kind, obj) {
+    var out = {};
+    MOVE_PILLARS.forEach(function (k) {
+      pillarItems(k).forEach(function (it) { if (it.k === kind && (kind === 'p' ? it.f === obj : it.m === obj)) out[k] = (it.secs || [it.sec]).slice(); });
+    });
+    return out;
+  };
+  var moveBtn = function (kind, obj) {
+    if (!OWNER) return null;
+    var b = el('button', 'move-btn', '\u21c4 Move'); b.type = 'button';
+    b.title = 'Choose where this shows (only you see this)';
+    b.addEventListener('click', function (e) { e.stopPropagation(); openMove(kind, obj, b); });
+    return b;
+  };
+  var openMove = function (kind, obj, from) {
+    var key = kind === 'o' ? offerKey(obj) : kind === 'c' ? commKey(obj) : promoKey(obj);
+    var name = kind === 'o' ? (offerParts(obj).title || obj.offerName || obj.offer) : kind === 'c' ? obj.community.name : obj.name;
+    var now = placementOf(kind, obj), pick = {};
+    Object.keys(now).forEach(function (k) { pick[k] = now[k].slice(); });
+    var box = el('div', 'move-panel');
+    box.appendChild(el('div', 'mv-eyebrow', kind === 'o' ? 'Offer' : 'Community'));
+    box.appendChild(el('h3', 'mv-title', name));
+    box.appendChild(el('p', 'mv-help', 'Tap every section where it belongs. It can be in as many as you like. Only you see this. Download your directory.json from the Updater to make it live.'));
+    MOVE_PILLARS.forEach(function (pk) {
+      var g = el('div', 'mv-group');
+      g.appendChild(el('h4', '', PILLARS[pk].name));
+      var row = el('div', 'mv-chips');
+      movableSecs(pk).forEach(function (sec) {
+        var c = el('button', 'mv-chip', sec); c.type = 'button';
+        var on = function () { return (pick[pk] || []).indexOf(sec) !== -1; };
+        c.setAttribute('aria-pressed', on() ? 'true' : 'false');
+        c.addEventListener('click', function () {
+          var l = (pick[pk] || []).slice(), i = l.indexOf(sec);
+          if (i === -1) l.push(sec); else l.splice(i, 1);
+          var ord = movableSecs(pk); l.sort(function (a, b2) { return ord.indexOf(a) - ord.indexOf(b2); });
+          if (l.length) pick[pk] = l; else delete pick[pk];
+          c.setAttribute('aria-pressed', on() ? 'true' : 'false');
+        });
+        row.appendChild(c);
+      });
+      g.appendChild(row);
+      box.appendChild(g);
+    });
+    var lm = localMoves(), set = Object.prototype.hasOwnProperty.call(SECT, key);
+    var acts = el('div', 'actions');
+    var sv = el('button', 'btn btn-primary', 'Save'); sv.type = 'button';
+    sv.addEventListener('click', function () {
+      var m2 = localMoves(); m2[key] = pick;
+      try { localStorage.setItem('spSections', JSON.stringify(m2)); } catch (e) {}
+      SECT = sectionsMap(); closeProfile(); renderGrid(); updatePillarCounts();
+    });
+    acts.appendChild(sv);
+    if (set) {
+      var rs = el('button', 'btn btn-ghost', 'Back to automatic'); rs.type = 'button';
+      rs.addEventListener('click', function () {
+        var m3 = localMoves(); m3[key] = null;
+        try { localStorage.setItem('spSections', JSON.stringify(m3)); } catch (e) {}
+        SECT = sectionsMap(); closeProfile(); renderGrid(); updatePillarCounts();
+      });
+      acts.appendChild(rs);
+    }
+    box.appendChild(acts);
+    if (set) box.appendChild(el('p', 'mv-note', 'You placed this yourself' + (Object.prototype.hasOwnProperty.call(lm, key) ? ' (waiting for your next directory.json download).' : '.')));
+    openDetail(box, from);
   };
   var updatePillarCounts = function () {
     PILLAR_ORDER.forEach(function (k) { var n = pillarItems(k).length, c = $('c-' + k); if (c) c.textContent = n ? '(' + n + ')' : ''; });
@@ -4238,6 +4360,7 @@
   }, true);
 
   var start = function () {
+    SECT = sectionsMap();
     try { buildTrackIndex(); } catch (e) { /* stats are optional */ }
     if (REF_ME) track('refvisit', REF_ME, 'Opened your Directory link');
     if (data.updated) {

@@ -484,7 +484,7 @@
   if (!saved.koApproved) saved.koApproved = {};
   var persist = function () { try { localStorage.setItem(STORE, JSON.stringify(saved)); } catch (e) { /* ignore */ } };
 
-  var current = { featured: [], members: [], placements: {} };   /* from directory.json */
+  var current = { featured: [], members: [], placements: {}, sections: {} };   /* from directory.json */
   /* Someone added by hand (or with an older form) has a different id than her form row.
      If the name matches someone already in the Directory, treat them as the same woman. */
   var nameKey = function (n) { return String(n || '').toLowerCase().replace(/[^a-z0-9]/g, ''); };
@@ -2268,6 +2268,14 @@
   };
   $('evAdd').addEventListener('click', function () { openEvEditor('new'); });
 
+  /* Sections you picked with the Move button in the Directory (saved in this browser), on top of the ones already in the file */
+  var allSections = function () {
+    var out = {}, base = current.sections || {}, lm = {};
+    try { lm = JSON.parse(localStorage.getItem('spSections') || '{}') || {}; } catch (e) { lm = {}; }
+    Object.keys(base).forEach(function (k) { out[k] = base[k]; });
+    Object.keys(lm).forEach(function (k) { if (lm[k] === null) delete out[k]; else out[k] = lm[k]; });
+    return out;
+  };
   /* Your Where it shows ticks: the ones in the Directory file, plus any you changed here */
   var allPlacements = function () {
     var out = {};
@@ -2347,7 +2355,7 @@
       return o;
     });
     var sp = spotlight && spotlight.vip && vipOf(spotlight.vip) ? { vip: spotlight.vip, note: spotlight.note || '' } : null;
-    return { version: 1, updated: new Date().toISOString(), featured: featured, spotlight: sp, vips: vips, events: events, insides: cleanInsides(), levels: cleanLevels(), collabs: collabs.filter(function (c) { return !c.until || c.until >= todayKey(); }), placements: allPlacements(), members: members };
+    return { version: 1, updated: new Date().toISOString(), featured: featured, spotlight: sp, vips: vips, events: events, insides: cleanInsides(), levels: cleanLevels(), collabs: collabs.filter(function (c) { return !c.until || c.until >= todayKey(); }), sections: allSections(), placements: allPlacements(), members: members };
   };
   var renderStats = function () {
     var out = buildOutput();
@@ -2388,7 +2396,7 @@
 
   /* ---------- Loading ---------- */
   var useCurrent = function (json, source) {
-    current = { featured: Array.isArray(json.featured) ? json.featured : [], members: Array.isArray(json.members) ? json.members : [], placements: json.placements && typeof json.placements === 'object' ? json.placements : {} };
+    current = { featured: Array.isArray(json.featured) ? json.featured : [], members: Array.isArray(json.members) ? json.members : [], placements: json.placements && typeof json.placements === 'object' ? json.placements : {}, sections: json.sections && typeof json.sections === 'object' ? json.sections : {} };
     /* If the Directory file has the same woman twice, keep one: the copy with your hand edits */
     (function () {
       var by = {}, order = [];
