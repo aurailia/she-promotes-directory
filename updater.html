@@ -2019,13 +2019,13 @@
     rows.slice(1).forEach(function (r) {
       if (!col(r, 'Event title')) return;
       var tz = col(r, 'Time zone') || 'America/Los_Angeles';
-      var date = col(r, 'Event date'), start = col(r, 'Start time'), end = col(r, 'End time');
+      var date = col(r, 'Event date'), start = col(r, 'Start time'), end = col(r, 'End time'), lastDay = col(r, 'Last day');
       if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || !/^\d{1,2}:\d{2}/.test(start)) { skipped++; return; }
       var whereTxt = col(r, 'Where people sign up').toLowerCase();
       var ne = {
         id: col(r, 'Event ID') || ('ev-' + hashId(col(r, 'Event title') + date + col(r, 'Host name'))),
         title: col(r, 'Event title'), host: col(r, 'Host name'), hostBusiness: col(r, 'Host business'), desc: col(r, 'Event description'),
-        image: photoUrl(col(r, 'Event image'), 1200), date: date, start: start.slice(0, 5), end: end.slice(0, 5), tz: tz,
+        image: photoUrl(col(r, 'Event image'), 1200), date: date, endDate: /^\d{4}-\d{2}-\d{2}$/.test(lastDay) && lastDay > date ? lastDay : '', start: start.slice(0, 5), end: end.slice(0, 5), tz: tz,
         cost: /paid/i.test(col(r, 'Free or paid')) ? 'paid' : 'free', price: /paid/i.test(col(r, 'Free or paid')) ? col(r, 'Ticket price') : '',
         mode: /person/i.test(col(r, 'Online or in person')) ? 'inperson' : 'online',
         where: whereTxt.indexOf('skool') !== -1 ? 'skool' : whereTxt.indexOf('page') !== -1 ? 'page' : 'other',
@@ -2036,6 +2036,9 @@
       ne.startUtc = zoned(ne.date, ne.start, ne.tz);
       if (ne.end) { ne.endUtc = zoned(ne.date, ne.end, ne.tz); if (ne.endUtc <= ne.startUtc) ne.endUtc += 86400000; }
       else ne.endUtc = ne.startUtc + 2 * 3600000;
+      /* several days: it stays up until the end of the last day */
+      if (ne.endDate) ne.endUtc = Math.max(ne.endUtc, zoned(ne.endDate, ne.end && ne.end > '00:00' ? ne.end : '23:59', ne.tz));
+      else delete ne.endDate;
       if (ne.endUtc < Date.now()) { past++; return; }
       /* not approved yet: show it here so you can look and approve with one tap */
       if (!truthy(col(r, 'Approved')) && !saved.evApproved[ne.id]) {
@@ -2176,6 +2179,7 @@
     var fBiz = text('hostBusiness', 'Her business (optional)', 'Slow Flame Candle Co.');
     var fDesc = text('desc', 'Description', 'Two or three sentences about the event', true, true);
     var fDate = document.createElement('input'); fDate.type = 'date'; fDate.value = e.date || ''; add('date', 'Date', fDate);
+    var fLast = document.createElement('input'); fLast.type = 'date'; fLast.value = e.endDate || ''; add('endDate', 'Last day (for events that run several days)', fLast);
     var fTz = pick('tz', 'Her time zone', TZS);
     var fStart = document.createElement('input'); fStart.type = 'time'; fStart.value = e.start || ''; add('start', 'Start time', fStart);
     var fEnd = document.createElement('input'); fEnd.type = 'time'; fEnd.value = e.end || ''; add('end', 'End time (optional)', fEnd);
@@ -2246,7 +2250,7 @@
       var ne = {
         id: e.id || ('ev-' + Date.now().toString(36)),
         title: v(fTitle), host: v(fHost), hostBusiness: v(fBiz), desc: v(fDesc), image: keepImg(imgVal),
-        date: fDate.value, start: fStart.value, end: fEnd.value, tz: fTz.value,
+        date: fDate.value, endDate: fLast.value && fLast.value > fDate.value ? fLast.value : '', start: fStart.value, end: fEnd.value, tz: fTz.value,
         cost: fCost.value, price: fCost.value === 'paid' ? v(fPrice) : '',
         mode: fMode.value, where: fWhere.value, link: cleanUrl(v(fLink)), categories: chosen.slice(0, 2)
       };
@@ -2255,6 +2259,9 @@
       ne.startUtc = zoned(ne.date, ne.start, ne.tz);
       if (ne.end) { ne.endUtc = zoned(ne.date, ne.end, ne.tz); if (ne.endUtc <= ne.startUtc) ne.endUtc += 86400000; }
       else ne.endUtc = ne.startUtc + 2 * 3600000;
+      /* several days: it stays up until the end of the last day */
+      if (ne.endDate) ne.endUtc = Math.max(ne.endUtc, zoned(ne.endDate, ne.end && ne.end > '00:00' ? ne.end : '23:59', ne.tz));
+      else delete ne.endDate;
       var i = -1; events.forEach(function (x, k) { if (x.id === ne.id) i = k; });
       if (e.fromForm) { ne.fromForm = true; ne.editedByHand = true; }
       if (i === -1) events.push(ne); else events[i] = ne;

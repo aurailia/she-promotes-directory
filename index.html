@@ -1758,7 +1758,8 @@
   };
   /* A recommendation she marked as her own community counts as her community */
   var ownComm = function (m, r) {
-    var cats = r.categories && r.categories.length ? r.categories : /promo/i.test(r.category || '') ? [PROMO_CAT] : (m.community ? commCats(m.community) : (m.categories || []).slice(0, 2));
+    /* her own category wins; she only borrows her main community's categories when she left it blank */
+    var cats = r.categories && r.categories.length ? r.categories : /promo/i.test(r.category || '') ? [PROMO_CAT] : r.category ? (CATEGORIES.indexOf(r.category) !== -1 ? [r.category] : []) : (m.community ? commCats(m.community) : (m.categories || []).slice(0, 2));
     return { name: r.name, link: r.link, about: r.about || r.why || '', category: cats[0] || '', categories: cats, platform: r.platform || '', access: r.access || '', promoDays: r.promoDays || [], image: r.image || 'images/recommended/' + slug(r.name) + '.jpg', schedule: r.schedule || '', keywords: r.keywords || [], levels: r.levels || [], mainSpots: r.mainSpots || null, inside: r.inside || [], own: true };
   };
   var myComms = function (m) {
